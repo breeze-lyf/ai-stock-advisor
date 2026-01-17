@@ -1,0 +1,35 @@
+---
+trigger: always_on
+---
+
+# .rules
+
+You are an expert Senior Full Stack Developer specializing in Python (FastAPI) and Next.js.
+
+# 1. Project Context
+
+- **Name:** AI Smart Investment Advisor
+- **Goal:** Real-time stock analysis platform using MCP concepts and LLMs.
+- **Architecture:** Monorepo-style (frontend/backend directories).
+- **Language:** English for code/comments, Chinese for explanations.
+
+# 2. Tech Stack Rules
+
+## Frontend (Next.js)
+
+- **Framework:** Next.js 14+ (App Router).
+- **Language:** TypeScript (Strict Mode).
+- **Styling:** Tailwind CSS (Utility-first). Use `clsx` and `tailwind-merge` for conditional classes.
+- **Components:** Shadcn/UI (Radix based). Use Functional Components.
+- **State:** React Context for auth, SWR/TanStack Query for data fetching.
+- **Rules:**
+    - ALWAYS use `interface` for Props and API responses. NO `any`.
+    - Client Components must start with `"use client"`.
+    - Use `lucide-react` for icons.
+    - Implement mobile-first responsive design.
+
+## Backend (FastAPI)
+
+- **Framework:** FastAPI (Python
+
+3.使用中文回答

@@ -410,43 +410,7 @@ export default function Dashboard() {
 
               {/* AI Analysis Cards */}
               <div className="grid gap-6">
-                {/* 1. Technical Indicators */}
-                <Card className="shadow-sm border-slate-200 dark:border-slate-800 overflow-hidden">
-                  <CardHeader className="pb-2 border-b bg-slate-50/50 dark:bg-slate-800/20 flex flex-row items-center justify-between">
-                    <CardTitle className="text-sm font-bold flex items-center gap-2 uppercase tracking-wider text-slate-600 dark:text-slate-400">
-                      技术指标 (Technical Indicators)
-                    </CardTitle>
-                    {selectedItem.last_updated && (
-                      <div className="text-[10px] text-slate-400 font-mono">
-                        数据时间: {formatDistanceToNow(new Date(selectedItem.last_updated), { addSuffix: true, locale: zhCN })}
-                      </div>
-                    )}
-                  </CardHeader>
-                  <CardContent className="pt-4 space-y-4">
-                    {/* Fixed Data Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-slate-100/30 dark:bg-slate-900/40 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-inner">
-                      {[
-                        { label: "RSI (14)", value: selectedItem.rsi_14?.toFixed(2) || "-" },
-                        { label: "MA 20", value: selectedItem.ma_20?.toFixed(2) || "-" },
-                        { label: "MA 50", value: selectedItem.ma_50?.toFixed(2) || "-" },
-                        { label: "MA 200", value: selectedItem.ma_200?.toFixed(2) || "-" },
-                      ].map(stat => (
-                        <div key={stat.label} className="flex flex-col">
-                          <span className="text-[10px] text-slate-400 font-bold uppercase">{stat.label}</span>
-                          <span className="text-sm font-mono font-bold text-slate-700 dark:text-slate-300">{stat.value}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {aiData ? (
-                      <div className="prose dark:prose-invert text-sm max-w-none leading-relaxed border-t pt-4">
-                        <ReactMarkdown>{aiData.technical_analysis}</ReactMarkdown>
-                      </div>
-                    ) : <div className="text-slate-300 italic text-xs py-2">点击“AI 深度分析”生成报告...</div>}
-                  </CardContent>
-                </Card>
-
-                {/* 2. Fundamentals */}
+                {/* 1. Fundamentals */}
                 <Card className="shadow-sm border-slate-200 dark:border-slate-800">
                   <CardHeader className="pb-2 border-b bg-slate-50/50 dark:bg-slate-800/20">
                     <CardTitle className="text-sm font-bold flex items-center gap-2 uppercase tracking-wider text-slate-600 dark:text-slate-400">
@@ -475,11 +439,47 @@ export default function Dashboard() {
                       ))}
                     </div>
 
-                    {aiData ? (
+                    {aiData && (
                       <div className="prose dark:prose-invert text-sm max-w-none leading-relaxed border-t pt-4">
                         <ReactMarkdown>{aiData.fundamental_news}</ReactMarkdown>
                       </div>
-                    ) : <div className="text-slate-300 italic text-xs py-2">等待 AI 分析深度报告...</div>}
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* 2. Technical Indicators */}
+                <Card className="shadow-sm border-slate-200 dark:border-slate-800 overflow-hidden">
+                  <CardHeader className="pb-2 border-b bg-slate-50/50 dark:bg-slate-800/20 flex flex-row items-center justify-between">
+                    <CardTitle className="text-sm font-bold flex items-center gap-2 uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                      技术指标 (Technical Indicators)
+                    </CardTitle>
+                    {selectedItem.last_updated && (
+                      <div className="text-[10px] text-slate-400 font-mono">
+                        数据时间: {formatDistanceToNow(new Date(selectedItem.last_updated), { addSuffix: true, locale: zhCN })}
+                      </div>
+                    )}
+                  </CardHeader>
+                  <CardContent className="pt-4 space-y-4">
+                    {/* Fixed Data Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-slate-100/30 dark:bg-slate-900/40 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-inner">
+                      {[
+                        { label: "RSI (14)", value: selectedItem.rsi_14?.toFixed(2) || "-" },
+                        { label: "MA 20", value: selectedItem.ma_20?.toFixed(2) || "-" },
+                        { label: "MA 50", value: selectedItem.ma_50?.toFixed(2) || "-" },
+                        { label: "MA 200", value: selectedItem.ma_200?.toFixed(2) || "-" },
+                      ].map(stat => (
+                        <div key={stat.label} className="flex flex-col">
+                          <span className="text-[10px] text-slate-400 font-bold uppercase">{stat.label}</span>
+                          <span className="text-sm font-mono font-bold text-slate-700 dark:text-slate-300">{stat.value}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {aiData && (
+                      <div className="prose dark:prose-invert text-sm max-w-none leading-relaxed border-t pt-4">
+                        <ReactMarkdown>{aiData.technical_analysis}</ReactMarkdown>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
 

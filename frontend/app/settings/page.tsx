@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { getProfile, updateSettings, UserProfile } from "@/lib/api";
 import Link from "next/link";
-import { ArrowLeft, Save, Key } from "lucide-react";
+import { ArrowLeft, Save, Key, Database } from "lucide-react";
 
 export default function SettingsPage() {
     const { isAuthenticated } = useAuth();
@@ -54,6 +54,17 @@ export default function SettingsPage() {
             setMessage({ text: "Failed to update settings.", type: "error" });
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleSourceUpdate = async (source: "ALPHA_VANTAGE" | "YFINANCE") => {
+        try {
+            await updateSettings({
+                preferred_data_source: source
+            });
+            loadProfile();
+        } catch (error) {
+            console.error("Failed to update source", error);
         }
     };
 
@@ -117,6 +128,43 @@ export default function SettingsPage() {
                             </Button>
                         </CardFooter>
                     </form>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Database className="h-5 w-5" />
+                            Data Source Preference
+                        </CardTitle>
+                        <CardDescription>
+                            Choose which provider to use for real-time stock codes.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="flex gap-4">
+                            <Button
+                                variant={profile?.preferred_data_source === "ALPHA_VANTAGE" ? "default" : "outline"}
+                                onClick={() => handleSourceUpdate("ALPHA_VANTAGE")}
+                                className="flex-1 h-20 flex flex-col items-center justify-center gap-1"
+                                disabled={saving}
+                            >
+                                <span className="font-bold">Alpha Vantage</span>
+                                <span className="text-[10px] opacity-70">Official API (Stable, 25 req/day)</span>
+                            </Button>
+                            <Button
+                                variant={profile?.preferred_data_source === "YFINANCE" ? "default" : "outline"}
+                                onClick={() => handleSourceUpdate("YFINANCE")}
+                                className="flex-1 h-20 flex flex-col items-center justify-center gap-1"
+                                disabled={saving}
+                            >
+                                <span className="font-bold">Yahoo Finance</span>
+                                <span className="text-[10px] opacity-70">Scraper (Unlimited, but prone to blocks)</span>
+                            </Button>
+                        </div>
+                        <p className="text-xs text-slate-500 bg-slate-100 dark:bg-slate-900 p-3 rounded italic">
+                            Tip: If you're in a region with poor connectivity to Yahoo, Alpha Vantage is highly recommended.
+                            If the preferred source fails, the system will automatically fall back to the other one.
+                        </p>
+                    </CardContent>
                 </Card>
             </div>
         </div>

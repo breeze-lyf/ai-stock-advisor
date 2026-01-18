@@ -98,16 +98,37 @@ class MarketDataService:
             cache = MarketDataCache(ticker=ticker)
             db.add(cache)
 
+        # Update Fundamental Data on the Stock model (semi-static)
+        # We find the stock object again to update its fields
+        stock_stmt = select(Stock).where(Stock.ticker == ticker)
+        stock_result = await db.execute(stock_stmt)
+        stock = stock_result.scalar_one_or_none()
+        if stock and 'fundamental' in data:
+            f = data['fundamental']
+            stock.sector = f.get('sector', stock.sector)
+            stock.industry = f.get('industry', stock.industry)
+            stock.market_cap = f.get('marketCap', stock.market_cap)
+            stock.pe_ratio = f.get('peRatio', stock.pe_ratio)
+            stock.forward_pe = f.get('forwardPe', stock.forward_pe)
+            stock.eps = f.get('eps', stock.eps)
+            stock.dividend_yield = f.get('dividendYield', stock.dividend_yield)
+            stock.beta = f.get('beta', stock.beta)
+            stock.fifty_two_week_high = f.get('fiftyTwoWeekHigh', stock.fifty_two_week_high)
+            stock.fifty_two_week_low = f.get('fiftyTwoWeekLow', stock.fifty_two_week_low)
+
+        # Update Technical Cache
         cache.current_price = float(data.get('currentPrice', data.get('price', data.get('regularMarketPrice', 0))))
         cache.change_percent = float(data.get('changePercent', data.get('regularMarketChangePercent', 0)))
+        
+        # Technical Indicator Fallbacks
+        cache.rsi_14 = data.get('rsi', cache.rsi_14 or 50.0)
+        cache.ma_20 = data.get('ma20', cache.ma_20 or cache.current_price)
+        cache.ma_50 = data.get('ma50', cache.ma_50)
+        cache.ma_200 = data.get('ma200', cache.ma_200)
+        
         cache.market_status = MarketStatus.OPEN
         cache.last_updated = now
         
-        # Add tech indicators placeholder (since pandas-ta is missing)
-        cache.rsi_14 = 50.0 
-        cache.ma_20 = cache.current_price
-        cache.volume_ratio = 1.0
-
         await db.commit()
         await db.refresh(cache)
         return cache
@@ -121,29 +142,42 @@ class MarketDataService:
         
         tick = yf.Ticker(ticker, session=session)
         
-        # Try history first (most reliable)
+        # Try info first for comprehensive data
+        try:
+            info = tick.info
+            if info and 'currentPrice' in info:
+                return {
+                    "price": info.get('currentPrice'),
+                    "changePercent": info.get('regularMarketChangePercent', 0),
+                    "shortName": info.get('shortName', ticker),
+                    "fundamental": {
+                        "sector": info.get('sector'),
+                        "industry": info.get('industry'),
+                        "marketCap": info.get('marketCap'),
+                        "peRatio": info.get('trailingPE'),
+                        "forwardPe": info.get('forwardPE'),
+                        "eps": info.get('trailingEps'),
+                        "dividendYield": info.get('dividendYield'),
+                        "beta": info.get('beta'),
+                        "fiftyTwoWeekHigh": info.get('fiftyTwoWeekHigh'),
+                        "fiftyTwoWeekLow": info.get('fiftyTwoWeekLow')
+                    },
+                    "ma50": info.get('fiftyDayAverage'),
+                    "ma200": info.get('twoHundredDayAverage')
+                }
+        except:
+            pass
+
+        # Robust history fallback
         try:
             hist = tick.history(period="1d")
             if not hist.empty:
                 last_quote = hist.iloc[-1]
                 return {
-                    "shortName": ticker,
-                    "currentPrice": float(last_quote['Close']),
-                    "regularMarketPrice": float(last_quote['Close']),
-                    "regularMarketChangePercent": 0.0, # history doesn't easily give this
-                    "regularMarketOpen": float(last_quote['Open']),
-                    "regularMarketDayHigh": float(last_quote['High']),
-                    "regularMarketDayLow": float(last_quote['Low']),
-                    "volume": int(last_quote['Volume'])
+                    "price": float(last_quote['Close']),
+                    "changePercent": 0,
+                    "shortName": ticker
                 }
-        except:
-            pass
-
-        # Fallback to info
-        try:
-            info = tick.info
-            if info and 'currentPrice' in info:
-                return info
         except:
             pass
             
@@ -151,24 +185,41 @@ class MarketDataService:
 
     @staticmethod
     def _fetch_alpha_vantage(ticker: str) -> dict:
-        url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={ticker}&apikey={settings.ALPHA_VANTAGE_API_KEY}"
-        r = requests.get(url, timeout=5)
-        data = r.json()
+        # Quote API
+        quote_url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={ticker}&apikey={settings.ALPHA_VANTAGE_API_KEY}"
+        # Overview API (Fundamental)
+        overview_url = f"https://www.alphavantage.co/query?function=OVERVIEW&symbol={ticker}&apikey={settings.ALPHA_VANTAGE_API_KEY}"
         
-        if "Global Quote" in data and data["Global Quote"]:
-            quote = data["Global Quote"]
-            # Convert AV keys to our common format
-            return {
-                "name": ticker,
+        q_r = requests.get(quote_url, timeout=5).json()
+        o_r = requests.get(overview_url, timeout=5).json()
+        
+        result = {}
+        
+        if "Global Quote" in q_r and q_r["Global Quote"]:
+            quote = q_r["Global Quote"]
+            result.update({
                 "price": float(quote["05. price"]),
                 "changePercent": float(quote["10. change percent"].replace("%", "")),
-                "open": float(quote["02. open"]),
-                "high": float(quote["03. high"]),
-                "low": float(quote["04. low"]),
-                "volume": int(quote["06. volume"])
-            }
+                "name": ticker
+            })
         
-        if "Note" in data:
-            raise Exception(f"Alpha Vantage API Limit: {data['Note']}")
+        if o_r and "Symbol" in o_r:
+            result["fundamental"] = {
+                "sector": o_r.get("Sector"),
+                "industry": o_r.get("Industry"),
+                "marketCap": float(o_r.get("MarketCapitalization", 0)),
+                "peRatio": float(o_r.get("PERatio", 0)),
+                "forwardPe": float(o_r.get("ForwardPE", 0)),
+                "eps": float(o_r.get("EPS", 0)),
+                "dividendYield": float(o_r.get("DividendYield", 0)),
+                "beta": float(o_r.get("Beta", 0)),
+                "fiftyTwoWeekHigh": float(o_r.get("52WeekHigh", 0)),
+                "fiftyTwoWeekLow": float(o_r.get("52WeekLow", 0))
+            }
             
-        return None
+        if not result:
+            if "Note" in q_r or "Note" in o_r:
+                raise Exception("Alpha Vantage API Limit Reached")
+            return None
+            
+        return result

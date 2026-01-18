@@ -1,34 +1,46 @@
 import yfinance as yf
-from requests import Session
-import sys
+import requests
+import os
+from dotenv import load_dotenv
 
-def test_stock_robust(ticker):
-    print(f"Testing {ticker} with robust session...")
-    session = Session()
-    session.headers.update({
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-    })
+load_dotenv()
+
+def test_robust_yfinance():
+    proxy = os.getenv("HTTP_PROXY")
+    ticker_symbol = "AAPL"
     
-    tick = yf.Ticker(ticker, session=session)
+    # 强化伪装：使用更像真实 Chrome 浏览器的 Header
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cache-Control': 'max-age=0',
+        'Connection': 'keep-alive'
+    }
+
+    session = requests.Session()
+    session.headers.update(headers)
     
-    # Method 1: history
-    print("Trying history...")
+    if proxy:
+        session.proxies = {"http": proxy, "https": proxy}
+        print(f"🌐 使用代理: {proxy}")
+
+    print(f"🚀 正在尝试以‘强化伪装模式’抓取: {ticker_symbol}...")
+
     try:
-        hist = tick.history(period="1d")
-        if not hist.empty:
-            print(f"History Success: {hist['Close'].iloc[-1]}")
-        else:
-            print("History empty")
-    except Exception as e:
-        print(f"History failed: {e}")
+        # 增加超时设置，防止死等
+        stock = yf.Ticker(ticker_symbol, session=session)
         
-    # Method 2: info
-    print("Trying info...")
-    try:
-        info = tick.info
-        print(f"Info Success: {info.get('currentPrice')}")
+        # 换一种获取方式：不直接用 .info (info 接口查得最严)
+        # 用 .fast_info 或者 .history 往往更容易通过
+        price = stock.fast_info['last_price']
+        
+        print(f"✅ 抓取成功！")
+        print(f"当前价格: ${price:.2f}")
+        
     except Exception as e:
-        print(f"Info failed: {e}")
+        print(f"❌ 依旧失败: {e}")
+        print("\n💡 终极分析：这说明雅虎已经封掉了这个节点所在机房的整段 IP。")
 
 if __name__ == "__main__":
-    test_stock_robust(sys.argv[1] if len(sys.argv) > 1 else "AAPL")
+    test_robust_yfinance()

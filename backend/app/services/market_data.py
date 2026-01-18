@@ -140,6 +140,12 @@ class MarketDataService:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
         })
         
+        if settings.HTTP_PROXY:
+            session.proxies = {
+                "http": settings.HTTP_PROXY,
+                "https": settings.HTTP_PROXY,
+            }
+        
         tick = yf.Ticker(ticker, session=session)
         
         # Try info first for comprehensive data
@@ -165,7 +171,7 @@ class MarketDataService:
                     "ma50": info.get('fiftyDayAverage'),
                     "ma200": info.get('twoHundredDayAverage')
                 }
-        except:
+        except Exception as e:
             pass
 
         # Robust history fallback
@@ -178,7 +184,7 @@ class MarketDataService:
                     "changePercent": 0,
                     "shortName": ticker
                 }
-        except:
+        except Exception as e:
             pass
             
         raise Exception("All yfinance methods failed")
@@ -190,8 +196,18 @@ class MarketDataService:
         # Overview API (Fundamental)
         overview_url = f"https://www.alphavantage.co/query?function=OVERVIEW&symbol={ticker}&apikey={settings.ALPHA_VANTAGE_API_KEY}"
         
-        q_r = requests.get(quote_url, timeout=5).json()
-        o_r = requests.get(overview_url, timeout=5).json()
+        proxies = None
+        if settings.HTTP_PROXY:
+            proxies = {
+                "http": settings.HTTP_PROXY,
+                "https": settings.HTTP_PROXY,
+            }
+
+        q_r = requests.get(quote_url, timeout=5, proxies=proxies).json()
+        o_r = requests.get(overview_url, timeout=5, proxies=proxies).json()
+        
+        print(f"DEBUG: AV Quote Response: {q_r}")
+        print(f"DEBUG: AV Overview Response: {o_r}")
         
         result = {}
         

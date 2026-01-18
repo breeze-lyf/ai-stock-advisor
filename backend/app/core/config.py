@@ -8,11 +8,12 @@ class Settings(BaseSettings):
     # Security
     SECRET_KEY: str = "secret"
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
     
     # External APIs
     GEMINI_API_KEY: Optional[str] = None
     DEEPSEEK_API_KEY: Optional[str] = None
+    ALPHA_VANTAGE_API_KEY: Optional[str] = None
 
     class Config:
         env_file = ".env"

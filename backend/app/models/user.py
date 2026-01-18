@@ -8,6 +8,10 @@ class MembershipTier(str, enum.Enum):
     FREE = "FREE"
     PRO = "PRO"
 
+class MarketDataSource(str, enum.Enum):
+    ALPHA_VANTAGE = "ALPHA_VANTAGE"
+    YFINANCE = "YFINANCE"
+
 class User(Base):
     __tablename__ = "users"
 
@@ -20,6 +24,7 @@ class User(Base):
     # Encrypted API Keys (Placeholder for now, storing raw/base64 in MVP if needed, but schema says encrypted)
     api_key_gemini = Column(String, nullable=True)
     api_key_deepseek = Column(String, nullable=True)
+    preferred_data_source = Column(Enum(MarketDataSource), default=MarketDataSource.ALPHA_VANTAGE)
     
     created_at = Column(DateTime, default=datetime.utcnow)
     last_login = Column(DateTime, nullable=True)

@@ -19,11 +19,14 @@ async def get_current_user(
     token: str = Depends(reusable_oauth2)
 ) -> User:
     try:
+        print(f"DEBUG: Validating token: {token[:10]}...")
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
         )
         token_data = payload  # Simple payload
-    except (JWTError, ValidationError):
+        print(f"DEBUG: Token payload: {payload}")
+    except (JWTError, ValidationError) as e:
+        print(f"DEBUG: Token validation failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",

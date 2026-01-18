@@ -5,12 +5,41 @@ from app.core.database import get_db
 from app.services.ai_service import AIService
 from app.services.market_data import MarketDataService
 from app.models.portfolio import Portfolio
+from app.models.user import User
+from app.api.deps import get_current_user
 
 router = APIRouter()
 
 @router.post("/{ticker}")
-async def analyze_stock(ticker: str, db: AsyncSession = Depends(get_db)):
-    # 1. Fetch Market Data
+async def analyze_stock(
+    ticker: str, 
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    # 1. Check Limits (SaaS Logic)
+    if not current_user.api_key_gemini:
+        # Free Tier Limit Check
+        from datetime import datetime
+        from app.models.analysis import AnalysisReport
+        from sqlalchemy import func
+        
+        today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        # Count usage today
+        stmt = select(func.count()).select_from(AnalysisReport).where(
+            AnalysisReport.user_id == current_user.id,
+            AnalysisReport.created_at >= today_start
+        )
+        usage_count = await db.execute(stmt)
+        count = usage_count.scalar_one()
+        
+        if count >= 3:
+            raise HTTPException(
+                status_code=429, 
+                detail="Free tier limit reached (3/day). Please add your own API Key in Settings for unlimited access."
+            )
+
+    # 2. Fetch Market Data
     market_data_obj = await MarketDataService.get_real_time_data(ticker, db)
     
     # Convert object to dict for easier prompting
@@ -31,9 +60,7 @@ async def analyze_stock(ticker: str, db: AsyncSession = Depends(get_db)):
         }
 
     # 2. Fetch User Portfolio (Context)
-    # Hardcoded user for MVP
-    user_id = "demo-user"
-    stmt = select(Portfolio).where(Portfolio.user_id == user_id, Portfolio.ticker == ticker)
+    stmt = select(Portfolio).where(Portfolio.user_id == current_user.id, Portfolio.ticker == ticker)
     result = await db.execute(stmt)
     portfolio_item = result.scalar_one_or_none()
     
@@ -50,8 +77,13 @@ async def analyze_stock(ticker: str, db: AsyncSession = Depends(get_db)):
             "pl_percent": pl_percent
         }
 
-    # 3. Call AI
-    ai_response = await AIService.generate_analysis(ticker, market_data, portfolio_data)
+    # 3. Call AI (Pass User Key)
+    ai_response = await AIService.generate_analysis(
+        ticker, 
+        market_data, 
+        portfolio_data, 
+        api_key=current_user.api_key_gemini
+    )
 
     return {
         "ticker": ticker,

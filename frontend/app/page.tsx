@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { formatDistanceToNow } from "date-fns";
+import { zhCN } from "date-fns/locale";
 // @ts-ignore
 import { useAuth } from "@/context/AuthContext";
 // @ts-ignore
@@ -28,6 +30,7 @@ import Link from 'next/link';
 export default function Dashboard() {
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
 
   // Analysis State
@@ -81,6 +84,13 @@ export default function Dashboard() {
 
   const { isAuthenticated } = useAuth();
   const router = useRouter();
+
+  // Set mounted state and fetch initial data
+  useEffect(() => {
+    setMounted(true);
+    // Initial data fetch can be done here if it doesn't depend on isAuthenticated
+    // If it depends, keep it in the isAuthenticated useEffect
+  }, []);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -158,9 +168,9 @@ export default function Dashboard() {
   const selectedItem = portfolio.find(p => p.ticker === selectedTicker);
 
   return (
-    <div className="h-screen bg-slate-50 dark:bg-slate-950 flex flex-col">
+    <div className="h-screen bg-slate-50 dark:bg-slate-950 flex flex-col overflow-hidden">
       {/* Header */}
-      <header className="flex h-14 items-center px-4 border-b bg-white dark:bg-slate-900 shrink-0">
+      <header className="flex h-16 items-center px-4 border-b bg-white dark:bg-slate-900 shrink-0">
         <h1 className="font-bold text-lg mr-auto">AI Investment Advisor</h1>
         <div className="flex gap-2">
           <Button onClick={() => fetchData(true)} variant="ghost" size="icon" disabled={loading}>
@@ -179,10 +189,10 @@ export default function Dashboard() {
       </header>
 
       {/* Main Content (Master-Detail) */}
-      <div className="flex-1 overflow-hidden grid grid-cols-12">
+      <div className="flex-1 min-h-0 grid grid-cols-12 overflow-hidden">
 
         {/* Left: Stock List */}
-        <div className="col-span-3 border-r bg-white dark:bg-slate-900 flex flex-col">
+        <div className="col-span-3 border-r bg-white dark:bg-slate-900 flex flex-col h-full overflow-hidden">
           <div className="p-4 border-b font-medium text-sm text-slate-500 flex justify-between items-center bg-slate-50/50">
             <div className="flex items-center gap-2">
               <span className="font-bold text-slate-700 dark:text-slate-300">股票列表</span>
@@ -221,7 +231,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <ScrollArea className="flex-1">
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
             {sortedPortfolio.map(item => (
               <div
                 key={item.ticker}
@@ -255,6 +265,14 @@ export default function Dashboard() {
                         </>
                       ) : (
                         <span className="text-slate-300 italic">WATCHING</span>
+                      )}
+                      {item.last_updated && (
+                        <>
+                          <span className="text-slate-300 dark:text-slate-600">|</span>
+                          <span className="text-[9px] opacity-60">
+                            更新于 {mounted ? formatDistanceToNow(new Date(item.last_updated), { addSuffix: true, locale: zhCN }) : "..."}
+                          </span>
+                        </>
                       )}
                     </div>
                     <div className={clsx(
@@ -352,16 +370,18 @@ export default function Dashboard() {
                 )}
               </div>
             ))}
-            {sortedPortfolio.length === 0 && !loading && (
-              <div className="p-12 text-center text-slate-400 text-sm italic">
-                列表为空
-              </div>
-            )}
-          </ScrollArea>
+            {
+              sortedPortfolio.length === 0 && !loading && (
+                <div className="p-12 text-center text-slate-400 text-sm italic">
+                  列表为空
+                </div>
+              )
+            }
+          </div>
         </div>
 
         {/* Right: Detail View */}
-        <div className="col-span-9 bg-slate-50 dark:bg-slate-950 p-6 flex flex-col gap-6 overflow-y-auto">
+        <div className="col-span-9 bg-slate-50 dark:bg-slate-950 p-6 flex flex-col gap-6 overflow-y-auto h-full custom-scrollbar">
           {!selectedItem ? (
             <div className="flex flex-col items-center justify-center h-full text-slate-300 gap-2">
               <Zap className="h-12 w-12 opacity-10" />
@@ -372,10 +392,14 @@ export default function Dashboard() {
               <div className="flex justify-between items-start">
                 <div>
                   <h2 className="text-4xl font-black tracking-tight text-slate-800 dark:text-slate-100">{selectedItem.ticker}</h2>
-                  <div className="flex items-center gap-3 mt-1">
-                    <p className="text-lg font-mono text-slate-500">Price: <span className="text-slate-800 dark:text-slate-200 font-bold">${selectedItem.current_price}</span></p>
+                  <div className="flex items-center gap-3 mt-1 flex-wrap">
+                    <p className="text-lg font-mono text-slate-500">Price: <span className="text-slate-800 dark:text-slate-200 font-bold">${selectedItem.current_price.toFixed(2)}</span></p>
                     <span className="text-slate-300">|</span>
                     <p className="text-lg font-mono text-slate-500">Value: <span className="text-blue-600 font-bold">${selectedItem.market_value.toFixed(2)}</span></p>
+                    <span className="text-slate-300">|</span>
+                    <p className="text-sm font-mono text-slate-500">Size: <span className="text-slate-800 dark:text-slate-200 font-bold">{selectedItem.quantity}</span></p>
+                    <span className="text-slate-300">|</span>
+                    <p className="text-sm font-mono text-slate-500">Avg Cost: <span className="text-slate-800 dark:text-slate-200 font-bold">${selectedItem.avg_cost.toFixed(2)}</span></p>
                   </div>
                 </div>
                 <Button onClick={handleAnalyze} disabled={analyzing} size="lg" className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20 px-8 py-6 text-lg font-bold">
@@ -387,26 +411,75 @@ export default function Dashboard() {
               {/* AI Analysis Cards */}
               <div className="grid gap-6">
                 {/* 1. Technical Indicators */}
-                <Card className="shadow-sm border-slate-200 dark:border-slate-800">
-                  <CardHeader className="pb-2 border-b bg-slate-50/50 dark:bg-slate-800/20"><CardTitle className="text-base font-bold flex items-center gap-2">技术指标 (Technical Analysis)</CardTitle></CardHeader>
-                  <CardContent className="pt-4">
+                <Card className="shadow-sm border-slate-200 dark:border-slate-800 overflow-hidden">
+                  <CardHeader className="pb-2 border-b bg-slate-50/50 dark:bg-slate-800/20 flex flex-row items-center justify-between">
+                    <CardTitle className="text-sm font-bold flex items-center gap-2 uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                      技术指标 (Technical Indicators)
+                    </CardTitle>
+                    {selectedItem.last_updated && (
+                      <div className="text-[10px] text-slate-400 font-mono">
+                        数据时间: {formatDistanceToNow(new Date(selectedItem.last_updated), { addSuffix: true, locale: zhCN })}
+                      </div>
+                    )}
+                  </CardHeader>
+                  <CardContent className="pt-4 space-y-4">
+                    {/* Fixed Data Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-slate-100/30 dark:bg-slate-900/40 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-inner">
+                      {[
+                        { label: "RSI (14)", value: selectedItem.rsi_14?.toFixed(2) || "-" },
+                        { label: "MA 20", value: selectedItem.ma_20?.toFixed(2) || "-" },
+                        { label: "MA 50", value: selectedItem.ma_50?.toFixed(2) || "-" },
+                        { label: "MA 200", value: selectedItem.ma_200?.toFixed(2) || "-" },
+                      ].map(stat => (
+                        <div key={stat.label} className="flex flex-col">
+                          <span className="text-[10px] text-slate-400 font-bold uppercase">{stat.label}</span>
+                          <span className="text-sm font-mono font-bold text-slate-700 dark:text-slate-300">{stat.value}</span>
+                        </div>
+                      ))}
+                    </div>
+
                     {aiData ? (
-                      <div className="prose dark:prose-invert text-base max-w-none leading-relaxed">
+                      <div className="prose dark:prose-invert text-sm max-w-none leading-relaxed border-t pt-4">
                         <ReactMarkdown>{aiData.technical_analysis}</ReactMarkdown>
                       </div>
-                    ) : <div className="text-slate-300 italic text-sm py-4">点击“AI 深度分析”生成报告...</div>}
+                    ) : <div className="text-slate-300 italic text-xs py-2">点击“AI 深度分析”生成报告...</div>}
                   </CardContent>
                 </Card>
 
                 {/* 2. Fundamentals */}
                 <Card className="shadow-sm border-slate-200 dark:border-slate-800">
-                  <CardHeader className="pb-2 border-b bg-slate-50/50 dark:bg-slate-800/20"><CardTitle className="text-base font-bold flex items-center gap-2">基本面和最新消息 (Fundamentals & News)</CardTitle></CardHeader>
-                  <CardContent className="pt-4">
+                  <CardHeader className="pb-2 border-b bg-slate-50/50 dark:bg-slate-800/20">
+                    <CardTitle className="text-sm font-bold flex items-center gap-2 uppercase tracking-wider text-slate-600 dark:text-slate-400">
+                      基本面数据 (Fundamentals)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-4 space-y-4">
+                    {/* Fundamental Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                      {[
+                        { label: "Market Cap", value: selectedItem.market_cap ? (selectedItem.market_cap / 1e9).toFixed(1) + "B" : "-" },
+                        { label: "PE Ratio", value: selectedItem.pe_ratio?.toFixed(2) || "-" },
+                        { label: "Forward PE", value: selectedItem.forward_pe?.toFixed(2) || "-" },
+                        { label: "EPS", value: selectedItem.eps?.toFixed(2) || "-" },
+                        { label: "Beta", value: selectedItem.beta?.toFixed(2) || "-" },
+                        { label: "Div Yield", value: selectedItem.dividend_yield ? (selectedItem.dividend_yield * 100).toFixed(2) + "%" : "-" },
+                        { label: "52W High", value: selectedItem.fifty_two_week_high?.toFixed(2) || "-" },
+                        { label: "52W Low", value: selectedItem.fifty_two_week_low?.toFixed(2) || "-" },
+                        { label: "Sector", value: selectedItem.sector || "-" },
+                        { label: "Industry", value: selectedItem.industry || "-" },
+                      ].map(stat => (
+                        <div key={stat.label} className="flex flex-col p-2 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded shadow-sm">
+                          <span className="text-[9px] text-slate-400 font-bold uppercase truncate">{stat.label}</span>
+                          <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 truncate">{stat.value}</span>
+                        </div>
+                      ))}
+                    </div>
+
                     {aiData ? (
-                      <div className="prose dark:prose-invert text-base max-w-none leading-relaxed">
+                      <div className="prose dark:prose-invert text-sm max-w-none leading-relaxed border-t pt-4">
                         <ReactMarkdown>{aiData.fundamental_news}</ReactMarkdown>
                       </div>
-                    ) : <div className="text-slate-300 italic text-sm py-4">等待分析中...</div>}
+                    ) : <div className="text-slate-300 italic text-xs py-2">等待 AI 分析深度报告...</div>}
                   </CardContent>
                 </Card>
 

@@ -246,9 +246,7 @@ export default function Dashboard() {
         </div>
 
         <div className="ml-auto flex gap-2">
-          <Button onClick={() => fetchData(true)} variant="ghost" size="icon" disabled={loading}>
-            <RefreshCcw className={clsx("h-4 w-4", loading && "animate-spin")} />
-          </Button>
+          {/* Refresh removed to focus on background data logic */}
           <Link href="/settings">
             <Button variant="ghost" size="icon"><Settings className="h-4 w-4" /></Button>
           </Link>

@@ -135,59 +135,76 @@ class MarketDataService:
 
     @staticmethod
     def _fetch_yfinance(ticker: str) -> dict:
-        session = Session()
-        session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        })
-        
-        if settings.HTTP_PROXY:
-            session.proxies = {
-                "http": settings.HTTP_PROXY,
-                "https": settings.HTTP_PROXY,
-            }
-        
-        tick = yf.Ticker(ticker, session=session)
-        
-        # Try info first for comprehensive data
-        try:
-            info = tick.info
-            if info and 'currentPrice' in info:
-                return {
-                    "price": info.get('currentPrice'),
-                    "changePercent": info.get('regularMarketChangePercent', 0),
-                    "shortName": info.get('shortName', ticker),
-                    "fundamental": {
-                        "sector": info.get('sector'),
-                        "industry": info.get('industry'),
-                        "marketCap": info.get('marketCap'),
-                        "peRatio": info.get('trailingPE'),
-                        "forwardPe": info.get('forwardPE'),
-                        "eps": info.get('trailingEps'),
-                        "dividendYield": info.get('dividendYield'),
-                        "beta": info.get('beta'),
-                        "fiftyTwoWeekHigh": info.get('fiftyTwoWeekHigh'),
-                        "fiftyTwoWeekLow": info.get('fiftyTwoWeekLow')
-                    },
-                    "ma50": info.get('fiftyDayAverage'),
-                    "ma200": info.get('twoHundredDayAverage')
-                }
-        except Exception as e:
-            pass
+        import time
+        import random
 
-        # Robust history fallback
-        try:
-            hist = tick.history(period="1d")
-            if not hist.empty:
-                last_quote = hist.iloc[-1]
-                return {
-                    "price": float(last_quote['Close']),
-                    "changePercent": 0,
-                    "shortName": ticker
-                }
-        except Exception as e:
-            pass
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                session = Session()
+                session.headers.update({
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+                    'Accept-Language': 'en-US,en;q=0.9',
+                })
+                
+                if settings.HTTP_PROXY:
+                    session.proxies = {
+                        "http": settings.HTTP_PROXY,
+                        "https": settings.HTTP_PROXY,
+                    }
+                
+                tick = yf.Ticker(ticker, session=session)
+                
+                # Try info first (primary source for fundamentals)
+                info = tick.info
+                if info and ('currentPrice' in info or 'regularMarketPrice' in info):
+                    return {
+                        "price": info.get('currentPrice') or info.get('regularMarketPrice'),
+                        "changePercent": info.get('regularMarketChangePercent', 0),
+                        "shortName": info.get('shortName', ticker),
+                        "fundamental": {
+                            "sector": info.get('sector'),
+                            "industry": info.get('industry'),
+                            "marketCap": info.get('marketCap'),
+                            "peRatio": info.get('trailingPE'),
+                            "forwardPe": info.get('forwardPE'),
+                            "eps": info.get('trailingEps'),
+                            "dividendYield": info.get('dividendYield'),
+                            "beta": info.get('beta'),
+                            "fiftyTwoWeekHigh": info.get('fiftyTwoWeekHigh'),
+                            "fiftyTwoWeekLow": info.get('fiftyTwoWeekLow')
+                        },
+                        "ma50": info.get('fiftyDayAverage'),
+                        "ma200": info.get('twoHundredDayAverage')
+                    }
+                
+                # Fallback to history if info fails but doesn't raise exception
+                hist = tick.history(period="1d")
+                if not hist.empty:
+                    last_quote = hist.iloc[-1]
+                    return {
+                        "price": float(last_quote['Close']),
+                        "changePercent": 0,
+                        "shortName": ticker
+                    }
+                
+            except Exception as e:
+                error_msg = str(e).lower()
+                if "429" in error_msg or "too many requests" in error_msg:
+                    # Exponential backoff with jitter
+                    wait_time = (2 ** attempt) + random.uniform(0, 1)
+                    print(f"⚠️ yfinance rate limited (429) for {ticker}. Waiting {wait_time:.2f}s (Attempt {attempt+1}/{max_retries})")
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    print(f"❌ yfinance error for {ticker}: {e}")
+                    # For non-429 errors, we still try next retry unless it's the last one
+                    if attempt < max_retries - 1:
+                        time.sleep(1)
+                        continue
             
-        raise Exception("All yfinance methods failed")
+        raise Exception(f"All yfinance methods failed for {ticker} after {max_retries} attempts")
 
     @staticmethod
     def _fetch_alpha_vantage(ticker: str) -> dict:

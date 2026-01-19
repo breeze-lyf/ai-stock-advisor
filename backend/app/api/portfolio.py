@@ -102,6 +102,9 @@ async def get_portfolio(
             # Update sequentially in SQLite to avoid session concurrency issues
             for ticker in tickers:
                 await MarketDataService.get_real_time_data(ticker, db, current_user.preferred_data_source)
+                # Add a small delay if using yfinance to avoid 429
+                if current_user.preferred_data_source == "YFINANCE":
+                    await asyncio.sleep(1)
             
             # Re-query to get the refreshed data
             result = await db.execute(stmt)

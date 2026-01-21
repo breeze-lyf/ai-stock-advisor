@@ -1,4 +1,5 @@
 import yfinance as yf
+import pandas
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from datetime import datetime, timedelta
@@ -7,7 +8,7 @@ import asyncio
 import requests
 from requests import Session
 
-from app.models.stock import Stock, MarketDataCache, MarketStatus
+from app.models.stock import Stock, MarketDataCache, MarketStatus, StockNews
 
 class MarketDataService:
     @staticmethod
@@ -39,7 +40,7 @@ class MarketDataService:
             try:
                 return await asyncio.wait_for(
                     loop.run_in_executor(None, lambda: MarketDataService._fetch_yfinance(ticker)),
-                    timeout=2.0
+                    timeout=15.0
                 )
             except Exception as e:
                 print(f"⚠️ yfinance fetch failed for {ticker}: {e}")
@@ -121,14 +122,49 @@ class MarketDataService:
         cache.change_percent = float(data.get('changePercent', data.get('regularMarketChangePercent', 0)))
         
         # Technical Indicator Fallbacks
-        cache.rsi_14 = data.get('rsi', cache.rsi_14 or 50.0)
-        cache.ma_20 = data.get('ma20', cache.ma_20 or cache.current_price)
+        cache.rsi_14 = data.get('rsi', cache.rsi_14)
+        cache.ma_20 = data.get('ma20', cache.ma_20)
         cache.ma_50 = data.get('ma50', cache.ma_50)
         cache.ma_200 = data.get('ma200', cache.ma_200)
+        
+        # New Advanced Indicators
+        cache.macd_val = data.get('macd', cache.macd_val)
+        cache.macd_signal = data.get('macd_signal', cache.macd_signal)
+        cache.macd_hist = data.get('macd_hist', cache.macd_hist)
+        
+        cache.bb_upper = data.get('bb_upper', cache.bb_upper)
+        cache.bb_middle = data.get('bb_middle', cache.bb_middle)
+        cache.bb_lower = data.get('bb_lower', cache.bb_lower)
+        
+        cache.atr_14 = data.get('atr', cache.atr_14)
+        cache.k_line = data.get('kdj_k', cache.k_line)
+        cache.d_line = data.get('kdj_d', cache.d_line)
+        cache.j_line = data.get('kdj_j', cache.j_line)
+        
+        cache.volume_ma_20 = data.get('volume_ma20', cache.volume_ma_20)
+        cache.volume_ratio = data.get('volume_ratio', cache.volume_ratio)
         
         cache.market_status = MarketStatus.OPEN
         cache.last_updated = now
         
+        # Update News (yfinance only)
+        if 'news' in data and data['news']:
+            from sqlalchemy.dialects.sqlite import insert
+            for n in data['news']:
+                # Convert timestamp (seconds) to datetime
+                pub_time = datetime.utcfromtimestamp(n.get('providerPublishTime', 0))
+                
+                # Use SQLite upsert logic to avoid duplicates
+                news_stmt = insert(StockNews).values(
+                    id=n.get('uuid'),
+                    ticker=ticker,
+                    title=n.get('title'),
+                    publisher=n.get('publisher'),
+                    link=n.get('link'),
+                    publish_time=pub_time
+                ).on_conflict_do_nothing() # Don't update news if already exists
+                await db.execute(news_stmt)
+
         await db.commit()
         await db.refresh(cache)
         return cache
@@ -148,18 +184,19 @@ class MarketDataService:
                     'Accept-Language': 'en-US,en;q=0.9',
                 })
                 
-                if settings.HTTP_PROXY:
-                    session.proxies = {
-                        "http": settings.HTTP_PROXY,
-                        "https": settings.HTTP_PROXY,
-                    }
+                import os
                 
-                tick = yf.Ticker(ticker, session=session)
+                if settings.HTTP_PROXY:
+                    os.environ["HTTP_PROXY"] = settings.HTTP_PROXY
+                    os.environ["HTTPS_PROXY"] = settings.HTTP_PROXY
+                
+                tick = yf.Ticker(ticker)
                 
                 # Try info first (primary source for fundamentals)
                 info = tick.info
+                result = {}
                 if info and ('currentPrice' in info or 'regularMarketPrice' in info):
-                    return {
+                    result = {
                         "price": info.get('currentPrice') or info.get('regularMarketPrice'),
                         "changePercent": info.get('regularMarketChangePercent', 0),
                         "shortName": info.get('shortName', ticker),
@@ -179,15 +216,89 @@ class MarketDataService:
                         "ma200": info.get('twoHundredDayAverage')
                     }
                 
-                # Fallback to history if info fails but doesn't raise exception
-                hist = tick.history(period="1d")
+                # Fetch history for Technical Analysis (MACD, RSI, BB, KDJ, ATR)
+                # We need enough history for calculations (ATR needs 14+ days, MACD needs 26+ days)
+                hist = tick.history(period="100d")
                 if not hist.empty:
-                    last_quote = hist.iloc[-1]
-                    return {
-                        "price": float(last_quote['Close']),
-                        "changePercent": 0,
-                        "shortName": ticker
-                    }
+                    if not result: # Fallback if info failed
+                        last_quote = hist.iloc[-1]
+                        result = {
+                            "price": float(last_quote['Close']),
+                            "changePercent": 0,
+                            "shortName": ticker
+                        }
+                    
+                    # Ensure we have enough data
+                    close_prices = hist['Close']
+                    high_prices = hist['High']
+                    low_prices = hist['Low']
+                    volumes = hist['Volume']
+
+                    if len(close_prices) >= 26:
+                        # MACD (12, 26, 9)
+                        ema12 = close_prices.ewm(span=12, adjust=False).mean()
+                        ema26 = close_prices.ewm(span=26, adjust=False).mean()
+                        macd_line = ema12 - ema26
+                        signal_line = macd_line.ewm(span=9, adjust=False).mean()
+                        macd_hist = macd_line - signal_line
+                        
+                        result["macd"] = float(macd_line.iloc[-1])
+                        result["macd_signal"] = float(signal_line.iloc[-1])
+                        result["macd_hist"] = float(macd_hist.iloc[-1])
+
+                    if len(close_prices) >= 20:
+                        # MA20 & Bollinger Bands
+                        ma20 = close_prices.rolling(window=20).mean()
+                        std20 = close_prices.rolling(window=20).std()
+                        result["ma20"] = float(ma20.iloc[-1])
+                        result["bb_middle"] = float(ma20.iloc[-1])
+                        result["bb_upper"] = float(ma20.iloc[-1] + (std20.iloc[-1] * 2))
+                        result["bb_lower"] = float(ma20.iloc[-1] - (std20.iloc[-1] * 2))
+                        
+                        # Volume MA20 & Ratio
+                        vol_ma20 = volumes.rolling(window=20).mean()
+                        result["volume_ma20"] = float(vol_ma20.iloc[-1])
+                        result["volume_ratio"] = float(volumes.iloc[-1] / vol_ma20.iloc[-1]) if vol_ma20.iloc[-1] > 0 else 1.0
+
+                    if len(close_prices) >= 15:
+                        # RSI-14
+                        delta = close_prices.diff()
+                        gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+                        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+                        rs = gain / loss
+                        rsi = 100 - (100 / (1 + rs))
+                        result["rsi"] = float(rsi.iloc[-1])
+
+                        # ATR-14
+                        tr1 = high_prices - low_prices
+                        tr2 = abs(high_prices - close_prices.shift())
+                        tr3 = abs(low_prices - close_prices.shift())
+                        tr = pandas.concat([tr1, tr2, tr3], axis=1).max(axis=1)
+                        atr = tr.rolling(window=14).mean()
+                        result["atr"] = float(atr.iloc[-1])
+
+                    if len(close_prices) >= 9:
+                        # KDJ (9, 3, 3)
+                        low_9 = low_prices.rolling(window=9).min()
+                        high_9 = high_prices.rolling(window=9).max()
+                        rsv = (close_prices - low_9) / (high_9 - low_9) * 100
+                        kdj_k = rsv.ewm(com=2, adjust=False).mean() # com=2 is equivalent to span=5, but used for 1/3 weighting
+                        kdj_d = kdj_k.ewm(com=2, adjust=False).mean()
+                        kdj_j = 3 * kdj_k - 2 * kdj_d
+                        result["kdj_k"] = float(kdj_k.iloc[-1])
+                        result["kdj_d"] = float(kdj_d.iloc[-1])
+                        result["kdj_j"] = float(kdj_j.iloc[-1])
+                    
+                # Fetch News
+                try:
+                    news = tick.news
+                    if news:
+                        result["news"] = news[:5] # Keep latest 5
+                except Exception as e:
+                    print(f"⚠️ Failed to fetch news for {ticker}: {e}")
+                
+                if result:
+                    return result
                 
             except Exception as e:
                 error_msg = str(e).lower()

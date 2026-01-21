@@ -42,7 +42,16 @@ class PortfolioItem(BaseModel):
     macd_val: Optional[float] = None
     macd_signal: Optional[float] = None
     macd_hist: Optional[float] = None
+    bb_upper: Optional[float] = None
+    bb_middle: Optional[float] = None
+    bb_lower: Optional[float] = None
+    atr_14: Optional[float] = None
+    k_line: Optional[float] = None
+    d_line: Optional[float] = None
+    j_line: Optional[float] = None
+    volume_ma_20: Optional[float] = None
     volume_ratio: Optional[float] = None
+    change_percent: Optional[float] = 0.0
 
 from app.models.user import User
 from app.api.deps import get_current_user
@@ -57,25 +66,79 @@ class SearchResult(BaseModel):
     name: str
 
 @router.get("/search", response_model=List[SearchResult])
-async def search_stocks(query: str = "", db: AsyncSession = Depends(get_db)):
-    stmt = select(Stock)
-    
-    if query:
-        search_term = f"%{query}%"
-        stmt = stmt.where(
-            or_(
-                Stock.ticker.ilike(search_term),
-                Stock.name.ilike(search_term)
-            )
+async def search_stocks(query: str = "", remote: bool = False, db: AsyncSession = Depends(get_db)):
+    query = query.strip().upper()
+    if not query:
+        return []
+
+    # 1. Local Search
+    search_term = f"%{query}%"
+    stmt = select(Stock).where(
+        or_(
+            Stock.ticker.ilike(search_term),
+            Stock.name.ilike(search_term)
         )
-    
-    # Always limit to 10 to avoid huge payload
-    stmt = stmt.limit(10)
+    ).limit(10)
     
     result = await db.execute(stmt)
     stocks = result.scalars().all()
     
+    # 2. Remote Search (Only if requested and no exact match found locally)
+    exact_match = any(s.ticker.upper() == query for s in stocks)
+    
+    if remote and not exact_match and len(query) <= 10:
+        try:
+            # Quick yfinance check - just get stock info, don't calculate indicators
+            import yfinance as yf
+            import os
+            loop = asyncio.get_event_loop()
+            
+            def quick_check():
+                # Set proxy if configured
+                if settings.HTTP_PROXY:
+                    os.environ["HTTP_PROXY"] = settings.HTTP_PROXY
+                    os.environ["HTTPS_PROXY"] = settings.HTTP_PROXY
+                
+                tick = yf.Ticker(query)
+                info = tick.info
+                if info and ('currentPrice' in info or 'regularMarketPrice' in info):
+                    return {
+                        "ticker": query,
+                        "name": info.get('shortName', query),
+                        "price": info.get('currentPrice') or info.get('regularMarketPrice')
+                    }
+                return None
+
+            
+            stock_info = await asyncio.wait_for(
+                loop.run_in_executor(None, quick_check),
+                timeout=5.0
+            )
+            
+            if stock_info:
+                # Create Stock entry if not exists
+                stock_stmt = select(Stock).where(Stock.ticker == query)
+                stock_result = await db.execute(stock_stmt)
+                existing_stock = stock_result.scalar_one_or_none()
+                
+                if not existing_stock:
+                    new_stock = Stock(ticker=query, name=stock_info["name"])
+                    db.add(new_stock)
+                    
+                    # Also create a minimal cache entry
+                    from app.models.stock import MarketDataCache
+                    new_cache = MarketDataCache(ticker=query, current_price=stock_info["price"])
+                    db.add(new_cache)
+                    await db.commit()
+                
+                # Re-search locally to include the new one
+                result = await db.execute(stmt)
+                stocks = result.scalars().all()
+        except Exception as e:
+            print(f"Remote search failed for {query}: {e}")
+
     return [SearchResult(ticker=s.ticker, name=s.name) for s in stocks]
+
 
 @router.get("/", response_model=List[PortfolioItem])
 async def get_portfolio(
@@ -147,7 +210,16 @@ async def get_portfolio(
             macd_val=m.macd_val if m else None,
             macd_signal=m.macd_signal if m else None,
             macd_hist=m.macd_hist if m else None,
-            volume_ratio=m.volume_ratio if m else None
+            bb_upper=m.bb_upper if m else None,
+            bb_middle=m.bb_middle if m else None,
+            bb_lower=m.bb_lower if m else None,
+            atr_14=m.atr_14 if m else None,
+            k_line=m.k_line if m else None,
+            d_line=m.d_line if m else None,
+            j_line=m.j_line if m else None,
+            volume_ma_20=m.volume_ma_20 if m else None,
+            volume_ratio=m.volume_ratio if m else None,
+            change_percent=m.change_percent if m else 0.0
         ))
     return items
 
@@ -163,14 +235,10 @@ async def add_portfolio_item(
     current_user: User = Depends(get_current_user)
 ):
     user_id = current_user.id
+    ticker = item.ticker.upper().strip()
     
-    # Speed up: Don't block adding a stock on a slow external network call
-    # The prices will be updated by the next refresh cycle or a background task
-    pass
-    
-    
-    # Check if exists
-    stmt = select(Portfolio).where(Portfolio.user_id == user_id, Portfolio.ticker == item.ticker)
+    # Check if exists in portfolio
+    stmt = select(Portfolio).where(Portfolio.user_id == user_id, Portfolio.ticker == ticker)
     result = await db.execute(stmt)
     existing = result.scalar_one_or_none()
     
@@ -180,14 +248,36 @@ async def add_portfolio_item(
     else:
         new_item = Portfolio(
             user_id=user_id,
-            ticker=item.ticker,
+            ticker=ticker,
             quantity=item.quantity,
             avg_cost=item.avg_cost
         )
         db.add(new_item)
     
     await db.commit()
+    
+    # Auto-fetch data if stock is new OR cache is incomplete (missing technical indicators)
+    cache_stmt = select(MarketDataCache).where(MarketDataCache.ticker == ticker)
+    cache_result = await db.execute(cache_stmt)
+    cache = cache_result.scalar_one_or_none()
+    
+    needs_fetch = not cache or cache.rsi_14 is None
+    
+    if needs_fetch:
+        # Fetch in background (don't block the response)
+        import asyncio
+        asyncio.create_task(_background_fetch(ticker, db))
+    
     return {"message": "Portfolio updated"}
+
+async def _background_fetch(ticker: str, db: AsyncSession):
+    try:
+        await MarketDataService.get_real_time_data(ticker, db, preferred_source="YFINANCE")
+        print(f"✅ Background fetch for {ticker} completed")
+    except Exception as e:
+        print(f"❌ Background fetch for {ticker} failed: {e}")
+
+
 @router.delete("/{ticker}")
 async def delete_portfolio_item(
     ticker: str,

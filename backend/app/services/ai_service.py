@@ -40,7 +40,7 @@ class AIService:
             return {"error": "Failed to fetch data"}
 
     @staticmethod
-    async def generate_analysis(ticker: str, market_data: dict, portfolio_data: dict, api_key: str = None) -> str:
+    async def generate_analysis(ticker: str, market_data: dict, portfolio_data: dict, news_data: list = None, api_key: str = None) -> str:
         # 1. Determine Key
         gemini_key = api_key or settings.GEMINI_API_KEY
         
@@ -51,56 +51,61 @@ class AIService:
         genai.configure(api_key=gemini_key)
 
         try:
-            # 3. Define Tools (MCP)
-            tools = [AIService._tool_get_stock_price]
+            # 3. Initialize Model (Using full path for stability)
+            model = genai.GenerativeModel(model_name='models/gemini-1.5-flash')
             
-            # 4. Initialize Model with Tools
-            model = genai.GenerativeModel(
-                model_name='gemini-1.5-flash',
-                tools=tools
-            )
-            
-            # 5. Start Chat Session (Automatic Function Calling)
-            chat = model.start_chat(enable_automatic_function_calling=True)
-            
-            # 6. Prompt
+            # 4. Prompt Engineering (Already in Chinese)
             prompt = f"""
-            You are a senior investment advisor.
+            你是一位资深美股投资顾问。
             
-            **User Portfolio Context**:
-            - Ticker: {ticker}
-            - Avg Cost: ${portfolio_data.get('avg_cost', 0)}
-            - Quantity: {portfolio_data.get('quantity', 0)}
-            - Unrealized P&L: ${portfolio_data.get('unrealized_pl', 0)}
+            **用户持仓背景 (Portfolio Context)**:
+            - 代码: {ticker}
+            - 成本价: ${portfolio_data.get('avg_cost', 0)}
+            - 持仓数量: {portfolio_data.get('quantity', 0)}
+            - 未实现盈亏: ${portfolio_data.get('unrealized_pl', 0)}
             
-            **Task**:
-            1. Use the `get_stock_price` tool to fetch the latest data for {ticker}.
-            2. Analyze the stock's status.
-            3. Give Buy/Sell/Hold advice based on the User's Cost Basis vs Current Price.
+            **实时技术面数据 (Technical Data)**:
+            - 当前价格: ${market_data.get('current_price')}
+            - 今日涨跌: {market_data.get('change_percent')}%
+            - RSI (14): {market_data.get('rsi_14')}
+            - MACD: {market_data.get('macd_val')} (柱状图: {market_data.get('macd_hist')})
+            - 布林带: [{market_data.get('bb_lower')}, {market_data.get('bb_upper')}]
+            - KDJ (K): {market_data.get('kdj_k')}
+            - ATR: {market_data.get('atr_14')}
             
-            **CRITICAL**: Return the result purely as a JSON Object with NO Markdown formatting.
-            Structure:
+            **最新消息面 (Recent News)**:
+            {news_data if news_data else "暂无重大相关新闻。"}
+            
+            **任务 (Task)**:
+            1. 综合分析：结合技术指标（趋势、波动、震荡）和最新的消息面，判断当前股价处于什么状态（底部反转、高位调整、强势拉升等）。
+            2. 消息面影响：解读最新的新闻对股价是利好还是利空，是否支撑当前的技术走势。
+            3. 操作建议：根据用户的持仓成本，给出具体的 [买入/卖出/持有] 建议，并说明理由。
+            
+            **要求**:
+            - 使用中文回答。
+            - 必须严格返回如下 JSON 格式，且不要包含任何 Markdown 代码块标签（如 ```json）。
+            
+            结果结构:
             {{
-                "technical_analysis": "Summary of price action, RSI, and trends.",
-                "fundamental_news": "Any known fundamental drivers or news (if unknown, state 'No recent major news').",
-                "action_advice": "Specific recommendation (Buy/Sell/Hold) and logic."
+                "technical_analysis": "（技术面深度总结，包含对收盘价与均线/布林带关系的解读）",
+                "fundamental_news": "（消息面解读，将最近新闻与公司基本面结合）",
+                "action_advice": "（给用户的具体操作建议及风控点）"
             }}
             """
             
-            # Use generation_config to force JSON (if supported by sdk version, else we rely on prompt)
-            # For this MVP environment version, relying on prompt text is safer if types unknown.
-            # But the 'response_mime_type' is the modern way.
-            try:
-                response = await chat.send_message_async(
-                    prompt,
-                    generation_config={"response_mime_type": "application/json"}
-                )
-            except Exception:
-                # Fallback if config fails
-                 response = await chat.send_message_async(prompt)
-
+            # 5. Generate content directly
+            response = await model.generate_content_async(
+                prompt,
+                generation_config={"response_mime_type": "application/json"}
+            )
             return response.text
 
         except Exception as e:
-            logger.error(f"Gemini API Error: {e}")
-            return f"**Error**: Failed to generate analysis. {str(e)}"
+            logger.error(f"Gemini API Error: {str(e)}")
+            # Fallback simple generation if JSON mode fails
+            try:
+                model_alt = genai.GenerativeModel(model_name='models/gemini-1.5-flash')
+                resp = await model_alt.generate_content_async(prompt)
+                return resp.text
+            except Exception as final_e:
+                return f"**Error**: AI 分析失败。详细信息: {str(final_e)}"

@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/dialog";
 // @ts-ignore
 import { getPortfolio, analyzeStock, PortfolioItem, searchStocks, addPortfolioItem, SearchResult, deletePortfolioItem } from "@/lib/api";
-import { RefreshCcw, Zap, Settings, Loader2, Trash2, Check, Pencil, Filter, X } from "lucide-react";
+import { RefreshCcw, Zap, Settings, Loader2, Trash2, Check, Pencil, Filter, X, Search } from "lucide-react";
 import clsx from "clsx";
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
@@ -161,6 +161,20 @@ export default function Dashboard() {
     }, 100);
     return () => clearTimeout(timer);
   }, [isAuthenticated, router]);
+
+
+  const handleRemoteSearch = async () => {
+    if (!searchQuery.trim()) return;
+    setSearching(true);
+    try {
+      const res = await searchStocks(searchQuery.trim(), true);
+      setSearchResults(res);
+    } catch (err) {
+      console.error("Remote search failed", err);
+    } finally {
+      setSearching(false);
+    }
+  };
 
   const fetchData = async (refresh: boolean = false) => {
     if (!localStorage.getItem("token")) return;
@@ -321,9 +335,9 @@ export default function Dashboard() {
                     <span className="text-center font-mono text-xs text-slate-600 dark:text-slate-400">${item.current_price.toFixed(2)}</span>
                     <span className={clsx(
                       "text-right text-xs font-bold",
-                      item.pl_percent >= 0 ? "text-green-600" : "text-red-500"
+                      (item.change_percent || 0) >= 0 ? "text-green-600" : "text-red-500"
                     )}>
-                      {item.pl_percent >= 0 ? "+" : ""}{item.pl_percent.toFixed(2)}%
+                      {(item.change_percent || 0) >= 0 ? "+" : ""}{(item.change_percent || 0).toFixed(2)}%
                     </span>
                   </div>
                   <div className="flex justify-between items-end mt-1">
@@ -341,7 +355,7 @@ export default function Dashboard() {
                         <>
                           <span className="text-slate-300 dark:text-slate-600">|</span>
                           <span className="text-[9px] opacity-60">
-                            更新于 {mounted ? formatDistanceToNow(new Date(item.last_updated), { addSuffix: true, locale: zhCN }) : "..."}
+                            更新于 {mounted ? formatDistanceToNow(new Date(item.last_updated + 'Z'), { addSuffix: true, locale: zhCN }) : "..."}
                           </span>
                         </>
                       )}
@@ -372,11 +386,9 @@ export default function Dashboard() {
                         className="h-7 w-7 text-slate-300 hover:text-red-500 hover:bg-red-50"
                         onClick={async (e) => {
                           e.stopPropagation();
-                          if (confirm(`Delete ${item.ticker}?`)) {
-                            await deletePortfolioItem(item.ticker);
-                            await fetchData();
-                            if (selectedTicker === item.ticker) setSelectedTicker(null);
-                          }
+                          await deletePortfolioItem(item.ticker);
+                          await fetchData();
+                          if (selectedTicker === item.ticker) setSelectedTicker(null);
                         }}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -526,22 +538,30 @@ export default function Dashboard() {
                     </CardTitle>
                     {selectedItem.last_updated && (
                       <div className="text-[10px] text-slate-400 font-mono">
-                        数据时间: {formatDistanceToNow(new Date(selectedItem.last_updated), { addSuffix: true, locale: zhCN })}
+                        数据时间: {formatDistanceToNow(new Date(selectedItem.last_updated + 'Z'), { addSuffix: true, locale: zhCN })}
                       </div>
                     )}
                   </CardHeader>
                   <CardContent className="pt-4 space-y-4">
-                    {/* Fixed Data Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 bg-slate-100/30 dark:bg-slate-900/40 p-3 rounded-lg border border-slate-100 dark:border-slate-800 shadow-inner">
+                    {/* Technical Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
                       {[
                         { label: "RSI (14)", value: selectedItem.rsi_14?.toFixed(2) || "-" },
                         { label: "MA 20", value: selectedItem.ma_20?.toFixed(2) || "-" },
                         { label: "MA 50", value: selectedItem.ma_50?.toFixed(2) || "-" },
                         { label: "MA 200", value: selectedItem.ma_200?.toFixed(2) || "-" },
+                        { label: "MACD", value: selectedItem.macd_val?.toFixed(2) || "-" },
+                        { label: "MACD Hist", value: selectedItem.macd_hist?.toFixed(2) || "-" },
+                        { label: "ATR (14)", value: selectedItem.atr_14?.toFixed(2) || "-" },
+                        { label: "BB Upper", value: selectedItem.bb_upper?.toFixed(2) || "-" },
+                        { label: "BB Lower", value: selectedItem.bb_lower?.toFixed(2) || "-" },
+                        { label: "KDJ - K", value: selectedItem.k_line?.toFixed(1) || "-" },
+                        { label: "KDJ - D", value: selectedItem.d_line?.toFixed(1) || "-" },
+                        { label: "Vol Ratio", value: selectedItem.volume_ratio?.toFixed(2) || "-" },
                       ].map(stat => (
-                        <div key={stat.label} className="flex flex-col">
-                          <span className="text-[10px] text-slate-400 font-bold uppercase">{stat.label}</span>
-                          <span className="text-sm font-mono font-bold text-slate-700 dark:text-slate-300">{stat.value}</span>
+                        <div key={stat.label} className="flex flex-col p-2 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded shadow-sm">
+                          <span className="text-[9px] text-slate-400 font-bold uppercase truncate">{stat.label}</span>
+                          <span className="text-xs font-mono font-bold text-slate-700 dark:text-slate-300 truncate">{stat.value}</span>
                         </div>
                       ))}
                     </div>
@@ -579,21 +599,35 @@ export default function Dashboard() {
             <DialogDescription>搜索股票代码并添加到您的投资组合。</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="relative">
-              <Input
-                placeholder="搜索 (如 AAPL, NVDA)..."
-                value={searchQuery}
-                onChange={async (e) => {
-                  setSearchQuery(e.target.value);
-                  setSearching(true);
-                  try {
-                    const res = await searchStocks(e.target.value);
-                    setSearchResults(res);
-                  } catch (err) { console.error(err) }
-                  finally { setSearching(false); }
-                }}
-              />
-              {searching && <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-slate-400" />}
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Input
+                  placeholder="输入代码并点击搜索 (如 AAPL)..."
+                  value={searchQuery}
+                  onChange={async (e) => {
+                    const val = e.target.value;
+                    setSearchQuery(val);
+                    if (val.trim()) {
+                      setSearching(true);
+                      try {
+                        // Local search only on type
+                        const res = await searchStocks(val.trim(), false);
+                        setSearchResults(res);
+                      } catch (err) { console.error(err) }
+                      finally { setSearching(false); }
+                    } else {
+                      setSearchResults([]);
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleRemoteSearch();
+                  }}
+                />
+                {searching && <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-slate-400" />}
+              </div>
+              <Button onClick={handleRemoteSearch} disabled={searching} className="bg-blue-600 hover:bg-blue-700">
+                <Search className="h-4 w-4" />
+              </Button>
             </div>
 
             <ScrollArea className="h-[300px] border rounded-md p-2">

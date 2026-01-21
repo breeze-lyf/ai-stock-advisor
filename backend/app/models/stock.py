@@ -45,9 +45,40 @@ class MarketDataCache(Base):
     macd_val = Column(Float, nullable=True)
     macd_signal = Column(Float, nullable=True)
     macd_hist = Column(Float, nullable=True)
+    
+    # Bollinger Bands
+    bb_upper = Column(Float, nullable=True)
+    bb_middle = Column(Float, nullable=True)
+    bb_lower = Column(Float, nullable=True)
+    
+    # ATR & KDJ
+    atr_14 = Column(Float, nullable=True)
+    k_line = Column(Float, nullable=True)
+    d_line = Column(Float, nullable=True)
+    j_line = Column(Float, nullable=True)
+    
+    # Volume
+    volume_ma_20 = Column(Float, nullable=True)
     volume_ratio = Column(Float, nullable=True)
     
     market_status = Column(Enum(MarketStatus), default=MarketStatus.CLOSED)
     last_updated = Column(DateTime, default=datetime.utcnow, index=True)
 
     stock = relationship("Stock", back_populates="market_data")
+
+class StockNews(Base):
+    __tablename__ = "stock_news"
+
+    id = Column(String, primary_key=True) # Usually Yahoo provides a UUID or ID
+    ticker = Column(String, ForeignKey("stocks.ticker"), index=True)
+    title = Column(String, nullable=False)
+    publisher = Column(String, nullable=True)
+    link = Column(String, nullable=False)
+    publish_time = Column(DateTime, nullable=False)
+    summary = Column(String, nullable=True)
+    sentiment = Column(String, nullable=True) # Prepared for future AI sentiment tagging
+    
+    stock = relationship("Stock", back_populates="news")
+
+Stock.news = relationship("StockNews", back_populates="stock", cascade="all, delete-orphan")
+Stock.market_data = relationship("MarketDataCache", back_populates="stock", uselist=False)

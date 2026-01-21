@@ -47,7 +47,16 @@ export interface PortfolioItem {
     macd_val?: number;
     macd_signal?: number;
     macd_hist?: number;
+    bb_upper?: number;
+    bb_middle?: number;
+    bb_lower?: number;
+    atr_14?: number;
+    k_line?: number;
+    d_line?: number;
+    j_line?: number;
+    volume_ma_20?: number;
     volume_ratio?: number;
+    change_percent?: number;
 }
 
 export interface PortfolioCreate {
@@ -82,8 +91,8 @@ export interface SearchResult {
     name: string;
 }
 
-export const searchStocks = async (query: string): Promise<SearchResult[]> => {
-    const response = await api.get(`/api/portfolio/search?query=${query}`);
+export const searchStocks = async (query: string, remote: boolean = false): Promise<SearchResult[]> => {
+    const response = await api.get(`/api/portfolio/search?query=${query}&remote=${remote}`);
     return response.data;
 };
 

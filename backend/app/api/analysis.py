@@ -48,6 +48,15 @@ async def analyze_stock(
             "current_price": market_data_obj.current_price,
             "change_percent": market_data_obj.change_percent,
             "rsi_14": market_data_obj.rsi_14,
+            "ma_20": market_data_obj.ma_20,
+            "ma_50": market_data_obj.ma_50,
+            "ma_200": market_data_obj.ma_200,
+            "macd_val": market_data_obj.macd_val,
+            "macd_hist": market_data_obj.macd_hist,
+            "bb_upper": market_data_obj.bb_upper,
+            "bb_lower": market_data_obj.bb_lower,
+            "kdj_k": market_data_obj.k_line,
+            "atr_14": market_data_obj.atr_14,
             "market_status": market_data_obj.market_status
         }
     else:
@@ -55,9 +64,16 @@ async def analyze_stock(
         market_data = {
             "current_price": market_data_obj.get("currentPrice"),
             "change_percent": market_data_obj.get("regularMarketChangePercent"),
-            "rsi_14": 50.0, # Mock default
+            "rsi_14": 50.0,
             "market_status": "OPEN"
         }
+
+    # 3. Fetch News Context
+    from app.models.stock import StockNews
+    news_stmt = select(StockNews).where(StockNews.ticker == ticker).order_by(StockNews.publish_time.desc()).limit(5)
+    news_result = await db.execute(news_stmt)
+    news_articles = news_result.scalars().all()
+    news_data = [{"title": n.title, "publisher": n.publisher, "time": n.publish_time.isoformat()} for n in news_articles]
 
     # 2. Fetch User Portfolio (Context)
     stmt = select(Portfolio).where(Portfolio.user_id == current_user.id, Portfolio.ticker == ticker)
@@ -81,7 +97,8 @@ async def analyze_stock(
     ai_response = await AIService.generate_analysis(
         ticker, 
         market_data, 
-        portfolio_data, 
+        portfolio_data,
+        news_data,
         api_key=current_user.api_key_gemini
     )
 

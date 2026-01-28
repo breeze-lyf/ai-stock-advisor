@@ -5,6 +5,7 @@ from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.models.user import User
 from app.schemas.user_settings import UserSettingsUpdate, UserProfile
+from app.core import security
 
 router = APIRouter()
 
@@ -26,10 +27,10 @@ async def update_user_settings(
     current_user: User = Depends(get_current_user)
 ):
     if settings.api_key_gemini is not None:
-        current_user.api_key_gemini = settings.api_key_gemini
+        current_user.api_key_gemini = security.encrypt_api_key(settings.api_key_gemini)
     
     if settings.api_key_deepseek is not None:
-        current_user.api_key_deepseek = settings.api_key_deepseek
+        current_user.api_key_deepseek = security.encrypt_api_key(settings.api_key_deepseek)
 
     if settings.preferred_data_source is not None:
         current_user.preferred_data_source = settings.preferred_data_source

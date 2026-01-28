@@ -53,14 +53,18 @@ async def log_requests(request: Request, call_next):
     return response
 
 # CORS
-# CORS
-# In production, this should be specific. For local dev, we include both localhost and 127.0.0.1
+# In production, this should be specific.
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:3001",
     "http://127.0.0.1:3001",
 ]
+
+# 允许从环境变量中添加更多域名（如生产环境域名）
+env_origins = settings.ALLOWED_ORIGINS if hasattr(settings, "ALLOWED_ORIGINS") else []
+if env_origins:
+    origins.extend(env_origins)
 
 app.add_middleware(
     CORSMiddleware,

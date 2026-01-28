@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "dev_secret_key_change_me_in_production"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
+    ALLOWED_ORIGINS: list[str] = []
     
     # Encryption for API Keys (32 byte base64 encoded string)
     ENCRYPTION_KEY: Optional[str] = None

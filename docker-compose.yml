@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # 数据库: PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: stock_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-ai_advisor}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # 缓存: Redis
+  redis:
+    image: redis:7-alpine
+    container_name: stock_redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  # 后端服务
+  backend:
+    build: ./backend
+    container_name: stock_backend
+    restart: always
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - ./backend/.env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-ai_advisor}
+      - REDIS_URL=redis://redis:6379/0
+    ports:
+      - "8000:8000"
+
+  # 前端服务
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    container_name: stock_frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres_data:

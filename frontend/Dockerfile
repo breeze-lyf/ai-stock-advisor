@@ -1,6 +1,14 @@
 # 阶段 1: 构建阶段
-FROM node:18-slim AS builder
+FROM node:20-slim AS builder
 WORKDIR /app
+
+# 安装构建所需的系统依赖
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY package*.json ./
 RUN npm install
 COPY . .
@@ -10,7 +18,7 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 RUN npm run build
 
 # 阶段 2: 运行阶段
-FROM node:18-slim
+FROM node:20-slim
 WORKDIR /app
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public

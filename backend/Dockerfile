@@ -1,4 +1,4 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 # 设置工作目录
 WORKDIR /app
@@ -6,7 +6,10 @@ WORKDIR /app
 # 安装系统依赖
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    pkg-config \
+    python3-dev \
     libpq-dev \
+    gcc \
     && rm -rf /var/lib/apt/lists/*
 
 # 安装 Python 依赖

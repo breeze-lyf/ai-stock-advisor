@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e  # 任何命令失败就立即停止
 
 # AI 智能投顾系统 - 生产环境部署脚本
 
@@ -20,13 +21,27 @@ docker-compose down
 # 4. 构建并启动服务
 echo "构建并启动服务..."
 # --build 强制重新构建镜像
-docker-compose up -d --build
+if ! docker-compose up -d --build; then
+    echo "❌ 部署失败！请查看上面的错误信息。"
+    exit 1
+fi
 
-# 5. 执行数据库迁移
+# 5. 等待服务启动
+echo "等待服务启动..."
+sleep 5
+
+# 6. 检查后端是否运行
+if ! docker-compose ps | grep -q "stock_backend.*Up"; then
+    echo "❌ 后端服务未成功启动！"
+    echo "查看日志: docker-compose logs backend"
+    exit 1
+fi
+
+# 7. 执行数据库迁移
 echo "执行数据库迁移..."
 docker-compose exec backend alembic upgrade head
 
-# 6. 清理无用镜像
+# 8. 清理无用镜像
 echo "清理无用镜像..."
 docker image prune -f
 

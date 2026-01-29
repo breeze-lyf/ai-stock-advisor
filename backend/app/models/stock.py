@@ -25,6 +25,7 @@ class Stock(Base):
     beta = Column(Float, nullable=True)
     fifty_two_week_high = Column(Float, nullable=True)
     fifty_two_week_low = Column(Float, nullable=True)
+    exchange = Column(String, nullable=True)
     currency = Column(String, default="USD")
 
     # One-to-One relationship with MarketDataCache
@@ -61,7 +62,7 @@ class MarketDataCache(Base):
     volume_ma_20 = Column(Float, nullable=True)
     volume_ratio = Column(Float, nullable=True)
     
-    market_status = Column(Enum(MarketStatus), default=MarketStatus.CLOSED)
+    market_status = Column(String, default=MarketStatus.CLOSED.value)
     last_updated = Column(DateTime, default=datetime.utcnow, index=True)
 
     stock = relationship("Stock", back_populates="market_data")

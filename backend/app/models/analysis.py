@@ -18,7 +18,7 @@ class AnalysisReport(Base):
     
     input_context_snapshot = Column(JSON)
     ai_response_markdown = Column(Text)
-    sentiment_score = Column(Enum(SentimentScore, name="sentimentscore"), nullable=True)
+    sentiment_score = Column(String, nullable=True)
     model_used = Column(String)
     
     created_at = Column(DateTime, default=datetime.utcnow, index=True)

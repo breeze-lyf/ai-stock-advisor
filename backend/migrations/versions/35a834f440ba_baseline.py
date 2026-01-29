@@ -19,17 +19,6 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # 0. 聪明地创建 PostgreSQL 枚举类型（如果不存在才创建）
-    # 这样可以避免 "DuplicateObjectError"
-    def create_type_if_not_exists(type_name, enum_values):
-        values_str = ", ".join([f"'{v}'" for v in enum_values])
-        op.execute(f"DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = '{type_name}') THEN CREATE TYPE {type_name} AS ENUM ({values_str}); END IF; END $$;")
-
-    create_type_if_not_exists('membershiptier', ['FREE', 'PRO'])
-    create_type_if_not_exists('marketdatasource', ['ALPHA_VANTAGE', 'YFINANCE'])
-    create_type_if_not_exists('sentimentscore', ['BULLISH', 'BEARISH', 'NEUTRAL'])
-    create_type_if_not_exists('marketstatus', ['PRE_MARKET', 'OPEN', 'AFTER_HOURS', 'CLOSED'])
-
     # 1. 创建 stocks 表
     op.create_table('stocks',
         sa.Column('ticker', sa.String(), nullable=False),
@@ -56,10 +45,10 @@ def upgrade() -> None:
         sa.Column('email', sa.String(), nullable=False),
         sa.Column('hashed_password', sa.String(), nullable=False),
         sa.Column('is_active', sa.Boolean(), nullable=True),
-        sa.Column('membership_tier', sa.Enum('FREE', 'PRO', name='membershiptier', create_type=False), nullable=True),
+        sa.Column('membership_tier', sa.String(), nullable=True),
         sa.Column('api_key_gemini', sa.String(), nullable=True),
         sa.Column('api_key_deepseek', sa.String(), nullable=True),
-        sa.Column('preferred_data_source', sa.Enum('ALPHA_VANTAGE', 'YFINANCE', name='marketdatasource', create_type=False), nullable=True),
+        sa.Column('preferred_data_source', sa.String(), nullable=True),
         sa.Column('created_at', sa.DateTime(), nullable=True),
         sa.Column('last_login', sa.DateTime(), nullable=True),
         sa.PrimaryKeyConstraint('id')
@@ -75,7 +64,7 @@ def upgrade() -> None:
         sa.Column('ma_20', sa.Float(), nullable=True),
         sa.Column('ma_50', sa.Float(), nullable=True),
         sa.Column('ma_200', sa.Float(), nullable=True),
-        sa.Column('market_status', sa.Enum('PRE_MARKET', 'OPEN', 'AFTER_HOURS', 'CLOSED', name='marketstatus', create_type=False), nullable=True),
+        sa.Column('market_status', sa.String(), nullable=True),
         sa.Column('last_updated', sa.DateTime(), nullable=True),
         sa.ForeignKeyConstraint(['ticker'], ['stocks.ticker'], ),
         sa.PrimaryKeyConstraint('ticker')
@@ -121,7 +110,7 @@ def upgrade() -> None:
         sa.Column('ticker', sa.String(), nullable=True),
         sa.Column('input_context_snapshot', sa.JSON(), nullable=True),
         sa.Column('ai_response_markdown', sa.Text(), nullable=True),
-        sa.Column('sentiment_score', sa.Enum('BULLISH', 'BEARISH', 'NEUTRAL', name='sentimentscore', create_type=False), nullable=True),
+        sa.Column('sentiment_score', sa.String(), nullable=True),
         sa.Column('model_used', sa.String(), nullable=True),
         sa.Column('created_at', sa.DateTime(), nullable=True),
         sa.ForeignKeyConstraint(['ticker'], ['stocks.ticker'], ),

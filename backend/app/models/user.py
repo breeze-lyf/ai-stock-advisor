@@ -19,12 +19,12 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
-    membership_tier = Column(Enum(MembershipTier, name="membershiptier"), default=MembershipTier.FREE)
+    membership_tier = Column(String, default=MembershipTier.FREE.value)
     
     # Encrypted API Keys (Placeholder for now, storing raw/base64 in MVP if needed, but schema says encrypted)
     api_key_gemini = Column(String, nullable=True)
     api_key_deepseek = Column(String, nullable=True)
-    preferred_data_source = Column(Enum(MarketDataSource, name="marketdatasource"), default=MarketDataSource.ALPHA_VANTAGE)
+    preferred_data_source = Column(String, default=MarketDataSource.ALPHA_VANTAGE.value)
     
     created_at = Column(DateTime, default=datetime.utcnow)
     last_login = Column(DateTime, nullable=True)

@@ -3,16 +3,19 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Zap } from "lucide-react";
+import { Zap, RefreshCw } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import clsx from "clsx";
 import ReactMarkdown from "react-markdown";
 import { PortfolioItem } from "@/types";
+import { refreshStock } from "@/lib/api";
+import { useState } from "react";
 
 interface StockDetailProps {
     selectedItem: PortfolioItem | null;
     onAnalyze: () => void;
+    onRefresh: () => void;
     analyzing: boolean;
     aiData: {
         technical_analysis: string;
@@ -24,9 +27,12 @@ interface StockDetailProps {
 export function StockDetail({
     selectedItem,
     onAnalyze,
+    onRefresh,
     analyzing,
     aiData,
 }: StockDetailProps) {
+    const [refreshing, setRefreshing] = useState(false);
+
     if (!selectedItem) {
         return (
             <div className="col-span-9 bg-slate-50 dark:bg-slate-950 p-6 flex flex-col items-center justify-center h-full text-slate-300 gap-2 overflow-y-auto custom-scrollbar">
@@ -36,13 +42,43 @@ export function StockDetail({
         );
     }
 
+    const handleRefresh = async () => {
+        setRefreshing(true);
+        try {
+            await refreshStock(selectedItem.ticker);
+            await onRefresh();
+        } catch (err) {
+            console.error("Refresh failed", err);
+        } finally {
+            setRefreshing(false);
+        }
+    };
+
     return (
         <div className="col-span-9 bg-slate-50 dark:bg-slate-950 p-6 flex flex-col gap-6 overflow-y-auto h-full custom-scrollbar">
             <div className="flex justify-between items-start">
-                <div>
-                    <h2 className="text-4xl font-black tracking-tight text-slate-800 dark:text-slate-100">
-                        {selectedItem.ticker}
-                    </h2>
+                <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-4">
+                        <h2 className="text-4xl font-black tracking-tight text-slate-800 dark:text-slate-100 italic">
+                            {selectedItem.ticker}
+                        </h2>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className={clsx(
+                                "h-10 w-10 transition-all duration-300",
+                                refreshing
+                                    ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20"
+                                    : "text-slate-300 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-slate-800"
+                            )}
+                            onClick={handleRefresh}
+                            disabled={refreshing}
+                            title="刷新数据"
+                        >
+                            <RefreshCw className={clsx("h-6 w-6", refreshing && "animate-spin")} />
+                        </Button>
+                    </div>
+
                     <div className="flex items-center gap-3 mt-1 flex-wrap">
                         <p className="text-lg font-mono text-slate-500">
                             Price:{" "}
@@ -84,7 +120,6 @@ export function StockDetail({
                 </Button>
             </div>
 
-            {/* AI Analysis Cards */}
             <div className="grid gap-6">
                 {/* 1. Fundamentals */}
                 <Card className="shadow-sm border-slate-200 dark:border-slate-800">

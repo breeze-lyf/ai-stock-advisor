@@ -3,12 +3,12 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Pencil, Trash2, Filter, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Filter, X, RefreshCw } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import clsx from "clsx";
 import { PortfolioItem } from "@/types";
-import { addPortfolioItem, deletePortfolioItem } from "@/lib/api";
+import { addPortfolioItem, deletePortfolioItem, refreshStock } from "@/lib/api";
 
 interface PortfolioListProps {
     portfolio: PortfolioItem[];
@@ -33,6 +33,7 @@ export function PortfolioList({
     const [editForm, setEditForm] = useState({ quantity: "", cost: "" });
     const [sortBy, setSortBy] = useState<"ticker" | "price" | "change">("ticker");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+    const [refreshingTicker, setRefreshingTicker] = useState<string | null>(null);
 
     const sortedPortfolio = [...portfolio]
         .filter((item) => !onlyHoldings || item.quantity > 0)
@@ -81,11 +82,20 @@ export function PortfolioList({
         try {
             await deletePortfolioItem(ticker);
             onRefresh();
-            if (selectedTicker === ticker) {
-                // Parent should handle this if needed, but onRefresh will update props
-            }
         } catch (err) {
             alert("删除失败");
+        }
+    };
+
+    const handleRefreshItem = async (ticker: string) => {
+        setRefreshingTicker(ticker);
+        try {
+            await refreshStock(ticker);
+            onRefresh();
+        } catch (err) {
+            console.error("Refresh failed", err);
+        } finally {
+            setRefreshingTicker(null);
         }
     };
 
@@ -197,11 +207,28 @@ export function PortfolioList({
                                 <div
                                     className={clsx(
                                         "flex gap-1 transition-opacity",
-                                        editingTicker === item.ticker
+                                        editingTicker === item.ticker || refreshingTicker === item.ticker
                                             ? "opacity-100"
                                             : "opacity-0 group-hover:opacity-100"
                                     )}
                                 >
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className={clsx(
+                                            "h-7 w-7",
+                                            refreshingTicker === item.ticker
+                                                ? "text-blue-500 bg-blue-50"
+                                                : "text-slate-300 hover:text-blue-500 hover:bg-blue-50"
+                                        )}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleRefreshItem(item.ticker);
+                                        }}
+                                        disabled={refreshingTicker === item.ticker}
+                                    >
+                                        <RefreshCw className={clsx("h-3.5 w-3.5", refreshingTicker === item.ticker && "animate-spin")} />
+                                    </Button>
                                     <Button
                                         variant="ghost"
                                         size="icon"

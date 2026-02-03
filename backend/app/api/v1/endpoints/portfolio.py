@@ -250,3 +250,34 @@ async def delete_portfolio_item(
     await db.delete(item)
     await db.commit()
     return {"message": "Item deleted"}
+
+@router.post("/{ticker}/refresh")
+async def refresh_stock_data(
+    ticker: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    针对单个股票进行实时数据刷新
+    """
+    ticker = ticker.upper().strip()
+    
+    # Check if stock exists in user's portfolio or system
+    # For now, we allow refreshing any stock that might be in the system
+    try:
+        updated_cache = await MarketDataService.get_real_time_data(
+            ticker, 
+            db, 
+            preferred_source=current_user.preferred_data_source,
+            force_refresh=True
+        )
+        
+        # Return the updated price/percent for immediate UI update
+        return {
+            "ticker": ticker,
+            "current_price": updated_cache.current_price,
+            "change_percent": updated_cache.change_percent,
+            "last_updated": updated_cache.last_updated
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Refresh failed: {str(e)}")

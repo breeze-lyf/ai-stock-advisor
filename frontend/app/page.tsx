@@ -133,6 +133,7 @@ export default function Dashboard() {
         <StockDetail
           selectedItem={selectedItem || null}
           onAnalyze={handleAnalyze}
+          onRefresh={() => fetchData(false)}
           analyzing={analyzing}
           aiData={aiData}
         />

@@ -247,3 +247,572 @@ WHERE portfolios.user_id = ?
 2026-02-03 22:14:40,969 - sqlalchemy.engine.Engine - INFO - [cached since 38.2s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
 2026-02-03 22:14:40,971 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=10.41ms
 2026-02-03 22:14:40,972 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:33:45,297 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:33:45,298 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:33:45,298 - sqlalchemy.engine.Engine - INFO - [cached since 1495s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:33:45,307 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:33:45,307 - sqlalchemy.engine.Engine - INFO - [cached since 1495s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:33:45,315 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=23.11ms
+2026-02-03 23:33:45,315 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:36:04,882 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:36:04,888 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:36:04,888 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:36:04,890 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:36:04,890 - sqlalchemy.engine.Engine - INFO - [generated in 0.00013s] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:36:04,892 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=21.21ms
+2026-02-03 23:36:04,892 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:36:05,095 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:36:05,096 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:36:05,096 - sqlalchemy.engine.Engine - INFO - [cached since 0.2074s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:36:05,097 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:36:05,097 - sqlalchemy.engine.Engine - INFO - [cached since 0.2068s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:36:05,103 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=8.06ms
+2026-02-03 23:36:05,103 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:38:50,037 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:38:50,039 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:38:50,039 - sqlalchemy.engine.Engine - INFO - [cached since 165.2s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:38:50,041 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:38:50,041 - sqlalchemy.engine.Engine - INFO - [cached since 165.2s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:38:50,043 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=16.82ms
+2026-02-03 23:38:50,043 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:38:54,286 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:38:54,287 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:38:54,287 - sqlalchemy.engine.Engine - INFO - [cached since 169.4s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:38:54,309 - sqlalchemy.engine.Engine - INFO - SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated 
+FROM market_data_cache 
+WHERE market_data_cache.ticker = ?
+2026-02-03 23:38:54,309 - sqlalchemy.engine.Engine - INFO - [generated in 0.00088s] ('AAPL',)
+2026-02-03 23:38:57,084 - app.services.market_providers.yfinance - ERROR - yfinance get_quote error for AAPL: Too Many Requests. Rate limited. Try after a while.
+2026-02-03 23:38:58,839 - app.services.market_providers.yfinance - ERROR - yfinance get_fundamental_data error for AAPL: Too Many Requests. Rate limited. Try after a while.
+2026-02-03 23:39:00,386 - app.services.market_providers.yfinance - ERROR - yfinance get_historical_data error for AAPL: Too Many Requests. Rate limited. Try after a while.
+2026-02-03 23:39:01,867 - app.services.market_providers.yfinance - ERROR - yfinance get_news error for AAPL: Too Many Requests. Rate limited. Try after a while.
+2026-02-03 23:39:03,093 - sqlalchemy.engine.Engine - INFO - SELECT stocks.ticker, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM stocks 
+WHERE stocks.ticker = ?
+2026-02-03 23:39:03,094 - sqlalchemy.engine.Engine - INFO - [generated in 0.00053s] ('AAPL',)
+2026-02-03 23:39:03,098 - sqlalchemy.engine.Engine - INFO - UPDATE market_data_cache SET current_price=?, change_percent=?, last_updated=? WHERE market_data_cache.ticker = ?
+2026-02-03 23:39:03,098 - sqlalchemy.engine.Engine - INFO - [generated in 0.00055s] (270.01, 4.0581, '2026-02-03 15:38:54.311898', 'AAPL')
+2026-02-03 23:39:03,103 - sqlalchemy.engine.Engine - INFO - COMMIT
+2026-02-03 23:39:03,106 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:39:03,109 - sqlalchemy.engine.Engine - INFO - SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated 
+FROM market_data_cache 
+WHERE market_data_cache.ticker = ?
+2026-02-03 23:39:03,109 - sqlalchemy.engine.Engine - INFO - [generated in 0.00046s] ('AAPL',)
+2026-02-03 23:39:03,111 - api_logger - INFO - rid=/api/portfolio/AAPL/refresh method=POST status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=8846.20ms
+2026-02-03 23:39:03,113 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:39:03,124 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:39:03,124 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:39:03,124 - sqlalchemy.engine.Engine - INFO - [cached since 178.2s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:39:03,125 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:39:03,125 - sqlalchemy.engine.Engine - INFO - [cached since 178.2s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:39:03,127 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=4.67ms
+2026-02-03 23:39:03,128 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:39:18,279 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:39:18,280 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:39:18,280 - sqlalchemy.engine.Engine - INFO - [cached since 193.4s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:39:18,282 - sqlalchemy.engine.Engine - INFO - SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated 
+FROM market_data_cache 
+WHERE market_data_cache.ticker = ?
+2026-02-03 23:39:18,282 - sqlalchemy.engine.Engine - INFO - [cached since 23.97s ago] ('SIDU',)
+2026-02-03 23:39:19,765 - app.services.market_providers.yfinance - ERROR - yfinance get_quote error for SIDU: Too Many Requests. Rate limited. Try after a while.
+2026-02-03 23:39:21,256 - app.services.market_providers.yfinance - ERROR - yfinance get_fundamental_data error for SIDU: Too Many Requests. Rate limited. Try after a while.
+2026-02-03 23:39:22,722 - app.services.market_providers.yfinance - ERROR - yfinance get_historical_data error for SIDU: Too Many Requests. Rate limited. Try after a while.
+2026-02-03 23:39:24,480 - app.services.market_providers.yfinance - ERROR - yfinance get_news error for SIDU: Too Many Requests. Rate limited. Try after a while.
+2026-02-03 23:39:25,826 - sqlalchemy.engine.Engine - INFO - SELECT stocks.ticker, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM stocks 
+WHERE stocks.ticker = ?
+2026-02-03 23:39:25,826 - sqlalchemy.engine.Engine - INFO - [cached since 22.73s ago] ('SIDU',)
+2026-02-03 23:39:25,828 - sqlalchemy.engine.Engine - INFO - UPDATE market_data_cache SET current_price=?, change_percent=?, last_updated=? WHERE market_data_cache.ticker = ?
+2026-02-03 23:39:25,829 - sqlalchemy.engine.Engine - INFO - [cached since 22.73s ago] (2.58, -7.8571, '2026-02-03 15:39:18.288163', 'SIDU')
+2026-02-03 23:39:25,830 - sqlalchemy.engine.Engine - INFO - COMMIT
+2026-02-03 23:39:25,834 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:39:25,835 - sqlalchemy.engine.Engine - INFO - SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated 
+FROM market_data_cache 
+WHERE market_data_cache.ticker = ?
+2026-02-03 23:39:25,835 - sqlalchemy.engine.Engine - INFO - [cached since 22.73s ago] ('SIDU',)
+2026-02-03 23:39:25,837 - api_logger - INFO - rid=/api/portfolio/SIDU/refresh method=POST status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=7559.64ms
+2026-02-03 23:39:25,837 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:39:25,851 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:39:25,851 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:39:25,851 - sqlalchemy.engine.Engine - INFO - [cached since 201s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:39:25,853 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:39:25,853 - sqlalchemy.engine.Engine - INFO - [cached since 201s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:39:25,856 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=8.95ms
+2026-02-03 23:39:25,857 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:39:36,556 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:39:36,556 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:39:36,556 - sqlalchemy.engine.Engine - INFO - [cached since 211.7s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:39:36,557 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:39:36,557 - sqlalchemy.engine.Engine - INFO - [cached since 211.7s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:39:36,564 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=7.11ms
+2026-02-03 23:39:36,573 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:39:55,467 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:39:55,472 - sqlalchemy.engine.Engine - INFO - SELECT stocks.ticker, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM stocks 
+WHERE lower(stocks.ticker) LIKE lower(?) OR lower(stocks.name) LIKE lower(?)
+ LIMIT ? OFFSET ?
+2026-02-03 23:39:55,473 - sqlalchemy.engine.Engine - INFO - [generated in 0.00112s] ('%S%', '%S%', 10, 0)
+2026-02-03 23:39:55,477 - api_logger - INFO - rid=/api/portfolio/search method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=17.91ms
+2026-02-03 23:39:55,478 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:39:55,582 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:39:55,582 - sqlalchemy.engine.Engine - INFO - SELECT stocks.ticker, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM stocks 
+WHERE lower(stocks.ticker) LIKE lower(?) OR lower(stocks.name) LIKE lower(?)
+ LIMIT ? OFFSET ?
+2026-02-03 23:39:55,582 - sqlalchemy.engine.Engine - INFO - [cached since 0.1105s ago] ('%S N%', '%S N%', 10, 0)
+2026-02-03 23:39:55,584 - api_logger - INFO - rid=/api/portfolio/search method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=3.86ms
+2026-02-03 23:39:55,584 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:39:58,229 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:39:58,230 - sqlalchemy.engine.Engine - INFO - SELECT stocks.ticker, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM stocks 
+WHERE lower(stocks.ticker) LIKE lower(?) OR lower(stocks.name) LIKE lower(?)
+ LIMIT ? OFFSET ?
+2026-02-03 23:39:58,230 - sqlalchemy.engine.Engine - INFO - [cached since 2.758s ago] ('%S%', '%S%', 10, 0)
+2026-02-03 23:39:58,232 - api_logger - INFO - rid=/api/portfolio/search method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=6.12ms
+2026-02-03 23:39:58,233 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:39:58,703 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:39:58,704 - sqlalchemy.engine.Engine - INFO - SELECT stocks.ticker, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM stocks 
+WHERE lower(stocks.ticker) LIKE lower(?) OR lower(stocks.name) LIKE lower(?)
+ LIMIT ? OFFSET ?
+2026-02-03 23:39:58,704 - sqlalchemy.engine.Engine - INFO - [cached since 3.232s ago] ('%S N%', '%S N%', 10, 0)
+2026-02-03 23:39:58,706 - api_logger - INFO - rid=/api/portfolio/search method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=4.66ms
+2026-02-03 23:39:58,707 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:39:58,954 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:39:58,955 - sqlalchemy.engine.Engine - INFO - SELECT stocks.ticker, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM stocks 
+WHERE lower(stocks.ticker) LIKE lower(?) OR lower(stocks.name) LIKE lower(?)
+ LIMIT ? OFFSET ?
+2026-02-03 23:39:58,955 - sqlalchemy.engine.Engine - INFO - [cached since 3.483s ago] ('%S N D%', '%S N D%', 10, 0)
+2026-02-03 23:39:58,957 - api_logger - INFO - rid=/api/portfolio/search method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=4.07ms
+2026-02-03 23:39:58,958 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:39:59,081 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:39:59,082 - sqlalchemy.engine.Engine - INFO - SELECT stocks.ticker, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM stocks 
+WHERE lower(stocks.ticker) LIKE lower(?) OR lower(stocks.name) LIKE lower(?)
+ LIMIT ? OFFSET ?
+2026-02-03 23:39:59,082 - sqlalchemy.engine.Engine - INFO - [cached since 3.611s ago] ('%S N D K%', '%S N D K%', 10, 0)
+2026-02-03 23:39:59,084 - api_logger - INFO - rid=/api/portfolio/search method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=4.73ms
+2026-02-03 23:39:59,085 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:39:59,376 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:39:59,377 - sqlalchemy.engine.Engine - INFO - SELECT stocks.ticker, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM stocks 
+WHERE lower(stocks.ticker) LIKE lower(?) OR lower(stocks.name) LIKE lower(?)
+ LIMIT ? OFFSET ?
+2026-02-03 23:39:59,377 - sqlalchemy.engine.Engine - INFO - [cached since 3.906s ago] ('%S N D K%', '%S N D K%', 10, 0)
+2026-02-03 23:39:59,382 - api_logger - INFO - rid=/api/portfolio/search method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=8.00ms
+2026-02-03 23:39:59,384 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:39:59,385 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:39:59,385 - sqlalchemy.engine.Engine - INFO - SELECT stocks.ticker, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM stocks 
+WHERE lower(stocks.ticker) LIKE lower(?) OR lower(stocks.name) LIKE lower(?)
+ LIMIT ? OFFSET ?
+2026-02-03 23:39:59,385 - sqlalchemy.engine.Engine - INFO - [cached since 3.914s ago] ('%SNDK%', '%SNDK%', 10, 0)
+2026-02-03 23:39:59,386 - api_logger - INFO - rid=/api/portfolio/search method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=3.53ms
+2026-02-03 23:39:59,387 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:40:00,687 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:40:00,688 - sqlalchemy.engine.Engine - INFO - SELECT stocks.ticker, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM stocks 
+WHERE lower(stocks.ticker) LIKE lower(?) OR lower(stocks.name) LIKE lower(?)
+ LIMIT ? OFFSET ?
+2026-02-03 23:40:00,688 - sqlalchemy.engine.Engine - INFO - [cached since 5.216s ago] ('%SNDK%', '%SNDK%', 10, 0)
+2026-02-03 23:40:00,690 - api_logger - INFO - rid=/api/portfolio/search method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=4.71ms
+2026-02-03 23:40:00,691 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:40:02,221 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:40:02,221 - sqlalchemy.engine.Engine - INFO - SELECT stocks.ticker, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM stocks 
+WHERE lower(stocks.ticker) LIKE lower(?) OR lower(stocks.name) LIKE lower(?)
+ LIMIT ? OFFSET ?
+2026-02-03 23:40:02,222 - sqlalchemy.engine.Engine - INFO - [cached since 6.75s ago] ('%SNDK%', '%SNDK%', 10, 0)
+2026-02-03 23:40:02,223 - api_logger - INFO - rid=/api/portfolio/search method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=4.85ms
+2026-02-03 23:40:02,224 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:40:03,991 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:40:03,992 - sqlalchemy.engine.Engine - INFO - SELECT stocks.ticker, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM stocks 
+WHERE lower(stocks.ticker) LIKE lower(?) OR lower(stocks.name) LIKE lower(?)
+ LIMIT ? OFFSET ?
+2026-02-03 23:40:03,993 - sqlalchemy.engine.Engine - INFO - [cached since 8.521s ago] ('%SNDK%', '%SNDK%', 10, 0)
+2026-02-03 23:40:03,995 - api_logger - INFO - rid=/api/portfolio/search method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=5.93ms
+2026-02-03 23:40:03,996 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:40:04,603 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:40:04,604 - sqlalchemy.engine.Engine - INFO - SELECT stocks.ticker, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM stocks 
+WHERE lower(stocks.ticker) LIKE lower(?) OR lower(stocks.name) LIKE lower(?)
+ LIMIT ? OFFSET ?
+2026-02-03 23:40:04,605 - sqlalchemy.engine.Engine - INFO - [cached since 9.133s ago] ('%SNDK%', '%SNDK%', 10, 0)
+2026-02-03 23:40:04,607 - api_logger - INFO - rid=/api/portfolio/search method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=5.75ms
+2026-02-03 23:40:04,608 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:40:13,493 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:40:13,494 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:40:13,494 - sqlalchemy.engine.Engine - INFO - [cached since 248.6s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:40:13,503 - sqlalchemy.engine.Engine - INFO - SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated 
+FROM market_data_cache 
+WHERE market_data_cache.ticker = ?
+2026-02-03 23:40:13,504 - sqlalchemy.engine.Engine - INFO - [cached since 79.2s ago] ('RKLB',)
+2026-02-03 23:40:15,113 - app.services.market_providers.yfinance - ERROR - yfinance get_quote error for RKLB: Too Many Requests. Rate limited. Try after a while.
+2026-02-03 23:40:16,631 - app.services.market_providers.yfinance - ERROR - yfinance get_fundamental_data error for RKLB: Too Many Requests. Rate limited. Try after a while.
+2026-02-03 23:40:18,155 - app.services.market_providers.yfinance - ERROR - yfinance get_historical_data error for RKLB: Too Many Requests. Rate limited. Try after a while.
+2026-02-03 23:40:19,626 - app.services.market_providers.yfinance - ERROR - yfinance get_news error for RKLB: Too Many Requests. Rate limited. Try after a while.
+2026-02-03 23:40:21,894 - sqlalchemy.engine.Engine - INFO - SELECT stocks.ticker, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM stocks 
+WHERE stocks.ticker = ?
+2026-02-03 23:40:21,895 - sqlalchemy.engine.Engine - INFO - [cached since 78.81s ago] ('RKLB',)
+2026-02-03 23:40:21,897 - sqlalchemy.engine.Engine - INFO - UPDATE market_data_cache SET current_price=?, change_percent=?, last_updated=? WHERE market_data_cache.ticker = ?
+2026-02-03 23:40:21,898 - sqlalchemy.engine.Engine - INFO - [cached since 78.8s ago] (74.15, -7.3935, '2026-02-03 15:40:13.505481', 'RKLB')
+2026-02-03 23:40:21,899 - sqlalchemy.engine.Engine - INFO - COMMIT
+2026-02-03 23:40:21,901 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:40:21,902 - sqlalchemy.engine.Engine - INFO - SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated 
+FROM market_data_cache 
+WHERE market_data_cache.ticker = ?
+2026-02-03 23:40:21,902 - sqlalchemy.engine.Engine - INFO - [cached since 78.8s ago] ('RKLB',)
+2026-02-03 23:40:21,904 - api_logger - INFO - rid=/api/portfolio/RKLB/refresh method=POST status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=8412.14ms
+2026-02-03 23:40:21,906 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:40:21,916 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:40:21,917 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:40:21,917 - sqlalchemy.engine.Engine - INFO - [cached since 257s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:40:21,918 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:40:21,918 - sqlalchemy.engine.Engine - INFO - [cached since 257s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:40:21,921 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=5.84ms
+2026-02-03 23:40:21,922 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:40:25,535 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:40:25,535 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:40:25,535 - sqlalchemy.engine.Engine - INFO - [cached since 260.7s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:40:25,537 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:40:25,538 - sqlalchemy.engine.Engine - INFO - [cached since 260.7s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:40:25,540 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=6.72ms
+2026-02-03 23:40:25,540 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:40:34,109 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:40:34,110 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:40:34,111 - sqlalchemy.engine.Engine - INFO - [cached since 269.2s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:40:34,114 - sqlalchemy.engine.Engine - INFO - SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated 
+FROM market_data_cache 
+WHERE market_data_cache.ticker = ?
+2026-02-03 23:40:34,116 - sqlalchemy.engine.Engine - INFO - [cached since 99.81s ago] ('AMD',)
+2026-02-03 23:40:35,715 - app.services.market_providers.yfinance - ERROR - yfinance get_quote error for AMD: Too Many Requests. Rate limited. Try after a while.
+2026-02-03 23:40:37,221 - app.services.market_providers.yfinance - ERROR - yfinance get_fundamental_data error for AMD: Too Many Requests. Rate limited. Try after a while.
+2026-02-03 23:40:38,720 - app.services.market_providers.yfinance - ERROR - yfinance get_historical_data error for AMD: Too Many Requests. Rate limited. Try after a while.
+2026-02-03 23:40:40,198 - app.services.market_providers.yfinance - ERROR - yfinance get_news error for AMD: Too Many Requests. Rate limited. Try after a while.
+2026-02-03 23:40:41,179 - sqlalchemy.engine.Engine - INFO - SELECT stocks.ticker, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM stocks 
+WHERE stocks.ticker = ?
+2026-02-03 23:40:41,180 - sqlalchemy.engine.Engine - INFO - [cached since 98.09s ago] ('AMD',)
+2026-02-03 23:40:41,182 - sqlalchemy.engine.Engine - INFO - UPDATE market_data_cache SET current_price=?, change_percent=?, last_updated=? WHERE market_data_cache.ticker = ?
+2026-02-03 23:40:41,182 - sqlalchemy.engine.Engine - INFO - [cached since 98.09s ago] (246.27, 4.0299, '2026-02-03 15:40:34.118323', 'AMD')
+2026-02-03 23:40:41,183 - sqlalchemy.engine.Engine - INFO - COMMIT
+2026-02-03 23:40:41,185 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:40:41,186 - sqlalchemy.engine.Engine - INFO - SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated 
+FROM market_data_cache 
+WHERE market_data_cache.ticker = ?
+2026-02-03 23:40:41,186 - sqlalchemy.engine.Engine - INFO - [cached since 98.08s ago] ('AMD',)
+2026-02-03 23:40:41,189 - api_logger - INFO - rid=/api/portfolio/AMD/refresh method=POST status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=7081.30ms
+2026-02-03 23:40:41,190 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:40:41,201 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:40:41,201 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:40:41,201 - sqlalchemy.engine.Engine - INFO - [cached since 276.3s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:40:41,203 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:40:41,203 - sqlalchemy.engine.Engine - INFO - [cached since 276.3s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:40:41,207 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=7.77ms
+2026-02-03 23:40:41,207 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:40:47,824 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:40:47,824 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:40:47,824 - sqlalchemy.engine.Engine - INFO - [cached since 282.9s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:40:47,826 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:40:47,826 - sqlalchemy.engine.Engine - INFO - [cached since 282.9s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:40:47,828 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=5.37ms
+2026-02-03 23:40:47,830 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:40:57,293 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:40:57,294 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:40:57,294 - sqlalchemy.engine.Engine - INFO - [cached since 292.4s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:40:57,297 - sqlalchemy.engine.Engine - INFO - SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated 
+FROM market_data_cache 
+WHERE market_data_cache.ticker = ?
+2026-02-03 23:40:57,301 - sqlalchemy.engine.Engine - INFO - [cached since 123s ago] ('FRO',)
+2026-02-03 23:40:58,813 - app.services.market_providers.yfinance - ERROR - yfinance get_quote error for FRO: Too Many Requests. Rate limited. Try after a while.
+2026-02-03 23:41:00,352 - app.services.market_providers.yfinance - ERROR - yfinance get_fundamental_data error for FRO: Too Many Requests. Rate limited. Try after a while.
+2026-02-03 23:41:01,820 - app.services.market_providers.yfinance - ERROR - yfinance get_historical_data error for FRO: Too Many Requests. Rate limited. Try after a while.
+2026-02-03 23:41:03,392 - app.services.market_providers.yfinance - ERROR - yfinance get_news error for FRO: Too Many Requests. Rate limited. Try after a while.
+2026-02-03 23:41:04,379 - sqlalchemy.engine.Engine - INFO - SELECT stocks.ticker, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM stocks 
+WHERE stocks.ticker = ?
+2026-02-03 23:41:04,379 - sqlalchemy.engine.Engine - INFO - [cached since 121.3s ago] ('FRO',)
+2026-02-03 23:41:04,381 - sqlalchemy.engine.Engine - INFO - UPDATE market_data_cache SET current_price=?, change_percent=?, last_updated=? WHERE market_data_cache.ticker = ?
+2026-02-03 23:41:04,382 - sqlalchemy.engine.Engine - INFO - [cached since 121.3s ago] (28.56, -0.07, '2026-02-03 15:40:57.323663', 'FRO')
+2026-02-03 23:41:04,383 - sqlalchemy.engine.Engine - INFO - COMMIT
+2026-02-03 23:41:04,385 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:41:04,385 - sqlalchemy.engine.Engine - INFO - SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated 
+FROM market_data_cache 
+WHERE market_data_cache.ticker = ?
+2026-02-03 23:41:04,385 - sqlalchemy.engine.Engine - INFO - [cached since 121.3s ago] ('FRO',)
+2026-02-03 23:41:04,387 - api_logger - INFO - rid=/api/portfolio/FRO/refresh method=POST status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=7095.93ms
+2026-02-03 23:41:04,388 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:41:04,397 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:41:04,398 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:41:04,398 - sqlalchemy.engine.Engine - INFO - [cached since 299.5s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:41:04,399 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:41:04,399 - sqlalchemy.engine.Engine - INFO - [cached since 299.5s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:41:04,402 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=5.54ms
+2026-02-03 23:41:04,402 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:45:58,058 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:45:58,063 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:45:58,063 - sqlalchemy.engine.Engine - INFO - [generated in 0.00013s] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:45:58,065 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:45:58,065 - sqlalchemy.engine.Engine - INFO - [generated in 0.00011s] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:45:58,067 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=16.38ms
+2026-02-03 23:45:58,067 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:46:06,126 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:46:06,127 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:46:06,127 - sqlalchemy.engine.Engine - INFO - [cached since 8.064s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:46:06,131 - sqlalchemy.engine.Engine - INFO - SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated 
+FROM market_data_cache 
+WHERE market_data_cache.ticker = ?
+2026-02-03 23:46:06,132 - sqlalchemy.engine.Engine - INFO - [generated in 0.00096s] ('ASTS',)
+2026-02-03 23:46:06,136 - app.services.market_providers.yfinance - ERROR - yfinance get_full_data error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:46:06,170 - app.services.market_providers.yfinance - ERROR - yfinance get_quote error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:46:06,170 - app.services.market_providers.yfinance - ERROR - yfinance get_fundamental_data error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:46:06,170 - app.services.market_providers.yfinance - ERROR - yfinance get_historical_data error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:46:06,170 - app.services.market_providers.yfinance - ERROR - yfinance get_news error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:46:06,171 - api_logger - INFO - rid=/api/portfolio/ASTS/refresh method=POST status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=49.96ms
+2026-02-03 23:46:06,172 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:46:06,179 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:46:06,180 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:46:06,180 - sqlalchemy.engine.Engine - INFO - [cached since 8.117s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:46:06,213 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:46:06,217 - sqlalchemy.engine.Engine - INFO - [cached since 8.152s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:46:06,226 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=48.06ms
+2026-02-03 23:46:06,226 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:46:09,801 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:46:09,802 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:46:09,802 - sqlalchemy.engine.Engine - INFO - [cached since 11.74s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:46:09,804 - sqlalchemy.engine.Engine - INFO - SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated 
+FROM market_data_cache 
+WHERE market_data_cache.ticker = ?
+2026-02-03 23:46:09,804 - sqlalchemy.engine.Engine - INFO - [cached since 3.673s ago] ('ASTS',)
+2026-02-03 23:46:09,805 - app.services.market_providers.yfinance - ERROR - yfinance get_full_data error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:46:09,806 - app.services.market_providers.yfinance - ERROR - yfinance get_quote error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:46:09,806 - app.services.market_providers.yfinance - ERROR - yfinance get_fundamental_data error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:46:09,806 - app.services.market_providers.yfinance - ERROR - yfinance get_historical_data error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:46:09,806 - app.services.market_providers.yfinance - ERROR - yfinance get_news error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:46:09,806 - api_logger - INFO - rid=/api/portfolio/ASTS/refresh method=POST status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=8.38ms
+2026-02-03 23:46:09,807 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:46:09,816 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:46:09,816 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:46:09,816 - sqlalchemy.engine.Engine - INFO - [cached since 11.75s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:46:09,817 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:46:09,817 - sqlalchemy.engine.Engine - INFO - [cached since 11.75s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:46:09,819 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=5.20ms
+2026-02-03 23:46:09,819 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:46:11,434 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:46:11,434 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:46:11,434 - sqlalchemy.engine.Engine - INFO - [cached since 13.37s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:46:11,435 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:46:11,435 - sqlalchemy.engine.Engine - INFO - [cached since 13.37s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:46:11,436 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=3.00ms
+2026-02-03 23:46:11,437 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:46:14,585 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:46:14,586 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:46:14,586 - sqlalchemy.engine.Engine - INFO - [cached since 16.52s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:46:14,588 - sqlalchemy.engine.Engine - INFO - SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated 
+FROM market_data_cache 
+WHERE market_data_cache.ticker = ?
+2026-02-03 23:46:14,588 - sqlalchemy.engine.Engine - INFO - [cached since 8.457s ago] ('ASTS',)
+2026-02-03 23:46:14,590 - app.services.market_providers.yfinance - ERROR - yfinance get_full_data error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:46:14,590 - app.services.market_providers.yfinance - ERROR - yfinance get_quote error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:46:14,591 - app.services.market_providers.yfinance - ERROR - yfinance get_fundamental_data error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:46:14,591 - app.services.market_providers.yfinance - ERROR - yfinance get_historical_data error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:46:14,591 - app.services.market_providers.yfinance - ERROR - yfinance get_news error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:46:14,592 - api_logger - INFO - rid=/api/portfolio/ASTS/refresh method=POST status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=9.85ms
+2026-02-03 23:46:14,593 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:46:14,601 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:46:14,602 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:46:14,602 - sqlalchemy.engine.Engine - INFO - [cached since 16.54s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:46:14,603 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:46:14,604 - sqlalchemy.engine.Engine - INFO - [cached since 16.54s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:46:14,606 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=7.32ms
+2026-02-03 23:46:14,608 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:46:42,499 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:46:42,500 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:46:42,500 - sqlalchemy.engine.Engine - INFO - [cached since 44.44s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:46:42,500 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:46:42,500 - sqlalchemy.engine.Engine - INFO - [cached since 44.44s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:46:42,501 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=3.07ms
+2026-02-03 23:46:42,502 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:46:46,683 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:46:46,683 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:46:46,684 - sqlalchemy.engine.Engine - INFO - [cached since 48.62s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:46:46,686 - sqlalchemy.engine.Engine - INFO - SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated 
+FROM market_data_cache 
+WHERE market_data_cache.ticker = ?
+2026-02-03 23:46:46,687 - sqlalchemy.engine.Engine - INFO - [cached since 40.56s ago] ('ASTS',)
+2026-02-03 23:46:46,688 - app.services.market_providers.yfinance - ERROR - yfinance get_full_data error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:46:46,688 - app.services.market_providers.yfinance - ERROR - yfinance get_quote error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:46:46,688 - app.services.market_providers.yfinance - ERROR - yfinance get_fundamental_data error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:46:46,688 - app.services.market_providers.yfinance - ERROR - yfinance get_historical_data error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:46:46,688 - app.services.market_providers.yfinance - ERROR - yfinance get_news error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:46:46,689 - api_logger - INFO - rid=/api/portfolio/ASTS/refresh method=POST status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=8.29ms
+2026-02-03 23:46:46,690 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:46:46,700 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:46:46,701 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:46:46,701 - sqlalchemy.engine.Engine - INFO - [cached since 48.64s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:46:46,703 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:46:46,703 - sqlalchemy.engine.Engine - INFO - [cached since 48.64s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:46:46,707 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=10.14ms
+2026-02-03 23:46:46,710 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:47:50,712 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:47:50,713 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:47:50,713 - sqlalchemy.engine.Engine - INFO - [cached since 112.7s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:47:50,714 - sqlalchemy.engine.Engine - INFO - SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated 
+FROM market_data_cache 
+WHERE market_data_cache.ticker = ?
+2026-02-03 23:47:50,714 - sqlalchemy.engine.Engine - INFO - [cached since 104.6s ago] ('ASTS',)
+2026-02-03 23:47:50,714 - app.services.market_providers.yfinance - ERROR - yfinance get_full_data error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:47:50,714 - app.services.market_providers.yfinance - ERROR - yfinance get_quote error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:47:50,714 - app.services.market_providers.yfinance - ERROR - yfinance get_fundamental_data error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:47:50,714 - app.services.market_providers.yfinance - ERROR - yfinance get_historical_data error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:47:50,714 - app.services.market_providers.yfinance - ERROR - yfinance get_news error for ASTS: name 'asyncio' is not defined
+2026-02-03 23:47:50,715 - api_logger - INFO - rid=/api/portfolio/ASTS/refresh method=POST status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=3.27ms
+2026-02-03 23:47:50,715 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:47:50,721 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:47:50,721 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:47:50,721 - sqlalchemy.engine.Engine - INFO - [cached since 112.7s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:47:50,722 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:47:50,722 - sqlalchemy.engine.Engine - INFO - [cached since 112.7s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:47:50,723 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=2.96ms
+2026-02-03 23:47:50,723 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:47:56,419 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:47:56,420 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:47:56,421 - sqlalchemy.engine.Engine - INFO - [cached since 118.4s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:47:56,422 - sqlalchemy.engine.Engine - INFO - SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated 
+FROM market_data_cache 
+WHERE market_data_cache.ticker = ?
+2026-02-03 23:47:56,423 - sqlalchemy.engine.Engine - INFO - [cached since 110.3s ago] ('FRO',)
+2026-02-03 23:47:56,424 - app.services.market_providers.yfinance - ERROR - yfinance get_full_data error for FRO: name 'asyncio' is not defined
+2026-02-03 23:47:56,425 - app.services.market_providers.yfinance - ERROR - yfinance get_quote error for FRO: name 'asyncio' is not defined
+2026-02-03 23:47:56,426 - app.services.market_providers.yfinance - ERROR - yfinance get_fundamental_data error for FRO: name 'asyncio' is not defined
+2026-02-03 23:47:56,427 - app.services.market_providers.yfinance - ERROR - yfinance get_historical_data error for FRO: name 'asyncio' is not defined
+2026-02-03 23:47:56,427 - app.services.market_providers.yfinance - ERROR - yfinance get_news error for FRO: name 'asyncio' is not defined
+2026-02-03 23:47:56,427 - api_logger - INFO - rid=/api/portfolio/FRO/refresh method=POST status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=11.08ms
+2026-02-03 23:47:56,429 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:47:56,436 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:47:56,437 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:47:56,437 - sqlalchemy.engine.Engine - INFO - [cached since 118.4s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:47:56,439 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:47:56,440 - sqlalchemy.engine.Engine - INFO - [cached since 118.4s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:47:56,443 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=8.27ms
+2026-02-03 23:47:56,443 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-03 23:54:55,135 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-03 23:54:55,141 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.preferred_data_source, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-03 23:54:55,141 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:54:55,143 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-03 23:54:55,143 - sqlalchemy.engine.Engine - INFO - [generated in 0.00011s] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-03 23:54:55,144 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=16.20ms
+2026-02-03 23:54:55,145 - sqlalchemy.engine.Engine - INFO - ROLLBACK

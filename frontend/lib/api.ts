@@ -49,6 +49,11 @@ export const deletePortfolioItem = async (ticker: string) => {
     return response.data;
 };
 
+export const refreshStock = async (ticker: string): Promise<Partial<PortfolioItem>> => {
+    const response = await api.post(`/api/portfolio/${ticker}/refresh`);
+    return response.data;
+};
+
 
 export const searchStocks = async (query: string, remote: boolean = false): Promise<SearchResult[]> => {
     const response = await api.get(`/api/portfolio/search?query=${query}&remote=${remote}`);

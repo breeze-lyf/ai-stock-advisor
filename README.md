@@ -44,6 +44,16 @@ Frontend: http://localhost:3000
 
 ## 📂 Project Structure
 
-- `/backend`: FastAPI application, database models, and market data logic.
-- `/frontend`: Next.js dashboard and UI components.
-- `/doc`: Project documentation and PRD.
+### Backend (FastAPI)
+- `backend/app/api/v1/`: Versioned endpoints (Analysis, Portfolio, Auth, User).
+- `backend/app/services/market_providers/`: Modular data providers (yfinance, Alpha Vantage).
+- `backend/app/services/indicators.py`: Centralized technical indicator calculations.
+- `backend/scripts/`: Deployment and database utility scripts.
+- `backend/tests/`: Automated test suite.
+
+### Frontend (Next.js)
+- `frontend/app/`: App router pages.
+- `frontend/components/features/`: Extracted business logic components (PortfolioList, StockDetail, etc).
+- `frontend/components/ui/`: Reusable Shadcn base components.
+- `frontend/types/`: Centralized TypeScript interfaces.
+- `frontend/lib/api.ts`: API client with Axios interceptors.

@@ -9,9 +9,11 @@ from app.models.user import User
 from app.api.deps import get_current_user
 from app.core import security
 
+from app.schemas.analysis import AnalysisResponse
+
 router = APIRouter()
 
-@router.post("/{ticker}")
+@router.post("/{ticker}", response_model=AnalysisResponse)
 async def analyze_stock(
     ticker: str, 
     db: AsyncSession = Depends(get_db),

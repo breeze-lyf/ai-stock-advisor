@@ -12,46 +12,7 @@ from datetime import datetime
 
 router = APIRouter()
 
-class PortfolioItem(BaseModel):
-    ticker: str
-    quantity: float
-    avg_cost: float
-    current_price: float = 0.0
-    market_value: float = 0.0
-    unrealized_pl: float = 0.0
-    pl_percent: float = 0.0
-    last_updated: Optional[datetime] = None
-    
-    # Fundamental fields
-    sector: Optional[str] = None
-    industry: Optional[str] = None
-    market_cap: Optional[float] = None
-    pe_ratio: Optional[float] = None
-    forward_pe: Optional[float] = None
-    eps: Optional[float] = None
-    dividend_yield: Optional[float] = None
-    beta: Optional[float] = None
-    fifty_two_week_high: Optional[float] = None
-    fifty_two_week_low: Optional[float] = None
-    
-    # Technical indicator fields
-    rsi_14: Optional[float] = None
-    ma_20: Optional[float] = None
-    ma_50: Optional[float] = None
-    ma_200: Optional[float] = None
-    macd_val: Optional[float] = None
-    macd_signal: Optional[float] = None
-    macd_hist: Optional[float] = None
-    bb_upper: Optional[float] = None
-    bb_middle: Optional[float] = None
-    bb_lower: Optional[float] = None
-    atr_14: Optional[float] = None
-    k_line: Optional[float] = None
-    d_line: Optional[float] = None
-    j_line: Optional[float] = None
-    volume_ma_20: Optional[float] = None
-    volume_ratio: Optional[float] = None
-    change_percent: Optional[float] = 0.0
+from app.schemas.portfolio import PortfolioItem, PortfolioCreate, SearchResult
 
 from app.models.user import User
 from app.api.deps import get_current_user
@@ -61,9 +22,7 @@ from app.api.deps import get_current_user
 # ... imports ...
 from sqlalchemy import or_
 
-class SearchResult(BaseModel):
-    ticker: str
-    name: str
+# ... imports ...
 
 @router.get("/search", response_model=List[SearchResult])
 async def search_stocks(query: str = "", remote: bool = False, db: AsyncSession = Depends(get_db)):
@@ -223,10 +182,7 @@ async def get_portfolio(
         ))
     return items
 
-class PortfolioCreate(BaseModel):
-    ticker: str
-    quantity: float
-    avg_cost: float
+# ... class PortfolioCreate(BaseModel): ...
 
 @router.post("/")
 async def add_portfolio_item(

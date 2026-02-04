@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     ENCRYPTION_KEY: Optional[str] = None
     GEMINI_API_KEY: Optional[str] = None
     DEEPSEEK_API_KEY: Optional[str] = None
+    SILICONFLOW_API_KEY: Optional[str] = None
     ALPHA_VANTAGE_API_KEY: Optional[str] = None
     TAVILY_API_KEY: Optional[str] = None
     HTTP_PROXY: Optional[str] = None

@@ -60,8 +60,13 @@ export const searchStocks = async (query: string, remote: boolean = false): Prom
     return response.data;
 };
 
-export const analyzeStock = async (ticker: string): Promise<AnalysisResponse> => {
-    const response = await api.post(`/api/analysis/${ticker}`);
+export const analyzeStock = async (ticker: string, force: boolean = false): Promise<AnalysisResponse> => {
+    const response = await api.post(`/api/analysis/${ticker}?force=${force}`);
+    return response.data;
+};
+
+export const getLatestAnalysis = async (ticker: string): Promise<AnalysisResponse> => {
+    const response = await api.get(`/api/analysis/${ticker}`);
     return response.data;
 };
 

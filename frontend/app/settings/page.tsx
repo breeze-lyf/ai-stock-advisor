@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { getProfile, updateSettings, UserProfile } from "@/lib/api";
 import Link from "next/link";
-import { ArrowLeft, Save, Key, Database } from "lucide-react";
+import { ArrowLeft, Save, Key, Database, Cpu } from "lucide-react";
 
 export default function SettingsPage() {
     const { isAuthenticated } = useAuth();
@@ -35,21 +35,25 @@ export default function SettingsPage() {
         }
     };
 
-    const handleSave = async (e: React.FormEvent) => {
+    const handleSaveKeys = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
         setMessage(null);
 
         try {
-            if (!geminiKey) return; // Don't verify empty submission for now
+            const payload: any = {};
+            if (geminiKey) payload.api_key_gemini = geminiKey;
 
-            await updateSettings({
-                api_key_gemini: geminiKey
-            });
+            if (Object.keys(payload).length === 0) {
+                setSaving(false);
+                return;
+            }
 
-            setMessage({ text: "Settings updated successfully!", type: "success" });
-            setGeminiKey(""); // Clear input after save
-            loadProfile(); // Reload to update status
+            await updateSettings(payload);
+
+            setMessage({ text: "API Keys updated successfully!", type: "success" });
+            setGeminiKey("");
+            loadProfile();
         } catch (error) {
             setMessage({ text: "Failed to update settings.", type: "error" });
         } finally {
@@ -57,16 +61,21 @@ export default function SettingsPage() {
         }
     };
 
-    const handleSourceUpdate = async (source: "ALPHA_VANTAGE" | "YFINANCE") => {
+    const handleModelUpdate = async (model: string) => {
+        setSaving(true);
         try {
             await updateSettings({
-                preferred_data_source: source
+                preferred_ai_model: model
             });
             loadProfile();
+            setMessage({ text: `Preferred content switched to ${model}`, type: "success" });
         } catch (error) {
-            console.error("Failed to update source", error);
+            console.error("Failed to update model", error);
+        } finally {
+            setSaving(false);
         }
     };
+
 
     if (loading) return <div className="p-8">Loading settings...</div>;
 
@@ -82,90 +91,85 @@ export default function SettingsPage() {
                     <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
                 </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Key className="h-5 w-5" />
-                            API Key Management
-                        </CardTitle>
-                        <CardDescription>
-                            Configure your own AI API Keys to unlock infinite analysis.
-                            Your keys are encrypted and stored securely.
-                        </CardDescription>
-                    </CardHeader>
-                    <form onSubmit={handleSave}>
-                        <CardContent className="space-y-4">
-                            {message && (
-                                <div className={`p-4 rounded-md ${message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                    {message.text}
-                                </div>
-                            )}
+                {message && (
+                    <div className={`p-4 rounded-md border ${message.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+                        {message.text}
+                    </div>
+                )}
 
-                            <div className="space-y-2">
-                                <Label htmlFor="gemini">Google Gemini API Key</Label>
-                                <div className="flex gap-2">
-                                    <Input
-                                        id="gemini"
-                                        type="password"
-                                        placeholder="Enter your AIzaSy... key"
-                                        value={geminiKey}
-                                        onChange={(e) => setGeminiKey(e.target.value)}
-                                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-6">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Key className="h-5 w-5" />
+                                    API Key Management
+                                </CardTitle>
+                                <CardDescription>
+                                    Configure your own AI API Keys.
+                                </CardDescription>
+                            </CardHeader>
+                            <form onSubmit={handleSaveKeys}>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="gemini">Google Gemini Key</Label>
+                                        <Input
+                                            id="gemini"
+                                            type="password"
+                                            placeholder="AIzaSy..."
+                                            value={geminiKey}
+                                            onChange={(e) => setGeminiKey(e.target.value)}
+                                        />
+                                        <div className="text-[10px] text-muted-foreground flex justify-between">
+                                            <span>Status: {profile?.has_gemini_key ? "✅ Set" : "⚠️ Not Set"}</span>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                                <CardFooter>
+                                    <Button type="submit" className="w-full" disabled={saving || !geminiKey}>
+                                        {saving ? "Saving..." : "Save Keys"}
+                                        <Save className="ml-2 h-4 w-4" />
+                                    </Button>
+                                </CardFooter>
+                            </form>
+                        </Card>
+                    </div>
+
+                    <div className="space-y-6">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Cpu className="h-5 w-5" />
+                                    AI Model Selection
+                                </CardTitle>
+                                <CardDescription>
+                                    Choose which model to use for stock analysis.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label>Preferred Analysis Model</Label>
+                                    <select
+                                        className="w-full p-2 rounded-md border border-slate-200 dark:border-slate-800 bg-transparent text-sm"
+                                        value={profile?.preferred_ai_model || "gemini-1.5-flash"}
+                                        onChange={(e) => handleModelUpdate(e.target.value)}
+                                        disabled={saving}
+                                    >
+                                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Fast/Default)</option>
+                                        <option value="deepseek-v3">DeepSeek V3 (Reasoning/SF)</option>
+                                        <option value="deepseek-r1">DeepSeek R1 (Thought/SF)</option>
+                                        <option value="qwen-2.5-72b">Qwen 2.5 72B (Versatile/SF)</option>
+                                        <option value="qwen-3-vl-thinking">Qwen 3 VL (Reasoning/Thinking/SF)</option>
+                                    </select>
                                 </div>
-                                <div className="text-sm text-muted-foreground">
-                                    Status: {profile?.has_gemini_key ? (
-                                        <span className="text-green-600 font-medium">✅ Configured</span>
-                                    ) : (
-                                        <span className="text-yellow-600 font-medium">⚠️ Not Set (Using System Mock/Quota)</span>
-                                    )}
-                                </div>
-                            </div>
-                        </CardContent>
-                        <CardFooter>
-                            <Button type="submit" disabled={saving || !geminiKey}>
-                                {saving ? "Saving..." : "Save API Key"}
-                                <Save className="ml-2 h-4 w-4" />
-                            </Button>
-                        </CardFooter>
-                    </form>
-                </Card>
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Database className="h-5 w-5" />
-                            Data Source Preference
-                        </CardTitle>
-                        <CardDescription>
-                            Choose which provider to use for real-time stock codes.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="flex gap-4">
-                            <Button
-                                variant={profile?.preferred_data_source === "ALPHA_VANTAGE" ? "default" : "outline"}
-                                onClick={() => handleSourceUpdate("ALPHA_VANTAGE")}
-                                className="flex-1 h-20 flex flex-col items-center justify-center gap-1"
-                                disabled={saving}
-                            >
-                                <span className="font-bold">Alpha Vantage</span>
-                                <span className="text-[10px] opacity-70">Official API (Stable, 25 req/day)</span>
-                            </Button>
-                            <Button
-                                variant={profile?.preferred_data_source === "YFINANCE" ? "default" : "outline"}
-                                onClick={() => handleSourceUpdate("YFINANCE")}
-                                className="flex-1 h-20 flex flex-col items-center justify-center gap-1"
-                                disabled={saving}
-                            >
-                                <span className="font-bold">Yahoo Finance</span>
-                                <span className="text-[10px] opacity-70">Scraper (Unlimited, but prone to blocks)</span>
-                            </Button>
-                        </div>
-                        <p className="text-xs text-slate-500 bg-slate-100 dark:bg-slate-900 p-3 rounded italic">
-                            Tip: If you're in a region with poor connectivity to Yahoo, Alpha Vantage is highly recommended.
-                            If the preferred source fails, the system will automatically fall back to the other one.
-                        </p>
-                    </CardContent>
-                </Card>
+                                <p className="text-xs text-muted-foreground">
+                                    Note: SiliconFlow models use the system-managed API Key. You only need to provide your own Gemini Key if you use Gemini models.
+                                </p>
+                            </CardContent>
+                        </Card>
+
+                    </div>
+                </div>
             </div>
         </div>
     );

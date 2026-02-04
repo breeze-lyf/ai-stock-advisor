@@ -16,6 +16,7 @@ router = APIRouter()
 @router.post("/{ticker}", response_model=AnalysisResponse)
 async def analyze_stock(
     ticker: str, 
+    force: bool = False,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -109,21 +110,107 @@ async def analyze_stock(
             "pl_percent": pl_percent
         }
 
-    # 5. 调用 AI 服务生成分析报告
-    # 传入：股票代码、市场数据、持仓数据、新闻数据、用户API Key
-    # 解密用户 API Key
-    decrypted_key = security.decrypt_api_key(current_user.api_key_gemini)
+    # 5. 检查持久化缓存 (Persistence Cache)
+    # 如果 force=False，则默认检索数据库中已有的最新分析报告
+    from app.models.analysis import AnalysisReport
+    
+    preferred_model = current_user.preferred_ai_model or "gemini-1.5-flash"
+    
+    if not force:
+        cache_stmt = select(AnalysisReport).where(
+            AnalysisReport.user_id == current_user.id,
+            AnalysisReport.ticker == ticker,
+            AnalysisReport.model_used == preferred_model
+        ).order_by(AnalysisReport.created_at.desc()).limit(1)
+        
+        cache_result = await db.execute(cache_stmt)
+        cached_report = cache_result.scalar_one_or_none()
+        
+        if cached_report:
+            logger.info(f"Returning latest report for {ticker} (model: {preferred_model})")
+            return {
+                "ticker": ticker,
+                "analysis": cached_report.ai_response_markdown,
+                "sentiment": cached_report.sentiment_score or "NEUTRAL",
+                "is_cached": True,
+                "model_used": cached_report.model_used,
+                "created_at": cached_report.created_at
+            }
+
+    # 6. 调用 AI 服务生成分析报告
+    # 解密用户 API Key (Gemini 是用户级的，SiliconFlow 是系统级或用户级)
+    gemini_key = security.decrypt_api_key(current_user.api_key_gemini)
+    siliconflow_key = security.decrypt_api_key(current_user.api_key_siliconflow)
     
     ai_response = await AIService.generate_analysis(
         ticker, 
         market_data, 
         portfolio_data,
         news_data,
-        api_key=decrypted_key
+        model=preferred_model,
+        api_key_gemini=gemini_key,
+        api_key_siliconflow=siliconflow_key
     )
 
+    # 7. 持久化分析结果
+    new_report = None
+    try:
+        new_report = AnalysisReport(
+            user_id=current_user.id,
+            ticker=ticker,
+            model_used=preferred_model,
+            ai_response_markdown=ai_response,
+            input_context_snapshot={
+                "market_data": market_data,
+                "portfolio_data": portfolio_data
+            }
+        )
+        db.add(new_report)
+        await db.commit()
+        await db.refresh(new_report)
+    except Exception as e:
+        logger.error(f"Failed to persist analysis report: {e}")
+        await db.rollback()
+
+    from datetime import datetime
     return {
         "ticker": ticker,
         "analysis": ai_response,
-        "sentiment": "NEUTRAL" # TODO: 后续可从 AI 响应中解析情感倾向
+        "sentiment": "NEUTRAL",
+        "is_cached": False,
+        "model_used": preferred_model,
+        "created_at": new_report.created_at if new_report else datetime.utcnow()
+    }
+@router.get("/{ticker}", response_model=AnalysisResponse)
+async def get_latest_analysis(
+    ticker: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    获取单支股票最新的分析记录（不触发新 AI 分析，仅查库）
+    """
+    from app.models.analysis import AnalysisReport
+    
+    preferred_model = current_user.preferred_ai_model or "gemini-1.5-flash"
+    
+    stmt = select(AnalysisReport).where(
+        AnalysisReport.user_id == current_user.id,
+        AnalysisReport.ticker == ticker,
+        AnalysisReport.model_used == preferred_model
+    ).order_by(AnalysisReport.created_at.desc()).limit(1)
+    
+    result = await db.execute(stmt)
+    report = result.scalar_one_or_none()
+    
+    if not report:
+        raise HTTPException(status_code=404, detail="No analysis found for this stock and model")
+    
+    return {
+        "ticker": ticker,
+        "analysis": report.ai_response_markdown,
+        "sentiment": report.sentiment_score or "NEUTRAL",
+        "is_cached": True,
+        "model_used": report.model_used,
+        "created_at": report.created_at
     }

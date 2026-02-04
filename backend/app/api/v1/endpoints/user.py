@@ -14,10 +14,12 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
     return {
         "id": current_user.id,
         "email": current_user.email,
-        "membership_tier": current_user.membership_tier.value,
+        "membership_tier": current_user.membership_tier,
         "has_gemini_key": bool(current_user.api_key_gemini),
         "has_deepseek_key": bool(current_user.api_key_deepseek),
-        "preferred_data_source": current_user.preferred_data_source.value if current_user.preferred_data_source else "ALPHA_VANTAGE"
+        "has_siliconflow_key": bool(current_user.api_key_siliconflow),
+        "preferred_data_source": current_user.preferred_data_source or "ALPHA_VANTAGE",
+        "preferred_ai_model": current_user.preferred_ai_model or "gemini-1.5-flash"
     }
 
 @router.put("/settings", response_model=UserProfile)
@@ -32,8 +34,14 @@ async def update_user_settings(
     if settings.api_key_deepseek is not None:
         current_user.api_key_deepseek = security.encrypt_api_key(settings.api_key_deepseek)
 
+    if settings.api_key_siliconflow is not None:
+        current_user.api_key_siliconflow = security.encrypt_api_key(settings.api_key_siliconflow)
+
     if settings.preferred_data_source is not None:
         current_user.preferred_data_source = settings.preferred_data_source
+
+    if settings.preferred_ai_model is not None:
+        current_user.preferred_ai_model = settings.preferred_ai_model
         
     await db.commit()
     await db.refresh(current_user)
@@ -41,8 +49,10 @@ async def update_user_settings(
     return {
         "id": current_user.id,
         "email": current_user.email,
-        "membership_tier": current_user.membership_tier.value,
+        "membership_tier": current_user.membership_tier,
         "has_gemini_key": bool(current_user.api_key_gemini),
         "has_deepseek_key": bool(current_user.api_key_deepseek),
-        "preferred_data_source": current_user.preferred_data_source.value if current_user.preferred_data_source else "ALPHA_VANTAGE"
+        "has_siliconflow_key": bool(current_user.api_key_siliconflow),
+        "preferred_data_source": current_user.preferred_data_source or "ALPHA_VANTAGE",
+        "preferred_ai_model": current_user.preferred_ai_model or "gemini-1.5-flash"
     }

@@ -1,36 +1,34 @@
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy import or_
+import asyncio
+import logging
+
 from app.core.database import get_db
 from app.models.portfolio import Portfolio
 from app.models.stock import Stock, MarketDataCache
-import asyncio
-from app.services.market_data import MarketDataService
-from pydantic import BaseModel
-from typing import List, Optional
-from datetime import datetime
-
-router = APIRouter()
-
-from app.schemas.portfolio import PortfolioItem, PortfolioCreate, SearchResult
-
 from app.models.user import User
 from app.api.deps import get_current_user
+from app.services.market_data import MarketDataService
+from app.schemas.portfolio import PortfolioItem, PortfolioCreate, SearchResult
 
-# ... imports ...
-
-# ... imports ...
-from sqlalchemy import or_
-
-# ... imports ...
+logger = logging.getLogger(__name__)
+router = APIRouter()
 
 @router.get("/search", response_model=List[SearchResult])
 async def search_stocks(query: str = "", remote: bool = False, db: AsyncSession = Depends(get_db)):
+    """
+    股票搜索接口
+    - 同时支持本地数据库模糊搜索和远程 API 实时搜索
+    - 如果本地没搜到且开启了 remote=True，会尝试从第三方源抓取并同步到本地
+    """
     query = query.strip().upper()
     if not query:
         return []
 
-    # 1. Local Search
+    # 1. 本地搜索：根据代码或名称模糊匹配
     search_term = f"%{query}%"
     stmt = select(Stock).where(
         or_(
@@ -42,20 +40,19 @@ async def search_stocks(query: str = "", remote: bool = False, db: AsyncSession 
     result = await db.execute(stmt)
     stocks = result.scalars().all()
     
-    # 2. Remote Search (Only if requested and no exact match found locally)
+    # 2. 远程搜索：如果没有本地完全匹配的记录，且用户请求了远程搜索
     exact_match = any(s.ticker.upper() == query for s in stocks)
     
     if remote and not exact_match and len(query) <= 10:
         try:
-            # Use Factory to get appropriate provider
             from app.services.market_providers import ProviderFactory
             provider = ProviderFactory.get_provider(query)
             
-            # Fast quote fetch
+            # 获取实时报价以确认该股票代码有效
             quote = await provider.get_quote(query)
             
             if quote:
-                # Create Stock entry if not exists
+                # 如果代码有效但本地没有，则存入数据库，方便下次直接搜到
                 stock_stmt = select(Stock).where(Stock.ticker == query)
                 stock_result = await db.execute(stock_stmt)
                 existing_stock = stock_result.scalar_one_or_none()
@@ -63,14 +60,11 @@ async def search_stocks(query: str = "", remote: bool = False, db: AsyncSession 
                 if not existing_stock:
                     new_stock = Stock(ticker=query, name=quote.name or query)
                     db.add(new_stock)
-                    
-                    # Also create a minimal cache entry
-                    from app.models.stock import MarketDataCache
                     new_cache = MarketDataCache(ticker=query, current_price=quote.price)
                     db.add(new_cache)
                     await db.commit()
                 
-                # Re-search locally to include the new one
+                # 重新查询以便返回结果
                 result = await db.execute(stmt)
                 stocks = result.scalars().all()
         except Exception as e:
@@ -85,9 +79,14 @@ async def get_portfolio(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    """
+    获取当前用户的投资组合列表
+    - 使用 outerjoin 一次性查出持仓量、最新价、基本面和技术指标
+    - 如果 refresh=True，会触发后台并行更新所有持仓的实时行情
+    """
     user_id = current_user.id
 
-    # 1. First, get all portfolio items with their cached data in ONE query
+    # 1. 联表查询：Portfolio -> MarketDataCache -> Stock
     stmt = (
         select(Portfolio, MarketDataCache, Stock)
         .outerjoin(MarketDataCache, Portfolio.ticker == MarketDataCache.ticker)
@@ -97,28 +96,25 @@ async def get_portfolio(
     result = await db.execute(stmt)
     rows = result.all()
     
-    # 2. If 'refresh' is requested, we update the data
+    # 2. 实时刷新逻辑
     if refresh:
         tickers = [p.ticker for p, _, _ in rows]
         if tickers:
-            # Fetch in parallel to improve performance
-            # Note: SQLite sessions are not thread-safe, but we are fetching 
-            # and updating via MarketDataService which handles its own commits.
+            # 并行抓取行情，MarketDataService 会处理缓存和 DB 写入
             tasks = [
                 MarketDataService.get_real_time_data(ticker, db, current_user.preferred_data_source)
                 for ticker in tickers
             ]
             await asyncio.gather(*tasks, return_exceptions=True)
             
-            # Re-query to get the refreshed data
+            # 更新完后重新读取最新的数据库状态
             result = await db.execute(stmt)
             rows = result.all()
 
+    # 3. 组织返回数据，计算未实现盈亏等指标
     items = []
     for p, m, s in rows:
-        # Data from cache (joined)
         current_price = m.current_price if m else 0.0
-        
         market_value = current_price * p.quantity
         unrealized_pl = (current_price - p.avg_cost) * p.quantity
         pl_percent = (unrealized_pl / (p.avg_cost * p.quantity)) * 100 if p.avg_cost > 0 else 0
@@ -132,7 +128,7 @@ async def get_portfolio(
             unrealized_pl=unrealized_pl,
             pl_percent=pl_percent,
             last_updated=m.last_updated if m else None,
-            # Fundamental
+            # 基础面
             sector=s.sector if s else None,
             industry=s.industry if s else None,
             market_cap=s.market_cap if s else None,
@@ -143,7 +139,7 @@ async def get_portfolio(
             beta=s.beta if s else None,
             fifty_two_week_high=s.fifty_two_week_high if s else None,
             fifty_two_week_low=s.fifty_two_week_low if s else None,
-            # Tech
+            # 技术指标
             rsi_14=m.rsi_14 if m else None,
             ma_20=m.ma_20 if m else None,
             ma_50=m.ma_50 if m else None,
@@ -164,18 +160,19 @@ async def get_portfolio(
         ))
     return items
 
-# ... class PortfolioCreate(BaseModel): ...
-
 @router.post("/")
 async def add_portfolio_item(
     item: PortfolioCreate,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    """
+    添加或更新自选股/持仓
+    """
     user_id = current_user.id
     ticker = item.ticker.upper().strip()
     
-    # Check if exists in portfolio
+    # 检查是否已在持仓中
     stmt = select(Portfolio).where(Portfolio.user_id == user_id, Portfolio.ticker == ticker)
     result = await db.execute(stmt)
     existing = result.scalar_one_or_none()
@@ -194,26 +191,24 @@ async def add_portfolio_item(
     
     await db.commit()
     
-    # Auto-fetch data if stock is new OR cache is incomplete (missing technical indicators)
+    # 异步更新：如果新股或是缺少数据，开启后台任务去抓取全量信息（不阻塞前端响应）
     cache_stmt = select(MarketDataCache).where(MarketDataCache.ticker == ticker)
     cache_result = await db.execute(cache_stmt)
     cache = cache_result.scalar_one_or_none()
     
     needs_fetch = not cache or cache.rsi_14 is None
-    
     if needs_fetch:
-        # Fetch in background (don't block the response)
-        import asyncio
         asyncio.create_task(_background_fetch(ticker, db))
     
     return {"message": "Portfolio updated"}
 
 async def _background_fetch(ticker: str, db: AsyncSession):
+    """后台任务：在添加股票后异步补全数据"""
     try:
         await MarketDataService.get_real_time_data(ticker, db, preferred_source="YFINANCE")
-        print(f"✅ Background fetch for {ticker} completed")
+        logger.info(f"✅ Background fetch for {ticker} completed")
     except Exception as e:
-        print(f"❌ Background fetch for {ticker} failed: {e}")
+        logger.error(f"❌ Background fetch for {ticker} failed: {e}")
 
 
 @router.delete("/{ticker}")
@@ -222,6 +217,7 @@ async def delete_portfolio_item(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    """从自选股中删除"""
     stmt = select(Portfolio).where(Portfolio.user_id == current_user.id, Portfolio.ticker == ticker)
     result = await db.execute(stmt)
     item = result.scalar_one_or_none()
@@ -239,13 +235,9 @@ async def refresh_stock_data(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """
-    针对单个股票进行实时数据刷新
-    """
+    """针对单个股票的手动强制刷新接口"""
     ticker = ticker.upper().strip()
     
-    # Check if stock exists in user's portfolio or system
-    # For now, we allow refreshing any stock that might be in the system
     try:
         updated_cache = await MarketDataService.get_real_time_data(
             ticker, 
@@ -254,7 +246,6 @@ async def refresh_stock_data(
             force_refresh=True
         )
         
-        # Return the updated price/percent for immediate UI update
         return {
             "ticker": ticker,
             "current_price": updated_cache.current_price,

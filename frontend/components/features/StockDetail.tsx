@@ -14,13 +14,16 @@ import { useState } from "react";
 
 interface StockDetailProps {
     selectedItem: PortfolioItem | null;
-    onAnalyze: () => void;
+    onAnalyze: (force?: boolean) => void;
     onRefresh: () => void;
     analyzing: boolean;
     aiData: {
         technical_analysis: string;
         fundamental_news: string;
         action_advice: string;
+        is_cached?: boolean;
+        created_at?: string;
+        model_used?: string;
     } | null;
 }
 
@@ -110,7 +113,7 @@ export function StockDetail({
                     </div>
                 </div>
                 <Button
-                    onClick={onAnalyze}
+                    onClick={() => onAnalyze()}
                     disabled={analyzing}
                     size="lg"
                     className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/20 px-8 py-6 text-lg font-bold"
@@ -239,8 +242,29 @@ export function StockDetail({
                 {/* 3. AI Advice */}
                 <Card className="border-blue-200 dark:border-blue-800 bg-blue-50/30 dark:bg-blue-900/5 shadow-md shadow-blue-500/5">
                     <CardHeader className="pb-2 border-b border-blue-100 dark:border-blue-900/50 bg-blue-50/50 dark:bg-blue-900/20">
-                        <CardTitle className="text-base font-bold text-blue-700 dark:text-blue-400 flex items-center gap-2">
-                            AI 给出的操作建议 (Actionable Advice)
+                        <CardTitle className="text-base font-bold text-blue-700 dark:text-blue-400 flex items-center justify-between gap-2 w-full">
+                            <div className="flex items-center gap-2">
+                                AI 给出的操作建议 (Actionable Advice)
+                            </div>
+                            <div className="flex items-center gap-2">
+                                {aiData?.created_at && (
+                                    <span className="text-[10px] text-blue-400 font-mono font-normal">
+                                        分析时间: {formatDistanceToNow(new Date(aiData.created_at + (aiData.created_at.includes('Z') ? '' : 'Z')), { addSuffix: true, locale: zhCN })}
+                                    </span>
+                                )}
+                                {aiData?.is_cached && (
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-6 w-6 text-blue-400 hover:text-blue-600 hover:bg-blue-100"
+                                        onClick={() => onAnalyze(true)}
+                                        title="重新分析"
+                                        disabled={analyzing}
+                                    >
+                                        <RefreshCw className={clsx("h-3 w-3", analyzing && "animate-spin")} />
+                                    </Button>
+                                )}
+                            </div>
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="pt-4 pb-6">

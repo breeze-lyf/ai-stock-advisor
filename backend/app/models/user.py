@@ -12,6 +12,13 @@ class MarketDataSource(str, enum.Enum):
     ALPHA_VANTAGE = "ALPHA_VANTAGE"
     YFINANCE = "YFINANCE"
 
+class AIModel(str, enum.Enum):
+    GEMINI_15_FLASH = "gemini-1.5-flash"
+    DEEPSEEK_V3 = "deepseek-v3"
+    DEEPSEEK_R1 = "deepseek-r1"
+    QWEN_25_72B = "qwen-2.5-72b"
+    QWEN_3_VL_THINKING = "qwen-3-vl-thinking"
+
 class User(Base):
     __tablename__ = "users"
 
@@ -21,10 +28,13 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     membership_tier = Column(String, default=MembershipTier.FREE.value)
     
-    # Encrypted API Keys (Placeholder for now, storing raw/base64 in MVP if needed, but schema says encrypted)
+    # Encrypted API Keys
     api_key_gemini = Column(String, nullable=True)
-    api_key_deepseek = Column(String, nullable=True)
+    api_key_deepseek = Column(String, nullable=True) # Standard DeepSeek API
+    api_key_siliconflow = Column(String, nullable=True) # SiliconFlow API
+    
     preferred_data_source = Column(String, default=MarketDataSource.ALPHA_VANTAGE.value)
+    preferred_ai_model = Column(String, default=AIModel.GEMINI_15_FLASH.value)
     
     created_at = Column(DateTime, default=datetime.utcnow)
     last_login = Column(DateTime, nullable=True)

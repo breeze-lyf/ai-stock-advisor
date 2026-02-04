@@ -9,7 +9,7 @@ import Link from 'next/link';
 
 // API
 import { PortfolioItem } from "@/types";
-import { getPortfolio, analyzeStock } from "@/lib/api";
+import { getPortfolio, analyzeStock, getLatestAnalysis } from "@/lib/api";
 
 // Components
 import { MarketStatusIndicator } from "@/components/features/MarketStatusIndicator";
@@ -52,7 +52,14 @@ export default function Dashboard() {
 
   // Analysis State
   const [analyzing, setAnalyzing] = useState(false);
-  const [aiData, setAiData] = useState<{ technical_analysis: string, fundamental_news: string, action_advice: string } | null>(null);
+  const [aiData, setAiData] = useState<{
+    technical_analysis: string,
+    fundamental_news: string,
+    action_advice: string,
+    is_cached?: boolean,
+    created_at?: string,
+    model_used?: string
+  } | null>(null);
 
   // UI State
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -88,28 +95,61 @@ export default function Dashboard() {
   }, [isAuthenticated, router]);
 
   useEffect(() => {
-    setAiData(null);
+    const loadExistingAnalysis = async () => {
+      if (!selectedTicker) {
+        setAiData(null);
+        return;
+      }
+
+      // 切换股票时，先清空旧数据以避免闪烁
+      setAiData(null);
+
+      try {
+        // 静默获取最新分析报告
+        const result = await getLatestAnalysis(selectedTicker);
+        if (result) {
+          handleParseAnalysis(result);
+        }
+      } catch (error) {
+        // 404 是正常的，说明该股票还没有分析记录
+        console.log("No existing analysis found for", selectedTicker);
+      }
+    };
+
+    loadExistingAnalysis();
   }, [selectedTicker]);
 
-  const handleAnalyze = async () => {
+  const handleParseAnalysis = (result: any) => {
+    try {
+      let raw = result.analysis;
+      if (raw.startsWith("```json")) {
+        raw = raw.replace("```json", "").replace("```", "");
+      }
+      const parsed = JSON.parse(raw);
+      setAiData({
+        ...parsed,
+        is_cached: result.is_cached,
+        created_at: result.created_at,
+        model_used: result.model_used
+      });
+    } catch (parseErr) {
+      setAiData({
+        technical_analysis: result.analysis,
+        fundamental_news: "Could not parse structured data. Displaying raw output below.",
+        action_advice: result.analysis,
+        is_cached: result.is_cached,
+        created_at: result.created_at,
+        model_used: result.model_used
+      });
+    }
+  };
+
+  const handleAnalyze = async (force: boolean = false) => {
     if (!selectedTicker) return;
     setAnalyzing(true);
     try {
-      const result = await analyzeStock(selectedTicker);
-      try {
-        let raw = result.analysis;
-        if (raw.startsWith("```json")) {
-          raw = raw.replace("```json", "").replace("```", "");
-        }
-        const parsed = JSON.parse(raw);
-        setAiData(parsed);
-      } catch (parseErr) {
-        setAiData({
-          technical_analysis: result.analysis,
-          fundamental_news: "Could not parse structured data. Displaying raw output below.",
-          action_advice: result.analysis
-        });
-      }
+      const result = await analyzeStock(selectedTicker, force);
+      handleParseAnalysis(result);
     } catch (error: any) {
       if (error.response?.status === 429) {
         alert("Limit Reached! 🛑\nPlease add your own API Key in Settings.");

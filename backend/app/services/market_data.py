@@ -8,58 +8,70 @@ from typing import Optional, Dict, Any, List
 from app.core.config import settings
 from app.models.stock import Stock, MarketDataCache, MarketStatus, StockNews
 from app.services.market_providers import ProviderFactory
-from app.schemas.market_data import FullMarketData
+from app.schemas.market_data import FullMarketData, ProviderTechnical
 
 logger = logging.getLogger(__name__)
 
+# 市场数据分析中台：负责协调多个数据源、处理缓存逻辑并更新数据库
 class MarketDataService:
     @staticmethod
     async def get_real_time_data(ticker: str, db: AsyncSession, preferred_source: str = "YFINANCE", force_refresh: bool = False):
-        # 1. Check Cache
+        """
+        获取单支股票的实时/最新数据。
+        策略：优先检查本地缓存 -> 缓存失效则从外部 API 抓取 -> 更新数据库。
+        """
+        # 1. 检查本地数据库缓存
         stmt = select(MarketDataCache).where(MarketDataCache.ticker == ticker)
         result = await db.execute(stmt)
         cache = result.scalar_one_or_none()
 
         now = datetime.utcnow()
+        # 如果不是强制刷新，且缓存时间在 1 分钟内，则直接返回缓存
         if not force_refresh and cache and (now - cache.last_updated) < timedelta(minutes=1):
             return cache
 
-        # 2. Fetch Data from Providers
+        # 2. 从数据提供商获取数据 (YFinance, AkShare 等)
         data = await MarketDataService._fetch_from_providers(ticker, preferred_source)
 
+        # 3. 如果 API 请求失败且没有缓存，启用模拟模式（保证前端不报错）
         if not data:
             cache = await MarketDataService._handle_simulation(ticker, cache, now)
             await db.commit()
             return cache
 
-        # 3. Update/Create DB records
+        # 4. 将抓取到的数据更新到数据库中并返回
         return await MarketDataService._update_database(ticker, data, cache, db, now)
 
     @staticmethod
     async def _fetch_from_providers(ticker: str, preferred_source: str) -> Optional[FullMarketData]:
+        """
+        根据策略调用不同的 Provider 来获取最全的股票数据
+        """
+        # 利用工厂模式获取对应的 Provider 实例
         provider = ProviderFactory.get_provider(ticker, preferred_source)
         
-        # Try full optimization first
+        # 尝试使用 Provider 预定义的“全量抓取”优化方法
         result = await provider.get_full_data(ticker)
         if result:
             return result
 
-        # Prepare tasks (Parallel)
+        # 如果没有一键抓取接口，则并行发起多个独立请求（报价、财务、指标、新闻）
         try:
             quote_task = provider.get_quote(ticker)
             fundamental_task = provider.get_fundamental_data(ticker)
             indicator_task = provider.get_historical_data(ticker, period="200d")
             
-            # AI News Enrichment (Tavily)
+            # AI 新闻增强：如果配置了 Tavily，优先使用 AI 搜索获取高质量总结
             from app.services.market_providers.tavily import TavilyProvider
             tavily = TavilyProvider()
             news_task = tavily.get_news(ticker) if tavily.api_key else provider.get_news(ticker)
             
+            # 使用 asyncio.gather 并行执行所有任务，提高效率
             res = await asyncio.gather(quote_task, fundamental_task, indicator_task, news_task, return_exceptions=True)
             quote, fundamental, indicators, news = res
             
             if not isinstance(quote, Exception) and quote:
-                # If we have a quote, we have a valid data point
+                # 只要有了基础报价 (quote)，就认为本次抓取是成功的
                 return FullMarketData(
                     quote=quote,
                     fundamental=fundamental if not isinstance(fundamental, Exception) else None,
@@ -69,7 +81,7 @@ class MarketDataService:
         except Exception as e:
             logger.error(f"Error fetching from provider {type(provider).__name__} for {ticker}: {e}")
 
-        # Final fallback: If preferred fails and it's not YFinance, try YFinance
+        # 兜底转换：如果首选源（如 AlphaVantage）失败，自动尝试使用 YFinance
         if preferred_source != "YFINANCE":
             yf_provider = ProviderFactory.get_provider(ticker, "YFINANCE")
             return await yf_provider.get_full_data(ticker)
@@ -78,23 +90,27 @@ class MarketDataService:
 
     @staticmethod
     async def _update_database(ticker: str, data: FullMarketData, cache: Optional[MarketDataCache], db: AsyncSession, now: datetime):
-        # Ensure Stock exists
+        """
+        将 FullMarketData (Schema) 的数据持久化到数据库 (Models)
+        """
+        # 1. 确保 Stock 基础资料存在
         stock_stmt = select(Stock).where(Stock.ticker == ticker)
         stock_result = await db.execute(stock_stmt)
         stock = stock_result.scalar_one_or_none()
         
         if not stock:
+            # 如果是第一次添加这支股票，初始化基础信息
             stock = Stock(ticker=ticker, name=data.quote.name or ticker)
             db.add(stock)
             await db.commit()
-            # Refresh to get stock
             stock_result = await db.execute(stock_stmt)
             stock = stock_result.scalar_one_or_none()
         else:
+            # 存在则按需更新名称
             if data.quote.name:
                 stock.name = data.quote.name
 
-        # Update Stock Fundamentals
+        # 2. 更新财务基础面数据
         fundamental = data.fundamental
         if fundamental:
             stock.sector = fundamental.sector or stock.sector
@@ -108,7 +124,7 @@ class MarketDataService:
             stock.fifty_two_week_high = fundamental.fifty_two_week_high or stock.fifty_two_week_high
             stock.fifty_two_week_low = fundamental.fifty_two_week_low or stock.fifty_two_week_low
 
-        # Update Cache
+        # 3. 更新缓存表（实时报价与指标）
         if not cache:
             cache = MarketDataCache(ticker=ticker)
             db.add(cache)
@@ -116,7 +132,7 @@ class MarketDataService:
         cache.current_price = data.quote.price
         cache.change_percent = data.quote.change_percent
         
-        # Indicators
+        # 映射技术指标
         if data.technical and data.technical.indicators:
             ind = data.technical.indicators
             cache.rsi_14 = ind.get('rsi_14', cache.rsi_14)
@@ -139,13 +155,11 @@ class MarketDataService:
         cache.market_status = MarketStatus.OPEN
         cache.last_updated = now
 
-        # Update News
+        # 4. 更新新闻（采用 upsert 逻辑）
         if data.news:
             from sqlalchemy.dialects.sqlite import insert
             for n in data.news:
-                # Sanity check: need at least a link or it's not useful
-                if not n.link:
-                    continue
+                if not n.link: continue
                 
                 news_stmt = insert(StockNews).values(
                     id=n.id or str(hash(n.link)),
@@ -159,14 +173,15 @@ class MarketDataService:
                 await db.execute(news_stmt)
 
         await db.commit()
-        try:
-            await db.refresh(cache)
-        except Exception:
-            pass
+        try: await db.refresh(cache)
+        except Exception: pass
         return cache
 
     @staticmethod
     async def _handle_simulation(ticker: str, cache: Optional[MarketDataCache], now: datetime):
+        """
+        在网络请求不可用时，通过模拟波动的形式保证 UI 仍然有数据展示
+        """
         import random
         if cache:
             fluctuation = 1 + (random.uniform(-0.0005, 0.0005))
@@ -174,7 +189,6 @@ class MarketDataService:
             cache.last_updated = now
             return cache
         
-        # Mock Default
         return MarketDataCache(
             ticker=ticker,
             current_price=100.0 * (1 + random.uniform(-0.01, 0.01)),

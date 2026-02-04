@@ -1,24 +1,25 @@
 import yfinance as yf
-from requests import Session
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 import os
 import logging
+import asyncio
 
 from app.core.config import settings
 from app.services.market_providers.base import MarketDataProvider
 from app.services.indicators import TechnicalIndicators
+from app.schemas.market_data import (
+    ProviderQuote, ProviderFundamental, ProviderNews, 
+    ProviderTechnical, FullMarketData, MarketStatus
+)
 
 logger = logging.getLogger(__name__)
 
 class YFinanceProvider(MarketDataProvider):
     def __init__(self):
-        self._session = Session()
-        self._session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.9',
-        })
+        # We no longer pass a custom session to Ticker because newer yfinance (1.1.0+)
+        # uses curl_cffi internally for Yahoo and manual sessions can cause conflicts.
+        # Proxies are handled via environment variables which yfinance respects.
         if settings.HTTP_PROXY:
             os.environ["HTTP_PROXY"] = settings.HTTP_PROXY
             os.environ["HTTPS_PROXY"] = settings.HTTP_PROXY
@@ -27,131 +28,150 @@ class YFinanceProvider(MarketDataProvider):
         loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, lambda: func(*args, **kwargs))
 
-    async def get_quote(self, ticker: str) -> Optional[Dict[str, Any]]:
-        # This will be used as a standalone or by MarketDataService
+    async def get_quote(self, ticker: str) -> Optional[ProviderQuote]:
         try:
-            tick = yf.Ticker(ticker, session=self._session)
+            tick = yf.Ticker(ticker)
             info = await self._run_sync(getattr, tick, "info")
             if info and ('currentPrice' in info or 'regularMarketPrice' in info):
-                return {
-                    "price": info.get('currentPrice') or info.get('regularMarketPrice'),
-                    "change_percent": info.get('regularMarketChangePercent', 0),
-                    "name": info.get('shortName', ticker),
-                    "status": "OPEN"
-                }
+                price = info.get('currentPrice') or info.get('regularMarketPrice')
+                return ProviderQuote(
+                    ticker=ticker,
+                    price=float(price),
+                    change_percent=float(info.get('regularMarketChangePercent', 0)),
+                    name=info.get('shortName', ticker),
+                    market_status=MarketStatus.OPEN,
+                    last_updated=datetime.utcnow()
+                )
             return None
         except Exception as e:
             logger.error(f"yfinance get_quote error for {ticker}: {e}")
             return None
 
-    async def get_fundamental_data(self, ticker: str) -> Optional[Dict[str, Any]]:
+    async def get_fundamental_data(self, ticker: str) -> Optional[ProviderFundamental]:
         try:
-            tick = yf.Ticker(ticker, session=self._session)
+            tick = yf.Ticker(ticker)
             info = await self._run_sync(getattr, tick, "info")
             if not info:
                 return None
                 
-            return {
-                "sector": info.get('sector'),
-                "industry": info.get('industry'),
-                "market_cap": info.get('marketCap'),
-                "pe_ratio": info.get('trailingPE'),
-                "forward_pe": info.get('forwardPE'),
-                "eps": info.get('trailingEps'),
-                "dividend_yield": info.get('dividendYield'),
-                "beta": info.get('beta'),
-                "fifty_two_week_high": info.get('fiftyTwoWeekHigh'),
-                "fifty_two_week_low": info.get('fiftyTwoWeekLow')
-            }
+            return ProviderFundamental(
+                sector=info.get('sector'),
+                industry=info.get('industry'),
+                market_cap=info.get('marketCap'),
+                pe_ratio=info.get('trailingPE'),
+                forward_pe=info.get('forwardPE'),
+                eps=info.get('trailingEps'),
+                dividend_yield=info.get('dividendYield'),
+                beta=info.get('beta'),
+                fifty_two_week_high=info.get('fiftyTwoWeekHigh'),
+                fifty_two_week_low=info.get('fiftyTwoWeekLow')
+            )
         except Exception as e:
             logger.error(f"yfinance get_fundamental_data error for {ticker}: {e}")
             return None
 
-    async def get_historical_data(self, ticker: str, interval: str = "1d", period: str = "100d") -> Optional[Dict[str, Any]]:
+    async def get_historical_data(self, ticker: str, interval: str = "1d", period: str = "1mo") -> Optional[Dict[str, Any]]:
         try:
-            tick = yf.Ticker(ticker, session=self._session)
+            tick = yf.Ticker(ticker)
             hist = await self._run_sync(tick.history, period=period, interval=interval)
             if hist.empty:
                 return None
             
-            # Indicator calculation is CPU bound, keep it in sync but it's faster than net
             indicators = TechnicalIndicators.calculate_all(hist)
             return indicators
         except Exception as e:
             logger.error(f"yfinance get_historical_data error for {ticker}: {e}")
             return None
 
-    async def get_news(self, ticker: str) -> List[Dict[str, Any]]:
+    async def get_news(self, ticker: str) -> List[ProviderNews]:
         try:
-            tick = yf.Ticker(ticker, session=self._session)
+            tick = yf.Ticker(ticker)
             news = await self._run_sync(getattr, tick, "news")
             if not news:
                 return []
             
             processed_news = []
             for n in news:
-                processed_news.append({
-                    "id": n.get('uuid'),
-                    "title": n.get('title'),
-                    "publisher": n.get('publisher'),
-                    "link": n.get('link'),
-                    "publish_time": datetime.utcfromtimestamp(n.get('providerPublishTime', 0))
-                })
+                processed_news.append(ProviderNews(
+                    id=n.get('uuid'),
+                    title=n.get('title'),
+                    publisher=n.get('publisher'),
+                    link=n.get('link'),
+                    publish_time=datetime.utcfromtimestamp(n.get('providerPublishTime', 0))
+                ))
             return processed_news
         except Exception as e:
             logger.error(f"yfinance get_news error for {ticker}: {e}")
             return []
 
-    async def get_full_data(self, ticker: str) -> Optional[Dict[str, Any]]:
-        """
-        Custom optimization: Fetch everything in one go to minimize Ticker/Session overhead.
-        """
+    async def get_full_data(self, ticker: str) -> Optional[FullMarketData]:
         try:
-            print(f"DEBUG: YFinance fetch start for {ticker}")
-            tick = yf.Ticker(ticker, session=self._session)
+            tick = yf.Ticker(ticker)
             
-            # Parallelize sync calls using executor
             info_task = self._run_sync(getattr, tick, "info")
             hist_task = self._run_sync(tick.history, period="200d", interval="1d")
             news_task = self._run_sync(getattr, tick, "news")
             
-            print(f"DEBUG: YFinance parallel tasks triggered for {ticker}")
             info, hist, news = await asyncio.gather(info_task, hist_task, news_task, return_exceptions=True)
-            print(f"DEBUG: YFinance parallel tasks completed for {ticker}")
             
-            result = {}
+            quote = None
+            fundamental = None
+            technical = None
+            processed_news = []
+
             if not isinstance(info, Exception) and info:
-                result["price"] = info.get('currentPrice') or info.get('regularMarketPrice')
-                result["change_percent"] = info.get('regularMarketChangePercent', 0)
-                result["name"] = info.get('shortName', ticker)
-                result["fundamental"] = {
-                    "sector": info.get('sector'),
-                    "industry": info.get('industry'),
-                    "market_cap": info.get('marketCap'),
-                    "pe_ratio": info.get('trailingPE'),
-                    "forward_pe": info.get('forwardPE'),
-                    "eps": info.get('trailingEps'),
-                    "dividend_yield": info.get('dividendYield'),
-                    "beta": info.get('beta'),
-                    "fifty_two_week_high": info.get('fiftyTwoWeekHigh'),
-                    "fifty_two_week_low": info.get('fiftyTwoWeekLow')
-                }
+                price = info.get('currentPrice') or info.get('regularMarketPrice')
+                if price:
+                    quote = ProviderQuote(
+                        ticker=ticker,
+                        price=float(price),
+                        change_percent=float(info.get('regularMarketChangePercent', 0)),
+                        name=info.get('shortName', ticker),
+                        market_status=MarketStatus.OPEN,
+                        last_updated=datetime.utcnow()
+                    )
+                    fundamental = ProviderFundamental(
+                        sector=info.get('sector'),
+                        industry=info.get('industry'),
+                        market_cap=info.get('marketCap'),
+                        pe_ratio=info.get('trailingPE'),
+                        forward_pe=info.get('forwardPE'),
+                        eps=info.get('trailingEps'),
+                        dividend_yield=info.get('dividendYield'),
+                        beta=info.get('beta'),
+                        fifty_two_week_high=info.get('fiftyTwoWeekHigh'),
+                        fifty_two_week_low=info.get('fiftyTwoWeekLow')
+                    )
             
             if not isinstance(hist, Exception) and not hist.empty:
-                result["indicators"] = TechnicalIndicators.calculate_all(hist)
+                indicators = TechnicalIndicators.calculate_all(hist)
+                technical = ProviderTechnical(indicators=indicators)
             
             if not isinstance(news, Exception) and news:
-                result["news"] = []
                 for n in news:
-                    result["news"].append({
-                        "id": n.get('uuid'),
-                        "title": n.get('title'),
-                        "publisher": n.get('publisher'),
-                        "link": n.get('link'),
-                        "publish_time": datetime.utcfromtimestamp(n.get('providerPublishTime', 0))
-                    })
+                    processed_news.append(ProviderNews(
+                        id=n.get('id', n.get('uuid')),
+                        title=n.get('title'),
+                        publisher=n.get('publisher'),
+                        link=n.get('link'),
+                        publish_time=datetime.utcfromtimestamp(n.get('providerPublishTime', 0))
+                    ))
             
-            return result if result.get("price") else None
+            if isinstance(info, Exception):
+                logger.error(f"yfinance info task error for {ticker}: {info}")
+            if isinstance(hist, Exception):
+                logger.error(f"yfinance history task error for {ticker}: {hist}")
+            if isinstance(news, Exception):
+                logger.error(f"yfinance news task error for {ticker}: {news}")
+
+            if quote:
+                return FullMarketData(
+                    quote=quote,
+                    fundamental=fundamental,
+                    technical=technical,
+                    news=processed_news
+                )
+            return None
         except Exception as e:
             logger.error(f"yfinance get_full_data error for {ticker}: {e}")
             return None

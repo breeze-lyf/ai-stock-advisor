@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
@@ -21,11 +21,34 @@ export default function Dashboard() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
 
+  // URL Sync for selected ticker
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const urlTicker = searchParams.get("ticker");
+
   // Core State
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedTicker, setSelectedTicker] = useState<string | null>(null);
+  const [selectedTicker, setSelectedTickerState] = useState<string | null>(urlTicker);
   const [onlyHoldings, setOnlyHoldings] = useState(false);
+
+  // Synchronize state with URL
+  useEffect(() => {
+    if (urlTicker && urlTicker !== selectedTicker) {
+      setSelectedTickerState(urlTicker);
+    }
+  }, [urlTicker, selectedTicker]);
+
+  const setSelectedTicker = (ticker: string | null) => {
+    setSelectedTickerState(ticker);
+    const params = new URLSearchParams(searchParams.toString());
+    if (ticker) {
+      params.set("ticker", ticker);
+    } else {
+      params.delete("ticker");
+    }
+    router.replace(`${pathname}?${params.toString()}`);
+  };
 
   // Analysis State
   const [analyzing, setAnalyzing] = useState(false);
@@ -40,7 +63,8 @@ export default function Dashboard() {
     try {
       const data = await getPortfolio(refresh);
       setPortfolio(data);
-      if (data.length > 0 && !selectedTicker) {
+      // Auto-select first only if no ticker in URL and no current selection
+      if (data.length > 0 && !urlTicker && !selectedTicker) {
         setSelectedTicker(data[0].ticker);
       }
     } catch (error) {
@@ -142,7 +166,7 @@ export default function Dashboard() {
       <SearchDialog
         isOpen={isSearchOpen}
         onOpenChange={setIsSearchOpen}
-        onRefresh={() => fetchData(true)}
+        onRefresh={() => fetchData(false)}
         portfolio={portfolio}
       />
     </div>

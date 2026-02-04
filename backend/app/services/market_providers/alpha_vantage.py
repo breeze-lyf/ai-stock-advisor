@@ -5,6 +5,9 @@ from datetime import datetime
 
 from app.core.config import settings
 from app.services.market_providers.base import MarketDataProvider
+from app.schemas.market_data import (
+    ProviderQuote, ProviderFundamental, ProviderNews, MarketStatus
+)
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +15,7 @@ class AlphaVantageProvider(MarketDataProvider):
     def __init__(self):
         self.api_key = settings.ALPHA_VANTAGE_API_KEY
 
-    async def get_quote(self, ticker: str) -> Optional[Dict[str, Any]]:
+    async def get_quote(self, ticker: str) -> Optional[ProviderQuote]:
         if not self.api_key:
             return None
             
@@ -23,18 +26,20 @@ class AlphaVantageProvider(MarketDataProvider):
             
             quote = data.get("Global Quote")
             if quote:
-                return {
-                    "price": float(quote.get("05. price", 0)),
-                    "change_percent": float(quote.get("10. change percent", "0%").replace("%", "")),
-                    "name": ticker,
-                    "status": "OPEN" # AV doesn't give clear status in quote
-                }
+                return ProviderQuote(
+                    ticker=ticker,
+                    price=float(quote.get("05. price", 0)),
+                    change_percent=float(quote.get("10. change percent", "0%").replace("%", "")),
+                    name=ticker,
+                    market_status=MarketStatus.OPEN,
+                    last_updated=datetime.utcnow()
+                )
             return None
         except Exception as e:
             logger.error(f"Alpha Vantage get_quote error for {ticker}: {e}")
             return None
 
-    async def get_fundamental_data(self, ticker: str) -> Optional[Dict[str, Any]]:
+    async def get_fundamental_data(self, ticker: str) -> Optional[ProviderFundamental]:
         if not self.api_key:
             return None
             
@@ -46,27 +51,24 @@ class AlphaVantageProvider(MarketDataProvider):
             if not data or "Symbol" not in data:
                 return None
                 
-            return {
-                "sector": data.get("Sector"),
-                "industry": data.get("Industry"),
-                "market_cap": float(data.get("MarketCapitalization", 0)) if data.get("MarketCapitalization") else None,
-                "pe_ratio": float(data.get("TrailingPE", 0)) if data.get("TrailingPE") != "None" else None,
-                "forward_pe": float(data.get("ForwardPE", 0)) if data.get("ForwardPE") != "None" else None,
-                "eps": float(data.get("DilutedEPSTTM", 0)) if data.get("DilutedEPSTTM") != "None" else None,
-                "dividend_yield": float(data.get("DividendYield", 0)) if data.get("DividendYield") else None,
-                "beta": float(data.get("Beta", 0)) if data.get("Beta") else None,
-                "fifty_two_week_high": float(data.get("52WeekHigh", 0)) if data.get("52WeekHigh") else None,
-                "fifty_two_week_low": float(data.get("52WeekLow", 0)) if data.get("52WeekLow") else None
-            }
+            return ProviderFundamental(
+                sector=data.get("Sector"),
+                industry=data.get("Industry"),
+                market_cap=float(data.get("MarketCapitalization", 0)) if data.get("MarketCapitalization") else None,
+                pe_ratio=float(data.get("TrailingPE", 0)) if data.get("TrailingPE") != "None" else None,
+                forward_pe=float(data.get("ForwardPE", 0)) if data.get("ForwardPE") != "None" else None,
+                eps=float(data.get("DilutedEPSTTM", 0)) if data.get("DilutedEPSTTM") != "None" else None,
+                dividend_yield=float(data.get("DividendYield", 0)) if data.get("DividendYield") else None,
+                beta=float(data.get("Beta", 0)) if data.get("Beta") else None,
+                fifty_two_week_high=float(data.get("52WeekHigh", 0)) if data.get("52WeekHigh") else None,
+                fifty_two_week_low=float(data.get("52WeekLow", 0)) if data.get("52WeekLow") else None
+            )
         except Exception as e:
             logger.error(f"Alpha Vantage get_fundamental_data error for {ticker}: {e}")
             return None
 
-    async def get_historical_data(self, ticker: str, interval: str = "1d", period: str = "100d") -> Optional[Any]:
-        # AV historical data (TIME_SERIES_DAILY) is a bit more complex to parse and usually throttled
-        # For now, we rely on yfinance for technical indicators as it's more reliable for bulk data
+    async def get_historical_data(self, ticker: str, interval: str = "1d", period: str = "1mo") -> Optional[Any]:
         return None
 
-    async def get_news(self, ticker: str) -> List[Dict[str, Any]]:
-        # AV has NEWS_SENTIMENT, but yfinance is already implemented and works well
+    async def get_news(self, ticker: str) -> List[ProviderNews]:
         return []

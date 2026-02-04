@@ -3,22 +3,18 @@ from sqlalchemy.future import select
 from datetime import datetime, timedelta
 import asyncio
 import logging
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 from app.core.config import settings
 from app.models.stock import Stock, MarketDataCache, MarketStatus, StockNews
-from app.services.market_providers import YFinanceProvider, AlphaVantageProvider
+from app.services.market_providers import ProviderFactory
+from app.schemas.market_data import FullMarketData
 
 logger = logging.getLogger(__name__)
 
 class MarketDataService:
-    _providers = {
-        "YFINANCE": YFinanceProvider(),
-        "ALPHA_VANTAGE": AlphaVantageProvider()
-    }
-
     @staticmethod
-    async def get_real_time_data(ticker: str, db: AsyncSession, preferred_source: str = "ALPHA_VANTAGE", force_refresh: bool = False):
+    async def get_real_time_data(ticker: str, db: AsyncSession, preferred_source: str = "YFINANCE", force_refresh: bool = False):
         # 1. Check Cache
         stmt = select(MarketDataCache).where(MarketDataCache.ticker == ticker)
         result = await db.execute(stmt)
@@ -40,96 +36,89 @@ class MarketDataService:
         return await MarketDataService._update_database(ticker, data, cache, db, now)
 
     @staticmethod
-    async def _fetch_from_providers(ticker: str, preferred_source: str) -> Optional[Dict[str, Any]]:
-        # Map of providers
-        providers = MarketDataService._providers
+    async def _fetch_from_providers(ticker: str, preferred_source: str) -> Optional[FullMarketData]:
+        provider = ProviderFactory.get_provider(ticker, preferred_source)
         
-        # Priority 1: Preferred Provider
-        main_provider = providers.get(preferred_source)
-        fallback_provider = providers.get("YFINANCE") if preferred_source != "YFINANCE" else providers.get("ALPHA_VANTAGE")
-        
-        result = None
-        
-        # Use a more efficient approach if it's YFinance
-        if preferred_source == "YFINANCE" and main_provider:
-            result = await main_provider.get_full_data(ticker)
-            if result:
-                return result
+        # Try full optimization first
+        result = await provider.get_full_data(ticker)
+        if result:
+            return result
 
-        # Otherwise, fetch components (potentially from multiple sources)
-        if main_provider:
-            try:
-                # Parallel fetch Quote and Fundamentals from main
-                quote_task = main_provider.get_quote(ticker)
-                fundamental_task = main_provider.get_fundamental_data(ticker)
-                
-                # Fetch indicators and news from YFinance as it's more reliable/complete for free tier
-                # If main is already YFinance we handled it above
-                history_provider = providers.get("YFINANCE")
-                indicator_task = history_provider.get_historical_data(ticker) if history_provider else asyncio.sleep(0, result=None)
-                news_task = history_provider.get_news(ticker) if history_provider else asyncio.sleep(0, result=[])
-                
-                res = await asyncio.gather(quote_task, fundamental_task, indicator_task, news_task, return_exceptions=True)
-                quote, fundamental, indicators, news = res
-                
-                if not isinstance(quote, Exception) and quote:
-                    result = {
-                        **quote,
-                        "fundamental": fundamental if not isinstance(fundamental, Exception) and fundamental else {},
-                        "indicators": indicators if not isinstance(indicators, Exception) and indicators else {},
-                        "news": news if not isinstance(news, Exception) and news else []
-                    }
-                    return result
-            except Exception as e:
-                logger.error(f"Error fetching from preferred source {preferred_source}: {e}")
+        # Prepare tasks (Parallel)
+        try:
+            quote_task = provider.get_quote(ticker)
+            fundamental_task = provider.get_fundamental_data(ticker)
+            indicator_task = provider.get_historical_data(ticker, period="200d")
+            
+            # AI News Enrichment (Tavily)
+            from app.services.market_providers.tavily import TavilyProvider
+            tavily = TavilyProvider()
+            news_task = tavily.get_news(ticker) if tavily.api_key else provider.get_news(ticker)
+            
+            res = await asyncio.gather(quote_task, fundamental_task, indicator_task, news_task, return_exceptions=True)
+            quote, fundamental, indicators, news = res
+            
+            if not isinstance(quote, Exception) and quote:
+                # If we have a quote, we have a valid data point
+                return FullMarketData(
+                    quote=quote,
+                    fundamental=fundamental if not isinstance(fundamental, Exception) else None,
+                    technical=ProviderTechnical(indicators=indicators) if not isinstance(indicators, Exception) and indicators else None,
+                    news=news if not isinstance(news, Exception) else []
+                )
+        except Exception as e:
+            logger.error(f"Error fetching from provider {type(provider).__name__} for {ticker}: {e}")
 
-        # Final Fallback to YFinance for everything if we still have nothing
-        if fallback_provider and preferred_source != "YFINANCE":
-            if hasattr(fallback_provider, 'get_full_data'):
-                return await fallback_provider.get_full_data(ticker)
+        # Final fallback: If preferred fails and it's not YFinance, try YFinance
+        if preferred_source != "YFINANCE":
+            yf_provider = ProviderFactory.get_provider(ticker, "YFINANCE")
+            return await yf_provider.get_full_data(ticker)
             
         return None
 
     @staticmethod
-    async def _update_database(ticker: str, data: Dict[str, Any], cache: Optional[MarketDataCache], db: AsyncSession, now: datetime):
+    async def _update_database(ticker: str, data: FullMarketData, cache: Optional[MarketDataCache], db: AsyncSession, now: datetime):
         # Ensure Stock exists
         stock_stmt = select(Stock).where(Stock.ticker == ticker)
         stock_result = await db.execute(stock_stmt)
         stock = stock_result.scalar_one_or_none()
         
         if not stock:
-            stock = Stock(ticker=ticker, name=data.get('name', ticker))
+            stock = Stock(ticker=ticker, name=data.quote.name or ticker)
             db.add(stock)
             await db.commit()
             # Refresh to get stock
             stock_result = await db.execute(stock_stmt)
             stock = stock_result.scalar_one_or_none()
+        else:
+            if data.quote.name:
+                stock.name = data.quote.name
 
         # Update Stock Fundamentals
-        fundamental = data.get('fundamental', {})
+        fundamental = data.fundamental
         if fundamental:
-            stock.sector = fundamental.get('sector', stock.sector)
-            stock.industry = fundamental.get('industry', stock.industry)
-            stock.market_cap = fundamental.get('market_cap', stock.market_cap)
-            stock.pe_ratio = fundamental.get('pe_ratio', stock.pe_ratio)
-            stock.forward_pe = fundamental.get('forward_pe', stock.forward_pe)
-            stock.eps = fundamental.get('eps', stock.eps)
-            stock.dividend_yield = fundamental.get('dividend_yield', stock.dividend_yield)
-            stock.beta = fundamental.get('beta', stock.beta)
-            stock.fifty_two_week_high = fundamental.get('fifty_two_week_high', stock.fifty_two_week_high)
-            stock.fifty_two_week_low = fundamental.get('fifty_two_week_low', stock.fifty_two_week_low)
+            stock.sector = fundamental.sector or stock.sector
+            stock.industry = fundamental.industry or stock.industry
+            stock.market_cap = fundamental.market_cap or stock.market_cap
+            stock.pe_ratio = fundamental.pe_ratio or stock.pe_ratio
+            stock.forward_pe = fundamental.forward_pe or stock.forward_pe
+            stock.eps = fundamental.eps or stock.eps
+            stock.dividend_yield = fundamental.dividend_yield or stock.dividend_yield
+            stock.beta = fundamental.beta or stock.beta
+            stock.fifty_two_week_high = fundamental.fifty_two_week_high or stock.fifty_two_week_high
+            stock.fifty_two_week_low = fundamental.fifty_two_week_low or stock.fifty_two_week_low
 
         # Update Cache
         if not cache:
             cache = MarketDataCache(ticker=ticker)
             db.add(cache)
 
-        cache.current_price = float(data.get('price', 0))
-        cache.change_percent = float(data.get('change_percent', 0))
+        cache.current_price = data.quote.price
+        cache.change_percent = data.quote.change_percent
         
         # Indicators
-        ind = data.get('indicators', {})
-        if ind:
+        if data.technical and data.technical.indicators:
+            ind = data.technical.indicators
             cache.rsi_14 = ind.get('rsi_14', cache.rsi_14)
             cache.ma_20 = ind.get('ma_20', cache.ma_20)
             cache.ma_50 = ind.get('ma_50', cache.ma_50)
@@ -151,17 +140,21 @@ class MarketDataService:
         cache.last_updated = now
 
         # Update News
-        news_list = data.get('news', [])
-        if news_list:
+        if data.news:
             from sqlalchemy.dialects.sqlite import insert
-            for n in news_list:
+            for n in data.news:
+                # Sanity check: need at least a link or it's not useful
+                if not n.link:
+                    continue
+                
                 news_stmt = insert(StockNews).values(
-                    id=n.get('id'),
+                    id=n.id or str(hash(n.link)),
                     ticker=ticker,
-                    title=n.get('title'),
-                    publisher=n.get('publisher'),
-                    link=n.get('link'),
-                    publish_time=n.get('publish_time')
+                    title=n.title or "No Title",
+                    publisher=n.publisher or "Unknown",
+                    link=n.link,
+                    summary=n.summary,
+                    publish_time=n.publish_time or now
                 ).on_conflict_do_nothing()
                 await db.execute(news_stmt)
 
@@ -169,7 +162,6 @@ class MarketDataService:
         try:
             await db.refresh(cache)
         except Exception:
-            # Refresh might fail if item was just deleted or session issue
             pass
         return cache
 

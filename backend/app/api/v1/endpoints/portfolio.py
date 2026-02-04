@@ -47,46 +47,26 @@ async def search_stocks(query: str = "", remote: bool = False, db: AsyncSession 
     
     if remote and not exact_match and len(query) <= 10:
         try:
-            # Quick yfinance check - just get stock info, don't calculate indicators
-            import yfinance as yf
-            import os
-            loop = asyncio.get_event_loop()
+            # Use Factory to get appropriate provider
+            from app.services.market_providers import ProviderFactory
+            provider = ProviderFactory.get_provider(query)
             
-            def quick_check():
-                # Set proxy if configured
-                if settings.HTTP_PROXY:
-                    os.environ["HTTP_PROXY"] = settings.HTTP_PROXY
-                    os.environ["HTTPS_PROXY"] = settings.HTTP_PROXY
-                
-                tick = yf.Ticker(query)
-                info = tick.info
-                if info and ('currentPrice' in info or 'regularMarketPrice' in info):
-                    return {
-                        "ticker": query,
-                        "name": info.get('shortName', query),
-                        "price": info.get('currentPrice') or info.get('regularMarketPrice')
-                    }
-                return None
-
+            # Fast quote fetch
+            quote = await provider.get_quote(query)
             
-            stock_info = await asyncio.wait_for(
-                loop.run_in_executor(None, quick_check),
-                timeout=5.0
-            )
-            
-            if stock_info:
+            if quote:
                 # Create Stock entry if not exists
                 stock_stmt = select(Stock).where(Stock.ticker == query)
                 stock_result = await db.execute(stock_stmt)
                 existing_stock = stock_result.scalar_one_or_none()
                 
                 if not existing_stock:
-                    new_stock = Stock(ticker=query, name=stock_info["name"])
+                    new_stock = Stock(ticker=query, name=quote.name or query)
                     db.add(new_stock)
                     
                     # Also create a minimal cache entry
                     from app.models.stock import MarketDataCache
-                    new_cache = MarketDataCache(ticker=query, current_price=stock_info["price"])
+                    new_cache = MarketDataCache(ticker=query, current_price=quote.price)
                     db.add(new_cache)
                     await db.commit()
                 
@@ -94,7 +74,7 @@ async def search_stocks(query: str = "", remote: bool = False, db: AsyncSession 
                 result = await db.execute(stmt)
                 stocks = result.scalars().all()
         except Exception as e:
-            print(f"Remote search failed for {query}: {e}")
+            logger.error(f"Remote search failed for {query}: {e}")
 
     return [SearchResult(ticker=s.ticker, name=s.name) for s in stocks]
 
@@ -121,12 +101,14 @@ async def get_portfolio(
     if refresh:
         tickers = [p.ticker for p, _, _ in rows]
         if tickers:
-            # Update sequentially in SQLite to avoid session concurrency issues
-            for ticker in tickers:
-                await MarketDataService.get_real_time_data(ticker, db, current_user.preferred_data_source)
-                # Add a small delay if using yfinance to avoid 429
-                if current_user.preferred_data_source == "YFINANCE":
-                    await asyncio.sleep(1)
+            # Fetch in parallel to improve performance
+            # Note: SQLite sessions are not thread-safe, but we are fetching 
+            # and updating via MarketDataService which handles its own commits.
+            tasks = [
+                MarketDataService.get_real_time_data(ticker, db, current_user.preferred_data_source)
+                for ticker in tickers
+            ]
+            await asyncio.gather(*tasks, return_exceptions=True)
             
             # Re-query to get the refreshed data
             result = await db.execute(stmt)

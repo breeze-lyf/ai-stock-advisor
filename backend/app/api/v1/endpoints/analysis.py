@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -10,6 +11,8 @@ from app.api.deps import get_current_user
 from app.core import security
 
 from app.schemas.analysis import AnalysisResponse
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 

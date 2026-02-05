@@ -101,12 +101,40 @@ class YFinanceProvider(MarketDataProvider):
             
             processed_news = []
             for n in news:
+                # 兼容旧版与新版结构
+                content = n.get('content', n)
+                
+                # 获取标题
+                title = content.get('title', n.get('title'))
+                
+                # 获取发布者
+                provider = content.get('provider', {})
+                publisher = provider.get('displayName') if isinstance(provider, dict) else content.get('publisher', n.get('publisher'))
+                
+                # 获取链接
+                clickthrough = content.get('clickThroughUrl', {})
+                link = clickthrough.get('url') if isinstance(clickthrough, dict) else content.get('link', n.get('link'))
+                if not link:
+                    canonical = content.get('canonicalUrl', {})
+                    link = canonical.get('url') if isinstance(canonical, dict) else None
+                
+                # 获取时间 (兼容 ISO 字符串和时间戳)
+                pub_time_raw = content.get('pubDate', content.get('providerPublishTime', n.get('providerPublishTime', 0)))
+                if isinstance(pub_time_raw, str):
+                    try:
+                        # yfinance 新版返回的是 ISO 格式，如 2026-02-03T19:52:54Z
+                        publish_time = datetime.fromisoformat(pub_time_raw.replace('Z', '+00:00'))
+                    except ValueError:
+                        publish_time = datetime.utcnow()
+                else:
+                    publish_time = datetime.utcfromtimestamp(pub_time_raw)
+
                 processed_news.append(ProviderNews(
-                    id=n.get('uuid'),
-                    title=n.get('title'),
-                    publisher=n.get('publisher'),
-                    link=n.get('link'),
-                    publish_time=datetime.utcfromtimestamp(n.get('providerPublishTime', 0))
+                    id=n.get('uuid') or n.get('id'),
+                    title=title,
+                    publisher=publisher,
+                    link=link,
+                    publish_time=publish_time
                 ))
             return processed_news
         except Exception as e:
@@ -165,12 +193,33 @@ class YFinanceProvider(MarketDataProvider):
             # 解析 News
             if not isinstance(news, Exception) and news:
                 for n in news:
+                    # 兼容新旧结构逻辑同上
+                    content = n.get('content', n)
+                    title = content.get('title', n.get('title'))
+                    provider = content.get('provider', {})
+                    publisher = provider.get('displayName') if isinstance(provider, dict) else content.get('publisher', n.get('publisher'))
+                    
+                    clickthrough = content.get('clickThroughUrl', {})
+                    link = clickthrough.get('url') if isinstance(clickthrough, dict) else content.get('link', n.get('link'))
+                    if not link:
+                        canonical = content.get('canonicalUrl', {})
+                        link = canonical.get('url') if isinstance(canonical, dict) else None
+                    
+                    pub_time_raw = content.get('pubDate', content.get('providerPublishTime', n.get('providerPublishTime', 0)))
+                    if isinstance(pub_time_raw, str):
+                        try:
+                            publish_time = datetime.fromisoformat(pub_time_raw.replace('Z', '+00:00'))
+                        except ValueError:
+                            publish_time = datetime.utcnow()
+                    else:
+                        publish_time = datetime.utcfromtimestamp(pub_time_raw)
+
                     processed_news.append(ProviderNews(
                         id=n.get('id', n.get('uuid')),
-                        title=n.get('title'),
-                        publisher=n.get('publisher'),
-                        link=n.get('link'),
-                        publish_time=datetime.utcfromtimestamp(n.get('providerPublishTime', 0))
+                        title=title,
+                        publisher=publisher,
+                        link=link,
+                        publish_time=publish_time
                     ))
             
             # 聚合结果

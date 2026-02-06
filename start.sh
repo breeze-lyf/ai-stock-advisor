@@ -18,12 +18,22 @@ fi
 
 # Start Backend
 echo "📈 Starting Backend (FastAPI) on port 8000..."
-cd backend
-if [ -d "venv" ]; then
-    source venv/bin/activate
+
+# Find the python/pip executable to use
+if [ -d ".venv" ]; then
+    PYTHON_EXEC="./.venv/bin/python3"
+    PIP_EXEC="./.venv/bin/pip3"
+elif [ -d "backend/venv" ]; then
+    PYTHON_EXEC="./backend/venv/bin/python3"
+    PIP_EXEC="./backend/venv/bin/pip3"
+else
+    PYTHON_EXEC="python3"
+    PIP_EXEC="pip3"
 fi
-pip install -r requirements.txt > /dev/null 2>&1
-python3 -m uvicorn app.main:app --reload --port 8000 &
+
+cd backend
+$PIP_EXEC install -r requirements.txt > /dev/null 2>&1
+$PYTHON_EXEC -m uvicorn app.main:app --reload --port 8000 &
 BACKEND_PID=$!
 cd ..
 

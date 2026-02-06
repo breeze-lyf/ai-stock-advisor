@@ -22,7 +22,7 @@ google-api-core==2.25.2
 google-api-python-client==2.188.0
 google-auth==2.47.0
 google-auth-httplib2==0.3.0
-google-generativeai==0.8.6
+google-genai==0.3.0
 googleapis-common-protos==1.72.0
 greenlet==3.3.0
 grpcio==1.76.0
@@ -70,6 +70,7 @@ uritemplate==4.2.0
 urllib3==2.6.3
 uvicorn==0.40.0
 webencodings==0.5.1
-websockets==16.0
-yfinance==1.0
+websockets>=13.0,<15.0
+yfinance
 gunicorn==23.0.0
+akshare

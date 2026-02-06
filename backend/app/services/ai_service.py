@@ -1,4 +1,5 @@
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from app.core.config import settings
 import logging
 import httpx
@@ -9,18 +10,6 @@ logger = logging.getLogger(__name__)
 
 # AI 分析服务：负责与 LLM (Gemini/SiliconFlow) 交互，生成投资分析建议
 class AIService:
-    _configured = False
-
-    @classmethod
-    def _configure_genai(cls, api_key: str = None):
-        """配置 Google Generative AI 会话"""
-        key = api_key or settings.GEMINI_API_KEY
-        if key:
-            genai.configure(api_key=key)
-            cls._configured = True
-        else:
-            logger.warning("GEMINI_API_KEY not found.")
-
     @staticmethod
     async def _call_siliconflow(prompt: str, model: str, api_key: str) -> str:
         """调用硅基流动 (SiliconFlow) API"""
@@ -85,9 +74,10 @@ class AIService:
         {news_data if news_data else "暂无重大相关新闻。"}
         
         **任务 (Task)**:
-        1. 综合分析：结合技术指标（趋势、波动、震荡）和最新的消息面，判断当前股价处于什么状态（底部反转、高位调整、强势拉升等）。
-        2. 消息面影响：解读最新的新闻对股价是利好还是利空，是否支撑当前的技术走势。
-        3. 操作建议：根据用户的持仓成本，给出具体的 [买入/卖出/持有] 建议，并说明理由。
+        1. 综合分析：结合技术指标和消息面，给出一个 0-100 的综合评分（0=极度看空，100=极度看多）。
+        2. 状态定调：用 4-6 个字总结当前股票状态（如：高位超买、底部反转、横盘蓄势）。
+        3. 消息面影响：解读新闻利好/利空。
+        4. 操作建议：根据持仓成本给出 [买入/卖出/持有] 建议。
         
         **要求**:
         - 使用中文回答。
@@ -95,21 +85,31 @@ class AIService:
         
         结果结构:
         {{
-            "technical_analysis": "（技术面深度总结，包含对收盘价与均线/布林带关系的解读）",
-            "fundamental_news": "（消息面解读，将最近新闻与公司基本面结合）",
-            "action_advice": "（给用户的具体操作建议及风控点）"
+            "sentiment_score": 85, 
+            "summary_status": "强势突破",
+            "risk_level": "中等",
+            "technical_analysis": "（技术面解读）",
+            "fundamental_news": "（消息面解读）",
+            "action_advice": "（给用户的具体操作建议）"
         }}
         """
 
         # 分发逻辑
         if "gemini" in model:
-            # 使用 Gemini 供应商
-            AIService._configure_genai(api_key_gemini)
+            # 使用 Gemini 供应商 (新版 google-genai SDK)
+            key = api_key_gemini or settings.GEMINI_API_KEY
+            if not key:
+                return "**Error**: 缺失 Gemini API Key。"
+                
             try:
-                gen_model = genai.GenerativeModel(model_name='models/gemini-1.5-flash')
-                response = await gen_model.generate_content_async(
-                    prompt,
-                    generation_config={"response_mime_type": "application/json"}
+                client = genai.Client(api_key=key)
+                # 使用异步客户端进行调用
+                response = await client.aio.models.generate_content(
+                    model='gemini-1.5-flash',
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        response_mime_type='application/json'
+                    )
                 )
                 return response.text
             except Exception as e:

@@ -32,6 +32,9 @@ export default function Dashboard() {
   const [selectedTicker, setSelectedTickerState] = useState<string | null>(urlTicker);
   const [onlyHoldings, setOnlyHoldings] = useState(false);
 
+  // News State
+  const [news, setNews] = useState<any[]>([]);
+
   // Synchronize state with URL
   useEffect(() => {
     if (urlTicker && urlTicker !== selectedTicker) {
@@ -53,6 +56,9 @@ export default function Dashboard() {
   // Analysis State
   const [analyzing, setAnalyzing] = useState(false);
   const [aiData, setAiData] = useState<{
+    sentiment_score?: number,
+    summary_status?: string,
+    risk_level?: string,
     technical_analysis: string,
     fundamental_news: string,
     action_advice: string,
@@ -94,29 +100,38 @@ export default function Dashboard() {
     return () => clearTimeout(timer);
   }, [isAuthenticated, router]);
 
+  // Load news and analysis when ticker changes
   useEffect(() => {
-    const loadExistingAnalysis = async () => {
+    const loadData = async () => {
       if (!selectedTicker) {
         setAiData(null);
+        setNews([]);
         return;
       }
 
       // 切换股票时，先清空旧数据以避免闪烁
       setAiData(null);
+      setNews([]);
 
       try {
-        // 静默获取最新分析报告
-        const result = await getLatestAnalysis(selectedTicker);
-        if (result) {
-          handleParseAnalysis(result);
+        // 并行获取分析和新闻
+        const [analysisResult, newsResult] = await Promise.all([
+          getLatestAnalysis(selectedTicker).catch(() => null),
+          import("@/lib/api").then(api => api.fetchStockNews(selectedTicker)).catch(() => [])
+        ]);
+
+        if (analysisResult) {
+          handleParseAnalysis(analysisResult);
+        }
+        if (newsResult) {
+          setNews(newsResult);
         }
       } catch (error) {
-        // 404 是正常的，说明该股票还没有分析记录
-        console.log("No existing analysis found for", selectedTicker);
+        console.error("Failed to load data for", selectedTicker, error);
       }
     };
 
-    loadExistingAnalysis();
+    loadData();
   }, [selectedTicker]);
 
   const handleParseAnalysis = (result: any) => {
@@ -150,6 +165,9 @@ export default function Dashboard() {
     try {
       const result = await analyzeStock(selectedTicker, force);
       handleParseAnalysis(result);
+      // 分析完后也刷一下新闻，万一有新的
+      const newsResult = await import("@/lib/api").then(api => api.fetchStockNews(selectedTicker));
+      setNews(newsResult);
     } catch (error: any) {
       if (error.response?.status === 429) {
         alert("Limit Reached! 🛑\nPlease add your own API Key in Settings.");
@@ -200,6 +218,7 @@ export default function Dashboard() {
           onRefresh={() => fetchData(false)}
           analyzing={analyzing}
           aiData={aiData}
+          news={news}
         />
       </div>
 

@@ -82,4 +82,9 @@ export const updateSettings = async (settings: UserSettingsUpdate): Promise<User
     return response.data;
 };
 
+export const fetchStockNews = async (ticker: string) => {
+    const response = await api.get(`/api/portfolio/${ticker}/news`);
+    return response.data;
+};
+
 export default api;

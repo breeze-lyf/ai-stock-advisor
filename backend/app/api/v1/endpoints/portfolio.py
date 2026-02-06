@@ -254,3 +254,33 @@ async def refresh_stock_data(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Refresh failed: {str(e)}")
+@router.get("/{ticker}/news")
+async def get_stock_news(
+    ticker: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """获取该股票在数据库中存储的最新新闻"""
+    from app.models.stock import StockNews
+    ticker = ticker.upper().strip()
+    
+    stmt = (
+        select(StockNews)
+        .where(StockNews.ticker == ticker)
+        .order_by(StockNews.publish_time.desc())
+        .limit(20)
+    )
+    result = await db.execute(stmt)
+    news = result.scalars().all()
+    
+    return [
+        {
+            "id": n.id,
+            "title": n.title,
+            "publisher": n.publisher,
+            "link": n.link,
+            "publish_time": n.publish_time,
+            "summary": n.summary
+        }
+        for n in news
+    ]

@@ -5497,3 +5497,396 @@ WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_
 2026-02-05 11:31:40,974 - sqlalchemy.engine.Engine - INFO - [cached since 3391s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'AMD', 'qwen-3-vl-thinking', 1, 0)
 2026-02-05 11:31:40,975 - api_logger - INFO - rid=/api/analysis/AMD method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=3.02ms
 2026-02-05 11:31:40,975 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-05 11:34:34,839 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-05 11:34:34,855 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-05 11:34:34,855 - sqlalchemy.engine.Engine - INFO - [generated in 0.00027s] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-05 11:34:34,855 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-05 11:34:34,856 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-05 11:34:34,856 - sqlalchemy.engine.Engine - INFO - [cached since 0.0009042s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-05 11:34:34,858 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-05 11:34:34,858 - sqlalchemy.engine.Engine - INFO - [generated in 0.00018s] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'AMD', 'qwen-3-vl-thinking', 1, 0)
+2026-02-05 11:34:34,863 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-05 11:34:34,863 - sqlalchemy.engine.Engine - INFO - [generated in 0.00065s] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-05 11:34:34,865 - api_logger - INFO - rid=/api/analysis/AMD method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=41.19ms
+2026-02-05 11:34:34,866 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-05 11:34:34,870 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=38.39ms
+2026-02-05 11:34:34,871 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-05 18:39:51,818 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-05 18:39:51,821 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-05 18:39:51,822 - sqlalchemy.engine.Engine - INFO - [cached since 7787s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-05 18:39:51,831 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-05 18:39:51,831 - sqlalchemy.engine.Engine - INFO - [cached since 7787s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'AMZN', 'qwen-3-vl-thinking', 1, 0)
+2026-02-05 18:39:51,833 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-05 18:39:51,833 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-05 18:39:51,834 - sqlalchemy.engine.Engine - INFO - [cached since 7787s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-05 18:39:51,835 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-05 18:39:51,837 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-05 18:39:51,839 - sqlalchemy.engine.Engine - INFO - [cached since 7787s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'AMD', 'qwen-3-vl-thinking', 1, 0)
+2026-02-05 18:39:51,842 - api_logger - INFO - rid=/api/analysis/AMZN method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=66.64ms
+2026-02-05 18:39:51,850 - api_logger - INFO - rid=/api/analysis/AMD method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=17.93ms
+2026-02-05 18:39:51,850 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-05 18:39:51,857 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-05 18:39:51,858 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-05 18:39:51,858 - sqlalchemy.engine.Engine - INFO - [cached since 7787s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-05 18:39:51,860 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-05 18:39:51,861 - sqlalchemy.engine.Engine - INFO - [cached since 7787s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'AMZN', 'qwen-3-vl-thinking', 1, 0)
+2026-02-05 18:39:51,861 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-05 18:39:51,862 - api_logger - INFO - rid=/api/analysis/AMZN method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=5.42ms
+2026-02-05 18:39:52,630 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-05 18:39:52,631 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-05 18:39:52,631 - sqlalchemy.engine.Engine - INFO - [cached since 7788s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-05 18:39:52,633 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-05 18:39:52,634 - sqlalchemy.engine.Engine - INFO - [cached since 7788s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'AMD', 'qwen-3-vl-thinking', 1, 0)
+2026-02-05 18:39:52,635 - api_logger - INFO - rid=/api/analysis/AMD method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=5.62ms
+2026-02-05 18:39:52,636 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-05 18:39:52,644 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-05 18:39:52,644 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-05 18:39:52,644 - sqlalchemy.engine.Engine - INFO - [cached since 7788s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-05 18:39:52,645 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-05 18:39:52,645 - sqlalchemy.engine.Engine - INFO - [cached since 7788s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'AMZN', 'qwen-3-vl-thinking', 1, 0)
+2026-02-05 18:39:52,646 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-05 18:39:52,646 - api_logger - INFO - rid=/api/analysis/AMZN method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=3.57ms
+2026-02-05 18:39:52,670 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-05 18:39:52,670 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-05 18:39:52,670 - sqlalchemy.engine.Engine - INFO - [cached since 7788s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-05 18:39:52,672 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-05 18:39:52,672 - sqlalchemy.engine.Engine - INFO - [cached since 7788s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'AMD', 'qwen-3-vl-thinking', 1, 0)
+2026-02-05 18:39:52,673 - api_logger - INFO - rid=/api/analysis/AMD method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=4.53ms
+2026-02-05 18:39:52,673 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-05 18:39:55,367 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-05 18:39:55,367 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-05 18:39:55,368 - sqlalchemy.engine.Engine - INFO - [cached since 7791s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-05 18:39:55,372 - sqlalchemy.engine.Engine - INFO - SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated 
+FROM market_data_cache 
+WHERE market_data_cache.ticker = ?
+2026-02-05 18:39:55,372 - sqlalchemy.engine.Engine - INFO - [generated in 0.00058s] ('AMD',)
+2026-02-05 18:39:56,541 - sqlalchemy.engine.Engine - INFO - SELECT stocks.ticker, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM stocks 
+WHERE stocks.ticker = ?
+2026-02-05 18:39:56,541 - sqlalchemy.engine.Engine - INFO - [generated in 0.00042s] ('AMD',)
+2026-02-05 18:39:56,544 - sqlalchemy.engine.Engine - INFO - INSERT INTO stock_news (id, ticker, title, publisher, link, publish_time, summary) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+2026-02-05 18:39:56,544 - sqlalchemy.engine.Engine - INFO - [no key 0.00019s] ('19cd1080-a43d-4393-8ed1-77d2b30d3322', 'AMD', 'Earnings live: Qualcomm stock dives as memory chip shortage weighs on outlook, Alphabet boosts AI spending', 'Yahoo Finance', 'https://finance.yahoo.com/news/live/earnings-live-qualcomm-stock-dives-as-memory-chip-shortage-weighs-on-outlook-alphabet-boosts-ai-spending-213250088.html', '2026-02-04 21:32:50.000000', None)
+2026-02-05 18:39:56,546 - sqlalchemy.engine.Engine - INFO - INSERT INTO stock_news (id, ticker, title, publisher, link, publish_time, summary) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+2026-02-05 18:39:56,546 - sqlalchemy.engine.Engine - INFO - [no key 0.00017s] ('5fc86e2d-619d-4254-83cd-ae93e86b0bf2', 'AMD', 'Memory company stocks are seeing 1,000% gains from the AI boom', 'Yahoo Finance', 'https://finance.yahoo.com/news/memory-company-stocks-are-seeing-1000-gains-from-the-ai-boom-192550307.html', '2026-02-04 19:25:50.000000', None)
+2026-02-05 18:39:56,546 - sqlalchemy.engine.Engine - INFO - INSERT INTO stock_news (id, ticker, title, publisher, link, publish_time, summary) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+2026-02-05 18:39:56,547 - sqlalchemy.engine.Engine - INFO - [no key 0.00013s] ('a65d7578-a084-3058-9ea8-9a30784830df', 'AMD', 'Software sell-off, AMD earnings, bitcoin drops: 3 Things', 'Yahoo Finance Video', 'https://finance.yahoo.com/video/software-sell-off-amd-earnings-140322858.html', '2026-02-04 14:03:22.000000', None)
+2026-02-05 18:39:56,548 - sqlalchemy.engine.Engine - INFO - INSERT INTO stock_news (id, ticker, title, publisher, link, publish_time, summary) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+2026-02-05 18:39:56,548 - sqlalchemy.engine.Engine - INFO - [no key 0.00017s] ('841a6643-95af-30c7-81f2-8e4298da3beb', 'AMD', 'US Stock Market Today S&P 500 Futures Nudge Higher As Rate Jitters Linger', 'Simply Wall St.', 'https://finance.yahoo.com/news/us-stock-market-today-p-101507736.html', '2026-02-05 10:15:07.000000', None)
+2026-02-05 18:39:56,549 - sqlalchemy.engine.Engine - INFO - INSERT INTO stock_news (id, ticker, title, publisher, link, publish_time, summary) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+2026-02-05 18:39:56,549 - sqlalchemy.engine.Engine - INFO - [no key 0.00011s] ('1b3a8a1d-9199-35e4-9ddb-19b8074958a4', 'AMD', 'Stock Futures Rise as Market Digests Google AI Spending Surge', 'Barrons.com', 'https://www.barrons.com/livecoverage/stock-market-news-today-020526/card/stock-futures-rise-as-market-digests-google-ai-spending-surge-QSUrxiRDlRzr1j3UJ5sl?siteid=yhoof2&yptr=yahoo', '2026-02-05 08:56:05.000000', None)
+2026-02-05 18:39:56,549 - sqlalchemy.engine.Engine - INFO - INSERT INTO stock_news (id, ticker, title, publisher, link, publish_time, summary) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+2026-02-05 18:39:56,550 - sqlalchemy.engine.Engine - INFO - [no key 0.00010s] ('8125b7e3-2723-3344-af8d-52aff352f1b1', 'AMD', 'Heard on the Street Wednesday Recap: Tech Tantrum', 'The Wall Street Journal', 'https://www.wsj.com/livecoverage/stock-market-today-dow-sp-500-nasdaq-02-05-2026/card/heard-on-the-street-wednesday-recap-tech-tantrum-ljtzcfNMCFjoPCjUvHHA?siteid=yhoof2&yptr=yahoo', '2026-02-05 08:45:12.000000', None)
+2026-02-05 18:39:56,550 - sqlalchemy.engine.Engine - INFO - INSERT INTO stock_news (id, ticker, title, publisher, link, publish_time, summary) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+2026-02-05 18:39:56,550 - sqlalchemy.engine.Engine - INFO - [no key 0.00009s] ('3a21db1b-1fa4-3aba-ac31-4fc39c4500a1', 'AMD', 'TSMC Needs to Make More Advanced Chips. Why It’s Turning to Japan.', 'Barrons.com', 'https://www.barrons.com/articles/tsmc-stock-price-chip-nvidia-apple-supplier-0238529b?siteid=yhoof2&yptr=yahoo', '2026-02-05 08:40:00.000000', None)
+2026-02-05 18:39:56,552 - sqlalchemy.engine.Engine - INFO - INSERT INTO stock_news (id, ticker, title, publisher, link, publish_time, summary) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+2026-02-05 18:39:56,552 - sqlalchemy.engine.Engine - INFO - [no key 0.00030s] ('fbd611eb-a40c-3116-8d2e-c6fbf3761c53', 'AMD', 'Stock Market News for Feb 5, 2026', 'Zacks', 'https://finance.yahoo.com/news/stock-market-news-feb-5-084000765.html', '2026-02-05 08:40:00.000000', None)
+2026-02-05 18:39:56,553 - sqlalchemy.engine.Engine - INFO - INSERT INTO stock_news (id, ticker, title, publisher, link, publish_time, summary) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+2026-02-05 18:39:56,553 - sqlalchemy.engine.Engine - INFO - [no key 0.00017s] ('677bdc22-05ed-3320-ac7a-79b8c08a86d0', 'AMD', 'Dow Jones Futures Fall; Google Beats Views, Huge AI Spending Stuns', "Investor's Business Daily", 'https://www.investors.com/market-trend/stock-market-today/dow-jones-futures-techs-falling-eli-lilly-soars-google-earnings-capital-spending/?src=A00220&yptr=yahoo', '2026-02-05 04:05:55.000000', None)
+2026-02-05 18:39:56,554 - sqlalchemy.engine.Engine - INFO - INSERT INTO stock_news (id, ticker, title, publisher, link, publish_time, summary) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+2026-02-05 18:39:56,554 - sqlalchemy.engine.Engine - INFO - [no key 0.00017s] ('54bcf021-49cd-3e5f-bc61-af39fbf335a0', 'AMD', 'Super Micro Computer, Inc. (SMCI): A\xa0Bull\xa0Case Theory', 'Insider Monkey', 'https://finance.yahoo.com/news/super-micro-computer-inc-smci-031847771.html', '2026-02-05 03:18:47.000000', None)
+2026-02-05 18:39:56,556 - sqlalchemy.engine.Engine - INFO - UPDATE stocks SET pe_ratio=?, forward_pe=?, eps=? WHERE stocks.ticker = ?
+2026-02-05 18:39:56,556 - sqlalchemy.engine.Engine - INFO - [generated in 0.00012s] (92.68055, 19.015133, 2.16, 'AMD')
+2026-02-05 18:39:56,557 - sqlalchemy.engine.Engine - INFO - UPDATE market_data_cache SET last_updated=? WHERE market_data_cache.ticker = ?
+2026-02-05 18:39:56,557 - sqlalchemy.engine.Engine - INFO - [generated in 0.00012s] ('2026-02-05 10:39:55.376874', 'AMD')
+2026-02-05 18:39:56,557 - sqlalchemy.engine.Engine - INFO - COMMIT
+2026-02-05 18:39:56,559 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-05 18:39:56,561 - sqlalchemy.engine.Engine - INFO - SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated 
+FROM market_data_cache 
+WHERE market_data_cache.ticker = ?
+2026-02-05 18:39:56,561 - sqlalchemy.engine.Engine - INFO - [generated in 0.00014s] ('AMD',)
+2026-02-05 18:39:56,562 - api_logger - INFO - rid=/api/portfolio/AMD/refresh method=POST status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1198.51ms
+2026-02-05 18:39:56,563 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-05 18:39:56,574 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-05 18:39:56,574 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-05 18:39:56,575 - sqlalchemy.engine.Engine - INFO - [cached since 7792s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-05 18:39:56,576 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-05 18:39:56,576 - sqlalchemy.engine.Engine - INFO - [cached since 7792s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-05 18:39:56,578 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=4.74ms
+2026-02-05 18:39:56,579 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-06 23:18:11,942 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-06 23:18:11,952 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.email = ?
+2026-02-06 23:18:11,952 - sqlalchemy.engine.Engine - INFO - [generated in 0.00017s] ('test@qq.com',)
+2026-02-06 23:18:12,169 - api_logger - INFO - rid=/api/auth/login method=POST status_code=200 user_id=anonymous time=236.81ms
+2026-02-06 23:18:12,169 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-06 23:18:12,280 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-06 23:18:12,281 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-06 23:18:12,281 - sqlalchemy.engine.Engine - INFO - [generated in 0.00011s] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:18:12,316 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-06 23:18:12,316 - sqlalchemy.engine.Engine - INFO - [generated in 0.00023s] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:18:12,318 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=40.08ms
+2026-02-06 23:18:12,322 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-06 23:18:12,324 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-06 23:18:12,325 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-06 23:18:12,325 - sqlalchemy.engine.Engine - INFO - [cached since 0.04432s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:18:12,326 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-06 23:18:12,326 - sqlalchemy.engine.Engine - INFO - [cached since 0.01031s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:18:12,328 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=5.27ms
+2026-02-06 23:18:12,329 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-06 23:18:12,347 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-06 23:18:12,347 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-06 23:18:12,347 - sqlalchemy.engine.Engine - INFO - [cached since 0.06638s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:18:12,348 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-06 23:18:12,348 - sqlalchemy.engine.Engine - INFO - [generated in 0.00009s] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'AAPL', 'qwen-3-vl-thinking', 1, 0)
+2026-02-06 23:18:12,350 - api_logger - INFO - rid=/api/analysis/AAPL method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=3.77ms
+2026-02-06 23:18:12,351 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-06 23:30:02,764 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-06 23:30:02,769 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-06 23:30:02,770 - sqlalchemy.engine.Engine - INFO - [cached since 710.5s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:30:02,771 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-06 23:30:02,772 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-06 23:30:02,772 - sqlalchemy.engine.Engine - INFO - [cached since 710.5s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:30:02,774 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-06 23:30:02,774 - sqlalchemy.engine.Engine - INFO - [cached since 710.4s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'AAPL', 'qwen-3-vl-thinking', 1, 0)
+2026-02-06 23:30:02,775 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-06 23:30:02,775 - sqlalchemy.engine.Engine - INFO - [cached since 710.5s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:30:02,777 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=48.49ms
+2026-02-06 23:30:02,778 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-06 23:30:02,779 - api_logger - INFO - rid=/api/analysis/AAPL method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=53.36ms
+2026-02-06 23:30:02,779 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-06 23:30:03,159 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-06 23:30:03,160 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-06 23:30:03,160 - sqlalchemy.engine.Engine - INFO - [cached since 710.9s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:30:03,160 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-06 23:30:03,161 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-06 23:30:03,161 - sqlalchemy.engine.Engine - INFO - [cached since 710.9s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:30:03,162 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-06 23:30:03,162 - sqlalchemy.engine.Engine - INFO - [cached since 710.8s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'AAPL', 'qwen-3-vl-thinking', 1, 0)
+2026-02-06 23:30:03,165 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-06 23:30:03,165 - sqlalchemy.engine.Engine - INFO - [cached since 710.8s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:30:03,172 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=14.38ms
+2026-02-06 23:30:03,173 - api_logger - INFO - rid=/api/analysis/AAPL method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=15.40ms
+2026-02-06 23:30:03,174 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-06 23:30:03,174 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-06 23:33:06,876 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-06 23:33:06,876 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-06 23:33:06,876 - sqlalchemy.engine.Engine - INFO - [cached since 894.6s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:33:06,876 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-06 23:33:06,876 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-06 23:33:06,876 - sqlalchemy.engine.Engine - INFO - [cached since 894.6s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:33:06,877 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-06 23:33:06,877 - sqlalchemy.engine.Engine - INFO - [cached since 894.5s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'AAPL', 'qwen-3-vl-thinking', 1, 0)
+2026-02-06 23:33:06,877 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-06 23:33:06,877 - sqlalchemy.engine.Engine - INFO - [cached since 894.6s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:33:06,878 - api_logger - INFO - rid=/api/analysis/AAPL method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=3.66ms
+2026-02-06 23:33:06,878 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-06 23:33:06,880 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=4.90ms
+2026-02-06 23:33:06,880 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-06 23:33:29,336 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-06 23:33:29,338 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-06 23:33:29,338 - sqlalchemy.engine.Engine - INFO - [cached since 917.1s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:33:29,343 - sqlalchemy.engine.Engine - INFO - SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated 
+FROM market_data_cache 
+WHERE market_data_cache.ticker = ?
+2026-02-06 23:33:29,343 - sqlalchemy.engine.Engine - INFO - [generated in 0.00038s] ('AAPL',)
+2026-02-06 23:33:31,113 - sqlalchemy.engine.Engine - INFO - SELECT stocks.ticker, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM stocks 
+WHERE stocks.ticker = ?
+2026-02-06 23:33:31,114 - sqlalchemy.engine.Engine - INFO - [generated in 0.00052s] ('AAPL',)
+2026-02-06 23:33:31,120 - sqlalchemy.engine.Engine - INFO - INSERT INTO stock_news (id, ticker, title, publisher, link, publish_time, summary) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+2026-02-06 23:33:31,120 - sqlalchemy.engine.Engine - INFO - [no key 0.00058s] ('5ec0fd74-7ce3-3034-88f7-8f03cfc8c237', 'AAPL', "What Alphabet's earnings reveal about the decline in software stocks", 'Yahoo Finance Video', 'https://finance.yahoo.com/video/alphabets-earnings-reveal-decline-software-183000814.html', '2026-02-05 18:30:00.000000', None)
+2026-02-06 23:33:31,125 - sqlalchemy.engine.Engine - INFO - INSERT INTO stock_news (id, ticker, title, publisher, link, publish_time, summary) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+2026-02-06 23:33:31,125 - sqlalchemy.engine.Engine - INFO - [no key 0.00012s] ('9aa7b4cd-fd6f-478b-95e6-eb4cafcb8db9', 'AAPL', 'Alphabet stock sinks after Google parent announces $180 billion spending plan for 2026 in massive AI bet', 'Yahoo Finance', 'https://finance.yahoo.com/news/alphabet-stock-sinks-after-google-parent-announces-180-billion-spending-plan-for-2026-in-massive-ai-bet-155410864.html', '2026-02-05 15:54:10.000000', None)
+2026-02-06 23:33:31,126 - sqlalchemy.engine.Engine - INFO - INSERT INTO stock_news (id, ticker, title, publisher, link, publish_time, summary) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+2026-02-06 23:33:31,126 - sqlalchemy.engine.Engine - INFO - [no key 0.00021s] ('42f565e8-04f4-3a0a-b0d5-b463e7a32a07', 'AAPL', 'AI trade splinters as investors get more selective', 'Reuters', 'https://finance.yahoo.com/news/ai-trade-splinters-investors-more-150101291.html', '2026-02-06 15:01:01.000000', None)
+2026-02-06 23:33:31,127 - sqlalchemy.engine.Engine - INFO - INSERT INTO stock_news (id, ticker, title, publisher, link, publish_time, summary) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+2026-02-06 23:33:31,127 - sqlalchemy.engine.Engine - INFO - [no key 0.00011s] ('d08818e0-ccf3-3fae-b2f2-fe6849158e1a', 'AAPL', 'Is crypto still cypherpunk? With Miden co-founder Azeem Khan', 'The Block', 'https://finance.yahoo.com/news/crypto-still-cypherpunk-miden-co-130151835.html', '2026-02-06 13:01:51.000000', None)
+2026-02-06 23:33:31,127 - sqlalchemy.engine.Engine - INFO - INSERT INTO stock_news (id, ticker, title, publisher, link, publish_time, summary) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+2026-02-06 23:33:31,127 - sqlalchemy.engine.Engine - INFO - [no key 0.00005s] ('befd5246-56aa-3075-a630-78f0bb1bab69', 'AAPL', 'Despite The Ho-Hum Dividend, SCHG Beat the S&P 500 by An Impressive 15%', '24/7 Wall St.', 'https://finance.yahoo.com/news/despite-ho-hum-dividend-schg-123037857.html', '2026-02-06 12:30:37.000000', None)
+2026-02-06 23:33:31,128 - sqlalchemy.engine.Engine - INFO - INSERT INTO stock_news (id, ticker, title, publisher, link, publish_time, summary) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+2026-02-06 23:33:31,128 - sqlalchemy.engine.Engine - INFO - [no key 0.00005s] ('1c5ef38e-272c-316a-ae6f-88c650c9141e', 'AAPL', 'Apple Just Had The Biggest Quarter In iPhone History', 'Benzinga', 'https://finance.yahoo.com/news/apple-just-had-biggest-quarter-120109544.html', '2026-02-06 12:01:09.000000', None)
+2026-02-06 23:33:31,128 - sqlalchemy.engine.Engine - INFO - INSERT INTO stock_news (id, ticker, title, publisher, link, publish_time, summary) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+2026-02-06 23:33:31,128 - sqlalchemy.engine.Engine - INFO - [no key 0.00004s] ('a6479cfc-5e40-352b-acdc-14616c9f119a', 'AAPL', 'Zacks Investment Ideas feature highlights: Alphabet, Nvidia and Apple', 'Zacks', 'https://finance.yahoo.com/news/zacks-investment-ideas-feature-highlights-114600888.html', '2026-02-06 11:46:00.000000', None)
+2026-02-06 23:33:31,128 - sqlalchemy.engine.Engine - INFO - INSERT INTO stock_news (id, ticker, title, publisher, link, publish_time, summary) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+2026-02-06 23:33:31,128 - sqlalchemy.engine.Engine - INFO - [no key 0.00007s] ('52c220f4-0742-3f6b-b999-24925f3d771c', 'AAPL', 'Magnificent Seven Sink -- Nearly $3 Trillion in Market Value Vanishes', 'GuruFocus.com', 'https://finance.yahoo.com/news/magnificent-seven-sink-nearly-3-114037275.html', '2026-02-06 11:40:37.000000', None)
+2026-02-06 23:33:31,129 - sqlalchemy.engine.Engine - INFO - INSERT INTO stock_news (id, ticker, title, publisher, link, publish_time, summary) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+2026-02-06 23:33:31,129 - sqlalchemy.engine.Engine - INFO - [no key 0.00008s] ('8af2f72a-e998-324d-8410-89a503677f2a', 'AAPL', 'Apple Scales Back AI Health Coach Plans', 'GuruFocus.com', 'https://finance.yahoo.com/news/apple-scales-back-ai-health-113406335.html', '2026-02-06 11:34:06.000000', None)
+2026-02-06 23:33:31,129 - sqlalchemy.engine.Engine - INFO - INSERT INTO stock_news (id, ticker, title, publisher, link, publish_time, summary) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING
+2026-02-06 23:33:31,129 - sqlalchemy.engine.Engine - INFO - [no key 0.00005s] ('7a418b82-e9d3-3ce0-b6f8-af2b38f5e4d0', 'AAPL', 'Pricier iPhones? Global memory chip crunch puts spotlight on Apple', 'Reuters', 'https://finance.yahoo.com/news/pricier-iphones-global-memory-chip-112922022.html', '2026-02-06 11:29:22.000000', None)
+2026-02-06 23:33:31,130 - sqlalchemy.engine.Engine - INFO - UPDATE stocks SET market_cap=?, pe_ratio=?, forward_pe=?, eps=?, dividend_yield=? WHERE stocks.ticker = ?
+2026-02-06 23:33:31,130 - sqlalchemy.engine.Engine - INFO - [generated in 0.00007s] (4109319536640.0, 35.43536, 30.13263, 7.89, 0.38, 'AAPL')
+2026-02-06 23:33:31,131 - sqlalchemy.engine.Engine - INFO - UPDATE market_data_cache SET current_price=?, change_percent=?, rsi_14=?, ma_20=?, ma_50=?, ma_200=?, macd_val=?, macd_signal=?, macd_hist=?, bb_upper=?, bb_middle=?, bb_lower=?, atr_14=?, k_line=?, d_line=?, j_line=?, volume_ma_20=?, volume_ratio=?, last_updated=? WHERE market_data_cache.ticker = ?
+2026-02-06 23:33:31,131 - sqlalchemy.engine.Engine - INFO - [generated in 0.00016s] (279.57, 1.3319516, 74.91706867632419, 260.2205093383789, 268.73040283203125, 238.3210247039795, 2.3214936513231805, -1.0778249763493553, 3.399318627672536, 279.5158011567397, 260.2205093383789, 240.9252175200181, 6.944644383021763, 90.00439732642619, 83.49411923318083, 103.02495351291688, 55104392.3, 0.27341642600784116, '2026-02-06 15:33:29.344388', 'AAPL')
+2026-02-06 23:33:31,132 - sqlalchemy.engine.Engine - INFO - COMMIT
+2026-02-06 23:33:31,133 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-06 23:33:31,133 - sqlalchemy.engine.Engine - INFO - SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated 
+FROM market_data_cache 
+WHERE market_data_cache.ticker = ?
+2026-02-06 23:33:31,133 - sqlalchemy.engine.Engine - INFO - [generated in 0.00007s] ('AAPL',)
+2026-02-06 23:33:31,134 - sqlalchemy.engine.Engine - INFO - SELECT stock_news.id, stock_news.ticker, stock_news.title, stock_news.publisher, stock_news.link, stock_news.publish_time, stock_news.summary, stock_news.sentiment 
+FROM stock_news 
+WHERE stock_news.ticker = ? ORDER BY stock_news.publish_time DESC
+ LIMIT ? OFFSET ?
+2026-02-06 23:33:31,134 - sqlalchemy.engine.Engine - INFO - [generated in 0.00005s] ('AAPL', 5, 0)
+2026-02-06 23:33:31,135 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at 
+FROM portfolios 
+WHERE portfolios.user_id = ? AND portfolios.ticker = ?
+2026-02-06 23:33:31,135 - sqlalchemy.engine.Engine - INFO - [generated in 0.00005s] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'AAPL')
+2026-02-06 23:33:31,135 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-06 23:33:31,136 - sqlalchemy.engine.Engine - INFO - [cached since 918.8s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'AAPL', 'qwen-3-vl-thinking', 1, 0)
+2026-02-06 23:33:31,136 - app.api.v1.endpoints.analysis - INFO - Returning latest report for AAPL (model: qwen-3-vl-thinking)
+2026-02-06 23:33:31,136 - api_logger - INFO - rid=/api/analysis/AAPL method=POST status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1803.40ms
+2026-02-06 23:33:31,136 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-06 23:41:26,670 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-06 23:41:26,671 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-06 23:41:26,671 - sqlalchemy.engine.Engine - INFO - [cached since 1394s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:41:26,672 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-06 23:41:26,672 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-06 23:41:26,672 - sqlalchemy.engine.Engine - INFO - [cached since 1394s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:41:26,674 - api_logger - INFO - rid=/api/portfolio/AAPL/news method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=2.11ms
+2026-02-06 23:41:26,676 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-06 23:41:26,676 - sqlalchemy.engine.Engine - INFO - [cached since 1394s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'AAPL', 'qwen-3-vl-thinking', 1, 0)
+2026-02-06 23:41:26,677 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-06 23:41:26,677 - sqlalchemy.engine.Engine - INFO - [cached since 1394s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:41:26,677 - api_logger - INFO - rid=/api/analysis/AAPL method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=5.96ms
+2026-02-06 23:41:26,678 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-06 23:41:26,681 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=20.52ms
+2026-02-06 23:41:26,682 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-06 23:43:25,571 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-06 23:43:25,571 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-06 23:43:25,571 - sqlalchemy.engine.Engine - INFO - [cached since 1513s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:43:25,571 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-06 23:43:25,572 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-06 23:43:25,572 - sqlalchemy.engine.Engine - INFO - [cached since 1513s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:43:25,572 - api_logger - INFO - rid=/api/portfolio/AAPL/news method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=2.42ms
+2026-02-06 23:43:25,574 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-06 23:43:25,574 - sqlalchemy.engine.Engine - INFO - [cached since 1513s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'AAPL', 'qwen-3-vl-thinking', 1, 0)
+2026-02-06 23:43:25,575 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-06 23:43:25,575 - sqlalchemy.engine.Engine - INFO - [cached since 1513s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:43:25,576 - api_logger - INFO - rid=/api/analysis/AAPL method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=7.86ms
+2026-02-06 23:43:25,580 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-06 23:43:25,582 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=12.52ms
+2026-02-06 23:43:25,585 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-06 23:43:26,001 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-06 23:43:26,001 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-06 23:43:26,001 - sqlalchemy.engine.Engine - INFO - [cached since 1514s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:43:26,001 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-06 23:43:26,002 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-06 23:43:26,002 - sqlalchemy.engine.Engine - INFO - [cached since 1514s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:43:26,002 - api_logger - INFO - rid=/api/portfolio/AAPL/news method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.20ms
+2026-02-06 23:43:26,003 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-06 23:43:26,003 - sqlalchemy.engine.Engine - INFO - [cached since 1514s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'AAPL', 'qwen-3-vl-thinking', 1, 0)
+2026-02-06 23:43:26,004 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-06 23:43:26,004 - sqlalchemy.engine.Engine - INFO - [cached since 1514s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-06 23:43:26,005 - api_logger - INFO - rid=/api/analysis/AAPL method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=5.02ms
+2026-02-06 23:43:26,006 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=6.09ms
+2026-02-06 23:43:26,006 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-06 23:43:26,007 - sqlalchemy.engine.Engine - INFO - ROLLBACK

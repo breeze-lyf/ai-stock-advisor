@@ -88,20 +88,62 @@ class AkShareProvider(MarketDataProvider):
     async def get_fundamental_data(self, ticker: str) -> Optional[ProviderFundamental]:
         try:
             symbol = ticker.split('.')[0] if '.' in ticker else ticker
-            info_df = await self._run_sync(ak.stock_individual_info_em, symbol=symbol)
             
-            # Map AkShare EM info to standardized fundamental
-            # Columns are 'item' and 'value'
-            data = {}
-            for _, row in info_df.iterrows():
-                data[row['item']] = row['value']
+            # 1. 基础信息 (行业, 市值) - 来自东财
+            info_df = await self._run_sync(ak.stock_individual_info_em, symbol=symbol)
+            data = {row['item']: row['value'] for _, row in info_df.iterrows()}
+            
+            # 2. 每股收益 (EPS) - 来自同花顺
+            eps = None
+            try:
+                ths_df = await self._run_sync(ak.stock_financial_abstract_ths, symbol=symbol)
+                if not ths_df.empty:
+                    # 获取最新的一条报告数据
+                    latest_report = ths_df.iloc[-1]
+                    eps_str = str(latest_report.get('基本每股收益', ''))
+                    import re
+                    match = re.search(r"[-+]?\d*\.\d+|\d+", eps_str)
+                    if match:
+                        eps = float(match.group())
+            except Exception as e:
+                logger.warning(f"AkShare THS EPS fetch failed for {ticker}: {e}")
+
+            # 3. 52 周高低点 - 来自历史数据回溯
+            fifty_two_week_high = None
+            fifty_two_week_low = None
+            try:
+                # 获取过去 1 年的历史数据
+                hist_data = await self.get_ohlcv(ticker, period="1y")
+                if hist_data:
+                    prices = [item.close for item in hist_data]
+                    fifty_two_week_high = max(prices)
+                    fifty_two_week_low = min(prices)
+            except Exception as e:
+                logger.warning(f"AkShare 52W High/Low calculation failed for {ticker}: {e}")
+
+            # 4. 市盈率 (PE) - 基于实时股价计算 (Price / EPS)
+            pe_ratio = None
+            try:
+                # 注意：这里不再重复调用 get_quote，因为 MarketDataService 会并发获取 quote 和 fundamental
+                # 我们尽量在此处只抓取基础面核心数据。
+                # 如果确实需要实时计算 PE，可以在 get_fundamental_data 外部由 MarketDataService 统一处理
+                # 或者作为可选注入。为了保持简单，我们这里还是尝试快速拿一下，如果失败也没关系。
+                # 但是为了性能，我们优先检查 data['最新'] (来自东财 spot)
+                price = float(data['最新']) if '最新' in data else None
+                
+                if price and eps and eps > 0:
+                    pe_ratio = price / eps
+            except Exception as e:
+                logger.warning(f"AkShare PE calculation failed for {ticker}: {e}")
             
             return ProviderFundamental(
                 sector=data.get('行业'),
-                market_cap=float(data.get('总市值', 0)) if data.get('总市值') else None,
-                # EM simplified info might not have PE directly in this table
-                pe_ratio=None, 
                 industry=data.get('行业'),
+                market_cap=float(data.get('总市值', 0)) if data.get('总市值') else None,
+                pe_ratio=pe_ratio,
+                eps=eps,
+                fifty_two_week_high=fifty_two_week_high,
+                fifty_two_week_low=fifty_two_week_low
             )
         except Exception as e:
             logger.error(f"AkShare get_fundamental_data error for {ticker}: {e}")
@@ -148,4 +190,46 @@ class AkShareProvider(MarketDataProvider):
             return results
         except Exception as e:
             logger.error(f"AkShare get_news error for {ticker}: {e}")
+            return []
+
+    async def get_ohlcv(self, ticker: str, interval: str = "1d", period: str = "1y") -> List[Any]:
+        """获取原始 K 线数据用于图表展示"""
+        try:
+            symbol = ticker.split('.')[0] if '.' in ticker else ticker
+            # 对于 A 股，按天获取历史数据
+            # AkShare 的 stock_zh_a_hist 并不支持 yfinance 样式的 period 参数，
+            # 我们需要手动计算开始日期
+            from datetime import timedelta
+            end_date = datetime.now()
+            
+            # 简单的 period 到天数的映射
+            days_map = {
+                "1mo": 30, "3mo": 90, "6mo": 180, "1y": 365, "2y": 730, "5y": 1825, "max": 3650
+            }
+            days = days_map.get(period, 365)
+            start_date = end_date - timedelta(days=days)
+            
+            start_str = start_date.strftime('%Y%m%d')
+            end_str = end_date.strftime('%Y%m%d')
+            
+            df = await self._run_sync(ak.stock_zh_a_hist, symbol=symbol, period="daily", 
+                                     start_date=start_str, end_date=end_str, adjust="qfq")
+            
+            if df.empty:
+                return []
+            
+            data = []
+            from app.schemas.market_data import OHLCVItem
+            for _, row in df.iterrows():
+                data.append(OHLCVItem(
+                    time=str(row['日期']),
+                    open=float(row['开盘']),
+                    high=float(row['最高']),
+                    low=float(row['最低']),
+                    close=float(row['收盘']),
+                    volume=float(row['成交量']) if '成交量' in row else 0.0
+                ))
+            return data
+        except Exception as e:
+            logger.error(f"AkShare get_ohlcv error for {ticker}: {e}")
             return []

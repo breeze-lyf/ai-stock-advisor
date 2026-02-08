@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import auth, portfolio, analysis, user
+from app.api.v1.endpoints import auth, portfolio, analysis, user, stock
 
 # 创建 v1 版本的总路由对象
 # 在 RESTful 架构中，版本化（v1/v2）是保证 API 向后兼容性的重要手段
@@ -13,6 +13,9 @@ api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
 
 # 投资组合模块：处理自选股的增删改查及实时刷新
 api_router.include_router(portfolio.router, prefix="/portfolio", tags=["portfolio"])
+
+# 股票市场模块：处理个股历史行情及详情
+api_router.include_router(stock.router, prefix="/stocks", tags=["stocks"])
 
 # AI 分析模块：处理股票的技术面、基本面 AI 分析请求
 api_router.include_router(analysis.router, prefix="/analysis", tags=["analysis"])

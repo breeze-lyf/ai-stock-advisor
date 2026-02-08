@@ -162,9 +162,16 @@ export function PortfolioList({
                             className="p-4 cursor-pointer relative group"
                         >
                             <div className="grid grid-cols-3 items-center mb-1">
-                                <span className="font-bold text-sm text-slate-700 dark:text-slate-300">
-                                    {item.ticker}
-                                </span>
+                                <div className="flex flex-col">
+                                    <span className="font-bold text-sm text-slate-900 dark:text-slate-100 leading-tight truncate">
+                                        {item.ticker}
+                                    </span>
+                                    {item.name && (
+                                        <span className="text-[10px] text-slate-400 font-bold tracking-tight">
+                                            {item.name}
+                                        </span>
+                                    )}
+                                </div>
                                 <span className="text-center font-mono text-xs text-slate-600 dark:text-slate-400">
                                     ${item.current_price.toFixed(2)}
                                 </span>

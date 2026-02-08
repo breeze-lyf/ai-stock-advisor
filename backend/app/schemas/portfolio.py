@@ -4,6 +4,7 @@ from datetime import datetime
 
 class PortfolioItem(BaseModel):
     ticker: str
+    name: Optional[str] = None
     quantity: float
     avg_cost: float
     current_price: float = 0.0
@@ -32,6 +33,7 @@ class PortfolioItem(BaseModel):
     macd_val: Optional[float] = None
     macd_signal: Optional[float] = None
     macd_hist: Optional[float] = None
+    macd_hist_slope: Optional[float] = None
     bb_upper: Optional[float] = None
     bb_middle: Optional[float] = None
     bb_lower: Optional[float] = None
@@ -41,6 +43,14 @@ class PortfolioItem(BaseModel):
     j_line: Optional[float] = None
     volume_ma_20: Optional[float] = None
     volume_ratio: Optional[float] = None
+    # ADX & 支撑阻力位
+    adx_14: Optional[float] = None
+    pivot_point: Optional[float] = None
+    resistance_1: Optional[float] = None
+    resistance_2: Optional[float] = None
+    support_1: Optional[float] = None
+    support_2: Optional[float] = None
+    
     change_percent: Optional[float] = 0.0
 
 class PortfolioCreate(BaseModel):

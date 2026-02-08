@@ -49,6 +49,7 @@ class MarketDataCache(Base):
     macd_val = Column(Float, nullable=True)    # MACD 值
     macd_signal = Column(Float, nullable=True) # 信号线
     macd_hist = Column(Float, nullable=True)   # 柱状图
+    macd_hist_slope = Column(Float, nullable=True) # 柱线斜率 (一阶导数)
     
     # 布林带指标
     bb_upper = Column(Float, nullable=True)    # 上轨
@@ -63,7 +64,16 @@ class MarketDataCache(Base):
     
     # 成交量相关
     volume_ma_20 = Column(Float, nullable=True) # 20日成交量均线
-    volume_ratio = Column(Float, nullable=True) # 量比
+    # 量比
+    volume_ratio = Column(Float, nullable=True) 
+    
+    # ADX & 支撑阻力位
+    adx_14 = Column(Float, nullable=True)         # ADX 趋势强度
+    pivot_point = Column(Float, nullable=True)    # 枢轴点
+    resistance_1 = Column(Float, nullable=True)   # 阻力位 R1
+    resistance_2 = Column(Float, nullable=True)   # 阻力位 R2
+    support_1 = Column(Float, nullable=True)      # 支撑位 S1
+    support_2 = Column(Float, nullable=True)      # 支撑位 S2
     
     market_status = Column(String, default=MarketStatus.CLOSED.value) # 市场状态
     last_updated = Column(DateTime, default=datetime.utcnow, index=True) # 最后更新时间

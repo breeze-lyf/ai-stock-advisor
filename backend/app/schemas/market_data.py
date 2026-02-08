@@ -46,3 +46,11 @@ class FullMarketData(BaseModel):
     fundamental: Optional[ProviderFundamental] = None
     technical: Optional[ProviderTechnical] = None
     news: List[ProviderNews] = Field(default_factory=list)
+
+class OHLCVItem(BaseModel):
+    time: str  # YYYY-MM-DD
+    open: float
+    high: float
+    low: float
+    close: float
+    volume: Optional[float] = None

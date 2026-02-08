@@ -151,6 +151,14 @@ class MarketDataService:
             cache.j_line = ind.get('j_line', cache.j_line)
             cache.volume_ma_20 = ind.get('volume_ma_20', cache.volume_ma_20)
             cache.volume_ratio = ind.get('volume_ratio', cache.volume_ratio)
+            # 新增专业指标映射
+            cache.macd_hist_slope = ind.get('macd_hist_slope', cache.macd_hist_slope)
+            cache.adx_14 = ind.get('adx_14', cache.adx_14)
+            cache.pivot_point = ind.get('pivot_point', cache.pivot_point)
+            cache.resistance_1 = ind.get('resistance_1', cache.resistance_1)
+            cache.resistance_2 = ind.get('resistance_2', cache.resistance_2)
+            cache.support_1 = ind.get('support_1', cache.support_1)
+            cache.support_2 = ind.get('support_2', cache.support_2)
 
         cache.market_status = MarketStatus.OPEN
         cache.last_updated = now
@@ -193,6 +201,13 @@ class MarketDataService:
             ticker=ticker,
             current_price=100.0 * (1 + random.uniform(-0.01, 0.01)),
             change_percent=random.uniform(-2.0, 2.0),
+            rsi_14=50.0,
+            ma_50=100.0,
+            ma_200=100.0,
+            macd_val=0.0,
+            macd_hist=0.0,
+            bb_upper=105.0,
+            bb_lower=95.0,
             last_updated=now,
             market_status=MarketStatus.OPEN
         )

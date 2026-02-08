@@ -16,6 +16,35 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+def extract_entry_prices_fallback(action_advice: str) -> tuple[Optional[float], Optional[float]]:
+    """兜底逻辑：从建议文本中提取数字区间 [low, high]"""
+    if not action_advice:
+        return None, None
+    import re
+    # 搜索形如 "45.10-46.20" 或 "45.10至46.20" 的价格区间
+    zone_match = re.search(r"(\d+\.?\d*)\s*(?:-|至|~)\s*(\d+\.?\d*)", action_advice)
+    if zone_match:
+        vals = sorted([float(zone_match.group(1)), float(zone_match.group(2))])
+        return vals[0], vals[1]
+    # 搜索形如 "45.10 附近" 或 "建仓位 45.10" 或 "50.00左右"
+    # 增加对数字在前的匹配，如 "50.00附近"
+    price_match = re.search(r"(?:附近|点位|位|价|在|于)\s*(\d+\.?\d*)|(\d+\.?\d*)\s*(?:元)?\s*(?:附近|左右|点位)", action_advice)
+    if price_match:
+        # group(1) 是前缀匹配到的数字，group(2) 是后缀匹配到的数字
+        val_str = price_match.group(1) or price_match.group(2)
+        val = float(val_str)
+        return val, val
+    return None, None
+
+def extract_entry_zone_fallback(action_advice: str) -> Optional[str]:
+    """旧格式兜底：返回字符串描述"""
+    low, high = extract_entry_prices_fallback(action_advice)
+    if low and high:
+        if low == high:
+            return f"Near {low}"
+        return f"{low} - {high}"
+    return None
+
 @router.post("/{ticker}", response_model=AnalysisResponse)
 async def analyze_stock(
     ticker: str, 
@@ -57,24 +86,29 @@ async def analyze_stock(
             )
 
     # 2. 获取市场数据 (调用 MarketDataService)
+    from app.models.stock import Stock
+    stock_stmt = select(Stock).where(Stock.ticker == ticker)
+    stock_result = await db.execute(stock_stmt)
+    stock_obj = stock_result.scalar_one_or_none()
+    
     # 获取实时价格、涨跌幅、RSI/MACD/布林带等技术指标
-    market_data_obj = await MarketDataService.get_real_time_data(ticker, db)
+    market_data_obj = await MarketDataService.get_real_time_data(ticker, db, force_refresh=force)
     
     # 将对象转换为字典，方便后续传给 AI Prompt
     if hasattr(market_data_obj, "__dict__"):
         market_data = {
-            "current_price": market_data_obj.current_price,
-            "change_percent": market_data_obj.change_percent,
-            "rsi_14": market_data_obj.rsi_14,
-            "ma_20": market_data_obj.ma_20,
-            "ma_50": market_data_obj.ma_50,
-            "ma_200": market_data_obj.ma_200,
-            "macd_val": market_data_obj.macd_val,
-            "macd_hist": market_data_obj.macd_hist,
-            "bb_upper": market_data_obj.bb_upper,
-            "bb_lower": market_data_obj.bb_lower,
-            "kdj_k": market_data_obj.k_line,
-            "atr_14": market_data_obj.atr_14,
+            "current_price": round(market_data_obj.current_price, 2) if market_data_obj.current_price else None,
+            "change_percent": round(market_data_obj.change_percent, 2) if market_data_obj.change_percent else None,
+            "rsi_14": round(market_data_obj.rsi_14, 2) if market_data_obj.rsi_14 else None,
+            "ma_20": round(market_data_obj.ma_20, 2) if market_data_obj.ma_20 else None,
+            "ma_50": round(market_data_obj.ma_50, 2) if market_data_obj.ma_50 else None,
+            "ma_200": round(market_data_obj.ma_200, 2) if market_data_obj.ma_200 else None,
+            "macd_val": round(market_data_obj.macd_val, 2) if market_data_obj.macd_val else None,
+            "macd_hist": round(market_data_obj.macd_hist, 2) if market_data_obj.macd_hist else None,
+            "bb_upper": round(market_data_obj.bb_upper, 2) if market_data_obj.bb_upper else None,
+            "bb_lower": round(market_data_obj.bb_lower, 2) if market_data_obj.bb_lower else None,
+            "kdj_k": round(market_data_obj.k_line, 2) if market_data_obj.k_line else None,
+            "atr_14": round(market_data_obj.atr_14, 2) if market_data_obj.atr_14 else None,
             "market_status": market_data_obj.market_status
         }
     else:
@@ -104,7 +138,7 @@ async def analyze_stock(
     if portfolio_item:
         current_price = market_data['current_price'] or 0
         unrealized_pl = (current_price - portfolio_item.avg_cost) * portfolio_item.quantity
-        pl_percent = (unrealized_pl / (portfolio_item.avg_cost * portfolio_item.quantity) * 100) if portfolio_item.avg_cost > 0 else 0
+        pl_percent = (unrealized_pl / (portfolio_item.avg_cost * portfolio_item.quantity) * 100) if (portfolio_item.avg_cost > 0 and portfolio_item.quantity > 0) else 0
         
         portfolio_data = {
             "avg_cost": portfolio_item.avg_cost,
@@ -113,9 +147,30 @@ async def analyze_stock(
             "pl_percent": pl_percent
         }
 
+    # 4.5 汇总基础面数据 (Fundamental Context)
+    fundamental_data = {}
+    if stock_obj:
+        fundamental_data = {
+            "sector": stock_obj.sector,
+            "industry": stock_obj.industry,
+            "market_cap": stock_obj.market_cap,
+            "pe_ratio": round(stock_obj.pe_ratio, 2) if stock_obj.pe_ratio else None,
+            "forward_pe": round(stock_obj.forward_pe, 2) if stock_obj.forward_pe else None,
+            "eps": round(stock_obj.eps, 2) if stock_obj.eps else None,
+            "dividend_yield": round(stock_obj.dividend_yield, 2) if stock_obj.dividend_yield else None,
+            "beta": round(stock_obj.beta, 2) if stock_obj.beta else None,
+            "fifty_two_week_high": round(stock_obj.fifty_two_week_high, 2) if stock_obj.fifty_two_week_high else None,
+            "fifty_two_week_low": round(stock_obj.fifty_two_week_low, 2) if stock_obj.fifty_two_week_low else None
+        }
+
     # 5. 检查持久化缓存 (Persistence Cache)
     # 如果 force=False，则默认检索数据库中已有的最新分析报告
     from app.models.analysis import AnalysisReport
+    
+    # 调试日志：查看传给 AI 的原始数据状态
+    logger.info(f"Preparing AI analysis for {ticker}. Market Data keys present: {list(market_data.keys())}")
+    if not market_data.get('rsi_14'):
+        logger.warning(f"Technical indicators missing for {ticker}, prompt may be low quality.")
     
     preferred_model = current_user.preferred_ai_model or "gemini-1.5-flash"
     
@@ -129,57 +184,135 @@ async def analyze_stock(
         cache_result = await db.execute(cache_stmt)
         cached_report = cache_result.scalar_one_or_none()
         
-        if cached_report:
+        if cached_report and cached_report.technical_analysis:
+            # 补全历史数据的数值字段
+            if cached_report.entry_price_low is None and cached_report.entry_price_high is None:
+                cached_report.entry_price_low, cached_report.entry_price_high = extract_entry_prices_fallback(cached_report.action_advice)
+            
             logger.info(f"Returning latest report for {ticker} (model: {preferred_model})")
             return {
                 "ticker": ticker,
                 "analysis": cached_report.ai_response_markdown,
-                "sentiment": cached_report.sentiment_score or "NEUTRAL",
+                "sentiment_score": float(cached_report.sentiment_score) if cached_report.sentiment_score else None,
+                "summary_status": cached_report.summary_status,
+                "risk_level": cached_report.risk_level,
+                "technical_analysis": cached_report.technical_analysis,
+                "fundamental_news": cached_report.fundamental_news,
+                "action_advice": cached_report.action_advice,
+                "investment_horizon": cached_report.investment_horizon,
+                "confidence_level": cached_report.confidence_level,
+                "immediate_action": cached_report.immediate_action,
+                "target_price": cached_report.target_price,
+                "stop_loss_price": cached_report.stop_loss_price,
+                "entry_zone": cached_report.entry_zone or extract_entry_zone_fallback(cached_report.action_advice),
+                "entry_price_low": cached_report.entry_price_low,
+                "entry_price_high": cached_report.entry_price_high,
+                "rr_ratio": cached_report.rr_ratio,
                 "is_cached": True,
                 "model_used": cached_report.model_used,
                 "created_at": cached_report.created_at
             }
 
-    # 6. 调用 AI 服务生成分析报告
-    # 解密用户 API Key (Gemini 是用户级的，SiliconFlow 是系统级或用户级)
+    # 6. 调用 AI 服务生成分析报告 (要求 JSON 返回)
     gemini_key = security.decrypt_api_key(current_user.api_key_gemini)
     siliconflow_key = security.decrypt_api_key(current_user.api_key_siliconflow)
     
-    ai_response = await AIService.generate_analysis(
+    ai_raw_response = await AIService.generate_analysis(
         ticker, 
         market_data, 
         portfolio_data,
         news_data,
+        fundamental_data=fundamental_data,
         model=preferred_model,
         api_key_gemini=gemini_key,
         api_key_siliconflow=siliconflow_key
     )
+    
+    # 记录 Prompt 日志
+    # 记录完整 Response 日志
+    logger.info(f"AI Response for {ticker}: {ai_raw_response}")
 
-    # 7. 持久化分析结果
+    # 7. 解析结构化 JSON 结果
+    import json
+    parsed_data = {}
+    try:
+        # 去除可能存在的 Markdown 代码块标记
+        clean_json = ai_raw_response.strip()
+        if clean_json.startswith("```json"):
+            clean_json = clean_json.replace("```json", "", 1).replace("```", "", 1).strip()
+        elif clean_json.startswith("```"):
+            clean_json = clean_json.replace("```", "", 1).replace("```", "", 1).strip()
+            
+        parsed_data = json.loads(clean_json)
+    except Exception as e:
+        logger.error(f"Failed to parse AI JSON response: {e}. Raw: {ai_raw_response[:200]}...")
+        # 降级处理：如果解析失败，将整块内容放入技术分析
+        parsed_data = {
+            "technical_analysis": ai_raw_response,
+            "summary_status": "解析失败",
+            "sentiment_score": 50
+        }
+
+    # 8. 持久化分析结果 (存入独立字段)
     new_report = None
     try:
         new_report = AnalysisReport(
             user_id=current_user.id,
             ticker=ticker,
             model_used=preferred_model,
-            ai_response_markdown=ai_response,
+            ai_response_markdown=ai_raw_response, # 保留原始全文
+            sentiment_score=str(parsed_data.get("sentiment_score", "")),
+            summary_status=parsed_data.get("summary_status"),
+            risk_level=parsed_data.get("risk_level"),
+            technical_analysis=parsed_data.get("technical_analysis"),
+            fundamental_news=parsed_data.get("fundamental_news"),
+            action_advice=parsed_data.get("action_advice"),
+            investment_horizon=parsed_data.get("investment_horizon"),
+            confidence_level=float(parsed_data.get("confidence_level", 0)) if parsed_data.get("confidence_level") is not None else None,
+            immediate_action=parsed_data.get("immediate_action"),
+            target_price=float(parsed_data.get("target_price", 0)) if parsed_data.get("target_price") is not None else None,
+            stop_loss_price=float(parsed_data.get("stop_loss_price", 0)) if parsed_data.get("stop_loss_price") is not None else None,
+            entry_zone=str(parsed_data.get("entry_zone", "")) if parsed_data.get("entry_zone") else None,
+            entry_price_low=float(parsed_data.get("entry_price_low", 0)) if parsed_data.get("entry_price_low") is not None else None,
+            entry_price_high=float(parsed_data.get("entry_price_high", 0)) if parsed_data.get("entry_price_high") is not None else None,
+            rr_ratio=parsed_data.get("rr_ratio"),
             input_context_snapshot={
                 "market_data": market_data,
                 "portfolio_data": portfolio_data
             }
         )
+        
+        # 兜底逻辑：如果数值字段为空，尝试从文本提取
+        if new_report.entry_price_low is None and new_report.entry_price_high is None:
+            new_report.entry_price_low, new_report.entry_price_high = extract_entry_prices_fallback(new_report.action_advice)
+        
+        if not new_report.entry_zone:
+            new_report.entry_zone = extract_entry_zone_fallback(new_report.action_advice)
         db.add(new_report)
         await db.commit()
         await db.refresh(new_report)
     except Exception as e:
-        logger.error(f"Failed to persist analysis report: {e}")
+        logger.error(f"Failed to persist structured analysis report: {e}")
         await db.rollback()
 
     from datetime import datetime
     return {
         "ticker": ticker,
-        "analysis": ai_response,
-        "sentiment": "NEUTRAL",
+        "sentiment_score": float(parsed_data.get("sentiment_score")) if parsed_data.get("sentiment_score") is not None else None,
+        "summary_status": parsed_data.get("summary_status"),
+        "risk_level": parsed_data.get("risk_level"),
+        "technical_analysis": parsed_data.get("technical_analysis"),
+        "fundamental_news": parsed_data.get("fundamental_news"),
+        "action_advice": parsed_data.get("action_advice"),
+        "investment_horizon": parsed_data.get("investment_horizon"),
+        "confidence_level": float(parsed_data.get("confidence_level", 0)) if parsed_data.get("confidence_level") is not None else None,
+        "immediate_action": parsed_data.get("immediate_action"),
+        "target_price": float(parsed_data.get("target_price", 0)) if parsed_data.get("target_price") is not None else None,
+        "stop_loss_price": float(parsed_data.get("stop_loss_price", 0)) if parsed_data.get("stop_loss_price") is not None else None,
+        "entry_zone": new_report.entry_zone if new_report else parsed_data.get("entry_zone"),
+        "entry_price_low": new_report.entry_price_low if new_report else parsed_data.get("entry_price_low"),
+        "entry_price_high": new_report.entry_price_high if new_report else parsed_data.get("entry_price_high"),
+        "rr_ratio": parsed_data.get("rr_ratio"),
         "is_cached": False,
         "model_used": preferred_model,
         "created_at": new_report.created_at if new_report else datetime.utcnow()
@@ -212,7 +345,21 @@ async def get_latest_analysis(
     return {
         "ticker": ticker,
         "analysis": report.ai_response_markdown,
-        "sentiment": report.sentiment_score or "NEUTRAL",
+        "sentiment_score": float(report.sentiment_score) if report.sentiment_score else None,
+        "summary_status": report.summary_status,
+        "risk_level": report.risk_level,
+        "technical_analysis": report.technical_analysis,
+        "fundamental_news": report.fundamental_news,
+        "action_advice": report.action_advice,
+        "investment_horizon": report.investment_horizon,
+        "confidence_level": report.confidence_level,
+        "immediate_action": report.immediate_action,
+        "target_price": report.target_price,
+        "stop_loss_price": report.stop_loss_price,
+        "entry_zone": report.entry_zone or extract_entry_zone_fallback(report.action_advice),
+        "entry_price_low": report.entry_price_low if report.entry_price_low is not None else extract_entry_prices_fallback(report.action_advice)[0],
+        "entry_price_high": report.entry_price_high if report.entry_price_high is not None else extract_entry_prices_fallback(report.action_advice)[1],
+        "rr_ratio": report.rr_ratio,
         "is_cached": True,
         "model_used": report.model_used,
         "created_at": report.created_at

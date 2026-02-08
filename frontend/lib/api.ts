@@ -10,6 +10,7 @@ import {
 
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000",
+    timeout: 180000, // 增加超时到 180 秒（3 分钟）
     headers: {
         "Content-Type": "application/json",
     },
@@ -84,6 +85,11 @@ export const updateSettings = async (settings: UserSettingsUpdate): Promise<User
 
 export const fetchStockNews = async (ticker: string) => {
     const response = await api.get(`/api/portfolio/${ticker}/news`);
+    return response.data;
+};
+
+export const fetchStockHistory = async (ticker: string, period: string = "1y") => {
+    const response = await api.get(`/api/stocks/${ticker}/history?period=${period}`);
     return response.data;
 };
 

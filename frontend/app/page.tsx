@@ -62,6 +62,14 @@ export default function Dashboard() {
     technical_analysis: string,
     fundamental_news: string,
     action_advice: string,
+    immediate_action?: string,
+    target_price?: number,
+    stop_loss_price?: number,
+    entry_zone?: string,
+    entry_price_low?: number,
+    entry_price_high?: number,
+    investment_horizon?: string,
+    confidence_level?: number,
     is_cached?: boolean,
     created_at?: string,
     model_used?: string
@@ -135,8 +143,34 @@ export default function Dashboard() {
   }, [selectedTicker]);
 
   const handleParseAnalysis = (result: any) => {
+    // 兼容逻辑：如果后端返回的是结构化的结果，直接使用
+    if (result.technical_analysis) {
+      setAiData({
+        sentiment_score: result.sentiment_score,
+        summary_status: result.summary_status,
+        risk_level: result.risk_level,
+        technical_analysis: result.technical_analysis,
+        fundamental_news: result.fundamental_news,
+        action_advice: result.action_advice,
+        immediate_action: result.immediate_action,
+        target_price: result.target_price,
+        stop_loss_price: result.stop_loss_price,
+        entry_zone: result.entry_zone,
+        entry_price_low: result.entry_price_low,
+        entry_price_high: result.entry_price_high,
+        investment_horizon: result.investment_horizon,
+        confidence_level: result.confidence_level,
+        is_cached: result.is_cached,
+        created_at: result.created_at,
+        model_used: result.model_used
+      });
+      return;
+    }
+
+    // 后备逻辑：解析旧的 markdown 字符串（如果是存量旧数据）
     try {
       let raw = result.analysis;
+      if (!raw) return;
       if (raw.startsWith("```json")) {
         raw = raw.replace("```json", "").replace("```", "");
       }
@@ -162,18 +196,53 @@ export default function Dashboard() {
   const handleAnalyze = async (force: boolean = false) => {
     if (!selectedTicker) return;
     setAnalyzing(true);
+    const startTime = new Date().toISOString();
+
     try {
       const result = await analyzeStock(selectedTicker, force);
       handleParseAnalysis(result);
-      // 分析完后也刷一下新闻，万一有新的
-      const newsResult = await import("@/lib/api").then(api => api.fetchStockNews(selectedTicker));
-      setNews(newsResult);
+
+      // 分析完后刷一下新闻
+      try {
+        const newsResult = await import("@/lib/api").then(api => api.fetchStockNews(selectedTicker));
+        setNews(newsResult);
+      } catch (newsError) {
+        console.error("News fetch failed after analysis:", newsError);
+      }
     } catch (error: any) {
-      if (error.response?.status === 429) {
-        alert("Limit Reached! 🛑\nPlease add your own API Key in Settings.");
-        router.push("/settings");
-      } else {
-        alert("Analysis failed.");
+      console.warn("Analysis POST request failed/terminated, entering polling recovery mode...", error);
+
+      // 优化容错：轮询机制
+      // 很多时候由于网络波动或后端重启，POST 连接断了，但后台 AI 任务可能依然在跑并最终存库
+      let recovered = false;
+      for (let attempt = 1; attempt <= 5; attempt++) {
+        try {
+          // 每次重试前等待几秒，给后台处理时间
+          await new Promise(resolve => setTimeout(resolve, attempt * 2000));
+
+          const retryResult = await getLatestAnalysis(selectedTicker);
+          if (retryResult && retryResult.created_at) {
+            // 检查返回的结果是否是本次点击后生成的 (比较时间戳)
+            const reportTime = new Date(retryResult.created_at + (retryResult.created_at.includes('Z') ? '' : 'Z')).toISOString();
+            if (reportTime >= startTime) {
+              console.log(`Successfully recovered analysis data on attempt ${attempt}`);
+              handleParseAnalysis(retryResult);
+              recovered = true;
+              break;
+            }
+          }
+        } catch (retryError) {
+          console.error(`Recovery attempt ${attempt} failed:`, retryError);
+        }
+      }
+
+      if (!recovered) {
+        if (error.response?.status === 429) {
+          alert("Limit Reached! 🛑\nPlease add your own API Key in Settings.");
+          router.push("/settings");
+        } else {
+          alert("Analysis request disconnected. Please check if the diagnosis appears after a few seconds or manually refresh.");
+        }
       }
     } finally {
       setAnalyzing(false);
@@ -213,6 +282,7 @@ export default function Dashboard() {
           onToggleOnlyHoldings={setOnlyHoldings}
         />
         <StockDetail
+          key={selectedTicker}
           selectedItem={selectedItem || null}
           onAnalyze={handleAnalyze}
           onRefresh={() => fetchData(false)}

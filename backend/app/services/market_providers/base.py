@@ -29,6 +29,13 @@ class MarketDataProvider(ABC):
         pass
 
     @abstractmethod
+    async def get_ohlcv(self, ticker: str, interval: str = "1d", period: str = "1y") -> List[Any]:
+        """
+        获取原始 K 线数据用于图表展示 (返回 List[OHLCVItem])
+        """
+        pass
+
+    @abstractmethod
     async def get_news(self, ticker: str) -> List[ProviderNews]:
         """
         获取该股票的最新新闻列表

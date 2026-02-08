@@ -15,6 +15,7 @@ from app.services.market_data import MarketDataService
 from app.schemas.portfolio import PortfolioItem, PortfolioCreate, SearchResult
 
 logger = logging.getLogger(__name__)
+logger.info("PHASE: Portfolio router module importing...")
 router = APIRouter()
 
 @router.get("/search", response_model=List[SearchResult])
@@ -117,10 +118,11 @@ async def get_portfolio(
         current_price = m.current_price if m else 0.0
         market_value = current_price * p.quantity
         unrealized_pl = (current_price - p.avg_cost) * p.quantity
-        pl_percent = (unrealized_pl / (p.avg_cost * p.quantity)) * 100 if p.avg_cost > 0 else 0
+        pl_percent = (unrealized_pl / (p.avg_cost * p.quantity)) * 100 if (p.avg_cost > 0 and p.quantity > 0) else 0
         
         items.append(PortfolioItem(
             ticker=p.ticker,
+            name=s.name if s else p.ticker,
             quantity=p.quantity,
             avg_cost=p.avg_cost,
             current_price=current_price,
@@ -147,6 +149,7 @@ async def get_portfolio(
             macd_val=m.macd_val if m else None,
             macd_signal=m.macd_signal if m else None,
             macd_hist=m.macd_hist if m else None,
+            macd_hist_slope=m.macd_hist_slope if m else None,
             bb_upper=m.bb_upper if m else None,
             bb_middle=m.bb_middle if m else None,
             bb_lower=m.bb_lower if m else None,
@@ -156,6 +159,12 @@ async def get_portfolio(
             j_line=m.j_line if m else None,
             volume_ma_20=m.volume_ma_20 if m else None,
             volume_ratio=m.volume_ratio if m else None,
+            adx_14=m.adx_14 if m else None,
+            pivot_point=m.pivot_point if m else None,
+            resistance_1=m.resistance_1 if m else None,
+            resistance_2=m.resistance_2 if m else None,
+            support_1=m.support_1 if m else None,
+            support_2=m.support_2 if m else None,
             change_percent=m.change_percent if m else 0.0
         ))
     return items
@@ -211,6 +220,9 @@ async def _background_fetch(ticker: str, db: AsyncSession):
         logger.error(f"❌ Background fetch for {ticker} failed: {e}")
 
 
+        raise HTTPException(status_code=500, detail=f"Refresh failed: {str(e)}")
+
+
 @router.delete("/{ticker}")
 async def delete_portfolio_item(
     ticker: str,
@@ -254,6 +266,8 @@ async def refresh_stock_data(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Refresh failed: {str(e)}")
+
+
 @router.get("/{ticker}/news")
 async def get_stock_news(
     ticker: str,

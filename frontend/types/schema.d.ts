@@ -56,7 +56,12 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Search Stocks */
+        /**
+         * Search Stocks
+         * @description 股票搜索接口
+         *     - 同时支持本地数据库模糊搜索和远程 API 实时搜索
+         *     - 如果本地没搜到且开启了 remote=True，会尝试从第三方源抓取并同步到本地
+         */
         get: operations["search_stocks_api_portfolio_search_get"];
         put?: never;
         post?: never;
@@ -73,10 +78,18 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Portfolio */
+        /**
+         * Get Portfolio
+         * @description 获取当前用户的投资组合列表
+         *     - 使用 outerjoin 一次性查出持仓量、最新价、基本面和技术指标
+         *     - 如果 refresh=True，会触发后台并行更新所有持仓的实时行情
+         */
         get: operations["get_portfolio_api_portfolio__get"];
         put?: never;
-        /** Add Portfolio Item */
+        /**
+         * Add Portfolio Item
+         * @description 添加或更新自选股/持仓
+         */
         post: operations["add_portfolio_item_api_portfolio__post"];
         delete?: never;
         options?: never;
@@ -94,7 +107,10 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Delete Portfolio Item */
+        /**
+         * Delete Portfolio Item
+         * @description 从自选股中删除
+         */
         delete: operations["delete_portfolio_item_api_portfolio__ticker__delete"];
         options?: never;
         head?: never;
@@ -112,9 +128,29 @@ export interface paths {
         put?: never;
         /**
          * Refresh Stock Data
-         * @description 针对单个股票进行实时数据刷新
+         * @description 针对单个股票的手动强制刷新接口
          */
         post: operations["refresh_stock_data_api_portfolio__ticker__refresh_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portfolio/{ticker}/news": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Stock News
+         * @description 获取该股票在数据库中存储的最新新闻
+         */
+        get: operations["get_stock_news_api_portfolio__ticker__news_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -128,7 +164,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Get Latest Analysis
+         * @description 获取单支股票最新的分析记录（不触发新 AI 分析，仅查库）
+         */
+        get: operations["get_latest_analysis_api_analysis__ticker__get"];
         put?: never;
         /**
          * Analyze Stock
@@ -223,12 +263,38 @@ export interface components {
             /** Ticker */
             ticker: string;
             /** Analysis */
-            analysis: string;
+            analysis?: string | null;
+            /** Sentiment Score */
+            sentiment_score?: number | null;
+            /** Summary Status */
+            summary_status?: string | null;
+            /** Risk Level */
+            risk_level?: string | null;
+            /** Technical Analysis */
+            technical_analysis?: string | null;
+            /** Fundamental News */
+            fundamental_news?: string | null;
+            /** Action Advice */
+            action_advice?: string | null;
+            /** Investment Horizon */
+            investment_horizon?: string | null;
+            /** Confidence Level */
+            confidence_level?: number | null;
+            /** Immediate Action */
+            immediate_action?: string | null;
+            /** Target Price */
+            target_price?: number | null;
+            /** Stop Loss Price */
+            stop_loss_price?: number | null;
             /**
-             * Sentiment
-             * @default NEUTRAL
+             * Is Cached
+             * @default false
              */
-            sentiment: string;
+            is_cached: boolean;
+            /** Model Used */
+            model_used?: string | null;
+            /** Created At */
+            created_at?: string | null;
         };
         /** Body_login_access_token_api_auth_login_post */
         Body_login_access_token_api_auth_login_post: {
@@ -272,6 +338,8 @@ export interface components {
         PortfolioItem: {
             /** Ticker */
             ticker: string;
+            /** Name */
+            name?: string | null;
             /** Quantity */
             quantity: number;
             /** Avg Cost */
@@ -332,6 +400,8 @@ export interface components {
             macd_signal?: number | null;
             /** Macd Hist */
             macd_hist?: number | null;
+            /** Macd Hist Slope */
+            macd_hist_slope?: number | null;
             /** Bb Upper */
             bb_upper?: number | null;
             /** Bb Middle */
@@ -350,6 +420,18 @@ export interface components {
             volume_ma_20?: number | null;
             /** Volume Ratio */
             volume_ratio?: number | null;
+            /** Adx 14 */
+            adx_14?: number | null;
+            /** Pivot Point */
+            pivot_point?: number | null;
+            /** Resistance 1 */
+            resistance_1?: number | null;
+            /** Resistance 2 */
+            resistance_2?: number | null;
+            /** Support 1 */
+            support_1?: number | null;
+            /** Support 2 */
+            support_2?: number | null;
             /**
              * Change Percent
              * @default 0
@@ -392,8 +474,12 @@ export interface components {
             has_gemini_key: boolean;
             /** Has Deepseek Key */
             has_deepseek_key: boolean;
+            /** Has Siliconflow Key */
+            has_siliconflow_key: boolean;
             /** Preferred Data Source */
             preferred_data_source: string;
+            /** Preferred Ai Model */
+            preferred_ai_model: string;
         };
         /** UserSettingsUpdate */
         UserSettingsUpdate: {
@@ -401,8 +487,12 @@ export interface components {
             api_key_gemini?: string | null;
             /** Api Key Deepseek */
             api_key_deepseek?: string | null;
+            /** Api Key Siliconflow */
+            api_key_siliconflow?: string | null;
             /** Preferred Data Source */
             preferred_data_source?: string | null;
+            /** Preferred Ai Model */
+            preferred_ai_model?: string | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -646,9 +736,73 @@ export interface operations {
             };
         };
     };
-    analyze_stock_api_analysis__ticker__post: {
+    get_stock_news_api_portfolio__ticker__news_get: {
         parameters: {
             query?: never;
+            header?: never;
+            path: {
+                ticker: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_latest_analysis_api_analysis__ticker__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ticker: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    analyze_stock_api_analysis__ticker__post: {
+        parameters: {
+            query?: {
+                force?: boolean;
+            };
             header?: never;
             path: {
                 ticker: string;

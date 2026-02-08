@@ -1,0 +1,19 @@
+2026-02-06 23:58:26,362 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+2026-02-06 23:58:40,271 - api_logger - INFO - rid=/openapi.json method=GET status_code=200 user_id=anonymous time=49.35ms
+2026-02-06 23:59:04,295 - api_logger - INFO - rid=/api/auth/login method=POST status_code=422 user_id=anonymous time=4.39ms
+2026-02-06 23:59:04,314 - api_logger - INFO - rid=/api/portfolio/AAPL/news method=GET status_code=403 user_id=invalid_token time=1.14ms
+2026-02-07 00:02:31,498 - api_logger - INFO - rid=/api/analysis/SNDK method=GET status_code=403 user_id=invalid_token time=17.26ms
+2026-02-07 00:02:31,498 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=403 user_id=invalid_token time=3.59ms
+2026-02-07 00:02:31,499 - api_logger - INFO - rid=/api/portfolio/SNDK/news method=GET status_code=403 user_id=invalid_token time=3.67ms
+2026-02-07 00:02:41,676 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-07 00:02:41,681 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.email = ?
+2026-02-07 00:02:41,682 - sqlalchemy.engine.Engine - INFO - [generated in 0.00018s] ('test@qq.com',)
+2026-02-07 00:02:41,683 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-07 00:02:47,075 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-07 00:02:47,075 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.email = ?
+2026-02-07 00:02:47,080 - sqlalchemy.engine.Engine - INFO - [cached since 5.399s ago] ('test@qq.com',)
+2026-02-07 00:02:47,081 - sqlalchemy.engine.Engine - INFO - ROLLBACK

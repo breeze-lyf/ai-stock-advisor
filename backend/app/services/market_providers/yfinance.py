@@ -141,6 +141,38 @@ class YFinanceProvider(MarketDataProvider):
             logger.error(f"yfinance get_news error for {ticker}: {e}")
             return []
 
+    async def get_ohlcv(self, ticker: str, interval: str = "1d", period: str = "1y") -> List[Any]:
+        """获取原始 K 线数据用于图表展示"""
+        try:
+            import re
+            # 针对 A 股代码进行 Yahoo Finance 格式归一化
+            normalized_ticker = ticker
+            if re.match(r'^\d{6}$', ticker):
+                if ticker.startswith(('6', '9')): normalized_ticker = ticker + ".SS"
+                else: normalized_ticker = ticker + ".SZ"
+                
+            tick = yf.Ticker(normalized_ticker)
+            hist = await self._run_sync(tick.history, period=period, interval=interval)
+            
+            if hist.empty:
+                return []
+                
+            data = []
+            from app.schemas.market_data import OHLCVItem
+            for index, row in hist.iterrows():
+                data.append(OHLCVItem(
+                    time=index.strftime('%Y-%m-%d'),
+                    open=float(row['Open']),
+                    high=float(row['High']),
+                    low=float(row['Low']),
+                    close=float(row['Close']),
+                    volume=float(row['Volume']) if 'Volume' in row else 0.0
+                ))
+            return data
+        except Exception as e:
+            logger.error(f"yfinance get_ohlcv error for {ticker}: {e}")
+            return []
+
     async def get_full_data(self, ticker: str) -> Optional[FullMarketData]:
         """
         针对 YFinance 优化的“全量抓取”，减少 Ticker 对象的实例化开销

@@ -29,9 +29,12 @@ export function StockNewsList({ news }: StockNewsListProps) {
         );
     }
 
+    // Deduplicate news based on title or link to handle existing duplicates
+    const uniqueNews = Array.from(new Map(news.map(item => [item.link || item.title, item])).values());
+
     return (
         <div className="space-y-6">
-            {news.map((item) => (
+            {uniqueNews.map((item) => (
                 <div
                     key={item.id}
                     className="group relative pl-6 border-l-2 border-slate-100 dark:border-slate-800 hover:border-blue-500 transition-colors"

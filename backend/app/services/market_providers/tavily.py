@@ -44,10 +44,13 @@ class TavilyProvider(MarketDataProvider):
                 processed_news = []
                 
                 for idx, res in enumerate(results):
-                    # Tavily results don't always have a strict 'publish_time', 
-                    # use current time as fallback if missing or parse from context
+                    # Use a stable MD5 hash of the URL as the ID to prevent duplicates
+                    import hashlib
+                    url = res.get("url", "")
+                    unique_id = hashlib.md5(url.encode()).hexdigest() if url else f"fallback-{idx}"
+                    
                     processed_news.append(ProviderNews(
-                        id=f"tavily-{ticker}-{idx}",
+                        id=f"tavily-{unique_id}",
                         title=res.get("title"),
                         publisher=res.get("url").split("/")[2] if res.get("url") else "Tavily Search",
                         link=res.get("url"),
@@ -63,5 +66,6 @@ class TavilyProvider(MarketDataProvider):
     # Other methods are not primary for Tavily
     async def get_quote(self, ticker: str): return None
     async def get_fundamental_data(self, ticker: str): return None
-    async def get_historical_data(self, ticker: str): return None
+    async def get_historical_data(self, ticker: str, interval: str = "1d", period: str = "1mo"): return None
+    async def get_ohlcv(self, ticker: str, interval: str = "1d", period: str = "1y"): return []
     async def get_full_data(self, ticker: str): return None

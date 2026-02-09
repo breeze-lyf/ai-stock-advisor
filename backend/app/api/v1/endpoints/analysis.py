@@ -272,6 +272,22 @@ async def analyze_stock(
                 "risk_level": "中"
             }
 
+    def to_str(val):
+        if val is None: return None
+        if isinstance(val, (list, dict)): 
+            try:
+                return "\n".join(str(item) for item in val) if isinstance(val, list) else str(val)
+            except:
+                return str(val)
+        return str(val)
+
+    def to_float(val):
+        try:
+            if val is None or val == "": return None
+            return float(val)
+        except (ValueError, TypeError):
+            return None
+
     # 8. 持久化分析结果 (存入独立字段)
     new_report = None
     try:
@@ -280,21 +296,21 @@ async def analyze_stock(
             ticker=ticker,
             model_used=preferred_model,
             ai_response_markdown=ai_raw_response, # 保留原始全文
-            sentiment_score=str(parsed_data.get("sentiment_score", "")),
-            summary_status=parsed_data.get("summary_status"),
-            risk_level=parsed_data.get("risk_level"),
-            technical_analysis=parsed_data.get("technical_analysis"),
-            fundamental_news=parsed_data.get("fundamental_news"),
-            action_advice=parsed_data.get("action_advice"),
-            investment_horizon=parsed_data.get("investment_horizon"),
-            confidence_level=float(parsed_data.get("confidence_level", 0)) if parsed_data.get("confidence_level") is not None else None,
-            immediate_action=parsed_data.get("immediate_action"),
-            target_price=float(parsed_data.get("target_price", 0)) if parsed_data.get("target_price") is not None else None,
-            stop_loss_price=float(parsed_data.get("stop_loss_price", 0)) if parsed_data.get("stop_loss_price") is not None else None,
-            entry_zone=str(parsed_data.get("entry_zone", "")) if parsed_data.get("entry_zone") else None,
-            entry_price_low=float(parsed_data.get("entry_price_low", 0)) if parsed_data.get("entry_price_low") is not None else None,
-            entry_price_high=float(parsed_data.get("entry_price_high", 0)) if parsed_data.get("entry_price_high") is not None else None,
-            rr_ratio=parsed_data.get("rr_ratio"),
+            sentiment_score=to_str(parsed_data.get("sentiment_score")),
+            summary_status=to_str(parsed_data.get("summary_status")),
+            risk_level=to_str(parsed_data.get("risk_level")),
+            technical_analysis=to_str(parsed_data.get("technical_analysis")),
+            fundamental_news=to_str(parsed_data.get("fundamental_news")),
+            confidence_level=to_float(parsed_data.get("confidence_level")),
+            immediate_action=to_str(parsed_data.get("immediate_action")),
+            action_advice=to_str(parsed_data.get("action_advice")),
+            investment_horizon=to_str(parsed_data.get("investment_horizon")),
+            target_price=to_float(parsed_data.get("target_price")),
+            stop_loss_price=to_float(parsed_data.get("stop_loss_price")),
+            entry_zone=to_str(parsed_data.get("entry_zone")),
+            entry_price_low=to_float(parsed_data.get("entry_price_low")),
+            entry_price_high=to_float(parsed_data.get("entry_price_high")),
+            rr_ratio=to_str(parsed_data.get("rr_ratio")),
             input_context_snapshot={
                 "market_data": market_data,
                 "portfolio_data": portfolio_data
@@ -317,21 +333,21 @@ async def analyze_stock(
     from datetime import datetime
     return {
         "ticker": ticker,
-        "sentiment_score": float(parsed_data.get("sentiment_score")) if parsed_data.get("sentiment_score") is not None else None,
-        "summary_status": parsed_data.get("summary_status"),
-        "risk_level": parsed_data.get("risk_level"),
-        "technical_analysis": parsed_data.get("technical_analysis"),
-        "fundamental_news": parsed_data.get("fundamental_news"),
-        "action_advice": parsed_data.get("action_advice"),
-        "investment_horizon": parsed_data.get("investment_horizon"),
-        "confidence_level": float(parsed_data.get("confidence_level", 0)) if parsed_data.get("confidence_level") is not None else None,
-        "immediate_action": parsed_data.get("immediate_action"),
-        "target_price": float(parsed_data.get("target_price", 0)) if parsed_data.get("target_price") is not None else None,
-        "stop_loss_price": float(parsed_data.get("stop_loss_price", 0)) if parsed_data.get("stop_loss_price") is not None else None,
-        "entry_zone": new_report.entry_zone if new_report else parsed_data.get("entry_zone"),
-        "entry_price_low": new_report.entry_price_low if new_report else parsed_data.get("entry_price_low"),
-        "entry_price_high": new_report.entry_price_high if new_report else parsed_data.get("entry_price_high"),
-        "rr_ratio": parsed_data.get("rr_ratio"),
+        "sentiment_score": to_float(parsed_data.get("sentiment_score")),
+        "summary_status": to_str(parsed_data.get("summary_status")),
+        "risk_level": to_str(parsed_data.get("risk_level")),
+        "technical_analysis": to_str(parsed_data.get("technical_analysis")),
+        "fundamental_news": to_str(parsed_data.get("fundamental_news")),
+        "action_advice": to_str(parsed_data.get("action_advice")),
+        "investment_horizon": to_str(parsed_data.get("investment_horizon")),
+        "confidence_level": to_float(parsed_data.get("confidence_level")),
+        "immediate_action": to_str(parsed_data.get("immediate_action")),
+        "target_price": to_float(parsed_data.get("target_price")),
+        "stop_loss_price": to_float(parsed_data.get("stop_loss_price")),
+        "entry_zone": new_report.entry_zone if new_report else to_str(parsed_data.get("entry_zone")),
+        "entry_price_low": new_report.entry_price_low if new_report else to_float(parsed_data.get("entry_price_low")),
+        "entry_price_high": new_report.entry_price_high if new_report else to_float(parsed_data.get("entry_price_high")),
+        "rr_ratio": to_str(parsed_data.get("rr_ratio")),
         "is_cached": False,
         "model_used": preferred_model,
         "created_at": new_report.created_at if new_report else datetime.utcnow()

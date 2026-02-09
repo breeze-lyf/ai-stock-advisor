@@ -66,11 +66,21 @@ class MarketDataService:
             tavily = TavilyProvider()
             news_task = tavily.get_news(ticker) if tavily.api_key else provider.get_news(ticker)
             
-            # 使用 asyncio.gather 并行执行所有任务，提高效率
-            res = await asyncio.gather(quote_task, fundamental_task, indicator_task, news_task, return_exceptions=True)
-            quote, fundamental, indicators, news = res
+            # 使用 asyncio.gather 并行执行所有任务，提高效率。
+            # 增加 15s 整体超时，防止部分数据源（尤其是 A 股）挂起导致后端无响应。
+            try:
+                res = await asyncio.wait_for(
+                    asyncio.gather(quote_task, fundamental_task, indicator_task, news_task, return_exceptions=True),
+                    timeout=15.0
+                )
+                quote, fundamental, indicators, news = res
+            except asyncio.TimeoutError:
+                logger.warning(f"Timeout fetching data for {ticker}, partial data may be returned.")
+                # 如果超时，尝试只获取最核心的报价
+                quote = await quote_task if not quote_task.done() else quote_task.result()
+                fundamental, indicators, news = None, None, []
             
-            if not isinstance(quote, Exception) and quote:
+            if quote and not isinstance(quote, Exception):
                 # 只要有了基础报价 (quote)，就认为本次抓取是成功的
                 return FullMarketData(
                     quote=quote,
@@ -169,8 +179,10 @@ class MarketDataService:
             for n in data.news:
                 if not n.link: continue
                 
+                import hashlib
+                unique_link_id = hashlib.md5(n.link.encode()).hexdigest()
                 news_stmt = insert(StockNews).values(
-                    id=n.id or str(hash(n.link)),
+                    id=n.id or unique_link_id,
                     ticker=ticker,
                     title=n.title or "No Title",
                     publisher=n.publisher or "Unknown",

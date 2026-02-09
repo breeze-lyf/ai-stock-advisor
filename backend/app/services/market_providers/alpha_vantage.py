@@ -70,5 +70,8 @@ class AlphaVantageProvider(MarketDataProvider):
     async def get_historical_data(self, ticker: str, interval: str = "1d", period: str = "1mo") -> Optional[Any]:
         return None
 
+    async def get_ohlcv(self, ticker: str, interval: str = "1d", period: str = "1y") -> List[Any]:
+        return []
+
     async def get_news(self, ticker: str) -> List[ProviderNews]:
         return []

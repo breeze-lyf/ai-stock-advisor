@@ -14,141 +14,186 @@ from app.schemas.market_data import (
 )
 from app.services.indicators import TechnicalIndicators
 
-logger = logging.getLogger(__name__)
+import threading
+import requests.utils
 
-@contextmanager
-def no_proxy_env():
+# 线程本地变量，用于在 A 股抓取线程中标记是否停用代理
+_tls = threading.local()
+
+# 备份原始 requests.utils.get_environ_proxies
+_original_get_environ_proxies = requests.utils.get_environ_proxies
+
+def _patched_get_environ_proxies(url):
     """
-    临时禁用所有代理环境变量，并 patch requests 模块以绕过系统代理。
-    东方财富 API 需要国内直连，不能走海外代理。
+    monkey-patch 函数，针对标记了 bypass_proxy 的线程返回空代理。
     """
-    # 保存并清除代理环境变量
-    saved_proxies = {}
-    proxy_vars = ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy', 'ALL_PROXY', 'all_proxy']
-    for var in proxy_vars:
-        if var in os.environ:
-            saved_proxies[var] = os.environ.pop(var)
-    
-    # 设置 NO_PROXY 为所有东方财富域名
-    os.environ['NO_PROXY'] = '*.eastmoney.com,eastmoney.com,push2.eastmoney.com,push2his.eastmoney.com'
-    os.environ['no_proxy'] = os.environ['NO_PROXY']
-    
-    # Patch requests.Session 默认不信任环境/系统代理
-    original_init = requests.Session.__init__
-    def patched_init(self, *args, **kwargs):
-        original_init(self, *args, **kwargs)
-        self.trust_env = False
-        self.proxies = {'http': None, 'https': None}
-    
-    requests.Session.__init__ = patched_init
-    
-    try:
-        yield
-    finally:
-        # 恢复 requests.Session
-        requests.Session.__init__ = original_init
-        
-        # 清除 NO_PROXY
-        os.environ.pop('NO_PROXY', None)
-        os.environ.pop('no_proxy', None)
-        
-        # 恢复代理环境变量
-        for var, value in saved_proxies.items():
-            os.environ[var] = value
+    if getattr(_tls, 'bypass_proxy', False):
+        return {}
+    return _original_get_environ_proxies(url)
+
+# 应用全局 patch：通过 TLS 隔离逻辑实现线程级安全禁用代理
+requests.utils.get_environ_proxies = _patched_get_environ_proxies
+
+logger = logging.getLogger(__name__)
 
 class AkShareProvider(MarketDataProvider):
     async def _run_sync(self, func, *args, **kwargs):
         """
-        在线程池中运行同步函数，并临时禁用代理。
-        东方财富 API 只能从国内访问，不能走海外代理。
+        在线程池中运行同步函数。
+        通过 TLS (Thread Local Storage) 标记当前线程禁用所有代理。
         """
-        def run_without_proxy():
-            with no_proxy_env():
+        def run_isolated():
+            # 标记当前线程：requests 在调用时会自动触发我们的 patch 函数返回空代理
+            _tls.bypass_proxy = True
+            
+            # 同时也彻底清除环境变量作为双重保险
+            old_http = os.environ.get('HTTP_PROXY')
+            old_https = os.environ.get('HTTPS_PROXY')
+            old_all = os.environ.get('ALL_PROXY')
+            
+            for var in ['HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY', 'http_proxy', 'https_proxy', 'all_proxy']:
+                if var in os.environ:
+                    del os.environ[var]
+            
+            try:
                 return func(*args, **kwargs)
-        
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, run_without_proxy)
+            finally:
+                # 清除标记并恢复环境
+                _tls.bypass_proxy = False
+                if old_http: os.environ['HTTP_PROXY'] = old_http
+                if old_https: os.environ['HTTPS_PROXY'] = old_https
+                if old_all: os.environ['ALL_PROXY'] = old_all
+
+        loop = asyncio.get_loop() if hasattr(asyncio, 'get_loop') else asyncio.get_event_loop()
+        return await loop.run_in_executor(None, run_isolated)
+
+    def _normalize_symbol(self, ticker: str) -> str:
+        """移除后缀并统一代码格式"""
+        return ticker.split('.')[0] if '.' in ticker else ticker
+
+    def _get_sina_symbol(self, ticker: str) -> str:
+        """转换代码为新浪格式 (如 sz002970, sh600000)"""
+        symbol = self._normalize_symbol(ticker)
+        if symbol.startswith(('60', '68', '11')): return f"sh{symbol}"
+        if symbol.startswith(('00', '30', '12')): return f"sz{symbol}"
+        return symbol
 
     async def get_quote(self, ticker: str) -> Optional[ProviderQuote]:
         """
-        Supports tickers like 600519 (SH) or 000858 (SZ).
+        获取 A 股行情。优先使用东财实时快照，确保获取到正确的中文名称。
         """
+        symbol = self._normalize_symbol(ticker)
         try:
-            symbol = ticker.split('.')[0] if '.' in ticker else ticker
-            
-            # Try spot_em first (full market data)
-            df = None
+            # --- 1. 优先方案：东财全市场实时快照 (EM Spot) ---
+            # 这种方式最稳，因为它一次性返回名称、价格、涨跌幅
             try:
-                # Eastmoney spot
-                df = await self._run_sync(ak.stock_zh_a_spot_em)
-                if df is not None and not df.empty and '代码' in df.columns:
-                    row = df[df['代码'] == symbol]
+                spot_df = await self._run_sync(ak.stock_zh_a_spot_em)
+                if spot_df is not None and not spot_df.empty:
+                    # 匹配代码
+                    row = spot_df[spot_df['代码'] == symbol]
                     if not row.empty:
+                        target = row.iloc[0]
                         return ProviderQuote(
                             ticker=ticker,
-                            price=float(row.iloc[0]['最新价']),
-                            change=float(row.iloc[0]['涨跌额']),
-                            change_percent=float(row.iloc[0]['涨跌幅']),
-                            name=str(row.iloc[0]['名称']),
+                            price=float(target['最新价']),
+                            change=float(target['涨跌额']),
+                            change_percent=float(target['涨跌幅']),
+                            name=str(target['名称']),
                             market_status=MarketStatus.OPEN,
                             last_updated=datetime.utcnow()
                         )
             except Exception as e:
-                logger.warning(f"AkShare spot_em failed for {ticker}: {e}")
+                logger.debug(f"AkShare spot_em failed for {ticker}: {e}")
 
-            # Fallback 1: Sina spot
-            try:
-                df = await self._run_sync(ak.stock_zh_a_spot)
-                if df is not None and not df.empty and '代码' in df.columns:
-                    # Sina '代码' might be sh600519
-                    row = df[df['代码'].str.contains(symbol)]
-                    if not row.empty:
-                        return ProviderQuote(
-                            ticker=ticker,
-                            price=float(row.iloc[0]['最新价']),
-                            change=float(row.iloc[0]['涨跌额']),
-                            change_percent=float(row.iloc[0]['涨跌幅']),
-                            name=str(row.iloc[0]['名称']),
-                            market_status=MarketStatus.OPEN,
-                            last_updated=datetime.utcnow()
-                        )
-            except Exception as e:
-                logger.warning(f"AkShare Sina spot failed for {ticker}: {e}")
-
-            # Fallback 2: Individual Info (Most reliable as it's a single request)
+            # --- 2. 回退方案：东财个股详情 ---
             try:
                 info_df = await self._run_sync(ak.stock_individual_info_em, symbol=symbol)
-                data = {row['item']: row['value'] for _, row in info_df.iterrows()}
-                if '最新' in data:
+                if info_df is not None and not info_df.empty:
+                    data = {row['item']: row['value'] for _, row in info_df.iterrows()}
+                    if '最新' in data and data['最新'] != '-':
+                        return ProviderQuote(
+                            ticker=ticker,
+                            price=float(data['最新']),
+                            change=0.0,
+                            change_percent=0.0,
+                            name=data.get('股票简称', ticker),
+                            market_status=MarketStatus.OPEN,
+                            last_updated=datetime.utcnow()
+                        )
+            except Exception as e:
+                logger.debug(f"AkShare individual_info_em failed for {ticker}: {e}")
+
+            # --- 3. 备选方案：新浪实时 (Sina Spot) ---
+            # 新浪接口通常在 Eastmoney 受限时仍能工作
+            try:
+                sina_df = await self._run_sync(ak.stock_zh_a_spot)
+                if sina_df is not None and not sina_df.empty:
+                    sina_symbol = self._get_sina_symbol(ticker)
+                    row = sina_df[sina_df['代码'] == sina_symbol]
+                    if row.empty:
+                        # 兜底匹配：只匹配数字部分
+                        row = sina_df[sina_df['代码'].str.contains(symbol)]
+                    
+                    if not row.empty:
+                        target = row.iloc[0]
+                        return ProviderQuote(
+                            ticker=ticker,
+                            price=float(target['最新价']),
+                            change=float(target['涨跌额']),
+                            change_percent=float(target['涨跌幅']),
+                            name=str(target['名称']),
+                            market_status=MarketStatus.OPEN,
+                            last_updated=datetime.utcnow()
+                        )
+            except Exception as e:
+                logger.warning(f"AkShare Sina spot fallback failed for {ticker}: {e}")
+
+            # --- 4. 最终兜底：利用历史 K 线 ---
+            try:
+                ohlcv = await self.get_ohlcv(ticker, period="1y")
+                if ohlcv:
+                    last_bar = ohlcv[-1]
                     return ProviderQuote(
                         ticker=ticker,
-                        price=float(data['最新']),
-                        change_percent=0.0, # Not easily available here
-                        name=data.get('股票简称', ticker),
+                        price=last_bar.close,
+                        change=0.0,
+                        change_percent=0.0,
+                        name=ticker, # 历史线返回不了名称
                         market_status=MarketStatus.OPEN,
                         last_updated=datetime.utcnow()
                     )
             except Exception as e:
-                logger.warning(f"AkShare individual_info fallback failed for {ticker}: {e}")
+                logger.error(f"AkShare get_quote complete blackout for {ticker}: {e}")
 
             return None
         except Exception as e:
-            logger.error(f"AkShare get_quote catastrophic error for {ticker}: {e}")
+            logger.error(f"AkShare get_quote unexpected error for {ticker}: {e}")
             return None
 
     async def get_fundamental_data(self, ticker: str) -> Optional[ProviderFundamental]:
         try:
-            symbol = ticker.split('.')[0] if '.' in ticker else ticker
+            symbol = self._normalize_symbol(ticker)
             
-            # 1. 基础信息 (行业, 市值) - 来自东财
-            info_df = await self._run_sync(ak.stock_individual_info_em, symbol=symbol)
-            data = {row['item']: row['value'] for _, row in info_df.iterrows()}
+            # 1. 基础信息 (行业, 市值) - 尝试东财，失败则留空
+            market_cap = None
+            sector = None
+            try:
+                info_df = await self._run_sync(ak.stock_individual_info_em, symbol=symbol)
+                if info_df is not None and not info_df.empty:
+                    data = {row['item']: row['value'] for _, row in info_df.iterrows()}
+                    sector = data.get('行业')
+                    if data.get('总市值'):
+                        try:
+                            market_cap = float(data.get('总市值'))
+                        except: pass
+            except Exception as e:
+                logger.debug(f"Fundamental info_em failed for {ticker}: {e}")
             
-            # 2. 每股收益 (EPS) - 来自同花顺
+            # 2. 每股收益 (EPS) - 尝试同花顺
             eps = None
             try:
                 ths_df = await self._run_sync(ak.stock_financial_abstract_ths, symbol=symbol)
-                if not ths_df.empty:
+                if ths_df is not None and not ths_df.empty:
                     # 获取最新的一条报告数据
                     latest_report = ths_df.iloc[-1]
                     eps_str = str(latest_report.get('基本每股收益', ''))
@@ -157,68 +202,77 @@ class AkShareProvider(MarketDataProvider):
                     if match:
                         eps = float(match.group())
             except Exception as e:
-                logger.warning(f"AkShare THS EPS fetch failed for {ticker}: {e}")
-
-            # 3. 52 周高低点 - 来自历史数据回溯
+                logger.debug(f"EPS fetch failed for {ticker}: {e}")
+            
+            # 3. 52 周高低点 - 来自历史数据回溯 (复用 get_ohlcv 以提高缓存利用率)
             fifty_two_week_high = None
             fifty_two_week_low = None
             try:
-                # 获取过去 1 年的历史数据
-                hist_data = await self.get_ohlcv(ticker, period="1y")
-                if hist_data:
-                    prices = [item.close for item in hist_data]
+                ohlcv = await self.get_ohlcv(ticker, period="1y")
+                if ohlcv:
+                    prices = [item.close for item in ohlcv]
                     fifty_two_week_high = max(prices)
                     fifty_two_week_low = min(prices)
-            except Exception as e:
-                logger.warning(f"AkShare 52W High/Low calculation failed for {ticker}: {e}")
+            except Exception:
+                pass
 
-            # 4. 市盈率 (PE) - 基于实时股价计算 (Price / EPS)
+            # 4. 市盈率 (PE) - 基于实时股价简单估算 (Price / EPS)
             pe_ratio = None
             try:
-                # 注意：这里不再重复调用 get_quote，因为 MarketDataService 会并发获取 quote 和 fundamental
-                # 我们尽量在此处只抓取基础面核心数据。
-                # 如果确实需要实时计算 PE，可以在 get_fundamental_data 外部由 MarketDataService 统一处理
-                # 或者作为可选注入。为了保持简单，我们这里还是尝试快速拿一下，如果失败也没关系。
-                # 但是为了性能，我们优先检查 data['最新'] (来自东财 spot)
-                price = float(data['最新']) if '最新' in data else None
-                
-                if price and eps and eps > 0:
-                    pe_ratio = price / eps
-            except Exception as e:
-                logger.warning(f"AkShare PE calculation failed for {ticker}: {e}")
+                # 尝试从报价中获取价格
+                quote = await self.get_quote(ticker)
+                if quote and eps and eps > 0:
+                    pe_ratio = quote.price / eps
+            except Exception:
+                pass
             
             return ProviderFundamental(
-                sector=data.get('行业'),
-                industry=data.get('行业'),
-                market_cap=float(data.get('总市值', 0)) if data.get('总市值') else None,
+                sector=sector,
+                industry=sector,
+                market_cap=market_cap,
                 pe_ratio=pe_ratio,
                 eps=eps,
                 fifty_two_week_high=fifty_two_week_high,
                 fifty_two_week_low=fifty_two_week_low
             )
         except Exception as e:
-            logger.error(f"AkShare get_fundamental_data error for {ticker}: {e}")
+            logger.error(f"AkShare get_fundamental_data catastrophic error for {ticker}: {e}")
             return None
 
     async def get_historical_data(self, ticker: str, interval: str = "1d", period: str = "1mo") -> Optional[Dict[str, Any]]:
         try:
-            symbol = ticker.split('.')[0] if '.' in ticker else ticker
-            df = await self._run_sync(ak.stock_zh_a_hist, symbol=symbol, period="daily", adjust="qfq")
+            symbol = self._normalize_symbol(ticker)
+            # 优先尝试东财 (Eastmoney)
+            try:
+                df = await self._run_sync(ak.stock_zh_a_hist, symbol=symbol, period="daily", adjust="qfq")
+            except Exception as e:
+                logger.warning(f"Eastmoney hist failed for {ticker}, falling back to Sina: {e}")
+                df = pd.DataFrame()
+
+            # 如果东财失败，回退到新浪 (Sina)
+            if df is None or df.empty:
+                sina_symbol = self._get_sina_symbol(ticker)
+                df = await self._run_sync(ak.stock_zh_a_daily, symbol=sina_symbol)
+                if df is not None and not df.empty:
+                    # 新浪数据格式转换
+                    df = df.rename(columns={
+                        'date': 'Date', 'open': 'Open', 'close': 'Close', 
+                        'high': 'High', 'low': 'Low', 'volume': 'Volume'
+                    })
+                    df['Date'] = pd.to_datetime(df['Date'])
+                    df.set_index('Date', inplace=True)
+            else:
+                # 东财数据格式转换
+                df = df.rename(columns={
+                    '日期': 'Date', '开盘': 'Open', '收盘': 'Close',
+                    '最高': 'High', '最低': 'Low', '成交量': 'Volume'
+                })
+                df['Date'] = pd.to_datetime(df['Date'])
+                df.set_index('Date', inplace=True)
             
-            if df.empty:
+            if df is None or df.empty:
                 return None
-            
-            df = df.rename(columns={
-                '日期': 'Date',
-                '开盘': 'Open',
-                '收盘': 'Close',
-                '最高': 'High',
-                '最低': 'Low',
-                '成交量': 'Volume'
-            })
-            df['Date'] = pd.to_datetime(df['Date'])
-            df.set_index('Date', inplace=True)
-            
+                
             return TechnicalIndicators.calculate_all(df)
         except Exception as e:
             logger.error(f"AkShare get_historical_data error for {ticker}: {e}")
@@ -226,7 +280,7 @@ class AkShareProvider(MarketDataProvider):
 
     async def get_news(self, ticker: str) -> List[ProviderNews]:
         try:
-            symbol = ticker.split('.')[0] if '.' in ticker else ticker
+            symbol = self._normalize_symbol(ticker)
             news_df = await self._run_sync(ak.stock_news_em, symbol=symbol)
             
             results = []
@@ -246,34 +300,46 @@ class AkShareProvider(MarketDataProvider):
     async def get_ohlcv(self, ticker: str, interval: str = "1d", period: str = "1y") -> List[Any]:
         """获取原始 K 线数据用于图表展示"""
         try:
-            symbol = ticker.split('.')[0] if '.' in ticker else ticker
-            # 对于 A 股，按天获取历史数据
-            # AkShare 的 stock_zh_a_hist 并不支持 yfinance 样式的 period 参数，
-            # 我们需要手动计算开始日期
+            symbol = self._normalize_symbol(ticker)
             from datetime import timedelta
             end_date = datetime.now()
-            
-            # 简单的 period 到天数的映射
-            days_map = {
-                "1mo": 30, "3mo": 90, "6mo": 180, "1y": 365, "2y": 730, "5y": 1825, "max": 3650
-            }
+            days_map = {"1mo": 30, "3mo": 90, "6mo": 180, "1y": 365, "2y": 730, "5y": 1825, "max": 3650}
             days = days_map.get(period, 365)
             start_date = end_date - timedelta(days=days)
             
-            start_str = start_date.strftime('%Y%m%d')
-            end_str = end_date.strftime('%Y%m%d')
-            
-            df = await self._run_sync(ak.stock_zh_a_hist, symbol=symbol, period="daily", 
-                                     start_date=start_str, end_date=end_str, adjust="qfq")
-            
-            if df.empty:
+            # 1. 优先尝试东财 (Eastmoney)
+            try:
+                start_str = start_date.strftime('%Y%m%d')
+                end_str = end_date.strftime('%Y%m%d')
+                df = await self._run_sync(ak.stock_zh_a_hist, symbol=symbol, period="daily", 
+                                         start_date=start_str, end_date=end_str, adjust="qfq")
+            except Exception:
+                df = pd.DataFrame()
+
+            # 2. 如果东财失败，尝试新浪 (Sina)
+            if df is None or df.empty:
+                sina_symbol = self._get_sina_symbol(ticker)
+                df = await self._run_sync(ak.stock_zh_a_daily, symbol=sina_symbol)
+                if df is not None and not df.empty:
+                    # 过滤日期范围
+                    df['date'] = pd.to_datetime(df['date'])
+                    df = df[(df['date'] >= start_date) & (df['date'] <= end_date)]
+                    df = df.rename(columns={
+                        'date': '日期', 'open': '开盘', 'close': '收盘',
+                        'high': '最高', 'low': '最低', 'volume': '成交量'
+                    })
+
+            if df is None or df.empty:
                 return []
             
             data = []
             from app.schemas.market_data import OHLCVItem
             for _, row in df.iterrows():
+                dt = row['日期'] if '日期' in row else row['Date'] if 'Date' in row else None
+                if dt is None: continue
+                time_str = dt.strftime('%Y-%m-%d') if not isinstance(dt, str) else str(dt)
                 data.append(OHLCVItem(
-                    time=str(row['日期']),
+                    time=time_str,
                     open=float(row['开盘']),
                     high=float(row['最高']),
                     low=float(row['最低']),

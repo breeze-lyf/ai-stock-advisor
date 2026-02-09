@@ -235,23 +235,42 @@ async def analyze_stock(
     # 7. 解析结构化 JSON 结果
     import json
     parsed_data = {}
-    try:
-        # 去除可能存在的 Markdown 代码块标记
-        clean_json = ai_raw_response.strip()
-        if clean_json.startswith("```json"):
-            clean_json = clean_json.replace("```json", "", 1).replace("```", "", 1).strip()
-        elif clean_json.startswith("```"):
-            clean_json = clean_json.replace("```", "", 1).replace("```", "", 1).strip()
-            
-        parsed_data = json.loads(clean_json)
-    except Exception as e:
-        logger.error(f"Failed to parse AI JSON response: {e}. Raw: {ai_raw_response[:200]}...")
-        # 降级处理：如果解析失败，将整块内容放入技术分析
+    # --- 增强型 JSON 解析逻辑 ---
+    ai_raw_response = ai_raw_response.strip()
+    parsed_data = {}
+    
+    # 1. 检查是否是 AIService 返回的显式错误字符串
+    if ai_raw_response.startswith("**Error**"):
+        logger.error(f"AI Service returned an error: {ai_raw_response}")
         parsed_data = {
-            "technical_analysis": ai_raw_response,
-            "summary_status": "解析失败",
-            "sentiment_score": 50
+            "technical_analysis": f"AI 服务调用异常: {ai_raw_response}",
+            "action_advice": "由于 AI 接口调用失败，暂时无法生成详细诊断建议。请检查 API 配置或稍后重试。",
+            "summary_status": "调用失败",
+            "sentiment_score": 50,
+            "risk_level": "未知"
         }
+    else:
+        try:
+            # 2. 尝试正则提取第一个 { 到最后一个 } 之间的内容 (处理前后杂质)
+            import re
+            json_match = re.search(r'(\{.*\})', ai_raw_response, re.DOTALL)
+            if json_match:
+                clean_json = json_match.group(1)
+                parsed_data = json.loads(clean_json)
+            else:
+                # 3. 兜底解析
+                clean_json = ai_raw_response.replace("```json", "").replace("```", "").strip()
+                parsed_data = json.loads(clean_json)
+        except Exception as e:
+            logger.error(f"Failed to parse AI JSON response: {e}. Raw: {ai_raw_response[:200]}...")
+            # 严重降级处理：尝试把原始文本塞入主要说明字段，防止前端全空
+            parsed_data = {
+                "technical_analysis": ai_raw_response if len(ai_raw_response) > 50 else "",
+                "action_advice": ai_raw_response if len(ai_raw_response) <= 50 else "AI 响应格式解析失败，请查看技术分析详情。",
+                "summary_status": "解析失败",
+                "sentiment_score": 50,
+                "risk_level": "中"
+            }
 
     # 8. 持久化分析结果 (存入独立字段)
     new_report = None

@@ -65,6 +65,7 @@ export function StockDetail({
     }, [selectedItem?.ticker]);
 
     const [hoverPrice, setHoverPrice] = useState<{ price: number; x: number } | null>(null);
+    const [hoveredZone, setHoveredZone] = useState<string | null>(null);
 
     if (!selectedItem) {
         return (
@@ -252,6 +253,44 @@ export function StockDetail({
                                     </div>
                                 </div>
 
+                                {/* 3. Sentiment Bias Bar (Moved Up per Feedback) */}
+                                <div className="space-y-4 pt-4 pb-8 border-b border-slate-100 dark:border-white/5">
+                                    <div className="flex justify-between items-center text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+                                        <div className="flex items-center gap-2">
+                                            <Activity className="h-3 w-3 text-indigo-500" />
+                                            <span>AI 情绪偏差 / Sentiment Bias</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-slate-900 dark:text-white font-black italic">{aiData.sentiment_score}%</span>
+                                            <span className={clsx(
+                                                "px-2 py-0.5 rounded text-[8px] font-black uppercase",
+                                                (aiData.sentiment_score || 0) > 60 ? "bg-emerald-100 text-emerald-700" :
+                                                    (aiData.sentiment_score || 0) < 40 ? "bg-rose-100 text-rose-700" :
+                                                        "bg-blue-100 text-blue-700"
+                                            )}>
+                                                {aiData.sentiment_score && aiData.sentiment_score > 60 ? "Bullish" :
+                                                    aiData.sentiment_score && aiData.sentiment_score < 40 ? "Bearish" : "Neutral"}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div className="h-3 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner p-0.5">
+                                        <div
+                                            className={clsx(
+                                                "h-full rounded-full transition-all duration-1000 ease-out shadow-sm",
+                                                (aiData.sentiment_score || 0) > 60 ? "bg-gradient-to-r from-emerald-400 to-emerald-600" :
+                                                    (aiData.sentiment_score || 0) < 40 ? "bg-gradient-to-r from-rose-400 to-rose-600" :
+                                                        "bg-gradient-to-r from-blue-400 to-blue-600"
+                                            )}
+                                            style={{ width: `${aiData.sentiment_score || 0}%` }}
+                                        />
+                                    </div>
+                                    <div className="flex justify-between text-[8px] font-black text-slate-400 uppercase tracking-tighter italic opacity-60">
+                                        <span>0: 极度看空 (Bear)</span>
+                                        <span className="text-center">50: Neutral</span>
+                                        <span className="text-right">100: 极度看多 (Bull)</span>
+                                    </div>
+                                </div>
+
                                 {/* Visual Axis Line - Redesigned as "Action Zones" */}
                                 {(() => {
                                     if (!aiData || !aiData.stop_loss_price || !aiData.target_price || !selectedItem) return null;
@@ -271,170 +310,75 @@ export function StockDetail({
                                     const totalRange = axisMax - axisMin;
                                     const getPos = (val: number) => ((val - axisMin) / totalRange) * 100;
 
-                                    const stopPrice = aiData.stop_loss_price;
-                                    const entryHigh = aiData.entry_price_high || aiData.entry_price_low || stopPrice;
                                     const targetPrice = aiData.target_price;
+                                    const entryHigh = aiData.entry_price_high || aiData.entry_price_low || aiData.stop_loss_price;
+                                    const stopPrice = aiData.stop_loss_price;
 
                                     const zones = [
-                                        {
-                                            name: "止损区间",
-                                            label: "STOP",
-                                            start: axisMin,
-                                            end: stopPrice,
-                                            color: "bg-rose-500/10 dark:bg-rose-500/10",
-                                            textColor: "text-rose-500 dark:text-rose-400",
-                                            borderColor: "border-rose-500/20"
-                                        },
-                                        {
-                                            name: "买入区间",
-                                            label: "BUY",
-                                            start: stopPrice,
-                                            end: entryHigh,
-                                            color: "bg-emerald-500/20 dark:bg-emerald-500/20",
-                                            textColor: "text-emerald-500 dark:text-emerald-400",
-                                            borderColor: "border-emerald-500/30"
-                                        },
-                                        {
-                                            name: "持有区间",
-                                            label: "HOLD",
-                                            start: entryHigh,
-                                            end: targetPrice,
-                                            color: "bg-blue-500/5 dark:bg-blue-500/5",
-                                            textColor: "text-blue-500 dark:text-blue-400",
-                                            borderColor: "border-blue-500/10"
-                                        },
-                                        {
-                                            name: "减仓区间",
-                                            label: "REDUCE",
-                                            start: targetPrice,
-                                            end: axisMax,
-                                            color: "bg-violet-500/10 dark:bg-violet-500/10",
-                                            textColor: "text-violet-500 dark:text-violet-400",
-                                            borderColor: "border-violet-500/20"
-                                        }
+                                        { name: "止损", start: axisMin, end: stopPrice, color: "bg-[#F0614D]" },
+                                        { name: "买入", start: stopPrice, end: entryHigh, color: "bg-[#3CC68A]" },
+                                        { name: "持有", start: entryHigh, end: targetPrice, color: "bg-[#E8EAED] dark:bg-slate-600" },
+                                        { name: "止盈", start: targetPrice, end: axisMax, color: "bg-[#3B82F6]" }
                                     ];
 
+                                    // Generate 5 evenly spaced price ticks
+                                    const tickCount = 5;
+                                    const priceTicks = Array.from({ length: tickCount }, (_, i) => {
+                                        const pct = (i / (tickCount - 1)) * 100;
+                                        const price = axisMin + ((axisMax - axisMin) * (pct / 100));
+                                        return { pct, price };
+                                    });
+
                                     return (
-                                        <div className="relative pt-10 pb-12 px-2">
-                                            {/* Scale Ticks (Prices) */}
-                                            <div className="absolute top-4 inset-x-2 flex justify-between px-1">
-                                                <span className="text-[9px] font-bold text-slate-300 dark:text-slate-600 tabular-nums">${axisMin.toFixed(2)}</span>
-                                                <span className="text-[9px] font-bold text-slate-300 dark:text-slate-600 tabular-nums">${axisMax.toFixed(2)}</span>
-                                            </div>
-
-                                            {/* Main Bar Container */}
+                                        <div className="relative pt-12 pb-8">
+                                            {/* Current Price Tooltip - Always visible */}
                                             <div
-                                                className="relative h-4 bg-slate-50 dark:bg-slate-900/50 rounded-full flex overflow-hidden border border-slate-100 dark:border-slate-800 items-center cursor-crosshair group/axis"
-                                                onMouseMove={(e) => {
-                                                    const rect = e.currentTarget.getBoundingClientRect();
-                                                    const x = e.clientX - rect.left;
-                                                    const percent = x / rect.width;
-                                                    const price = axisMin + (percent * totalRange);
-                                                    setHoverPrice({ price, x });
-                                                }}
-                                                onMouseLeave={() => setHoverPrice(null)}
+                                                className="absolute z-20 flex flex-col items-center"
+                                                style={{ left: `${getPos(current)}%`, top: '0', transform: 'translateX(-50%)' }}
                                             >
-                                                {zones.map((zone, idx) => (
-                                                    <div
-                                                        key={idx}
-                                                        className={clsx("h-full border-r last:border-r-0 relative transition-colors duration-500", zone.color, zone.borderColor)}
-                                                        style={{ width: `${((zone.end - zone.start) / totalRange) * 100}%` }}
-                                                    />
-                                                ))}
-
-                                                {/* Hover Crosshair Price */}
-                                                {hoverPrice && (
-                                                    <div
-                                                        className="absolute top-0 h-full w-[1px] bg-slate-400 dark:bg-slate-500 z-50 pointer-events-none"
-                                                        style={{ left: `${hoverPrice.x}px` }}
-                                                    >
-                                                        <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[8px] px-1.5 py-0.5 rounded shadow-xl whitespace-nowrap">
-                                                            ${hoverPrice.price.toFixed(2)}
-                                                        </div>
-                                                    </div>
-                                                )}
+                                                <div className="bg-slate-800 dark:bg-slate-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap">
+                                                    ${current.toFixed(2)}
+                                                </div>
+                                                <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent border-t-slate-800 dark:border-t-slate-900" />
                                             </div>
 
-                                            {/* Action Markers (Stop/Target) - Centered Vertically */}
-                                            <div className="absolute top-[2.5rem] inset-x-2 h-4 pointer-events-none">
-                                                {/* Stop Marker */}
-                                                <div className="absolute h-full flex flex-col items-center justify-center" style={{ left: `${getPos(aiData.stop_loss_price)}%` }}>
-                                                    <div className="h-8 w-[2px] bg-rose-500/80 rounded-full" />
-                                                    <span className="text-[10px] font-black text-rose-500 tabular-nums absolute -top-5 tracking-tight">${aiData.stop_loss_price.toFixed(2)}</span>
-                                                </div>
-
-                                                {/* Target Marker */}
-                                                <div className="absolute h-full flex flex-col items-center justify-center" style={{ left: `${getPos(aiData.target_price)}%` }}>
-                                                    <div className="h-8 w-[2px] bg-blue-500/80 rounded-full" />
-                                                    <span className="text-[10px] font-black text-blue-500 tabular-nums absolute -top-5 tracking-tight">${aiData.target_price.toFixed(2)}</span>
-                                                </div>
-
-                                                {/* Current Price Marker (Simplified) */}
-                                                <div className="absolute h-full flex flex-col items-center justify-center group/marker" style={{ left: `${getPos(selectedItem.current_price)}%` }}>
-                                                    <div className="h-8 w-[2px] bg-slate-900 dark:bg-white rounded-full z-40" />
-                                                    <div className="h-2 w-2 bg-slate-900 dark:bg-white rounded-full border border-white dark:border-slate-900 shadow-lg z-40" />
-
-                                                    {/* Hover Label for Current Price */}
-                                                    <div className="absolute -top-7 opacity-0 group-hover/marker:opacity-100 transition-opacity bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[10px] font-black px-2 py-1 rounded shadow-2xl whitespace-nowrap z-50">
-                                                        NOW: ${selectedItem.current_price.toFixed(2)}
-                                                    </div>
+                                            {/* Main Bar Container - Matching sentiment bias bar style */}
+                                            <div className="h-3 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner p-0.5 mt-2">
+                                                <div className="h-full w-full rounded-full flex overflow-hidden">
+                                                    {zones.map((zone, idx) => (
+                                                        <div
+                                                            key={idx}
+                                                            className={clsx("h-full", zone.color)}
+                                                            style={{ width: `${((zone.end - zone.start) / totalRange) * 100}%` }}
+                                                        />
+                                                    ))}
                                                 </div>
                                             </div>
 
-                                            {/* Sub Labels */}
-                                            <div className="absolute inset-x-2 bottom-2 flex">
-                                                {zones.map((zone, idx) => (
-                                                    <div
-                                                        key={idx}
-                                                        className={clsx("flex flex-col items-center justify-center text-[7px] font-black uppercase tracking-widest", zone.textColor)}
-                                                        style={{ width: `${((zone.end - zone.start) / totalRange) * 100}%` }}
-                                                    >
-                                                        <span>{zone.name}</span>
-                                                        <span className="opacity-40 italic">{zone.label}</span>
-                                                    </div>
+                                            {/* Current Price Marker - Circle with ring */}
+                                            <div
+                                                className="absolute z-10"
+                                                style={{ left: `${getPos(current)}%`, top: 'calc(3rem + 0.5rem + 0.375rem - 0.5rem)', transform: 'translateX(-50%)' }}
+                                            >
+                                                <div className="relative">
+                                                    {/* Outer glow */}
+                                                    <div className="absolute inset-0 w-6 h-6 -m-1 bg-blue-400/30 rounded-full blur-sm" />
+                                                    {/* Main circle */}
+                                                    <div className="w-4 h-4 bg-white rounded-full border-[3px] border-blue-500 shadow-lg" />
+                                                </div>
+                                            </div>
+
+                                            {/* Bottom Scale Ruler - Matching sentiment bias style */}
+                                            <div className="flex justify-between text-[8px] font-black text-slate-400 uppercase tracking-tighter italic opacity-60 mt-2">
+                                                {priceTicks.map((tick, i) => (
+                                                    <span key={i} className="tabular-nums">
+                                                        {tick.price.toFixed(0)}
+                                                    </span>
                                                 ))}
                                             </div>
                                         </div>
-                                    );
+                                    )
                                 })()}
-                            </div>
-
-                            {/* 3. Sentiment Bias Bar (Style Unified) */}
-                            <div className="space-y-4 pt-6 border-t border-slate-100 dark:border-white/5">
-                                <div className="flex justify-between items-center text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
-                                    <div className="flex items-center gap-2">
-                                        <Activity className="h-3 w-3 text-indigo-500" />
-                                        <span>AI 情绪偏差 / Sentiment Bias</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-slate-900 dark:text-white font-black italic">{aiData.sentiment_score}%</span>
-                                        <span className={clsx(
-                                            "px-2 py-0.5 rounded text-[8px] font-black uppercase",
-                                            (aiData.sentiment_score || 0) > 60 ? "bg-emerald-100 text-emerald-700" :
-                                                (aiData.sentiment_score || 0) < 40 ? "bg-rose-100 text-rose-700" :
-                                                    "bg-blue-100 text-blue-700"
-                                        )}>
-                                            {aiData.sentiment_score && aiData.sentiment_score > 60 ? "Bullish" :
-                                                aiData.sentiment_score && aiData.sentiment_score < 40 ? "Bearish" : "Neutral"}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="h-3 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner p-0.5">
-                                    <div
-                                        className={clsx(
-                                            "h-full rounded-full transition-all duration-1000 ease-out shadow-sm",
-                                            (aiData.sentiment_score || 0) > 60 ? "bg-gradient-to-r from-emerald-400 to-emerald-600" :
-                                                (aiData.sentiment_score || 0) < 40 ? "bg-gradient-to-r from-rose-400 to-rose-600" :
-                                                    "bg-gradient-to-r from-blue-400 to-blue-600"
-                                        )}
-                                        style={{ width: `${aiData.sentiment_score || 0}%` }}
-                                    />
-                                </div>
-                                <div className="flex justify-between text-[8px] font-black text-slate-400 uppercase tracking-tighter italic opacity-60">
-                                    <span>0: 极度看空 (Bear)</span>
-                                    <span className="text-center">50: Neutral</span>
-                                    <span className="text-right">100: 极度看多 (Bull)</span>
-                                </div>
                             </div>
                         </div>
 
@@ -460,12 +404,11 @@ export function StockDetail({
                         <BarChart3 className="h-10 w-10 opacity-10" />
                         <p className="text-[10px] font-bold uppercase tracking-[0.3em]">等待诊断报告生成...</p>
                     </div>
-                )
-                }
-            </div >
+                )}
+            </div>
 
             {/* --- Section 3: Technical Scan (Visual Hub) --- */}
-            < div className="space-y-8" >
+            <div className="space-y-8">
                 <div className="flex items-center gap-3">
                     <div className="h-8 w-1.5 bg-emerald-500 rounded-full" />
                     <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100 uppercase">技术面深度透视 / Technical Scan</h2>
@@ -666,10 +609,10 @@ export function StockDetail({
                         )}
                     </div>
                 </div>
-            </div >
+            </div>
 
             {/* --- Section 4: Fundamental Identity --- */}
-            < div className="space-y-8" >
+            <div className="space-y-8">
                 <div className="flex items-center gap-3">
                     <div className="h-8 w-1.5 bg-amber-500 rounded-full" />
                     <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100 uppercase">基本面资料卡</h2>
@@ -704,10 +647,10 @@ export function StockDetail({
                         </div>
                     )
                 }
-            </div >
+            </div>
 
             {/* --- Section 5: News Pipeline (The "Bottom" Stream) --- */}
-            < div className="space-y-8 pt-4" >
+            <div className="space-y-8 pt-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="h-8 w-1.5 bg-slate-900 dark:bg-slate-100 rounded-full" />
@@ -719,11 +662,11 @@ export function StockDetail({
                 </div>
 
                 <StockNewsList news={news} />
-            </div >
+            </div>
 
             <div className="mt-20 py-10 border-t border-slate-100 dark:border-slate-800 text-center">
                 <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.5em] italic">End of Analysis Report</p>
             </div>
-        </div >
+        </div>
     );
 }

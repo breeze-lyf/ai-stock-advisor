@@ -2,8 +2,11 @@ import akshare as ak
 import pandas as pd
 import logging
 import asyncio
+import os
+import requests
 from datetime import datetime
 from typing import Dict, Any, List, Optional
+from contextlib import contextmanager
 
 from app.services.market_providers.base import MarketDataProvider
 from app.schemas.market_data import (
@@ -13,10 +16,58 @@ from app.services.indicators import TechnicalIndicators
 
 logger = logging.getLogger(__name__)
 
+@contextmanager
+def no_proxy_env():
+    """
+    临时禁用所有代理环境变量，并 patch requests 模块以绕过系统代理。
+    东方财富 API 需要国内直连，不能走海外代理。
+    """
+    # 保存并清除代理环境变量
+    saved_proxies = {}
+    proxy_vars = ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy', 'ALL_PROXY', 'all_proxy']
+    for var in proxy_vars:
+        if var in os.environ:
+            saved_proxies[var] = os.environ.pop(var)
+    
+    # 设置 NO_PROXY 为所有东方财富域名
+    os.environ['NO_PROXY'] = '*.eastmoney.com,eastmoney.com,push2.eastmoney.com,push2his.eastmoney.com'
+    os.environ['no_proxy'] = os.environ['NO_PROXY']
+    
+    # Patch requests.Session 默认不信任环境/系统代理
+    original_init = requests.Session.__init__
+    def patched_init(self, *args, **kwargs):
+        original_init(self, *args, **kwargs)
+        self.trust_env = False
+        self.proxies = {'http': None, 'https': None}
+    
+    requests.Session.__init__ = patched_init
+    
+    try:
+        yield
+    finally:
+        # 恢复 requests.Session
+        requests.Session.__init__ = original_init
+        
+        # 清除 NO_PROXY
+        os.environ.pop('NO_PROXY', None)
+        os.environ.pop('no_proxy', None)
+        
+        # 恢复代理环境变量
+        for var, value in saved_proxies.items():
+            os.environ[var] = value
+
 class AkShareProvider(MarketDataProvider):
     async def _run_sync(self, func, *args, **kwargs):
+        """
+        在线程池中运行同步函数，并临时禁用代理。
+        东方财富 API 只能从国内访问，不能走海外代理。
+        """
+        def run_without_proxy():
+            with no_proxy_env():
+                return func(*args, **kwargs)
+        
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, lambda: func(*args, **kwargs))
+        return await loop.run_in_executor(None, run_without_proxy)
 
     async def get_quote(self, ticker: str) -> Optional[ProviderQuote]:
         """

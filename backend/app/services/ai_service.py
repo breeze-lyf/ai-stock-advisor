@@ -19,15 +19,19 @@ class AIService:
             "Content-Type": "application/json"
         }
         
-        # 映射模型 ID
+        # 映射模型 ID (同步最新 SiliconFlow 命名规范: 使用 Qwen3-VL-Thinking)
         model_map = {
             "deepseek-v3": "deepseek-ai/DeepSeek-V3",
             "deepseek-r1": "deepseek-ai/DeepSeek-R1",
-            "qwen-2.5-72b": "Qwen/Qwen2.5-72B-Instruct",
             "qwen-3-vl-thinking": "Qwen/Qwen3-VL-235B-A22B-Thinking",
         }
-        model_id = model_map.get(model, "deepseek-ai/DeepSeek-V3")
-        
+        # 如果是 qwen 关键字，直接映射到 Qwen3-VL-Thinking
+        model_id = model_map.get(model)
+        if not model_id:
+            if "deepseek" in model: model_id = "deepseek-ai/DeepSeek-V3"
+            elif "qwen" in model: model_id = "Qwen/Qwen3-VL-235B-A22B-Thinking"
+            else: model_id = "deepseek-ai/DeepSeek-V3"
+
         payload = {
             "model": model_id,
             "messages": [{"role": "user", "content": prompt}],
@@ -36,14 +40,19 @@ class AIService:
         }
         
         try:
-            async with httpx.AsyncClient(timeout=90.0) as client: # Increased timeout for thinking models
+            async with httpx.AsyncClient(timeout=120.0) as client:
                 response = await client.post(url, json=payload, headers=headers)
-                response.raise_for_status()
+                if response.status_code != 200:
+                    error_detail = response.text
+                    logger.error(f"SiliconFlow API Error ({response.status_code}): {error_detail}")
+                    return f"**Error**: SiliconFlow 调用失败 (HTTP {response.status_code})。详情: {error_detail}"
+                
                 result = response.json()
                 return result["choices"][0]["message"]["content"]
         except Exception as e:
-            logger.error(f"SiliconFlow API Error: {str(e)}")
-            return f"**Error**: SiliconFlow 调用失败。{str(e)}"
+            import traceback
+            logger.error(f"SiliconFlow Exception: {str(e)}\n{traceback.format_exc()}")
+            return f"**Error**: SiliconFlow 网络异常。{str(e)}"
 
     @staticmethod
     async def generate_analysis(ticker: str, market_data: dict, portfolio_data: dict, news_data: list = None, fundamental_data: dict = None, model: str = "gemini-1.5-flash", api_key_gemini: str = None, api_key_siliconflow: str = None) -> str:
@@ -109,7 +118,7 @@ class AIService:
             "rr_ratio": "预估盈亏比",
             "technical_analysis": "核心技术位解读（必须分析 RSI, MACD, MA50 等数值）",
             "fundamental_news": "基础面/消息面深度解读",
-            "action_advice": "详细的操作逻辑与仓位控制策略。"
+            "action_advice": "详细的操作逻辑与仓位控制策略。必须使用【结构化列表】格式，严禁长篇大论。包含：🔵 首批建仓、🔵 次批加码、🔴 止损方案、🟢 目标止盈 等关键点。"
         }}
         """
         # 记录 Prompt 到日志，方便调试分析建议的质量 (Req: user callback)

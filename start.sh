@@ -20,12 +20,13 @@ fi
 echo "📈 Starting Backend (FastAPI) on port 8000..."
 
 # Find the python/pip executable to use
+ROOT_DIR=$(pwd)
 if [ -d ".venv" ]; then
-    PYTHON_EXEC="./.venv/bin/python3"
-    PIP_EXEC="./.venv/bin/pip3"
+    PYTHON_EXEC="$ROOT_DIR/.venv/bin/python3"
+    PIP_EXEC="$ROOT_DIR/.venv/bin/pip3"
 elif [ -d "backend/venv" ]; then
-    PYTHON_EXEC="./backend/venv/bin/python3"
-    PIP_EXEC="./backend/venv/bin/pip3"
+    PYTHON_EXEC="$ROOT_DIR/backend/venv/bin/python3"
+    PIP_EXEC="$ROOT_DIR/backend/venv/bin/pip3"
 else
     PYTHON_EXEC="python3"
     PIP_EXEC="pip3"

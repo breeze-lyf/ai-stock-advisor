@@ -111,11 +111,21 @@ class AkShareProvider(MarketDataProvider):
                 if info_df is not None and not info_df.empty:
                     data = {row['item']: row['value'] for _, row in info_df.iterrows()}
                     if '最新' in data and data['最新'] != '-':
+                        # 尝试获取涨跌额和涨跌幅
+                        change = 0.0
+                        change_percent = 0.0
+                        try:
+                            if '涨跌额' in data and data['涨跌额'] != '-':
+                                change = float(data['涨跌额'])
+                            if '涨跌幅' in data and data['涨跌幅'] != '-':
+                                change_percent = float(data['涨跌幅'])
+                        except: pass
+
                         return ProviderQuote(
                             ticker=ticker,
                             price=float(data['最新']),
-                            change=0.0,
-                            change_percent=0.0,
+                            change=change,
+                            change_percent=change_percent,
                             name=data.get('股票简称', ticker),
                             market_status=MarketStatus.OPEN,
                             last_updated=datetime.utcnow()
@@ -139,8 +149,8 @@ class AkShareProvider(MarketDataProvider):
                         return ProviderQuote(
                             ticker=ticker,
                             price=float(target['最新价']),
-                            change=float(target['涨跌额']),
-                            change_percent=float(target['涨跌幅']),
+                            change=float(target.get('涨跌额', 0.0)),
+                            change_percent=float(target.get('涨跌幅', 0.0)),
                             name=str(target['名称']),
                             market_status=MarketStatus.OPEN,
                             last_updated=datetime.utcnow()
@@ -148,17 +158,32 @@ class AkShareProvider(MarketDataProvider):
             except Exception as e:
                 logger.warning(f"AkShare Sina spot fallback failed for {ticker}: {e}")
 
-            # --- 4. 最终兜底：利用历史 K 线 ---
+            # --- 4. 最终兜底：利用历史 K 线 (计算涨跌辐) ---
             try:
                 ohlcv = await self.get_ohlcv(ticker, period="1y")
-                if ohlcv:
+                if len(ohlcv) >= 2:
+                    current = ohlcv[-1]
+                    previous = ohlcv[-2]
+                    change = current.close - previous.close
+                    change_percent = (change / previous.close * 100) if previous.close != 0 else 0.0
+                    
+                    return ProviderQuote(
+                        ticker=ticker,
+                        price=current.close,
+                        change=change,
+                        change_percent=change_percent,
+                        name=ticker, 
+                        market_status=MarketStatus.OPEN,
+                        last_updated=datetime.utcnow()
+                    )
+                elif ohlcv:
                     last_bar = ohlcv[-1]
                     return ProviderQuote(
                         ticker=ticker,
                         price=last_bar.close,
                         change=0.0,
                         change_percent=0.0,
-                        name=ticker, # 历史线返回不了名称
+                        name=ticker,
                         market_status=MarketStatus.OPEN,
                         last_updated=datetime.utcnow()
                     )

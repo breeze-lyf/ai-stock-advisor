@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Zap, RefreshCw, Activity, Newspaper, TrendingUp, BarChart3, Clock, AlertCircle, Target, ShieldAlert, ShieldCheck } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
@@ -39,7 +39,6 @@ interface StockDetailProps {
     } | null;
     news?: any[];
 }
-
 export function StockDetail({
     selectedItem,
     onAnalyze,
@@ -50,6 +49,29 @@ export function StockDetail({
 }: StockDetailProps) {
     const [refreshing, setRefreshing] = useState(false);
     const [historyData, setHistoryData] = useState<any[]>([]);
+    const [isScrolled, setIsScrolled] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        const handleScroll = () => {
+            const scrollThreshold = 80;
+            if (container.scrollTop > scrollThreshold) {
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+        };
+
+        container.addEventListener("scroll", handleScroll);
+        // Reset scroll when item changes
+        container.scrollTop = 0;
+        setIsScrolled(false);
+        
+        return () => container.removeEventListener("scroll", handleScroll);
+    }, [selectedItem?.ticker]);
 
     useEffect(() => {
         const loadHistory = async () => {
@@ -101,10 +123,68 @@ export function StockDetail({
     };
 
     return (
-        <div className="col-span-12 lg:col-span-9 bg-white dark:bg-slate-950 p-6 md:p-8 flex flex-col gap-8 overflow-y-auto h-full custom-scrollbar w-full max-w-[1400px] mx-auto border-x border-slate-50 dark:border-slate-900 shadow-xl shadow-slate-200/50 dark:shadow-none">
+        <div 
+            ref={containerRef}
+            className="col-span-12 lg:col-span-9 bg-white dark:bg-slate-950 px-6 md:px-8 pb-12 flex flex-col gap-8 overflow-y-auto h-full custom-scrollbar w-full max-w-[1400px] mx-auto border-x border-slate-50 dark:border-slate-900 shadow-xl shadow-slate-200/50 dark:shadow-none relative"
+        >
+            {/* --- Sticky Bar (Visible only when scrolled) --- */}
+            <div className={clsx(
+                "sticky top-0 z-50 -mx-6 md:-mx-8 px-6 md:px-8 py-2 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 transition-all duration-300",
+                isScrolled ? "opacity-100 translate-y-0 pointer-events-auto shadow-sm" : "opacity-0 translate-y-[-100%] pointer-events-none"
+            )} style={{ marginBottom: "-5.5rem" }}>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 h-14">
+                    <div className="flex items-center gap-4">
+                        <div className="flex flex-col">
+                            <h1 className="text-lg font-black tracking-tighter text-slate-900 dark:text-white leading-tight">
+                                {selectedItem.name || selectedItem.ticker}
+                            </h1>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">
+                                {selectedItem.ticker}
+                            </span>
+                        </div>
+                        
+                        <div className="h-6 w-px bg-slate-100 dark:bg-slate-800 mx-1 hidden md:block" />
 
-            {/* --- Section 1: Executive Identity --- */}
-            <div className="flex flex-col gap-4 border-b border-slate-100 dark:border-slate-800 pb-8">
+                        <div className="flex items-center gap-3">
+                            <span className="text-lg font-black text-slate-800 dark:text-slate-100 tabular-nums leading-none">
+                                ${selectedItem.current_price.toFixed(2)}
+                            </span>
+                            <div className={clsx(
+                                "flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black italic",
+                                (selectedItem.change_percent || 0) >= 0 ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400"
+                            )}>
+                                <TrendingUp className={clsx("h-3 w-3", (selectedItem.change_percent || 0) < 0 && "rotate-180")} />
+                                {selectedItem.change_percent?.toFixed(2)}%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-6">
+                        <div className="hidden sm:flex flex-col items-end">
+                            <span className="text-[8px] font-black uppercase text-slate-400 tracking-tighter">持仓盈亏</span>
+                            <span className={clsx("text-xs font-black tabular-nums", selectedItem.unrealized_pl >= 0 ? "text-emerald-500" : "text-rose-500")}>
+                                {selectedItem.unrealized_pl >= 0 ? "+" : ""}{selectedItem.pl_percent.toFixed(2)}%
+                            </span>
+                        </div>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 px-3 text-[9px] font-black border-2 rounded-lg text-slate-400 hover:text-blue-500 hover:border-blue-500 transition-all duration-300"
+                            onClick={handleRefresh}
+                            disabled={refreshing}
+                        >
+                            <RefreshCw className={clsx("mr-1.5 h-3 w-3", refreshing && "animate-spin")} />
+                            刷新
+                        </Button>
+                    </div>
+                </div>
+            </div>
+
+            {/* --- Section 1: Executive Identity (Full Header, fades out when scrolled) --- */}
+            <div className={clsx(
+                "flex flex-col gap-2 border-b border-slate-100 dark:border-slate-800 pb-8 pt-0.5 transition-all duration-500",
+                isScrolled && "opacity-0 pointer-events-none"
+            )}>
                 <div className="flex justify-between items-end">
                     <div className="flex flex-col">
                         <h1 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-white leading-none">
@@ -145,7 +225,7 @@ export function StockDetail({
                             </span>
                             <span className={clsx(
                                 "text-[10px] font-black px-1.5 py-0.5 rounded-md",
-                                selectedItem.pl_percent >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
+                                selectedItem.pl_percent >= 0 ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400"
                             )}>
                                 {selectedItem.pl_percent >= 0 ? "+" : ""}{selectedItem.pl_percent.toFixed(2)}%
                             </span>

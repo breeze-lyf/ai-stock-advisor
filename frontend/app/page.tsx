@@ -77,6 +77,7 @@ export default function Dashboard() {
 
   // UI State
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [user, setUser] = useState<{ email: string } | null>(null);
 
   const fetchData = async (refresh: boolean = false) => {
     if (!localStorage.getItem("token")) return;
@@ -87,6 +88,11 @@ export default function Dashboard() {
       // Auto-select first only if no ticker in URL and no current selection
       if (data.length > 0 && !urlTicker && !selectedTicker) {
         setSelectedTicker(data[0].ticker);
+      }
+
+      // Fetch user profile if not already loaded
+      if (!user) {
+        import("@/lib/api").then(api => api.getProfile()).then(setUser).catch(console.error);
       }
     } catch (error) {
       console.error("Failed to fetch portfolio", error);
@@ -254,19 +260,27 @@ export default function Dashboard() {
   return (
     <div className="h-screen bg-slate-50 dark:bg-slate-950 flex flex-col overflow-hidden">
       {/* Header */}
-      <header className="flex h-16 items-center px-4 border-b bg-white dark:bg-slate-900 shrink-0 gap-4">
+      <header className="flex h-16 items-center px-4 border-b bg-white dark:bg-slate-900 shrink-0 gap-4 z-50 relative">
         <h1 className="font-bold text-lg">AI Investment Advisor</h1>
         <MarketStatusIndicator />
-        <div className="ml-auto flex gap-2">
-          <Link href="/settings">
-            <Button variant="ghost" size="icon"><Settings className="h-4 w-4" /></Button>
-          </Link>
-          <Button variant="ghost" size="sm" onClick={() => {
-            localStorage.removeItem("token");
-            router.push("/login");
-          }}>
-            Logout
-          </Button>
+        <div className="ml-auto flex items-center gap-4">
+          {user && (
+            <div className="hidden md:flex flex-col items-end">
+              <span className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">Current Account</span>
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{user.email}</span>
+            </div>
+          )}
+          <div className="flex gap-2">
+            <Link href="/settings">
+              <Button variant="ghost" size="icon"><Settings className="h-4 w-4" /></Button>
+            </Link>
+            <Button variant="ghost" size="sm" onClick={() => {
+              localStorage.removeItem("token");
+              router.push("/login");
+            }}>
+              Logout
+            </Button>
+          </div>
         </div>
       </header>
 

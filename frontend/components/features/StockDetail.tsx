@@ -182,7 +182,7 @@ export function StockDetail({
 
             {/* --- Section 1: Executive Identity (Full Header, fades out when scrolled) --- */}
             <div className={clsx(
-                "flex flex-col gap-2 border-b border-slate-100 dark:border-slate-800 pb-8 pt-0.5 transition-all duration-500",
+                "flex flex-col gap-2 border-b border-slate-100 dark:border-slate-800 pb-0 pt-0.5 transition-all duration-500",
                 isScrolled && "opacity-0 pointer-events-none"
             )}>
                 <div className="flex justify-between items-end">
@@ -268,7 +268,37 @@ export function StockDetail({
                 </div>
 
                 {aiData ? (
-                    <div className="space-y-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none animate-in fade-in slide-in-from-bottom-2 duration-700">
+                    (() => {
+                    const stop = aiData.stop_loss_price || 0;
+                    const target = aiData.target_price || 0;
+                    const current = selectedItem.current_price;
+                    const entryLow = aiData.entry_price_low || stop;
+                    const entryHigh = aiData.entry_price_high || entryLow;
+                    
+                    const strategyRange = target - stop;
+                    const buffer = strategyRange * 0.2;
+
+                    let axisMin = stop - buffer;
+                    let axisMax = target + buffer;
+
+                    if (current < axisMin) axisMin = current - buffer;
+                    if (current > axisMax) axisMax = current + buffer;
+
+                    const totalRange = axisMax - axisMin;
+                    const getPos = (val: number) => ((val - axisMin) / totalRange) * 100;
+
+                    const zones = [
+                        { name: "止损", start: axisMin, end: stop, color: "bg-[#F0614D]", textColor: "text-rose-600" },
+                        { name: "建仓", start: stop, end: entryHigh, color: "bg-[#3CC68A]", textColor: "text-emerald-600" },
+                        { name: "观望/持有", start: entryHigh, end: target, color: "bg-[#E8EAED] dark:bg-slate-600", textColor: "text-slate-500" },
+                        { name: "止盈", start: target, end: axisMax, color: "bg-[#3B82F6]", textColor: "text-blue-600" }
+                    ];
+
+                    const activeZone = zones.find(z => current >= z.start && current <= z.end) || 
+                                     (current < axisMin ? zones[0] : zones[zones.length-1]);
+
+                    return (
+                        <div className="space-y-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none animate-in fade-in slide-in-from-bottom-2 duration-700">
 
                         {/* 1. Header & Suggested Action (Top) */}
                         <div className="p-6 md:p-8 bg-slate-50/50 dark:bg-white/5 border-b border-slate-100 dark:border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -278,6 +308,14 @@ export function StockDetail({
                                     {aiData.rr_ratio && (
                                         <span className="text-[9px] font-black bg-blue-600 text-white px-2 py-0.5 rounded-md italic">R/R {aiData.rr_ratio}</span>
                                     )}
+                                    <span className={clsx(
+                                        "text-[9px] font-black px-2 py-0.5 rounded-md border",
+                                        activeZone.textColor.replace("text-", "bg-").replace("600", "50") + "/50",
+                                        activeZone.textColor,
+                                        activeZone.textColor.replace("text-", "border-").replace("600", "200")
+                                    )}>
+                                        当前处于：{activeZone.name}
+                                    </span>
                                 </div>
                                 <div className="flex items-baseline gap-3">
                                     <h3 className={clsx(
@@ -479,7 +517,7 @@ export function StockDetail({
                             )}
                         </div>
                     </div>
-                ) : (
+                )})()) : (
                     <div className="py-12 flex flex-col items-center justify-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-[2rem] text-slate-400 gap-4">
                         <BarChart3 className="h-10 w-10 opacity-10" />
                         <p className="text-[10px] font-bold uppercase tracking-[0.3em]">等待诊断报告生成...</p>

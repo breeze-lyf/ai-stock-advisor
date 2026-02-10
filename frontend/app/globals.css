@@ -137,4 +137,20 @@
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     @apply bg-slate-300 dark:bg-slate-700;
   }
+
+  @keyframes gradient-xy {
+    0%,
+    100% {
+      background-size: 400% 400%;
+      background-position: left center;
+    }
+    50% {
+      background-size: 400% 400%;
+      background-position: right center;
+    }
+  }
+
+  .animate-gradient-slow {
+    animation: gradient-xy 15s ease infinite;
+  }
 }

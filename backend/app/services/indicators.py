@@ -3,6 +3,34 @@ import numpy as np
 
 class TechnicalIndicators:
     @staticmethod
+    def add_historical_indicators(df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Add indicators as columns to the dataframe for time-series charting.
+        """
+        if df.empty or len(df) < 26:
+            return df
+            
+        # Ensure copy to avoid SettingWithCopyWarning
+        df = df.copy()
+        close_prices = df['Close']
+        
+        # 1. MACD
+        ema12 = close_prices.ewm(span=12, adjust=False).mean()
+        ema26 = close_prices.ewm(span=26, adjust=False).mean()
+        df['macd'] = ema12 - ema26
+        df['macd_signal'] = df['macd'].ewm(span=9, adjust=False).mean()
+        df['macd_hist'] = df['macd'] - df['macd_signal']
+        
+        # 2. RSI (14)
+        delta = close_prices.diff()
+        gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+        rs = gain / loss
+        df['rsi'] = 100 - (100 / (1 + rs))
+        
+        return df
+
+    @staticmethod
     def calculate_all(hist: pd.DataFrame) -> dict:
         """
         Calculate all technical indicators from historical data.

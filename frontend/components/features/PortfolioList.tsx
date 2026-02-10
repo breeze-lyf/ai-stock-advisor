@@ -101,7 +101,7 @@ export function PortfolioList({
 
     return (
         <div className="col-span-3 border-r bg-white dark:bg-slate-900 flex flex-col h-full overflow-hidden">
-            <div className="p-4 border-b font-medium text-sm text-slate-500 flex justify-between items-center bg-slate-50/50">
+            <div className="py-3 px-4 border-b font-medium text-sm text-slate-500 flex justify-between items-center bg-slate-50/50">
                 <div className="flex items-center gap-2">
                     <span className="font-bold text-slate-700 dark:text-slate-300">股票列表</span>
                     <Button
@@ -125,7 +125,7 @@ export function PortfolioList({
             </div>
 
             {/* Table Headers */}
-            <div className="grid grid-cols-3 px-4 py-2 border-b text-[10px] uppercase tracking-wider font-bold text-slate-400 bg-slate-50/50 dark:bg-slate-800/20">
+            <div className="grid grid-cols-3 px-4 py-1.5 border-b text-[10px] uppercase tracking-wider font-bold text-slate-400 bg-slate-50/50 dark:bg-slate-800/20">
                 <div
                     className="cursor-pointer hover:text-blue-500 transition-colors flex items-center gap-1"
                     onClick={() => handleSort("ticker")}
@@ -159,7 +159,7 @@ export function PortfolioList({
                     >
                         <div
                             onClick={() => onSelectTicker(item.ticker)}
-                            className="p-4 cursor-pointer relative group"
+                            className="py-2.5 px-4 cursor-pointer relative group"
                         >
                             <div className="grid grid-cols-3 items-center mb-1">
                                 <div className="flex flex-col">
@@ -185,7 +185,7 @@ export function PortfolioList({
                                     {(item.change_percent || 0).toFixed(2)}%
                                 </span>
                             </div>
-                            <div className="flex justify-between items-end mt-1">
+                            <div className="flex justify-between items-end mt-0.5">
                                 <div className="text-[10px] text-slate-400 font-mono flex items-center gap-2">
                                     {item.quantity > 0 ? (
                                         <>

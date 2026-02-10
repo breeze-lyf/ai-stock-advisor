@@ -78,6 +78,13 @@ class AkShareProvider(MarketDataProvider):
         if symbol.startswith(('00', '30', '12')): return f"sz{symbol}"
         return symbol
 
+    def _get_yf_symbol(self, ticker: str) -> str:
+        """转换代码为 YFinance 格式 (如 002050.SZ, 600000.SS)"""
+        symbol = self._normalize_symbol(ticker)
+        if symbol.startswith(('60', '68')): return f"{symbol}.SS"
+        if symbol.startswith(('00', '30')): return f"{symbol}.SZ"
+        return ticker
+
     async def get_quote(self, ticker: str) -> Optional[ProviderQuote]:
         """
         获取 A 股行情。优先使用东财实时快照，确保获取到正确的中文名称。
@@ -105,15 +112,19 @@ class AkShareProvider(MarketDataProvider):
             except Exception as e:
                 logger.debug(f"AkShare spot_em failed for {ticker}: {e}")
 
-            # --- 2. 回退方案：东财个股详情 ---
+            # --- 2. 回退方案：东财个股详情 + 历史 K 线 (补全行情) ---
             try:
+                # 2a. 先拿基础信息 (名称、价格)
                 info_df = await self._run_sync(ak.stock_individual_info_em, symbol=symbol)
                 if info_df is not None and not info_df.empty:
                     data = {row['item']: row['value'] for _, row in info_df.iterrows()}
                     if '最新' in data and data['最新'] != '-':
-                        # 尝试获取涨跌额和涨跌幅
+                        name = data.get('股票简称', ticker)
+                        price = float(data['最新'])
                         change = 0.0
                         change_percent = 0.0
+                        
+                        # 尝试从 info 中直接拿 (通常没有)
                         try:
                             if '涨跌额' in data and data['涨跌额'] != '-':
                                 change = float(data['涨跌额'])
@@ -121,17 +132,50 @@ class AkShareProvider(MarketDataProvider):
                                 change_percent = float(data['涨跌幅'])
                         except: pass
 
+                        # 2b. 如果涨跌幅为 0，大概率是 info 接口不支持，尝试从历史 K 线的最后一条拿
+                        if change_percent == 0.0 or change == 0.0:
+                            try:
+                                # 注意：hist 接口是单标的抓取，比全市场 spot 快且准
+                                hist_df = await self._run_sync(ak.stock_zh_a_hist, symbol=symbol, period="daily", adjust="qfq")
+                                if hist_df is not None and not hist_df.empty:
+                                    latest = hist_df.iloc[-1]
+                                    # 东财历史接口字段：日期, 开盘, 收盘, 最高, 最低, 成交量, 成交额, 振幅, 涨跌幅, 涨跌额, 换手率
+                                    if '收盘' in latest:
+                                        price = float(latest['收盘'])
+                                        change = float(latest.get('涨跌额', 0.0))
+                                        change_percent = float(latest.get('涨跌幅', 0.0))
+                            except Exception as hist_e:
+                                logger.debug(f"Action 2 hist fallback failed: {hist_e}")
+
+                        # 2c. [最终保证] 如果还是没有涨幅，且环境有网络代理干扰，强力启用 yfinance 补全
+                        if change_percent == 0.0:
+                            try:
+                                logger.info(f"Triggering YFinance fallback for A-Share: {ticker}")
+                                import yfinance as yf
+                                yf_symbol = self._get_yf_symbol(ticker)
+                                yf_stock = yf.Ticker(yf_symbol)
+                                # 使用 fast_info 极速获取
+                                yf_p = yf_stock.fast_info.last_price
+                                yf_prev = yf_stock.fast_info.previous_close
+                                if yf_p and yf_prev:
+                                    price = float(yf_p)
+                                    change = float(yf_p - yf_prev)
+                                    change_percent = float(change / yf_prev * 100)
+                                    logger.info(f"YFinance success for {ticker}: {change_percent:.2f}%")
+                            except Exception as yf_e:
+                                logger.debug(f"Action 2c YFinance fallback failed: {yf_e}")
+
                         return ProviderQuote(
                             ticker=ticker,
-                            price=float(data['最新']),
+                            price=price,
                             change=change,
                             change_percent=change_percent,
-                            name=data.get('股票简称', ticker),
+                            name=name,
                             market_status=MarketStatus.OPEN,
                             last_updated=datetime.utcnow()
                         )
             except Exception as e:
-                logger.debug(f"AkShare individual_info_em failed for {ticker}: {e}")
+                logger.debug(f"AkShare individual_info_em strategy failed for {ticker}: {e}")
 
             # --- 3. 备选方案：新浪实时 (Sina Spot) ---
             # 新浪接口通常在 Eastmoney 受限时仍能工作
@@ -357,19 +401,37 @@ class AkShareProvider(MarketDataProvider):
             if df is None or df.empty:
                 return []
             
+            # 转换列名为英文以适配指标计算
+            calc_df = df.rename(columns={
+                '日期': 'Date', '开盘': 'Open', '收盘': 'Close',
+                '最高': 'High', '最低': 'Low', '成交量': 'Volume'
+            })
+            calc_df = TechnicalIndicators.add_historical_indicators(calc_df)
+            
             data = []
             from app.schemas.market_data import OHLCVItem
-            for _, row in df.iterrows():
-                dt = row['日期'] if '日期' in row else row['Date'] if 'Date' in row else None
+            for _, row in calc_df.iterrows():
+                dt = row['Date']
                 if dt is None: continue
                 time_str = dt.strftime('%Y-%m-%d') if not isinstance(dt, str) else str(dt)
+                
+                # Check for NaN
+                rsi_val = float(row['rsi']) if 'rsi' in row and not pd.isna(row['rsi']) else None
+                macd_val = float(row['macd']) if 'macd' in row and not pd.isna(row['macd']) else None
+                macd_signal = float(row['macd_signal']) if 'macd_signal' in row and not pd.isna(row['macd_signal']) else None
+                macd_hist = float(row['macd_hist']) if 'macd_hist' in row and not pd.isna(row['macd_hist']) else None
+
                 data.append(OHLCVItem(
                     time=time_str,
-                    open=float(row['开盘']),
-                    high=float(row['最高']),
-                    low=float(row['最低']),
-                    close=float(row['收盘']),
-                    volume=float(row['成交量']) if '成交量' in row else 0.0
+                    open=float(row['Open']),
+                    high=float(row['High']),
+                    low=float(row['Low']),
+                    close=float(row['Close']),
+                    volume=float(row['Volume']) if 'Volume' in row else 0.0,
+                    rsi=rsi_val,
+                    macd=macd_val,
+                    macd_signal=macd_signal,
+                    macd_hist=macd_hist
                 ))
             return data
         except Exception as e:

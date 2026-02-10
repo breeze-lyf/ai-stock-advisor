@@ -54,3 +54,8 @@ class OHLCVItem(BaseModel):
     low: float
     close: float
     volume: Optional[float] = None
+    # Technical Indicators for Charting
+    rsi: Optional[float] = None
+    macd: Optional[float] = None
+    macd_signal: Optional[float] = None
+    macd_hist: Optional[float] = None

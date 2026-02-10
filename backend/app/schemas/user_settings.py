@@ -17,3 +17,7 @@ class UserProfile(BaseModel):
     has_siliconflow_key: bool
     preferred_data_source: str
     preferred_ai_model: str
+
+class PasswordChange(BaseModel):
+    old_password: str
+    new_password: str

@@ -4,6 +4,7 @@ from typing import Dict, Any, List, Optional
 import os
 import logging
 import asyncio
+import pandas as pd
 
 from app.core.config import settings
 from app.services.market_providers.base import MarketDataProvider
@@ -157,16 +158,29 @@ class YFinanceProvider(MarketDataProvider):
             if hist.empty:
                 return []
                 
+            # Add indicators
+            hist = TechnicalIndicators.add_historical_indicators(hist)
+            
             data = []
             from app.schemas.market_data import OHLCVItem
             for index, row in hist.iterrows():
+                # Check for NaN as indicators might have leading NaNs
+                rsi_val = float(row['rsi']) if 'rsi' in row and not pd.isna(row['rsi']) else None
+                macd_val = float(row['macd']) if 'macd' in row and not pd.isna(row['macd']) else None
+                macd_signal = float(row['macd_signal']) if 'macd_signal' in row and not pd.isna(row['macd_signal']) else None
+                macd_hist = float(row['macd_hist']) if 'macd_hist' in row and not pd.isna(row['macd_hist']) else None
+
                 data.append(OHLCVItem(
                     time=index.strftime('%Y-%m-%d'),
                     open=float(row['Open']),
                     high=float(row['High']),
                     low=float(row['Low']),
                     close=float(row['Close']),
-                    volume=float(row['Volume']) if 'Volume' in row else 0.0
+                    volume=float(row['Volume']) if 'Volume' in row else 0.0,
+                    rsi=rsi_val,
+                    macd=macd_val,
+                    macd_signal=macd_signal,
+                    macd_hist=macd_hist
                 ))
             return data
         except Exception as e:

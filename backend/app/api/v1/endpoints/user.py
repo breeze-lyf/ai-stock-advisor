@@ -4,7 +4,7 @@ from sqlalchemy.future import select
 from app.api.deps import get_current_user
 from app.core.database import get_db
 from app.models.user import User
-from app.schemas.user_settings import UserSettingsUpdate, UserProfile
+from app.schemas.user_settings import UserSettingsUpdate, UserProfile, PasswordChange
 from app.core import security
 
 router = APIRouter()
@@ -21,6 +21,22 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
         "preferred_data_source": current_user.preferred_data_source or "ALPHA_VANTAGE",
         "preferred_ai_model": current_user.preferred_ai_model or "gemini-1.5-flash"
     }
+
+@router.put("/password")
+async def change_password(
+    data: PasswordChange,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    # Verify old password
+    if not security.verify_password(data.old_password, current_user.hashed_password):
+        raise HTTPException(status_code=400, detail="Incorrect old password")
+    
+    # Update to new password
+    current_user.hashed_password = security.get_password_hash(data.new_password)
+    
+    await db.commit()
+    return {"status": "success", "message": "Password updated successfully"}
 
 @router.put("/settings", response_model=UserProfile)
 async def update_user_settings(

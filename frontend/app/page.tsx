@@ -16,6 +16,8 @@ import { MarketStatusIndicator } from "@/components/features/MarketStatusIndicat
 import { PortfolioList } from "@/components/features/PortfolioList";
 import { StockDetail } from "@/components/features/StockDetail";
 import { SearchDialog } from "@/components/features/SearchDialog";
+import { UserMenu } from "@/components/features/UserMenu";
+import { UserProfile } from "@/types";
 
 export default function Dashboard() {
   const { isAuthenticated } = useAuth();
@@ -77,7 +79,7 @@ export default function Dashboard() {
 
   // UI State
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [user, setUser] = useState<{ email: string } | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
 
   const fetchData = async (refresh: boolean = false) => {
     if (!localStorage.getItem("token")) return;
@@ -264,23 +266,7 @@ export default function Dashboard() {
         <h1 className="font-bold text-lg">AI Investment Advisor</h1>
         <MarketStatusIndicator />
         <div className="ml-auto flex items-center gap-4">
-          {user && (
-            <div className="hidden md:flex flex-col items-end">
-              <span className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">Current Account</span>
-              <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{user.email}</span>
-            </div>
-          )}
-          <div className="flex gap-2">
-            <Link href="/settings">
-              <Button variant="ghost" size="icon"><Settings className="h-4 w-4" /></Button>
-            </Link>
-            <Button variant="ghost" size="sm" onClick={() => {
-              localStorage.removeItem("token");
-              router.push("/login");
-            }}>
-              Logout
-            </Button>
-          </div>
+          {user && <UserMenu user={user} />}
         </div>
       </header>
 

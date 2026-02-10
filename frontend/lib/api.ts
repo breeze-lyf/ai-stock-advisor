@@ -83,6 +83,16 @@ export const updateSettings = async (settings: UserSettingsUpdate): Promise<User
     return response.data;
 };
 
+export interface PasswordChange {
+    old_password: string;
+    new_password: string;
+}
+
+export const changePassword = async (data: PasswordChange) => {
+    const response = await api.put("/api/user/password", data);
+    return response.data;
+};
+
 export const fetchStockNews = async (ticker: string) => {
     const response = await api.get(`/api/portfolio/${ticker}/news`);
     return response.data;

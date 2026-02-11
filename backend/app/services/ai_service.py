@@ -21,16 +21,16 @@ class AIService:
         
         # 映射模型 ID (同步最新 SiliconFlow 命名规范: 使用 Qwen3-VL-Thinking)
         model_map = {
-            "deepseek-v3": "deepseek-ai/DeepSeek-V3",
-            "deepseek-r1": "deepseek-ai/DeepSeek-R1",
+            "deepseek-v3": "Pro/deepseek-ai/DeepSeek-V3.2",
+            "deepseek-r1": "Pro/deepseek-ai/DeepSeek-R1",
             "qwen-3-vl-thinking": "Qwen/Qwen3-VL-235B-A22B-Thinking",
         }
         # 如果是 qwen 关键字，直接映射到 Qwen3-VL-Thinking
         model_id = model_map.get(model)
         if not model_id:
-            if "deepseek" in model: model_id = "deepseek-ai/DeepSeek-V3"
+            if "deepseek" in model: model_id = "Pro/deepseek-ai/DeepSeek-V3.2"
             elif "qwen" in model: model_id = "Qwen/Qwen3-VL-235B-A22B-Thinking"
-            else: model_id = "deepseek-ai/DeepSeek-V3"
+            else: model_id = "Pro/deepseek-ai/DeepSeek-V3.2"
 
         payload = {
             "model": model_id,
@@ -112,17 +112,30 @@ class AIService:
             "sentiment_score": 0-100 (量化评分：0=极度看空, 50=中性, 100=极度看多), 
             "summary_status": "4-6字定调",
             "immediate_action": "针对当下的决策建议 (例如：逢低买入/趋势做多/持仓观望/分批减持)",
-            "entry_price_low": "[CRITICAL] 建议买入区间的下限 (Float, 例如：50.50)。必须基于技术位（如布林下轨或支撑位）。",
-            "entry_price_high": "[CRITICAL] 建议买入区间的上限 (Float, 例如：52.00)。必须基于技术位。",
-            "target_price": "预期的止盈位 (Float)",
+            "entry_price_low": "[CRITICAL] 建议买入区间的下限 (Float, 例如：50.50)。必须基于技术支撑位（如布林下轨、MA50、关键支撑位等）。严禁直接使用当前实时价格。",
+            "entry_price_high": "[CRITICAL] 建议买入区间的上限 (Float, 例如：52.00)。必须基于技术参考位（如布林中轨、MA20、关键阻力位等）。**严禁等于当前实时价格**——建仓区间应反映技术面上的理想介入范围，而不是'现在就能买到的价格'。",
+            "target_price": "预期的止盈位 (Float)。必须基于技术阻力位或布林上轨等。",
             "stop_loss_price": "[CRITICAL] 预期的止损位 (Float)。必须严格低于 entry_price_low (通常建议低 2%-5% 或设在更低一层的关键支撑位)，严禁与建仓下限重叠。",
             "risk_level": "风险等级：低/中/高",
             "investment_horizon": "建议持仓期限",
             "confidence_level": 0-100 (AI 信心指数),
-            "rr_ratio": "预估盈亏比",
             "technical_analysis": "核心技术位解读（必须分析 RSI, MACD, MA50 等数值）",
             "fundamental_news": "基础面/消息面深度解读",
-            "action_advice": "详细的操作逻辑与仓位控制策略。必须使用【结构化列表】格式，严禁长篇大论。包含：🔵 首批建仓、🔵 次批加码、🔴 止损方案、🟢 目标止盈 等关键点。"
+            "action_advice": "[CRITICAL] 严格按照以下 Markdown 格式生成详细的操作建议，并对关键数值（价格、仓位、止损位）使用 **加粗**：
+            
+### 1. 交易综述 (Executive Summary)
+描述当前市场定性（Context & Trend）和整体建议。例如：当前股价 **$价格** 处于 **[阶段定义]**。建议 **[核心策略]**。
+
+### 2. 结构化操作计划 (Action Plan)
+* **首批建仓 (Position 1):** **$建仓位1** (交易触发条件 Trigger，建议仓位 **Position Size**)
+* **次批加码 (Position 2):** **$建仓位2** (触发条件及仓位)
+* **止损方案 (Stop Loss):** **$止损价** (失效条件 Invalidation：明确说明什么情况下该策略失效)
+* **止盈目标 (Target):** **第一目标 $价格**，**第二目标 $价格**。
+
+### 3. 多维逻辑支撑 (Rationale)
+* **技术面:** (核心技术指标信号)
+* **基本面/情绪面:** (支撑研判的非技术因素)
+"
         }}
         """
         # 记录 Prompt 到日志，方便调试分析建议的质量 (Req: user callback)

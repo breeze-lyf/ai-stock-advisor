@@ -324,6 +324,7 @@ async def analyze_stock(
         if not new_report.entry_zone:
             new_report.entry_zone = extract_entry_zone_fallback(new_report.action_advice)
         db.add(new_report)
+
         await db.commit()
         await db.refresh(new_report)
     except Exception as e:

@@ -1,6 +1,10 @@
 import { components } from "./schema";
 
-export type PortfolioItem = components["schemas"]["PortfolioItem"];
+export type PortfolioItem = components["schemas"]["PortfolioItem"] & {
+    macd_cross?: string | null;
+    macd_is_new_cross?: boolean;
+    risk_reward_ratio?: number | null;
+};
 export type PortfolioCreate = components["schemas"]["PortfolioCreate"];
 export interface AnalysisResponse {
     ticker: string;

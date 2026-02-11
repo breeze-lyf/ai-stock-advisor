@@ -34,6 +34,8 @@ class PortfolioItem(BaseModel):
     macd_signal: Optional[float] = None
     macd_hist: Optional[float] = None
     macd_hist_slope: Optional[float] = None
+    macd_cross: Optional[str] = None
+    macd_is_new_cross: bool = False
     bb_upper: Optional[float] = None
     bb_middle: Optional[float] = None
     bb_lower: Optional[float] = None
@@ -50,6 +52,7 @@ class PortfolioItem(BaseModel):
     resistance_2: Optional[float] = None
     support_1: Optional[float] = None
     support_2: Optional[float] = None
+    risk_reward_ratio: Optional[float] = None
     
     change_percent: Optional[float] = 0.0
 

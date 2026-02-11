@@ -1,3 +1,4 @@
+import time
 import akshare as ak
 import pandas as pd
 import logging
@@ -37,6 +38,20 @@ requests.utils.get_environ_proxies = _patched_get_environ_proxies
 logger = logging.getLogger(__name__)
 
 class AkShareProvider(MarketDataProvider):
+    # 类级内存缓存 (Class-level In-memory Cache)
+    # 用于缓存全市场快照，避免持仓列表刷新时重复请求 (Cache full market snapshot)
+    _cached_spot_df = None
+    _last_spot_update = 0
+    _async_lock = None  # 将在运行时初始化为 asyncio.Lock()
+    _CACHE_TTL = 60  # 缓存有效期 60 秒 (Seconds)
+
+    @classmethod
+    def _get_lock(cls):
+        """延迟初始化 asyncio.Lock，确保在正确的事件循环中创建 (Lazy initialization)"""
+        if cls._async_lock is None:
+            cls._async_lock = asyncio.Lock()
+        return cls._async_lock
+
     async def _run_sync(self, func, *args, **kwargs):
         """
         在线程池中运行同步函数。
@@ -64,7 +79,7 @@ class AkShareProvider(MarketDataProvider):
                 if old_https: os.environ['HTTPS_PROXY'] = old_https
                 if old_all: os.environ['ALL_PROXY'] = old_all
 
-        loop = asyncio.get_loop() if hasattr(asyncio, 'get_loop') else asyncio.get_event_loop()
+        loop = asyncio.get_event_loop()
         return await loop.run_in_executor(None, run_isolated)
 
     def _normalize_symbol(self, ticker: str) -> str:
@@ -88,13 +103,32 @@ class AkShareProvider(MarketDataProvider):
     async def get_quote(self, ticker: str) -> Optional[ProviderQuote]:
         """
         获取 A 股行情。优先使用东财实时快照，确保获取到正确的中文名称。
+        针对全市场快照接口添加了 60s 内存缓存以优化列表刷新性能。
+        使用 asyncio.Lock 避免由于在持有 threading.Lock 时 await 导致的死锁。
         """
         symbol = self._normalize_symbol(ticker)
         try:
             # --- 1. 优先方案：东财全市场实时快照 (EM Spot) ---
             # 这种方式最稳，因为它一次性返回名称、价格、涨跌幅
             try:
-                spot_df = await self._run_sync(ak.stock_zh_a_spot_em)
+                spot_df = None
+                now = time.time()
+                
+                # 双重检查锁定模式实现线程安全的缓存访问 (Safe Cache Access)
+                if AkShareProvider._cached_spot_df is not None and (now - AkShareProvider._last_spot_update) < AkShareProvider._CACHE_TTL:
+                    spot_df = AkShareProvider._cached_spot_df
+                else:
+                    async with self._get_lock():
+                        # 再次检查，防止竞争
+                        if AkShareProvider._cached_spot_df is not None and (time.time() - AkShareProvider._last_spot_update) < AkShareProvider._CACHE_TTL:
+                            spot_df = AkShareProvider._cached_spot_df
+                        else:
+                            logger.info("AkShare Cache Expired or Empty. Fetching full market spot data...")
+                            spot_df = await self._run_sync(ak.stock_zh_a_spot_em)
+                            if spot_df is not None and not spot_df.empty:
+                                AkShareProvider._cached_spot_df = spot_df
+                                AkShareProvider._last_spot_update = time.time()
+
                 if spot_df is not None and not spot_df.empty:
                     # 匹配代码
                     row = spot_df[spot_df['代码'] == symbol]
@@ -110,7 +144,7 @@ class AkShareProvider(MarketDataProvider):
                             last_updated=datetime.utcnow()
                         )
             except Exception as e:
-                logger.debug(f"AkShare spot_em failed for {ticker}: {e}")
+                logger.debug(f"AkShare spot_em strategy failed for {ticker}: {e}")
 
             # --- 2. 回退方案：东财个股详情 + 历史 K 线 (补全行情) ---
             try:
@@ -227,7 +261,7 @@ class AkShareProvider(MarketDataProvider):
                         price=last_bar.close,
                         change=0.0,
                         change_percent=0.0,
-                        name=ticker,
+                        name=None, 
                         market_status=MarketStatus.OPEN,
                         last_updated=datetime.utcnow()
                     )
@@ -309,6 +343,7 @@ class AkShareProvider(MarketDataProvider):
             return None
 
     async def get_historical_data(self, ticker: str, interval: str = "1d", period: str = "1mo") -> Optional[Dict[str, Any]]:
+        import pandas as pd
         try:
             symbol = self._normalize_symbol(ticker)
             # 优先尝试东财 (Eastmoney)
@@ -348,6 +383,7 @@ class AkShareProvider(MarketDataProvider):
             return None
 
     async def get_news(self, ticker: str) -> List[ProviderNews]:
+        import pandas as pd
         try:
             symbol = self._normalize_symbol(ticker)
             news_df = await self._run_sync(ak.stock_news_em, symbol=symbol)
@@ -368,6 +404,7 @@ class AkShareProvider(MarketDataProvider):
 
     async def get_ohlcv(self, ticker: str, interval: str = "1d", period: str = "1y") -> List[Any]:
         """获取原始 K 线数据用于图表展示"""
+        import pandas as pd
         try:
             symbol = self._normalize_symbol(ticker)
             from datetime import timedelta
@@ -415,12 +452,12 @@ class AkShareProvider(MarketDataProvider):
                 if dt is None: continue
                 time_str = dt.strftime('%Y-%m-%d') if not isinstance(dt, str) else str(dt)
                 
-                # Check for NaN
+                # Mapping with NaN checks
                 rsi_val = float(row['rsi']) if 'rsi' in row and not pd.isna(row['rsi']) else None
                 macd_val = float(row['macd']) if 'macd' in row and not pd.isna(row['macd']) else None
                 macd_signal = float(row['macd_signal']) if 'macd_signal' in row and not pd.isna(row['macd_signal']) else None
                 macd_hist = float(row['macd_hist']) if 'macd_hist' in row and not pd.isna(row['macd_hist']) else None
-
+                
                 data.append(OHLCVItem(
                     time=time_str,
                     open=float(row['Open']),
@@ -431,7 +468,10 @@ class AkShareProvider(MarketDataProvider):
                     rsi=rsi_val,
                     macd=macd_val,
                     macd_signal=macd_signal,
-                    macd_hist=macd_hist
+                    macd_hist=macd_hist,
+                    bb_upper=float(row['bb_upper']) if 'bb_upper' in row and not pd.isna(row['bb_upper']) else None,
+                    bb_middle=float(row['bb_middle']) if 'bb_middle' in row and not pd.isna(row['bb_middle']) else None,
+                    bb_lower=float(row['bb_lower']) if 'bb_lower' in row and not pd.isna(row['bb_lower']) else None,
                 ))
             return data
         except Exception as e:

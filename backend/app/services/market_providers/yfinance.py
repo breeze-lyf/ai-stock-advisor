@@ -180,7 +180,10 @@ class YFinanceProvider(MarketDataProvider):
                     rsi=rsi_val,
                     macd=macd_val,
                     macd_signal=macd_signal,
-                    macd_hist=macd_hist
+                    macd_hist=macd_hist,
+                    bb_upper=float(row['bb_upper']) if 'bb_upper' in row and not pd.isna(row['bb_upper']) else None,
+                    bb_middle=float(row['bb_middle']) if 'bb_middle' in row and not pd.isna(row['bb_middle']) else None,
+                    bb_lower=float(row['bb_lower']) if 'bb_lower' in row and not pd.isna(row['bb_lower']) else None,
                 ))
             return data
         except Exception as e:
@@ -214,7 +217,7 @@ class YFinanceProvider(MarketDataProvider):
                         ticker=ticker,
                         price=float(price),
                         change_percent=float(info.get('regularMarketChangePercent', 0)),
-                        name=info.get('shortName', ticker),
+                        name=info.get('shortName'),
                         market_status=MarketStatus.OPEN,
                         last_updated=datetime.utcnow()
                     )

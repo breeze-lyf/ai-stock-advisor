@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 interface AuthContextType {
     token: string | null;
@@ -12,17 +12,25 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const PUBLIC_ROUTES = ["/login", "/register", "/password"];
+
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [token, setToken] = useState<string | null>(null);
     const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
         // Load token from localStorage on mount
         const storedToken = localStorage.getItem("token");
         if (storedToken) {
             setToken(storedToken);
+        } else {
+            // No token found
+            if (!PUBLIC_ROUTES.includes(pathname)) {
+                router.push("/login");
+            }
         }
-    }, []);
+    }, [pathname, router]);
 
     const login = (newToken: string) => {
         localStorage.setItem("token", newToken);

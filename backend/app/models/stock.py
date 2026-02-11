@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, DateTime, Enum, ForeignKey
+from sqlalchemy import Column, String, Float, DateTime, Enum, ForeignKey, Boolean
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.core.database import Base
@@ -50,6 +50,8 @@ class MarketDataCache(Base):
     macd_signal = Column(Float, nullable=True) # 信号线
     macd_hist = Column(Float, nullable=True)   # 柱状图
     macd_hist_slope = Column(Float, nullable=True) # 柱线斜率 (一阶导数)
+    macd_cross = Column(String, nullable=True)     # MACD 交叉状态 (GOLDEN/DEATH/NONE)
+    macd_is_new_cross = Column(Boolean, default=False) # 是否为新产生的交叉 (用于 UI 动画)
     
     # 布林带指标
     bb_upper = Column(Float, nullable=True)    # 上轨
@@ -74,6 +76,7 @@ class MarketDataCache(Base):
     resistance_2 = Column(Float, nullable=True)   # 阻力位 R2
     support_1 = Column(Float, nullable=True)      # 支撑位 S1
     support_2 = Column(Float, nullable=True)      # 支撑位 S2
+    risk_reward_ratio = Column(Float, nullable=True) # 盈亏比 (Reward/Risk Ratio)
     
     market_status = Column(String, default=MarketStatus.CLOSED.value) # 市场状态
     last_updated = Column(DateTime, default=datetime.utcnow, index=True) # 最后更新时间

@@ -12,62 +12,71 @@ from app.schemas.market_data import FullMarketData, ProviderTechnical
 
 logger = logging.getLogger(__name__)
 
-# 市场数据分析中台：负责协调多个数据源、处理缓存逻辑并更新数据库
+# 市场数据分析中台 (Market Data Service Hub)
+# 职责：负责协调多个数据源、处理缓存逻辑、并行抓取数据并持久化到数据库
 class MarketDataService:
     @staticmethod
     async def get_real_time_data(ticker: str, db: AsyncSession, preferred_source: str = "YFINANCE", force_refresh: bool = False):
         """
-        获取单支股票的实时/最新数据。
-        策略：优先检查本地缓存 -> 缓存失效则从外部 API 抓取 -> 更新数据库。
+        获取单支股票的实时/最新数据 (Get Real-time Data for a Ticker)
+        
+        策略 (Strategy)：
+        1. 优先检查本地数据库缓存 (Check local cache)
+        2. 若缓存未过期且非强制刷新，直接返回 (Return if valid cache)
+        3. 否则从外部 API 并行抓取 (Else fetch from providers in parallel)
+        4. 持久化到数据库并返回更新后的对象 (Update DB and return)
         """
-        # 1. 检查本地数据库缓存
+        # 1. 检查本地数据库缓存 (Step 1: Local Cache Check)
         stmt = select(MarketDataCache).where(MarketDataCache.ticker == ticker)
         result = await db.execute(stmt)
         cache = result.scalar_one_or_none()
 
         now = datetime.utcnow()
-        # 如果不是强制刷新，且缓存时间在 1 分钟内，则直接返回缓存
+        # 默认缓存过期时间为 1 分钟，保证高频行情刷新不触发外部 API 限制
         if not force_refresh and cache and (now - cache.last_updated) < timedelta(minutes=1):
             return cache
 
-        # 2. 从数据提供商获取数据 (YFinance, AkShare 等)
+        # 2. 从数据提供商抓取数据 (Step 2: Fetching from Providers)
+        # 支持 YFinance, AkShare 等多源动态切换
         data = await MarketDataService._fetch_from_providers(ticker, preferred_source)
 
-        # 3. 如果 API 请求失败且没有缓存，启用模拟模式（保证前端不报错）
+        # 3. 处理故障转移/兜底 (Step 3: Fault Tolerance / Fallback)
+        # 如果 API 请求全线失败且无历史缓存，启用“模拟模式”生成随机波动数据，保证前端 UI 完整性
         if not data:
             cache = await MarketDataService._handle_simulation(ticker, cache, now)
             await db.commit()
             return cache
 
-        # 4. 将抓取到的数据更新到数据库中并返回
+        # 4. 持久化数据 (Step 4: Persistence)
+        # 将抓取到的报价、基础面、技术指标和新闻同步到 Stock 和 MarketDataCache 表中
         return await MarketDataService._update_database(ticker, data, cache, db, now)
 
     @staticmethod
     async def _fetch_from_providers(ticker: str, preferred_source: str) -> Optional[FullMarketData]:
         """
-        根据策略调用不同的 Provider 来获取最全的股票数据
+        根据策略调用不同的 Provider 抓取数据 (Coordinate provider fetching)
+        - 优先尝试 Provider 的综合抓取接口 (get_full_data)
+        - 失败后分流并行请求行情、指标、基础面及新闻
         """
-        # 利用工厂模式获取对应的 Provider 实例
         provider = ProviderFactory.get_provider(ticker, preferred_source)
         
-        # 尝试使用 Provider 预定义的“全量抓取”优化方法
+        # 针对 YFinance 等支持批量字段请求的 Provider 优化
         result = await provider.get_full_data(ticker)
         if result:
             return result
 
-        # 如果没有一键抓取接口，则并行发起多个独立请求（报价、财务、指标、新闻）
+        # 并行任务调度：利用 asyncio.gather 极大缩短 IO 等待时间
         try:
             quote_task = provider.get_quote(ticker)
             fundamental_task = provider.get_fundamental_data(ticker)
             indicator_task = provider.get_historical_data(ticker, period="200d")
             
-            # AI 新闻增强：如果配置了 Tavily，优先使用 AI 搜索获取高质量总结
+            # AI 增强搜索：若 Tavily 可用，优先使用 AI 搜索获取高质量新闻总结
             from app.services.market_providers.tavily import TavilyProvider
             tavily = TavilyProvider()
             news_task = tavily.get_news(ticker) if tavily.api_key else provider.get_news(ticker)
             
-            # 使用 asyncio.gather 并行执行所有任务，提高效率。
-            # 增加 15s 整体超时，防止部分数据源（尤其是 A 股）挂起导致后端无响应。
+            # 引入 15.0s 超时保护，防止单一数据源（如 AkShare 的爬虫接口）阻塞全局响应
             try:
                 res = await asyncio.wait_for(
                     asyncio.gather(quote_task, fundamental_task, indicator_task, news_task, return_exceptions=True),
@@ -76,12 +85,10 @@ class MarketDataService:
                 quote, fundamental, indicators, news = res
             except asyncio.TimeoutError:
                 logger.warning(f"Timeout fetching data for {ticker}, partial data may be returned.")
-                # 如果超时，尝试只获取最核心的报价
                 quote = await quote_task if not quote_task.done() else quote_task.result()
                 fundamental, indicators, news = None, None, []
             
             if quote and not isinstance(quote, Exception):
-                # 只要有了基础报价 (quote)，就认为本次抓取是成功的
                 return FullMarketData(
                     quote=quote,
                     fundamental=fundamental if not isinstance(fundamental, Exception) else None,
@@ -91,7 +98,7 @@ class MarketDataService:
         except Exception as e:
             logger.error(f"Error fetching from provider {type(provider).__name__} for {ticker}: {e}")
 
-        # 兜底转换：如果首选源（如 AlphaVantage）失败，自动尝试使用 YFinance
+        # 跨源自动备份 (Cross-source Fallback)
         if preferred_source != "YFINANCE":
             yf_provider = ProviderFactory.get_provider(ticker, "YFINANCE")
             return await yf_provider.get_full_data(ticker)
@@ -101,26 +108,31 @@ class MarketDataService:
     @staticmethod
     async def _update_database(ticker: str, data: FullMarketData, cache: Optional[MarketDataCache], db: AsyncSession, now: datetime):
         """
-        将 FullMarketData (Schema) 的数据持久化到数据库 (Models)
+        持久化数据映射 (Map Schema to DB Models)
+        - 职责：维护 Stock (基础资料) 和 MarketDataCache (实时状态) 的一致性
         """
-        # 1. 确保 Stock 基础资料存在
+        # 1. 维护 Stock 资料存根 (Maintain Stock stub)
         stock_stmt = select(Stock).where(Stock.ticker == ticker)
         stock_result = await db.execute(stock_stmt)
         stock = stock_result.scalar_one_or_none()
         
         if not stock:
-            # 如果是第一次添加这支股票，初始化基础信息
+            # 自动初始化新标的
             stock = Stock(ticker=ticker, name=data.quote.name or ticker)
             db.add(stock)
             await db.commit()
             stock_result = await db.execute(stock_stmt)
             stock = stock_result.scalar_one_or_none()
         else:
-            # 存在则按需更新名称
-            if data.quote.name:
-                stock.name = data.quote.name
+            # 策略：仅在新名称优于旧名称（非 Ticker 且非空）或者旧名称原本就是代码时才覆盖
+            new_name = data.quote.name
+            if new_name and new_name != ticker:
+                stock.name = new_name
+            elif not stock.name or stock.name == ticker:
+                if new_name:
+                    stock.name = new_name
 
-        # 2. 更新财务基础面数据
+        # 2. 同步基础面 (Synchronize Fundamental data)
         fundamental = data.fundamental
         if fundamental:
             stock.sector = fundamental.sector or stock.sector
@@ -134,7 +146,7 @@ class MarketDataService:
             stock.fifty_two_week_high = fundamental.fifty_two_week_high or stock.fifty_two_week_high
             stock.fifty_two_week_low = fundamental.fifty_two_week_low or stock.fifty_two_week_low
 
-        # 3. 更新缓存表（实时报价与指标）
+        # 3. 同步缓存状态 (Synchronize Real-time Cache)
         if not cache:
             cache = MarketDataCache(ticker=ticker)
             db.add(cache)
@@ -142,7 +154,7 @@ class MarketDataService:
         cache.current_price = data.quote.price
         cache.change_percent = data.quote.change_percent
         
-        # 映射技术指标
+        # 复杂技术指标映射 (Map Technical Indicators)
         if data.technical and data.technical.indicators:
             ind = data.technical.indicators
             cache.rsi_14 = ind.get('rsi_14', cache.rsi_14)
@@ -161,19 +173,22 @@ class MarketDataService:
             cache.j_line = ind.get('j_line', cache.j_line)
             cache.volume_ma_20 = ind.get('volume_ma_20', cache.volume_ma_20)
             cache.volume_ratio = ind.get('volume_ratio', cache.volume_ratio)
-            # 新增专业指标映射
             cache.macd_hist_slope = ind.get('macd_hist_slope', cache.macd_hist_slope)
+            cache.macd_cross = ind.get('macd_cross', cache.macd_cross) # Mapping new field
+            cache.macd_is_new_cross = ind.get('macd_is_new_cross', cache.macd_is_new_cross)
             cache.adx_14 = ind.get('adx_14', cache.adx_14)
             cache.pivot_point = ind.get('pivot_point', cache.pivot_point)
             cache.resistance_1 = ind.get('resistance_1', cache.resistance_1)
             cache.resistance_2 = ind.get('resistance_2', cache.resistance_2)
             cache.support_1 = ind.get('support_1', cache.support_1)
             cache.support_2 = ind.get('support_2', cache.support_2)
+            cache.risk_reward_ratio = ind.get('risk_reward_ratio', cache.risk_reward_ratio)
 
         cache.market_status = MarketStatus.OPEN
         cache.last_updated = now
 
-        # 4. 更新新闻（采用 upsert 逻辑）
+        # 4. 新闻增量同步 (Incremental News Synchronization)
+        # 策略：根据 Link 的 MD5 哈希作为去重唯一 ID (Upsert logic)
         if data.news:
             from sqlalchemy.dialects.sqlite import insert
             for n in data.news:
@@ -200,15 +215,18 @@ class MarketDataService:
     @staticmethod
     async def _handle_simulation(ticker: str, cache: Optional[MarketDataCache], now: datetime):
         """
-        在网络请求不可用时，通过模拟波动的形式保证 UI 仍然有数据展示
+        故障自动模拟波段 (Simulation Mode)
+        - 场景：在网络隔离或 API 受限严重时启用，防止 UI 渲染“白屏”或异常断层
         """
         import random
         if cache:
+            # 基于前序价格进行微小布朗运动模拟
             fluctuation = 1 + (random.uniform(-0.0005, 0.0005))
             cache.current_price *= fluctuation
             cache.last_updated = now
             return cache
         
+        # 纯虚拟初始化
         return MarketDataCache(
             ticker=ticker,
             current_price=100.0 * (1 + random.uniform(-0.01, 0.01)),

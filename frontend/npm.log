@@ -1,0 +1,54 @@
+
+> frontend@0.1.0 dev
+> next dev --port 3000
+
+▲ Next.js 16.1.2 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.10.13.87:3000
+
+✓ Starting...
+✓ Ready in 619ms
+ GET /?ticker=002970 200 in 390ms (compile: 244ms, render: 146ms)
+ GET /?ticker=ASTS 200 in 393ms (compile: 266ms, render: 128ms)
+ GET /sw.js 404 in 73ms (compile: 48ms, render: 25ms)
+ GET /?ticker=002970 200 in 64ms (compile: 9ms, render: 55ms)
+ GET /sw.js 404 in 21ms (compile: 3ms, render: 18ms)
+ GET /?ticker=SNDK 200 in 11ms (compile: 3ms, render: 9ms)
+ GET /?ticker=SLV 200 in 24ms (compile: 7ms, render: 17ms)
+ GET /?ticker=SNDK 200 in 22ms (compile: 5ms, render: 17ms)
+ GET /?ticker=TSLA 200 in 22ms (compile: 6ms, render: 16ms)
+ GET /?ticker=RKLB 200 in 23ms (compile: 6ms, render: 18ms)
+ GET /?ticker=RKLB 200 in 106ms (compile: 15ms, render: 92ms)
+ GET /sw.js 404 in 28ms (compile: 6ms, render: 23ms)
+✓ Compiled in 376ms
+ GET /?ticker=ASTS 200 in 73ms (compile: 57ms, render: 16ms)
+ GET /?ticker=ASTS 200 in 150ms (compile: 16ms, render: 134ms)
+ GET /?ticker=AAPL 200 in 15ms (compile: 4ms, render: 11ms)
+ GET /?ticker=ASTS 200 in 26ms (compile: 6ms, render: 20ms)
+ GET /?ticker=NBIS 200 in 24ms (compile: 5ms, render: 19ms)
+ GET /?ticker=NDX 200 in 27ms (compile: 10ms, render: 17ms)
+ GET /?ticker=NBIS 200 in 19ms (compile: 5ms, render: 14ms)
+ GET /?ticker=NBIS 200 in 54ms (compile: 14ms, render: 40ms)
+ GET /?ticker=AAPL 200 in 18ms (compile: 5ms, render: 13ms)
+ GET /?ticker=AAPL 200 in 40ms (compile: 22ms, render: 18ms)
+ GET /?ticker=AAPL 200 in 168ms (compile: 4ms, render: 164ms)
+ GET /sw.js 404 in 52ms (compile: 29ms, render: 22ms)
+ GET /?ticker=AAPL 200 in 53ms (compile: 12ms, render: 40ms)
+ GET /?ticker=SNDK 200 in 23ms (compile: 4ms, render: 19ms)
+ GET /?ticker=SLV 200 in 24ms (compile: 8ms, render: 17ms)
+ GET /?ticker=SIDU 200 in 21ms (compile: 7ms, render: 15ms)
+ GET /?ticker=AAPL 200 in 50ms (compile: 9ms, render: 41ms)
+ GET /?ticker=AAPL 200 in 43ms (compile: 4ms, render: 39ms)
+ GET /?ticker=AAPL 200 in 19ms (compile: 1141µs, render: 18ms)
+ GET /sw.js 404 in 23ms (compile: 4ms, render: 19ms)
+ GET /?ticker=AAPL 200 in 22ms (compile: 3ms, render: 19ms)
+ GET /?ticker=AAPL 200 in 18ms (compile: 919µs, render: 17ms)
+ GET /?ticker=AAPL 200 in 19ms (compile: 1052µs, render: 18ms)
+ GET /?ticker=AAPL 200 in 21ms (compile: 1297µs, render: 20ms)
+ GET /?ticker=AAPL 200 in 19ms (compile: 1270µs, render: 18ms)
+ GET /sw.js 404 in 40ms (compile: 6ms, render: 34ms)
+ GET /?ticker=AAPL 200 in 86ms (compile: 12ms, render: 74ms)
+ GET /sw.js 404 in 25ms (compile: 5ms, render: 20ms)
+✓ Compiled in 71ms
+ GET /?ticker=AAPL 200 in 213ms (compile: 74ms, render: 139ms)
+ GET /sw.js 404 in 45ms (compile: 7ms, render: 38ms)

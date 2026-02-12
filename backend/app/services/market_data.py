@@ -67,14 +67,15 @@ class MarketDataService:
 
         # 并行任务调度：利用 asyncio.gather 极大缩短 IO 等待时间
         try:
-            quote_task = provider.get_quote(ticker)
-            fundamental_task = provider.get_fundamental_data(ticker)
-            indicator_task = provider.get_historical_data(ticker, period="200d")
+            quote_task = asyncio.create_task(provider.get_quote(ticker))
+            fundamental_task = asyncio.create_task(provider.get_fundamental_data(ticker))
+            indicator_task = asyncio.create_task(provider.get_historical_data(ticker, period="200d"))
             
             # AI 增强搜索：若 Tavily 可用，优先使用 AI 搜索获取高质量新闻总结
             from app.services.market_providers.tavily import TavilyProvider
             tavily = TavilyProvider()
-            news_task = tavily.get_news(ticker) if tavily.api_key else provider.get_news(ticker)
+            news_coro = tavily.get_news(ticker) if tavily.api_key else provider.get_news(ticker)
+            news_task = asyncio.create_task(news_coro)
             
             # 引入 15.0s 超时保护，防止单一数据源（如 AkShare 的爬虫接口）阻塞全局响应
             try:
@@ -85,8 +86,11 @@ class MarketDataService:
                 quote, fundamental, indicators, news = res
             except asyncio.TimeoutError:
                 logger.warning(f"Timeout fetching data for {ticker}, partial data may be returned.")
-                quote = await quote_task if not quote_task.done() else quote_task.result()
-                fundamental, indicators, news = None, None, []
+                # We collect only what completed before timeout to avoid blocking
+                quote = quote_task.result() if quote_task.done() and not quote_task.cancelled() else None
+                fundamental = fundamental_task.result() if fundamental_task.done() and not fundamental_task.cancelled() else None
+                indicators = indicator_task.result() if indicator_task.done() and not indicator_task.cancelled() else None
+                news = news_task.result() if news_task.done() and not news_task.cancelled() else []
             
             if quote and not isinstance(quote, Exception):
                 return FullMarketData(

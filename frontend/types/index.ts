@@ -44,3 +44,30 @@ export interface UserSettingsUpdate {
     preferred_data_source?: string;
     preferred_ai_model?: string;
 }
+export interface SectorExposure {
+    sector: string;
+    weight: number;
+    value: number;
+}
+
+export interface PortfolioSummary {
+    total_market_value: number;
+    total_unrealized_pl: number;
+    total_pl_percent: number;
+    day_change: number;
+    holdings: PortfolioItem[];
+    sector_exposure: SectorExposure[];
+}
+
+export interface PortfolioAnalysisResponse {
+    health_score: number;
+    risk_level: string;
+    summary: string;
+    diversification_analysis: string;
+    strategic_advice: string;
+    top_risks: string[];
+    top_opportunities: string[];
+    detailed_report: string;
+    model_used?: string;
+    created_at: string;
+}

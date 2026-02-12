@@ -1,6 +1,19 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
+
+class SectorExposure(BaseModel):
+    sector: str
+    weight: float
+    value: float
+
+class PortfolioSummary(BaseModel):
+    total_market_value: float
+    total_unrealized_pl: float
+    total_pl_percent: float
+    day_change: float
+    holdings: List[PortfolioItem]
+    sector_exposure: List[SectorExposure]
 
 class PortfolioItem(BaseModel):
     ticker: str

@@ -9,7 +9,9 @@ import {
     AnalysisResponse,
     SearchResult,
     UserProfile,
-    UserSettingsUpdate
+    UserSettingsUpdate,
+    PortfolioSummary,
+    PortfolioAnalysisResponse
 } from "@/types";
 
 // 1. 基础配置 (Base Configuration)
@@ -91,10 +93,18 @@ export type {
     AnalysisResponse,
     SearchResult,
     UserProfile,
-    UserSettingsUpdate
+    UserSettingsUpdate,
+    PortfolioSummary,
+    PortfolioAnalysisResponse
 };
 
 // --- 投资组合接口 (Portfolio API) ---
+
+/** 获取用户持仓汇总数据 (含行业分布) */
+export const getPortfolioSummary = async (): Promise<PortfolioSummary> => {
+    const response = await api.get("/api/portfolio/summary");
+    return response.data;
+};
 
 /** 获取用户持仓列表，refresh=true 时强制触发后端抓取最新行情 */
 export const getPortfolio = async (refresh: boolean = false): Promise<PortfolioItem[]> => {
@@ -137,6 +147,12 @@ export const analyzeStock = async (ticker: string, force: boolean = false): Prom
 /** 获取该股票最新的 AI 分析缓存 */
 export const getLatestAnalysis = async (ticker: string): Promise<AnalysisResponse> => {
     const response = await api.get(`/api/analysis/${ticker}`);
+    return response.data;
+};
+
+/** 发起全量持仓 AI 诊断 */
+export const analyzePortfolio = async (): Promise<PortfolioAnalysisResponse> => {
+    const response = await api.post("/api/analysis/portfolio");
     return response.data;
 };
 

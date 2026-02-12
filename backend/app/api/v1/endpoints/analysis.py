@@ -10,7 +10,7 @@ from app.models.user import User
 from app.api.deps import get_current_user
 from app.core import security
 
-from app.schemas.analysis import AnalysisResponse
+from app.schemas.analysis import AnalysisResponse, PortfolioAnalysisResponse
 
 logger = logging.getLogger(__name__)
 
@@ -105,10 +105,21 @@ async def analyze_stock(
             "ma_200": round(market_data_obj.ma_200, 2) if market_data_obj.ma_200 else None,
             "macd_val": round(market_data_obj.macd_val, 2) if market_data_obj.macd_val else None,
             "macd_hist": round(market_data_obj.macd_hist, 2) if market_data_obj.macd_hist else None,
+            "macd_hist_slope": round(market_data_obj.macd_hist_slope, 2) if market_data_obj.macd_hist_slope else 0.0,
             "bb_upper": round(market_data_obj.bb_upper, 2) if market_data_obj.bb_upper else None,
+            "bb_middle": round(market_data_obj.bb_middle, 2) if market_data_obj.bb_middle else None,
             "bb_lower": round(market_data_obj.bb_lower, 2) if market_data_obj.bb_lower else None,
-            "kdj_k": round(market_data_obj.k_line, 2) if market_data_obj.k_line else None,
+            # KDJ 映射修复 (K/D/J)
+            "k_line": round(market_data_obj.k_line, 2) if market_data_obj.k_line else None,
+            "d_line": round(market_data_obj.d_line, 2) if market_data_obj.d_line else None,
+            "j_line": round(market_data_obj.j_line, 2) if market_data_obj.j_line else None,
             "atr_14": round(market_data_obj.atr_14, 2) if market_data_obj.atr_14 else None,
+            "adx_14": round(market_data_obj.adx_14, 2) if market_data_obj.adx_14 else None,
+            # 枢轴位映射补全 (Pivots)
+            "resistance_1": round(market_data_obj.resistance_1, 2) if market_data_obj.resistance_1 else None,
+            "resistance_2": round(market_data_obj.resistance_2, 2) if market_data_obj.resistance_2 else None,
+            "support_1": round(market_data_obj.support_1, 2) if market_data_obj.support_1 else None,
+            "support_2": round(market_data_obj.support_2, 2) if market_data_obj.support_2 else None,
             "market_status": market_data_obj.market_status
         }
     else:
@@ -353,6 +364,98 @@ async def analyze_stock(
         "model_used": preferred_model,
         "created_at": new_report.created_at if new_report else datetime.utcnow()
     }
+@router.post("/portfolio", response_model=PortfolioAnalysisResponse)
+async def analyze_portfolio(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    全量持仓健康分析接口 (Portfolio Health Check)
+    """
+    # 1. 获取所有持仓数据摘要 (复用现有逻辑)
+    from app.api.v1.endpoints.portfolio import get_portfolio_summary
+    summary = await get_portfolio_summary(db=db, current_user=current_user)
+    
+    if not summary.holdings:
+        raise HTTPException(status_code=400, detail="暂无持仓标的，无法进行组合分析。")
+    
+    # 2. 准备数据发送给 AI
+    holdings_data = []
+    for h in summary.holdings:
+        holdings_data.append({
+            "ticker": h.ticker,
+            "name": h.name,
+            "market_value": h.market_value,
+            "pl_percent": h.pl_percent,
+            "sector": h.sector,
+            "rrr": h.risk_reward_ratio
+        })
+    
+    # 3. 调用 AI 分析服务
+    gemini_key = security.decrypt_api_key(current_user.api_key_gemini)
+    siliconflow_key = security.decrypt_api_key(current_user.api_key_siliconflow)
+    preferred_model = current_user.preferred_ai_model or "gemini-1.5-flash"
+    
+    ai_raw_response = await AIService.generate_portfolio_analysis(
+        portfolio_items=holdings_data,
+        model=preferred_model,
+        api_key_gemini=gemini_key,
+        api_key_siliconflow=siliconflow_key
+    )
+    
+    logger.info(f"AI Portfolio Analysis Response: {ai_raw_response[:500]}...")
+
+    # 4. 解析结构化结果
+    import json
+    import re
+    from datetime import datetime
+    
+    parsed_data = {}
+    try:
+        # 尝试通过正则表达式提取 JSON，增加对多种异常格式的处理
+        # 匹配最外层的 {}
+        json_match = re.search(r'(\{.*\})', ai_raw_response, re.DOTALL)
+        if json_match:
+            clean_json = json_match.group(1)
+            # 移除 JSON 内部可能存在的 markdown 标记或控制字符
+            clean_json = re.sub(r'[\x00-\x1F\x7F-\x9F]', '', clean_json)
+            parsed_data = json.loads(clean_json)
+        else:
+            # 兜底：尝试清理常见的 markdown 包装
+            clean_text = ai_raw_response.strip()
+            if clean_text.startswith("```json"):
+                clean_text = clean_text[7:]
+            if clean_text.endswith("```"):
+                clean_text = clean_text[:-3]
+            parsed_data = json.loads(clean_text.strip())
+    except Exception as e:
+        logger.error(f"Failed to parse Portfolio AI JSON: {e}. Raw: {ai_raw_response[:200]}")
+        # 即使解析失败，也不要返回空，将原始回答放入 detailed_report
+        parsed_data = {
+            "health_score": 50,
+            "risk_level": "中",
+            "summary": "AI 诊断已完成 (点击查看详情)",
+            "diversification_analysis": "解析失败，详细请见报告。",
+            "strategic_advice": "请直接阅读下方深度诊断报告。",
+            "top_risks": ["无法自动提取风险点"],
+            "top_opportunities": ["无法自动提取机会点"],
+            "detailed_report": ai_raw_response # 确保内容不丢失
+        }
+
+    return PortfolioAnalysisResponse(
+        health_score=int(parsed_data.get("health_score", 50)),
+        risk_level=str(parsed_data.get("risk_level", "中")),
+        summary=str(parsed_data.get("summary", "投资组合概览")),
+        diversification_analysis=str(parsed_data.get("diversification_analysis", "分散度分析见详细报告")),
+        strategic_advice=str(parsed_data.get("strategic_advice", "保持关注")),
+        top_risks=parsed_data.get("top_risks", []),
+        top_opportunities=parsed_data.get("top_opportunities", []),
+        detailed_report=str(parsed_data.get("detailed_report", ai_raw_response)),
+        model_used=preferred_model,
+        created_at=datetime.utcnow()
+    )
+
+
 @router.get("/{ticker}", response_model=AnalysisResponse)
 async def get_latest_analysis(
     ticker: str,

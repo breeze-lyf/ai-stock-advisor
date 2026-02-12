@@ -13,7 +13,7 @@ from app.models.stock import Stock, MarketDataCache
 from app.models.user import User
 from app.api.deps import get_current_user
 from app.services.market_data import MarketDataService
-from app.schemas.portfolio import PortfolioItem, PortfolioCreate, SearchResult
+from app.schemas.portfolio import PortfolioItem, PortfolioCreate, SearchResult, PortfolioSummary, SectorExposure
 
 logger = logging.getLogger(__name__)
 logger.info("PHASE: Portfolio router module importing...")
@@ -74,6 +74,87 @@ async def search_stocks(query: str = "", remote: bool = False, db: AsyncSession 
 
     return [SearchResult(ticker=s.ticker, name=s.name) for s in stocks]
 
+
+
+@router.get("/summary", response_model=PortfolioSummary)
+async def get_portfolio_summary(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    获取投资组合汇总数据 (Get Portfolio Summary)
+    """
+    # 联表查询 quantity > 0 的持仓
+    stmt = (
+        select(Portfolio, MarketDataCache, Stock)
+        .outerjoin(MarketDataCache, Portfolio.ticker == MarketDataCache.ticker)
+        .outerjoin(Stock, Portfolio.ticker == Stock.ticker)
+        .where(Portfolio.user_id == current_user.id, Portfolio.quantity > 0)
+    )
+    result = await db.execute(stmt)
+    rows = result.all()
+    
+    holdings = []
+    total_market_value = 0.0
+    total_unrealized_pl = 0.0
+    total_cost = 0.0
+    total_day_change = 0.0
+    
+    sector_data = {} # sector -> value
+
+    for p, m, s in rows:
+        current_price = m.current_price if m else 0.0
+        mv = current_price * p.quantity
+        cost = p.avg_cost * p.quantity
+        upl = (current_price - p.avg_cost) * p.quantity
+        plp = (upl / cost) * 100 if cost > 0 else 0
+        
+        # 估算当日盈亏额
+        if m and m.change_percent:
+            day_chg_ratio = m.change_percent / 100
+            day_chg_val = mv * (day_chg_ratio / (1 + day_chg_ratio))
+            total_day_change += day_chg_val
+
+        total_market_value += mv
+        total_unrealized_pl += upl
+        total_cost += cost
+        
+        sector = s.sector if s and s.sector else "Unknown"
+        sector_data[sector] = sector_data.get(sector, 0.0) + mv
+
+        holdings.append(PortfolioItem(
+            ticker=p.ticker,
+            name=s.name if s else p.ticker,
+            quantity=p.quantity,
+            avg_cost=p.avg_cost,
+            current_price=current_price,
+            market_value=mv,
+            unrealized_pl=upl,
+            pl_percent=plp,
+            last_updated=m.last_updated if m else None,
+            sector=sector,
+            industry=s.industry if s else None,
+            market_cap=s.market_cap if s else None,
+            change_percent=m.change_percent if m else 0.0,
+            risk_reward_ratio=m.risk_reward_ratio if m else None
+        ))
+
+    # 行业分布计算
+    sector_exposure = []
+    for sector, value in sector_data.items():
+        weight = (value / total_market_value * 100) if total_market_value > 0 else 0
+        sector_exposure.append(SectorExposure(sector=sector, weight=weight, value=value))
+    
+    total_pl_percent = (total_unrealized_pl / total_cost * 100) if total_cost > 0 else 0
+
+    return PortfolioSummary(
+        total_market_value=total_market_value,
+        total_unrealized_pl=total_unrealized_pl,
+        total_pl_percent=total_pl_percent,
+        day_change=total_day_change,
+        holdings=holdings,
+        sector_exposure=sector_exposure
+    )
 
 @router.get("/", response_model=List[PortfolioItem])
 async def get_portfolio(

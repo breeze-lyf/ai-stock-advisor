@@ -39,7 +39,7 @@ class ProviderNews(BaseModel):
     publish_time: datetime
 
 class ProviderTechnical(BaseModel):
-    indicators: Dict[str, Optional[float]] = Field(default_factory=dict)
+    indicators: Dict[str, Any] = Field(default_factory=dict)
 
 class FullMarketData(BaseModel):
     quote: ProviderQuote

@@ -123,8 +123,9 @@ class AIService:
             "fundamental_news": "基础面/消息面深度解读",
             "action_advice": "[CRITICAL] 严格按照以下 Markdown 格式生成详细的操作建议，并对关键数值（价格、仓位、止损位）使用 **加粗**：
             
-### 1. 交易综述 (Executive Summary)
-描述当前市场定性（Context & Trend）和整体建议。例如：当前股价 **$价格** 处于 **[阶段定义]**。建议 **[核心策略]**。
+### 1. 建议操作与交易综述 (Suggested Action & Executive Summary)
+- **建议操作**: **[即时行动建议]**
+- **行情综述**: 当前股价 **$价格** 处于 **[阶段定义]**。整体研判为 **[策略定调]**。
 
 ### 2. 结构化操作计划 (Action Plan)
 * **首批建仓 (Position 1):** **$建仓位1** (交易触发条件 Trigger，建议仓位 **Position Size**)
@@ -167,4 +168,66 @@ class AIService:
             key = settings.SILICONFLOW_API_KEY or api_key_siliconflow or settings.DEEPSEEK_API_KEY
             if not key:
                 return "**Error**: 缺失 SiliconFlow API Key，请联系管理员配置或在设置中心设置。"
+            return await AIService._call_siliconflow(prompt, model, key)
+    @staticmethod
+    async def generate_portfolio_analysis(portfolio_items: list, model: str = "gemini-1.5-flash", api_key_gemini: str = None, api_key_siliconflow: str = None) -> str:
+        """
+        生成全量持仓健康诊断报告
+        """
+        if not portfolio_items:
+            return json.dumps({"error": "暂无持仓数据"})
+
+        # 构建持仓上下文
+        holdings_context = ""
+        total_market_value = sum(item.get('market_value', 0) for item in portfolio_items)
+        
+        for item in portfolio_items:
+            weight = (item.get('market_value', 0) / total_market_value * 100) if total_market_value > 0 else 0
+            holdings_context += f"- [{item['ticker']}] {item['name']}: 仓位 {weight:.2f}%, 盈亏 {item['pl_percent']:.2f}%, 行业: {item.get('sector', '未知')}\n"
+
+        prompt = f"""
+        你是一位资深私人财富管理顾问和首席投资策略师。请对用户的**整个投资组合**进行全面的“全景扫描”与健康诊断。
+        
+        **持仓明细 (Portfolio Breakdown)**:
+        {holdings_context}
+        
+        **分析指令 (Strict Directives)**:
+        1. **深度风险透视**: 不仅要指出行业分布，还要识别“隐性关联”（例如：如果同时持有半导体和科技服务）。指出哪个标的对组合的整体风险贡献最大。
+        2. **盈亏属性分析**: 分别针对“浮盈巨大”和“严重套牢”的标的给出具体的处理建议（止盈、补仓或止损）。
+        3. **调仓战略建议**: 给出未来一周的动作指南（例如：保持当前防御性配置、增加避险资产比例、或激进捕捉反弹）。
+        4. **禁止空话**: 严禁使用“视市场情况而定”等通用废话。必须根据数据给出倾向于具体行动的判断。
+        
+        **返回格式要求**:
+        - 必须返回纯 JSON 对象，不能包含任何 ```json 或 Markdown 前缀/后缀。
+        - 结果必须是合法的 JSON 格式。
+        
+        JSON 结构模版:
+        {{
+            "health_score": 0-100 (整数),
+            "risk_level": "低/中/高",
+            "summary": "一句话核心结论 (15字以内)",
+            "diversification_analysis": "关于相关性与分散度的硬核分析",
+            "strategic_advice": "具体的战术动作指南 (加仓/减仓/调仓)",
+            "top_risks": ["具体风险点1", "具体风险点2"],
+            "top_opportunities": ["具体机会点1", "具体机会点2"],
+            "detailed_report": "深度 Markdown 诊断报告。请在这里展开细节，包括对特定个股对组合贡献的解读。"
+        }}
+        """
+
+        if "gemini" in model:
+            key = api_key_gemini or settings.GEMINI_API_KEY
+            if not key: return "**Error**: 缺失 Gemini API Key。"
+            try:
+                client = genai.Client(api_key=key)
+                response = await client.aio.models.generate_content(
+                    model='gemini-1.5-flash',
+                    contents=prompt,
+                    config=types.GenerateContentConfig(response_mime_type='application/json')
+                )
+                return response.text
+            except Exception as e:
+                logger.error(f"Portfolio Gemini Error: {str(e)}")
+                return json.dumps({"error": f"Gemini 分析失败: {str(e)}"})
+        else:
+            key = settings.SILICONFLOW_API_KEY or api_key_siliconflow
             return await AIService._call_siliconflow(prompt, model, key)

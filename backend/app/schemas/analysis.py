@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 class AnalysisResponse(BaseModel):
     ticker: str
@@ -23,3 +23,15 @@ class AnalysisResponse(BaseModel):
     is_cached: bool = False
     model_used: Optional[str] = None
     created_at: Optional[datetime] = None
+
+class PortfolioAnalysisResponse(BaseModel):
+    health_score: int
+    risk_level: str
+    summary: str
+    diversification_analysis: str
+    strategic_advice: str
+    top_risks: List[str]
+    top_opportunities: List[str]
+    detailed_report: str
+    model_used: Optional[str] = None
+    created_at: datetime

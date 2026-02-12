@@ -383,13 +383,22 @@ export function StockDetail({
                     const activeZone = zones.find(z => current >= z.start && current <= z.end) || 
                                      (current < axisMin ? zones[0] : zones[zones.length-1]);
 
-                    // Calculate fallback R/R ratio if missing
+                    // Calculate fallback R/R ratio if missing (Dynamic Opportunity Mode)
                     let effectiveRR = aiData.rr_ratio;
-                    if (!effectiveRR && aiData.target_price && aiData.stop_loss_price) {
-                        const entry = aiData.entry_price_high || aiData.entry_price_low || ((aiData.target_price + aiData.stop_loss_price) / 2);
-                        const risk = entry - aiData.stop_loss_price;
-                        const reward = aiData.target_price - entry;
-                        if (risk > 0) {
+                    if (!effectiveRR && target && stop) {
+                        if (current <= stop || current >= target) {
+                            // Already hit stop-loss or reached target: no meat left
+                            effectiveRR = "0.00";
+                        } else if (current) {
+                            // Within range: calculate Live R/R based on current price
+                            const risk = current - stop;
+                            const reward = target - current;
+                            effectiveRR = (reward / risk).toFixed(2);
+                        } else {
+                            // No live price: fallback to strategic blueprint (Entry Low)
+                            const entry = aiData.entry_price_low || aiData.entry_price_high || ((target + stop) / 2);
+                            const risk = entry - stop;
+                            const reward = target - entry;
                             effectiveRR = (reward / risk).toFixed(2);
                         }
                     }
@@ -685,12 +694,18 @@ export function StockDetail({
                                         <span className="text-[8px] font-bold text-slate-400">RSI:</span>
                                          <span className="text-xs font-black tabular-nums text-blue-500">{selectedItem?.rsi_14?.toFixed(2)}</span>
                                      </div>
-                                     <div className="flex items-center gap-1">
-                                         <span className="text-[8px] font-bold text-slate-400">KDJ-J:</span>
-                                         <span className={clsx(
-                                             "text-xs font-black tabular-nums",
-                                             (selectedItem?.j_line || 0) > 80 ? "text-rose-500" : (selectedItem?.j_line || 0) < 20 ? "text-emerald-500" : "text-slate-600"
-                                         )}>{selectedItem?.j_line?.toFixed(2)}</span>
+                                     <div className="flex items-center gap-2 border-l border-slate-100 dark:border-slate-800 pl-3">
+                                         <span className="text-[8px] font-bold text-slate-400">KDJ:</span>
+                                         <div className="flex items-center gap-1.5">
+                                             <span className="text-[10px] font-black tabular-nums text-blue-500">{selectedItem?.k_line?.toFixed(1) || "--"}</span>
+                                             <span className="text-[8px] font-bold text-slate-300">/</span>
+                                             <span className="text-[10px] font-black tabular-nums text-amber-500">{selectedItem?.d_line?.toFixed(1) || "--"}</span>
+                                             <span className="text-[8px] font-bold text-slate-300">/</span>
+                                             <span className={clsx(
+                                                 "text-[10px] font-black tabular-nums",
+                                                 (selectedItem?.j_line || 0) > 80 ? "text-rose-500" : (selectedItem?.j_line || 0) < 20 ? "text-emerald-500" : "text-slate-600"
+                                             )}>{selectedItem?.j_line?.toFixed(1) || "--"}</span>
+                                         </div>
                                     </div>
                                 </div>
                             </div>
@@ -848,21 +863,50 @@ export function StockDetail({
                         </div>
                     </div>
 
-                    {/* Part 2: Middle Strip (5 Small Metric Cards) */}
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 pt-2">
-                        {[
-                            { label: "ADX 强度", value: selectedItem?.adx_14?.toFixed(2), unit: "", status: (selectedItem?.adx_14 || 0) > 25 ? "强趋势" : "震荡" },
-                            { label: "ATR 波幅", value: selectedItem?.atr_14?.toFixed(2), unit: "$", status: "Volatility" },
-                            { label: "量比 (Vol)", value: "X" + (selectedItem?.volume_ratio?.toFixed(2) || "--"), unit: "", status: (selectedItem?.volume_ratio || 0) > 1.2 ? "放量" : "缩量" },
-                            { label: "阻力 R1", value: "$" + (selectedItem?.resistance_1?.toFixed(2) || "--"), unit: "", status: "Resistance" },
-                            { label: "支撑 S1", value: "$" + (selectedItem?.support_1?.toFixed(2) || "--"), unit: "", status: "Support" },
-                        ].map((item) => (
-                            <div key={item.label} className="bg-slate-50/50 dark:bg-slate-900/30 p-3 rounded-xl border border-slate-100 dark:border-slate-800/50 flex flex-col items-center justify-center gap-0.5 shadow-sm">
-                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter whitespace-nowrap">{item.label}</span>
-                                <span className="text-md font-black text-slate-900 dark:text-slate-100 tabular-nums">{item.value || "--"}</span>
-                                <span className="text-[7px] font-bold text-slate-300 uppercase italic opacity-80">{item.status}</span>
-                            </div>
-                        ))}
+                    {/* Part 2: Middle Strip (Key Metric Cards) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-2">
+                         {/* Card 1: Volume Ratio */}
+                         <div className="bg-slate-50/50 dark:bg-slate-900/30 p-4 rounded-xl border border-slate-100 dark:border-slate-800/50 flex flex-col items-center justify-center gap-1 shadow-sm">
+                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">量比 (Volume Ratio)</span>
+                             <div className="flex items-baseline gap-1.5">
+                                 <span className="text-xl font-black text-slate-900 dark:text-slate-100 tabular-nums">
+                                     X{selectedItem?.volume_ratio?.toFixed(2) || "--"}
+                                 </span>
+                                 <span className={clsx(
+                                     "text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase",
+                                     (selectedItem?.volume_ratio || 0) > 1.2 ? "bg-emerald-50 text-emerald-600" : "bg-slate-50 text-slate-400"
+                                 )}>
+                                     {(selectedItem?.volume_ratio || 0) > 1.2 ? "放量" : "缩量"}
+                                 </span>
+                             </div>
+                         </div>
+
+                         {/* Card 2: ATR/Volatility (Moved to background or secondary if desired, but kept for balance) */}
+                         <div className="bg-slate-50/50 dark:bg-slate-900/30 p-4 rounded-xl border border-slate-100 dark:border-slate-800/50 flex flex-col items-center justify-center gap-1 shadow-sm">
+                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">波动波幅 (ATR 14)</span>
+                             <div className="flex items-baseline gap-1">
+                                 <span className="text-xl font-black text-slate-900 dark:text-slate-100 tabular-nums">
+                                     ${selectedItem?.atr_14?.toFixed(2) || "--"}
+                                 </span>
+                                 <span className="text-[8px] font-bold text-slate-300 uppercase italic opacity-80">Volatility</span>
+                             </div>
+                         </div>
+
+                         {/* Card 3: Merged Support/Resistance (Pivot Levels) */}
+                         <div className="bg-slate-50/50 dark:bg-slate-900/30 p-4 rounded-xl border border-slate-100 dark:border-slate-800/50 flex flex-col items-center justify-center gap-2 shadow-sm">
+                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">枢轴支撑/阻力 (Pivots)</span>
+                             <div className="flex items-center gap-6">
+                                 <div className="flex flex-col items-center">
+                                     <span className="text-[8px] font-black text-rose-500 uppercase tracking-tighter">阻力 R1</span>
+                                     <span className="text-md font-black text-slate-800 dark:text-white tabular-nums">${selectedItem?.resistance_1?.toFixed(2) || "--"}</span>
+                                 </div>
+                                 <div className="h-6 w-px bg-slate-200 dark:bg-slate-700" />
+                                 <div className="flex flex-col items-center">
+                                     <span className="text-[8px] font-black text-emerald-500 uppercase tracking-tighter">支撑 S1</span>
+                                     <span className="text-md font-black text-slate-800 dark:text-white tabular-nums">${selectedItem?.support_1?.toFixed(2) || "--"}</span>
+                                 </div>
+                             </div>
+                         </div>
                     </div>
 
                     {/* Part 3: AI Analysis Insight (Full Width at Bottom) */}

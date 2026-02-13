@@ -223,15 +223,6 @@ export function StockDetail({
                             <span className="text-3xl font-black text-slate-800 dark:text-slate-100 tabular-nums leading-none">
                                 ${selectedItem.current_price.toFixed(2)}
                             </span>
-                            {selectedItem.quantity > 0 && (
-                                <div className={clsx(
-                                    "flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black italic",
-                                    (selectedItem.pl_percent || 0) >= 0 ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400"
-                                )}>
-                                    <TrendingUp className={clsx("h-3 w-3", (selectedItem.pl_percent || 0) < 0 && "rotate-180")} />
-                                    {selectedItem.pl_percent >= 0 ? "+" : ""}{selectedItem.pl_percent.toFixed(2)}%
-                                </div>
-                            )}
                         </div>
                     </div>
                 </div>

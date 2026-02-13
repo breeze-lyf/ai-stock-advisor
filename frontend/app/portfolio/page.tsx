@@ -42,6 +42,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import clsx from "clsx";
 
 export default function PortfolioPage() {
@@ -379,21 +380,25 @@ export default function PortfolioPage() {
                                                 </Button>
                                             </DialogTrigger>
                                             <DialogContent className="max-w-2xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 p-0 overflow-hidden rounded-3xl">
-                                                <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-800/20">
+                                                <DialogHeader className="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-row items-center justify-between bg-slate-50/50 dark:bg-slate-800/20 space-y-0 text-left">
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-10 h-10 rounded-2xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
                                                             <BrainCircuit className="h-5 w-5 text-blue-500" />
                                                         </div>
-                                                        <div>
-                                                            <h3 className="font-black text-lg text-slate-900 dark:text-white leading-tight">AI 深度诊断报告</h3>
-                                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Portfolio Deep Insight Report</p>
+                                                        <div className="text-left">
+                                                            <DialogTitle className="font-black text-lg text-slate-900 dark:text-white leading-tight">
+                                                                AI 深度诊断报告
+                                                            </DialogTitle>
+                                                            <DialogDescription className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                                                                Portfolio Deep Insight Report
+                                                            </DialogDescription>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </DialogHeader>
                                                 
                                                 <ScrollArea className="h-[60vh] p-8">
-                                                    <div className="prose prose-slate dark:prose-invert max-w-none prose-xs prose-p:text-slate-600 dark:prose-p:text-slate-400 prose-headings:text-slate-900 dark:prose-headings:text-white prose-strong:text-slate-900 dark:prose-strong:text-white prose-ol:text-slate-600 dark:prose-ol:text-slate-400 prose-ul:text-slate-600 dark:prose-ul:text-slate-400">
-                                                        <ReactMarkdown>{analysis.detailed_report}</ReactMarkdown>
+                                                    <div className="prose prose-slate dark:prose-invert max-w-none prose-xs prose-p:text-slate-600 dark:prose-p:text-slate-400 prose-headings:text-slate-900 dark:prose-headings:text-white prose-strong:text-slate-900 dark:prose-strong:text-white prose-ol:text-slate-600 dark:prose-ol:text-slate-400 prose-ul:text-slate-600 dark:prose-ul:text-slate-400 prose-diagnostic">
+                                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{analysis.detailed_report}</ReactMarkdown>
                                                     </div>
                                                 </ScrollArea>
                                                 

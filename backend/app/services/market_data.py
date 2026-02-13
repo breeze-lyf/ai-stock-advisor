@@ -26,6 +26,11 @@ class MarketDataService:
         3. 否则从外部 API 并行抓取 (Else fetch from providers in parallel)
         4. 持久化到数据库并返回更新后的对象 (Update DB and return)
         """
+        # 0. 安全屏蔽：禁止抓取名为 'portfolio' 的虚拟代码 (Safety Bypass)
+        if ticker.lower() == "portfolio":
+            logger.info("Bypassing market data fetch for virtual 'portfolio' ticker.")
+            return None
+
         # 1. 检查本地数据库缓存 (Step 1: Local Cache Check)
         stmt = select(MarketDataCache).where(MarketDataCache.ticker == ticker)
         result = await db.execute(stmt)

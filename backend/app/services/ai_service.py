@@ -170,7 +170,7 @@ class AIService:
                 return "**Error**: 缺失 SiliconFlow API Key，请联系管理员配置或在设置中心设置。"
             return await AIService._call_siliconflow(prompt, model, key)
     @staticmethod
-    async def generate_portfolio_analysis(portfolio_items: list, model: str = "gemini-1.5-flash", api_key_gemini: str = None, api_key_siliconflow: str = None) -> str:
+    async def generate_portfolio_analysis(portfolio_items: list, market_news: str = None, model: str = "gemini-1.5-flash", api_key_gemini: str = None, api_key_siliconflow: str = None) -> str:
         """
         生成全量持仓健康诊断报告
         """
@@ -188,10 +188,13 @@ class AIService:
         prompt = f"""
         你是一位资深私人财富管理顾问和首席投资策略师。请对用户的**整个投资组合**进行全面的“全景扫描”与健康诊断。
         
-        **持仓明细 (Portfolio Breakdown)**:
+        **1. 持仓明细 (Portfolio Breakdown)**:
         {holdings_context}
         
-        **分析指令 (Strict Directives)**:
+        **2. 实时市场与新闻背景 (Real-time Market Context)**:
+        {market_news if market_news else "暂无外部实时新闻，请基于已有持仓数据进行存量分析。"}
+        
+        **3. 分析指令 (Strict Directives)**:
         1. **深度风险透视**: 不仅要指出行业分布，还要识别“隐性关联”（例如：如果同时持有半导体和科技服务）。指出哪个标的对组合的整体风险贡献最大。
         2. **盈亏属性分析**: 分别针对“浮盈巨大”和“严重套牢”的标的给出具体的处理建议（止盈、补仓或止损）。
         3. **调仓战略建议**: 给出未来一周的动作指南（例如：保持当前防御性配置、增加避险资产比例、或激进捕捉反弹）。
@@ -200,6 +203,11 @@ class AIService:
         **返回格式要求**:
         - 必须返回纯 JSON 对象，不能包含任何 ```json 或 Markdown 前缀/后缀。
         - 结果必须是合法的 JSON 格式。
+        - **详尽报告排版准则 (Layout Rules)**:
+            *   使用 `###` 作为一级标题，`####` 作为二级标题。
+            *   **必须使用 Markdown 表格**来对比核心数据（如：标的 | 权重 | 盈亏 | 建议动作）。
+            *   对关键行情数据和操作点位使用 **加粗**。
+            *   保持段落简洁，每个逻辑块之间留有空行。
         
         JSON 结构模版:
         {{
@@ -210,7 +218,22 @@ class AIService:
             "strategic_advice": "具体的战术动作指南 (加仓/减仓/调仓)",
             "top_risks": ["具体风险点1", "具体风险点2"],
             "top_opportunities": ["具体机会点1", "具体机会点2"],
-            "detailed_report": "深度 Markdown 诊断报告。请在这里展开细节，包括对特定个股对组合贡献的解读。"
+            "detailed_report": "深度 Markdown 诊断报告。结构建议：
+            ### 1. 组合现状透视 (Portfolio Status)
+            [简述]
+            
+            #### 资产配置矩阵
+            | 标的 | 当前价格 | 仓位占比 | 盈亏状态 | 建议动作 |
+            | :--- | :--- | :--- | :--- | :--- |
+            | [Ticker] | $xx | xx% | +xx% | **[动作]** |
+            
+            ### 2. 深度风险与驱动因素 (Risk & Dynamics)
+            [结合实时新闻背景的深度解读]
+            
+            ### 3. 下周战术指南 (Weekly Tactical Plan)
+            * **核心防御**: [建议]
+            * **进攻机会**: [建议]
+            "
         }}
         """
 

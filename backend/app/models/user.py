@@ -34,7 +34,7 @@ class User(Base):
     api_key_siliconflow = Column(String, nullable=True) # SiliconFlow API
     
     preferred_data_source = Column(String, default=MarketDataSource.ALPHA_VANTAGE.value)
-    preferred_ai_model = Column(String, default=AIModel.GEMINI_15_FLASH.value)
+    preferred_ai_model = Column(String, default=AIModel.QWEN_3_VL_THINKING.value)
     
     created_at = Column(DateTime, default=datetime.utcnow)
     last_login = Column(DateTime, nullable=True)

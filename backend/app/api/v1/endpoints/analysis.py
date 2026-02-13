@@ -45,6 +45,155 @@ def extract_entry_zone_fallback(action_advice: str) -> Optional[str]:
         return f"{low} - {high}"
     return None
 
+def to_str(val):
+    if val is None: return None
+    if isinstance(val, (list, dict)): 
+        try:
+            return "\n".join(str(item) for item in val) if isinstance(val, list) else str(val)
+        except:
+            return str(val)
+    return str(val)
+
+def to_float(val):
+    try:
+        if val is None or val == "": return None
+        return float(val)
+    except (ValueError, TypeError):
+        return None
+
+@router.post("/portfolio", response_model=PortfolioAnalysisResponse)
+async def analyze_portfolio(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    全量持仓健康分析接口 (Portfolio Health Check)
+    """
+    # 1. 获取所有持仓数据摘要 (复用现有逻辑)
+    from app.api.v1.endpoints.portfolio import get_portfolio_summary
+    summary = await get_portfolio_summary(db=db, current_user=current_user)
+    
+    if not summary.holdings:
+        raise HTTPException(status_code=400, detail="暂无持仓标的，无法进行组合分析。")
+    
+    # 2. 准备数据发送给 AI
+    holdings_data = []
+    for h in summary.holdings:
+        holdings_data.append({
+            "ticker": h.ticker,
+            "name": h.name,
+            "market_value": h.market_value,
+            "pl_percent": h.pl_percent,
+            "sector": h.sector,
+            "rrr": h.risk_reward_ratio
+        })
+    
+    # 3. 增强型 RAG：抓取宏观市场及重点持仓实时新闻 (Enhanced RAG: Fetch Macro & Top Holdings News)
+    market_news_context = ""
+    try:
+        from app.models.stock import StockNews
+        import asyncio
+        
+        # 3.1 抓取大盘宏观背景 (Fetch Macro Context - S&P 500)
+        macro_ticker = "^GSPC"
+        await MarketDataService.get_real_time_data(macro_ticker, db)
+        
+        # 3.2 识别前三大持仓 (Identify Top 3 Holdings)
+        top_holdings = sorted(summary.holdings, key=lambda x: x.market_value, reverse=True)[:3]
+        top_tickers = [h.ticker for h in top_holdings]
+        
+        # 并行抓取重点标的新闻 (Parallel fetch for top holdings)
+        await asyncio.gather(*[MarketDataService.get_real_time_data(t, db) for t in top_tickers])
+        
+        # 3.3 从数据库提取汇总新闻 (Aggregate from DB)
+        relevant_tickers = [macro_ticker] + top_tickers
+        news_stmt = select(StockNews).where(StockNews.ticker.in_(relevant_tickers)).order_by(StockNews.publish_time.desc()).limit(15)
+        news_result = await db.execute(news_stmt)
+        all_news = news_result.scalars().all()
+        
+        if all_news:
+            market_news_context = "\n".join([f"- [{n.ticker}] {n.title} ({n.publisher})" for n in all_news])
+            logger.info(f"Aggregated {len(all_news)} news items for portfolio RAG context.")
+    except Exception as news_e:
+        logger.error(f"Failed to fetch RAG news context: {news_e}")
+
+    # 4. 调用 AI 分析服务
+    gemini_key = security.decrypt_api_key(current_user.api_key_gemini)
+    siliconflow_key = security.decrypt_api_key(current_user.api_key_siliconflow)
+    preferred_model = current_user.preferred_ai_model or "qwen-3-vl-thinking"
+    
+    ai_raw_response = await AIService.generate_portfolio_analysis(
+        portfolio_items=holdings_data,
+        market_news=market_news_context,
+        model=preferred_model,
+        api_key_gemini=gemini_key,
+        api_key_siliconflow=siliconflow_key
+    )
+    
+    logger.info(f"AI Portfolio Analysis Response: {ai_raw_response[:500]}...")
+
+    # 4. 解析结构化结果
+    import json
+    import re
+    from datetime import datetime
+    
+    parsed_data = {}
+    try:
+        # 尝试通过正则表达式提取 JSON，增加对多种异常格式的处理
+        # 匹配最外层的 {}
+        json_match = re.search(r'(\{.*\})', ai_raw_response, re.DOTALL)
+        if json_match:
+            clean_json = json_match.group(1)
+            # 移除 JSON 内部可能存在的 markdown 标记或控制字符
+            clean_json = re.sub(r'[\x00-\x1F\x7F-\x9F]', '', clean_json)
+            parsed_data = json.loads(clean_json)
+        else:
+            # 兜底：尝试清理常见的 markdown 包装
+            clean_text = ai_raw_response.strip()
+            if clean_text.startswith("```json"):
+                clean_text = clean_text[7:]
+            if clean_text.endswith("```"):
+                clean_text = clean_text[:-3]
+            parsed_data = json.loads(clean_text.strip())
+    except Exception as e:
+        logger.error(f"Failed to parse Portfolio AI JSON: {e}. Raw: {ai_raw_response[:200]}")
+        # 即使解析失败，也不要返回空，将原始回答放入 detailed_report
+        parsed_data = {
+            "health_score": 50,
+            "risk_level": "中",
+            "summary": "AI 诊断已完成 (点击查看详情)",
+            "diversification_analysis": "解析失败，详细请见报告。",
+            "strategic_advice": "请直接阅读下方深度诊断报告。",
+            "top_risks": ["无法自动提取风险点"],
+            "top_opportunities": ["无法自动提取机会点"],
+            "detailed_report": ai_raw_response # 确保内容不丢失
+        }
+
+    return PortfolioAnalysisResponse(
+        health_score=int(parsed_data.get("health_score", 50)),
+        risk_level=str(parsed_data.get("risk_level", "中")),
+        summary=str(parsed_data.get("summary", "投资组合概览")),
+        diversification_analysis=str(parsed_data.get("diversification_analysis", "分散度分析见详细报告")),
+        strategic_advice=str(parsed_data.get("strategic_advice", "保持关注")),
+        top_risks=parsed_data.get("top_risks", []),
+        top_opportunities=parsed_data.get("top_opportunities", []),
+        detailed_report=str(parsed_data.get("detailed_report", ai_raw_response)),
+        model_used=preferred_model,
+        created_at=datetime.utcnow()
+    )
+
+@router.get("/portfolio", response_model=PortfolioAnalysisResponse)
+async def get_portfolio_analysis(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    获取最近的一次全量持仓健康分析 (非实时生成)
+    由于目前没有独立的 Portfolio 分布式固化表，此接口暂时保留为 404
+    后续可以根据需要增加缓存逻辑
+    """
+    raise HTTPException(status_code=404, detail="Portfolio cached reports not implemented yet. Please use POST to generate.")
+
 @router.post("/{ticker}", response_model=AnalysisResponse)
 async def analyze_stock(
     ticker: str, 
@@ -183,7 +332,7 @@ async def analyze_stock(
     if not market_data.get('rsi_14'):
         logger.warning(f"Technical indicators missing for {ticker}, prompt may be low quality.")
     
-    preferred_model = current_user.preferred_ai_model or "gemini-1.5-flash"
+    preferred_model = current_user.preferred_ai_model or "qwen-3-vl-thinking"
     
     if not force:
         cache_stmt = select(AnalysisReport).where(
@@ -283,21 +432,6 @@ async def analyze_stock(
                 "risk_level": "中"
             }
 
-    def to_str(val):
-        if val is None: return None
-        if isinstance(val, (list, dict)): 
-            try:
-                return "\n".join(str(item) for item in val) if isinstance(val, list) else str(val)
-            except:
-                return str(val)
-        return str(val)
-
-    def to_float(val):
-        try:
-            if val is None or val == "": return None
-            return float(val)
-        except (ValueError, TypeError):
-            return None
 
     # 8. 持久化分析结果 (存入独立字段)
     new_report = None
@@ -342,6 +476,41 @@ async def analyze_stock(
         logger.error(f"Failed to persist structured analysis report: {e}")
         await db.rollback()
 
+    # --- 同步逻辑：将高质量 AI 盈亏比刷入全局缓存 (Sync AI RRR to Cache) ---
+    try:
+        if new_report:
+            from app.models.stock import MarketDataCache
+            sync_stmt = select(MarketDataCache).where(MarketDataCache.ticker == ticker)
+            sync_result = await db.execute(sync_stmt)
+            cache_to_sync = sync_result.scalar_one_or_none()
+            
+            if cache_to_sync:
+                # 确定最终盈亏比数值 (Resolve effective RRR value)
+                effective_rrr = None
+                try:
+                    if new_report.rr_ratio:
+                        effective_rrr = float(new_report.rr_ratio)
+                except (ValueError, TypeError):
+                    pass
+                
+                # 如果 AI 没给具体数值但给了价格，我们替它算一份
+                if effective_rrr is None and new_report.target_price and new_report.stop_loss_price:
+                    curr_p = market_data.get("current_price") or 0.0
+                    reward = new_report.target_price - curr_p
+                    risk = curr_p - new_report.stop_loss_price
+                    if risk > 0 and reward > 0:
+                        effective_rrr = round(reward / risk, 2)
+                
+                if effective_rrr is not None:
+                    cache_to_sync.risk_reward_ratio = effective_rrr
+                    # 同时同步支撑阻力位以便列表 tooltip 也能显示正确值
+                    cache_to_sync.resistance_1 = new_report.target_price
+                    cache_to_sync.support_1 = new_report.stop_loss_price
+                    await db.commit()
+                    logger.info(f"✅ Synced AI RRR ({effective_rrr}) to MarketDataCache for {ticker}")
+    except Exception as sync_e:
+        logger.error(f"Failed to sync AI RRR to cache: {sync_e}")
+
     from datetime import datetime
     return {
         "ticker": ticker,
@@ -364,96 +533,6 @@ async def analyze_stock(
         "model_used": preferred_model,
         "created_at": new_report.created_at if new_report else datetime.utcnow()
     }
-@router.post("/portfolio", response_model=PortfolioAnalysisResponse)
-async def analyze_portfolio(
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """
-    全量持仓健康分析接口 (Portfolio Health Check)
-    """
-    # 1. 获取所有持仓数据摘要 (复用现有逻辑)
-    from app.api.v1.endpoints.portfolio import get_portfolio_summary
-    summary = await get_portfolio_summary(db=db, current_user=current_user)
-    
-    if not summary.holdings:
-        raise HTTPException(status_code=400, detail="暂无持仓标的，无法进行组合分析。")
-    
-    # 2. 准备数据发送给 AI
-    holdings_data = []
-    for h in summary.holdings:
-        holdings_data.append({
-            "ticker": h.ticker,
-            "name": h.name,
-            "market_value": h.market_value,
-            "pl_percent": h.pl_percent,
-            "sector": h.sector,
-            "rrr": h.risk_reward_ratio
-        })
-    
-    # 3. 调用 AI 分析服务
-    gemini_key = security.decrypt_api_key(current_user.api_key_gemini)
-    siliconflow_key = security.decrypt_api_key(current_user.api_key_siliconflow)
-    preferred_model = current_user.preferred_ai_model or "gemini-1.5-flash"
-    
-    ai_raw_response = await AIService.generate_portfolio_analysis(
-        portfolio_items=holdings_data,
-        model=preferred_model,
-        api_key_gemini=gemini_key,
-        api_key_siliconflow=siliconflow_key
-    )
-    
-    logger.info(f"AI Portfolio Analysis Response: {ai_raw_response[:500]}...")
-
-    # 4. 解析结构化结果
-    import json
-    import re
-    from datetime import datetime
-    
-    parsed_data = {}
-    try:
-        # 尝试通过正则表达式提取 JSON，增加对多种异常格式的处理
-        # 匹配最外层的 {}
-        json_match = re.search(r'(\{.*\})', ai_raw_response, re.DOTALL)
-        if json_match:
-            clean_json = json_match.group(1)
-            # 移除 JSON 内部可能存在的 markdown 标记或控制字符
-            clean_json = re.sub(r'[\x00-\x1F\x7F-\x9F]', '', clean_json)
-            parsed_data = json.loads(clean_json)
-        else:
-            # 兜底：尝试清理常见的 markdown 包装
-            clean_text = ai_raw_response.strip()
-            if clean_text.startswith("```json"):
-                clean_text = clean_text[7:]
-            if clean_text.endswith("```"):
-                clean_text = clean_text[:-3]
-            parsed_data = json.loads(clean_text.strip())
-    except Exception as e:
-        logger.error(f"Failed to parse Portfolio AI JSON: {e}. Raw: {ai_raw_response[:200]}")
-        # 即使解析失败，也不要返回空，将原始回答放入 detailed_report
-        parsed_data = {
-            "health_score": 50,
-            "risk_level": "中",
-            "summary": "AI 诊断已完成 (点击查看详情)",
-            "diversification_analysis": "解析失败，详细请见报告。",
-            "strategic_advice": "请直接阅读下方深度诊断报告。",
-            "top_risks": ["无法自动提取风险点"],
-            "top_opportunities": ["无法自动提取机会点"],
-            "detailed_report": ai_raw_response # 确保内容不丢失
-        }
-
-    return PortfolioAnalysisResponse(
-        health_score=int(parsed_data.get("health_score", 50)),
-        risk_level=str(parsed_data.get("risk_level", "中")),
-        summary=str(parsed_data.get("summary", "投资组合概览")),
-        diversification_analysis=str(parsed_data.get("diversification_analysis", "分散度分析见详细报告")),
-        strategic_advice=str(parsed_data.get("strategic_advice", "保持关注")),
-        top_risks=parsed_data.get("top_risks", []),
-        top_opportunities=parsed_data.get("top_opportunities", []),
-        detailed_report=str(parsed_data.get("detailed_report", ai_raw_response)),
-        model_used=preferred_model,
-        created_at=datetime.utcnow()
-    )
 
 
 @router.get("/{ticker}", response_model=AnalysisResponse)
@@ -467,7 +546,7 @@ async def get_latest_analysis(
     """
     from app.models.analysis import AnalysisReport
     
-    preferred_model = current_user.preferred_ai_model or "gemini-1.5-flash"
+    preferred_model = current_user.preferred_ai_model or "qwen-3-vl-thinking"
     
     stmt = select(AnalysisReport).where(
         AnalysisReport.user_id == current_user.id,

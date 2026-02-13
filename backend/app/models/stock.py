@@ -77,6 +77,7 @@ class MarketDataCache(Base):
     support_1 = Column(Float, nullable=True)      # 支撑位 S1
     support_2 = Column(Float, nullable=True)      # 支撑位 S2
     risk_reward_ratio = Column(Float, nullable=True) # 盈亏比 (Reward/Risk Ratio)
+    is_ai_strategy = Column(Boolean, default=False)  # 是否为 AI 专家策略 (避免被通用算法覆盖)
     
     market_status = Column(String, default=MarketStatus.CLOSED.value) # 市场状态
     last_updated = Column(DateTime, default=datetime.utcnow, index=True) # 最后更新时间

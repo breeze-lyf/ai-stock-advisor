@@ -187,11 +187,24 @@ class MarketDataService:
             cache.macd_is_new_cross = ind.get('macd_is_new_cross', cache.macd_is_new_cross)
             cache.adx_14 = ind.get('adx_14', cache.adx_14)
             cache.pivot_point = ind.get('pivot_point', cache.pivot_point)
-            cache.resistance_1 = ind.get('resistance_1', cache.resistance_1)
-            cache.resistance_2 = ind.get('resistance_2', cache.resistance_2)
-            cache.support_1 = ind.get('support_1', cache.support_1)
-            cache.support_2 = ind.get('support_2', cache.support_2)
-            cache.risk_reward_ratio = ind.get('risk_reward_ratio', cache.risk_reward_ratio)
+            
+            # --- 严格盈亏比逻辑 (Strict AI RRR Logic) ---
+            if cache.is_ai_strategy:
+                # 场景 A: AI 策略生效中 -> 锁定关键点位，仅动态重算 RRR
+                # 只要价格在 止损~目标 之间，就实时计算 RRR；否则保持原值或置空
+                # 注意：此时绝不更新 resistance_1 (Target) 和 support_1 (Stop)
+                if cache.resistance_1 and cache.support_1 and cache.current_price:
+                    reward = cache.resistance_1 - cache.current_price
+                    risk = cache.current_price - cache.support_1
+                    if risk > 0 and reward > 0:
+                        cache.risk_reward_ratio = round(reward / risk, 2)
+            else:
+                # 场景 B: 无 AI 策略 -> 更新通用支撑阻力，但清空 RRR (用户强制要求)
+                cache.resistance_1 = ind.get('resistance_1', cache.resistance_1)
+                cache.resistance_2 = ind.get('resistance_2', cache.resistance_2)
+                cache.support_1 = ind.get('support_1', cache.support_1)
+                cache.support_2 = ind.get('support_2', cache.support_2)
+                cache.risk_reward_ratio = None # 绝不使用通用 Math 公式
 
         cache.market_status = MarketStatus.OPEN
         cache.last_updated = now

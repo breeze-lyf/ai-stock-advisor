@@ -374,25 +374,8 @@ export function StockDetail({
                     const activeZone = zones.find(z => current >= z.start && current <= z.end) || 
                                      (current < axisMin ? zones[0] : zones[zones.length-1]);
 
-                    // Calculate fallback R/R ratio if missing (Dynamic Opportunity Mode)
-                    let effectiveRR = aiData.rr_ratio;
-                    if (!effectiveRR && target && stop) {
-                        if (current <= stop || current >= target) {
-                            // Already hit stop-loss or reached target: no meat left
-                            effectiveRR = "0.00";
-                        } else if (current) {
-                            // Within range: calculate Live R/R based on current price
-                            const risk = current - stop;
-                            const reward = target - current;
-                            effectiveRR = (reward / risk).toFixed(2);
-                        } else {
-                            // No live price: fallback to strategic blueprint (Entry Low)
-                            const entry = aiData.entry_price_low || aiData.entry_price_high || ((target + stop) / 2);
-                            const risk = entry - stop;
-                            const reward = target - entry;
-                            effectiveRR = (reward / risk).toFixed(2);
-                        }
-                    }
+                    // Use backend-provided R/R ratio strictly
+                    const effectiveRR = aiData.rr_ratio;
 
                     return (
                         <div className="space-y-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none animate-in fade-in slide-in-from-bottom-2 duration-700">

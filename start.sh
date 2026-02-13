@@ -36,6 +36,12 @@ cd backend
 $PIP_EXEC install -r requirements.txt > /dev/null 2>&1
 $PYTHON_EXEC -m uvicorn app.main:app --reload --port 8000 &
 BACKEND_PID=$!
+
+# Start Auto Refresh Script (Background Job)
+echo "🔄 Starting Auto Refresh Script..."
+$PYTHON_EXEC scripts/auto_refresh_market_data.py > auto_refresh.log 2>&1 &
+REFRESH_PID=$!
+
 cd ..
 
 # Start Frontend

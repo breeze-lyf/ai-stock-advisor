@@ -127,7 +127,8 @@ async def analyze_portfolio(
         market_news=market_news_context,
         model=preferred_model,
         api_key_gemini=gemini_key,
-        api_key_siliconflow=siliconflow_key
+        api_key_siliconflow=siliconflow_key,
+        db=db
     )
     
     logger.info(f"AI Portfolio Analysis Response: {ai_raw_response[:500]}...")
@@ -349,6 +350,15 @@ async def analyze_stock(
             if cached_report.entry_price_low is None and cached_report.entry_price_high is None:
                 cached_report.entry_price_low, cached_report.entry_price_high = extract_entry_prices_fallback(cached_report.action_advice)
             
+            # 补全历史数据的盈亏比 (Fill missing RRR for legacy reports)
+            final_rr = cached_report.rr_ratio
+            if not final_rr and cached_report.target_price and cached_report.stop_loss_price:
+                curr_p = market_data.get("current_price") or 0.0
+                reward = cached_report.target_price - curr_p
+                risk = curr_p - cached_report.stop_loss_price
+                if risk > 0 and reward > 0:
+                    final_rr = f"{reward/risk:.2f}"
+
             logger.info(f"Returning latest report for {ticker} (model: {preferred_model})")
             return {
                 "ticker": ticker,
@@ -367,7 +377,7 @@ async def analyze_stock(
                 "entry_zone": cached_report.entry_zone or extract_entry_zone_fallback(cached_report.action_advice),
                 "entry_price_low": cached_report.entry_price_low,
                 "entry_price_high": cached_report.entry_price_high,
-                "rr_ratio": cached_report.rr_ratio,
+                "rr_ratio": final_rr,
                 "is_cached": True,
                 "model_used": cached_report.model_used,
                 "created_at": cached_report.created_at
@@ -385,7 +395,8 @@ async def analyze_stock(
         fundamental_data=fundamental_data,
         model=preferred_model,
         api_key_gemini=gemini_key,
-        api_key_siliconflow=siliconflow_key
+        api_key_siliconflow=siliconflow_key,
+        db=db
     )
     
     # 记录 Prompt 日志
@@ -433,6 +444,18 @@ async def analyze_stock(
             }
 
 
+    # 7.5 盈亏比自动补全 (RRR Auto-completion)
+    final_rr_str = to_str(parsed_data.get("rr_ratio"))
+    if not final_rr_str:
+        target = to_float(parsed_data.get("target_price"))
+        stop = to_float(parsed_data.get("stop_loss_price"))
+        curr_p = market_data.get("current_price") or 0.0
+        if target and stop and curr_p:
+            reward = target - curr_p
+            risk = curr_p - stop
+            if risk > 0 and reward > 0:
+                final_rr_str = f"{reward/risk:.2f}"
+
     # 8. 持久化分析结果 (存入独立字段)
     new_report = None
     try:
@@ -455,7 +478,7 @@ async def analyze_stock(
             entry_zone=to_str(parsed_data.get("entry_zone")),
             entry_price_low=to_float(parsed_data.get("entry_price_low")),
             entry_price_high=to_float(parsed_data.get("entry_price_high")),
-            rr_ratio=to_str(parsed_data.get("rr_ratio")),
+            rr_ratio=final_rr_str,
             input_context_snapshot={
                 "market_data": market_data,
                 "portfolio_data": portfolio_data
@@ -503,11 +526,13 @@ async def analyze_stock(
                 
                 if effective_rrr is not None:
                     cache_to_sync.risk_reward_ratio = effective_rrr
+                    # 标记为 AI 策略，防止被行情自动刷新任务的通用公式覆盖
+                    cache_to_sync.is_ai_strategy = True
                     # 同时同步支撑阻力位以便列表 tooltip 也能显示正确值
                     cache_to_sync.resistance_1 = new_report.target_price
                     cache_to_sync.support_1 = new_report.stop_loss_price
                     await db.commit()
-                    logger.info(f"✅ Synced AI RRR ({effective_rrr}) to MarketDataCache for {ticker}")
+                    logger.info(f"✅ Synced AI RRR ({effective_rrr}) to MarketDataCache for {ticker} (Strategy Locked)")
     except Exception as sync_e:
         logger.error(f"Failed to sync AI RRR to cache: {sync_e}")
 
@@ -528,7 +553,7 @@ async def analyze_stock(
         "entry_zone": new_report.entry_zone if new_report else to_str(parsed_data.get("entry_zone")),
         "entry_price_low": new_report.entry_price_low if new_report else to_float(parsed_data.get("entry_price_low")),
         "entry_price_high": new_report.entry_price_high if new_report else to_float(parsed_data.get("entry_price_high")),
-        "rr_ratio": to_str(parsed_data.get("rr_ratio")),
+        "rr_ratio": final_rr_str,
         "is_cached": False,
         "model_used": preferred_model,
         "created_at": new_report.created_at if new_report else datetime.utcnow()
@@ -560,6 +585,21 @@ async def get_latest_analysis(
     if not report:
         raise HTTPException(status_code=404, detail="No analysis found for this stock and model")
     
+    # 补全历史数据的盈亏比 (Fill missing RRR for legacy reports)
+    final_rr = report.rr_ratio
+    if not final_rr and report.target_price and report.stop_loss_price:
+        from app.models.stock import MarketDataCache
+        sync_stmt = select(MarketDataCache).where(MarketDataCache.ticker == ticker)
+        sync_result = await db.execute(sync_stmt)
+        cache_data = sync_result.scalar_one_or_none()
+        
+        curr_p = cache_data.current_price if cache_data else None
+        if curr_p and report.target_price and report.stop_loss_price:
+            reward = report.target_price - curr_p
+            risk = curr_p - report.stop_loss_price
+            if risk > 0 and reward > 0:
+                final_rr = f"{reward/risk:.2f}"
+
     return {
         "ticker": ticker,
         "analysis": report.ai_response_markdown,
@@ -577,7 +617,7 @@ async def get_latest_analysis(
         "entry_zone": report.entry_zone or extract_entry_zone_fallback(report.action_advice),
         "entry_price_low": report.entry_price_low if report.entry_price_low is not None else extract_entry_prices_fallback(report.action_advice)[0],
         "entry_price_high": report.entry_price_high if report.entry_price_high is not None else extract_entry_prices_fallback(report.action_advice)[1],
-        "rr_ratio": report.rr_ratio,
+        "rr_ratio": final_rr,
         "is_cached": True,
         "model_used": report.model_used,
         "created_at": report.created_at

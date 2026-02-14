@@ -3,7 +3,7 @@
 本文档详细说明了 AI 智能投顾系统内的数据流转，涵盖市场数据摄入、AI 分析以及自动刷新周期。
 
 ```mermaid
-graph TD
+flowchart TD
     %% Nodes
     User["用户/客户端"]
     AutoRefresh["自动刷新脚本<br/>(后台任务)"]

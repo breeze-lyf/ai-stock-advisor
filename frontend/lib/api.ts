@@ -195,4 +195,10 @@ export const fetchStockHistory = async (ticker: string, period: string = "1y") =
     return response.data;
 };
 
+/** 强制刷新所有持仓股票数据 */
+export const refreshAllStocks = async (): Promise<{ message: string, updated_count: number }> => {
+    const response = await api.post("/api/stocks/refresh_all");
+    return response.data;
+};
+
 export default api;

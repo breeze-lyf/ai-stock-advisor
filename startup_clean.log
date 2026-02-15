@@ -1,0 +1,58 @@
+🚀 Starting AI Smart Investment Advisor...
+📈 Starting Backend (FastAPI) on port 8000...
+🔄 Starting Auto Refresh Script...
+💻 Starting Frontend (Next.js) on port 3000...
+INFO:     Will watch for changes in these directories: ['/Users/breeze/Dev/ai-stock-advisor/backend']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [64273] using StatReload
+✅ Services are running!
+   - Frontend: http://localhost:3000
+   - Backend:  http://localhost:8000/docs
+Press CTRL+C to stop.
+
+> frontend@0.1.0 dev
+> next dev
+
+2026-02-14 11:00:03,303 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+INFO:     Started server process [64277]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+▲ Next.js 16.1.2 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.10.1.247:3000
+
+✓ Starting...
+✓ Ready in 644ms
+ GET / 200 in 511ms (compile: 341ms, render: 170ms)
+ GET /?ticker=AMAT 200 in 496ms (compile: 301ms, render: 195ms)
+INFO:     127.0.0.1:49514 - "OPTIONS /api/analysis/AMAT HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49515 - "OPTIONS /api/portfolio/?refresh=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49518 - "OPTIONS /api/portfolio/AMAT/news HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49519 - "OPTIONS /api/portfolio/?refresh=false HTTP/1.1" 200 OK
+2026-02-14 11:00:05,071 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=401 user_id=invalid_token time=1.67ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771058931, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771058931, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771058931, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token validation failed: Signature has expired.
+INFO:     127.0.0.1:49519 - "GET /api/portfolio/?refresh=false HTTP/1.1" 401 Unauthorized
+2026-02-14 11:00:05,132 - api_logger - INFO - rid=/api/analysis/AMAT method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=76.95ms
+INFO:     127.0.0.1:49515 - "GET /api/analysis/AMAT HTTP/1.1" 200 OK
+2026-02-14 11:00:05,138 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=73.62ms
+INFO:     127.0.0.1:49514 - "GET /api/portfolio/?refresh=false HTTP/1.1" 200 OK
+2026-02-14 11:00:05,139 - api_logger - INFO - rid=/api/portfolio/AMAT/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=69.61ms
+INFO:     127.0.0.1:49518 - "GET /api/portfolio/AMAT/news HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49514 - "OPTIONS /api/user/me HTTP/1.1" 200 OK
+2026-02-14 11:00:05,143 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1.38ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771058931, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:49514 - "GET /api/user/me HTTP/1.1" 200 OK
+ GET /login 200 in 106ms (compile: 59ms, render: 47ms)
+INFO:     127.0.0.1:49514 - "OPTIONS /api/stocks/AMAT/history?period=1y HTTP/1.1" 200 OK
+2026-02-14 11:00:06,156 - api_logger - INFO - rid=/api/stocks/AMAT/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=931.78ms
+INFO:     127.0.0.1:49514 - "GET /api/stocks/AMAT/history?period=1y HTTP/1.1" 200 OK
+ GET /sw.js 404 in 75ms (compile: 40ms, render: 35ms)
+ GET /sw.js 404 in 15ms (compile: 1493µs, render: 14ms)

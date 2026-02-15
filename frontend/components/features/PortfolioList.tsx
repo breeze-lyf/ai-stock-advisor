@@ -8,7 +8,7 @@ import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import clsx from "clsx";
 import { PortfolioItem } from "@/types";
-import { addPortfolioItem, deletePortfolioItem, refreshStock } from "@/lib/api";
+import { addPortfolioItem, deletePortfolioItem, refreshStock, refreshAllStocks } from "@/lib/api";
 import {
     Tooltip,
     TooltipContent,
@@ -38,7 +38,9 @@ export function PortfolioList({
     const [editForm, setEditForm] = useState({ quantity: "", cost: "" });
     const [sortBy, setSortBy] = useState<"ticker" | "price" | "change">("ticker");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
     const [refreshingTicker, setRefreshingTicker] = useState<string | null>(null);
+    const [isRefreshingAll, setIsRefreshingAll] = useState(false);
 
     const sortedPortfolio = [...portfolio]
         .filter((item) => !onlyHoldings || item.quantity > 0)
@@ -119,7 +121,31 @@ export function PortfolioList({
                         <Filter className={clsx("h-3 w-3", onlyHoldings && "text-blue-500")} />
                     </Button>
                 </div>
-                <Button
+                <div className="flex items-center gap-1">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 text-slate-400 hover:text-blue-500"
+                        title="刷新全部"
+                        onClick={async () => {
+                            if (isRefreshingAll) return;
+                            setIsRefreshingAll(true);
+                            try {
+                                const res = await refreshAllStocks();
+                                console.log(res.message);
+                                onRefresh();
+                            } catch (err) {
+                                console.error("Refresh all failed", err);
+                                alert("刷新失败");
+                            } finally {
+                                setIsRefreshingAll(false);
+                            }
+                        }}
+                        disabled={isRefreshingAll}
+                    >
+                        <RefreshCw className={clsx("h-3.5 w-3.5", isRefreshingAll && "animate-spin text-blue-500")} />
+                    </Button>
+                    <Button
                     variant="outline"
                     size="icon"
                     className="h-6 w-6"
@@ -127,6 +153,7 @@ export function PortfolioList({
                 >
                     <Plus className="h-4 w-4" />
                 </Button>
+                </div>
             </div>
 
             {/* Table Headers */}

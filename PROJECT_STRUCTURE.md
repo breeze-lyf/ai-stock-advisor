@@ -20,7 +20,7 @@
 ### 1.3 业务逻辑层 (Service/Logic Layer)
 
 - **行情适配 (Market Providers)**: `ProviderFactory` 动态调度 `YFinance` (美股) 与 `AkShare` (A股)。
-- **指标引擎 (Technical Indicator Engine)**: `TechnicalIndicators` 基于 Pandas 计算全套指标。
+- **指标引擎 (Technical Indicator Engine)**: `TechnicalIndicators` 基于 Pandas 手动实现 (适配 Python 3.14+)。
 - **研判大脑 (AI Service)**: 调度 LLM 生成结构化投资策略，执行模型降级与 Token 校验。
 
 ### 1.4 数据持久化层 (Persistence Layer)

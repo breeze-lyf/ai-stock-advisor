@@ -56,3 +56,309 @@ INFO:     127.0.0.1:49514 - "OPTIONS /api/stocks/AMAT/history?period=1y HTTP/1.1
 INFO:     127.0.0.1:49514 - "GET /api/stocks/AMAT/history?period=1y HTTP/1.1" 200 OK
  GET /sw.js 404 in 75ms (compile: 40ms, render: 35ms)
  GET /sw.js 404 in 15ms (compile: 1493µs, render: 14ms)
+ GET /?ticker=AMAT 200 in 52ms (compile: 20ms, render: 32ms)
+INFO:     127.0.0.1:51239 - "OPTIONS /api/analysis/AMAT HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51240 - "OPTIONS /api/portfolio/?refresh=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51241 - "OPTIONS /api/portfolio/AMAT/news HTTP/1.1" 200 OK
+2026-02-15 19:46:46,045 - api_logger - INFO - rid=/api/analysis/AMAT method=GET status_code=401 user_id=invalid_token time=9.39ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token validation failed: Signature has expired.
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token validation failed: Signature has expired.
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token validation failed: Signature has expired.
+INFO:     127.0.0.1:51239 - "GET /api/analysis/AMAT HTTP/1.1" 401 Unauthorized
+2026-02-15 19:46:46,045 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=401 user_id=invalid_token time=0.97ms
+INFO:     127.0.0.1:51241 - "GET /api/portfolio/?refresh=false HTTP/1.1" 401 Unauthorized
+2026-02-15 19:46:46,046 - api_logger - INFO - rid=/api/portfolio/AMAT/news method=GET status_code=401 user_id=invalid_token time=1.38ms
+INFO:     127.0.0.1:51240 - "GET /api/portfolio/AMAT/news HTTP/1.1" 401 Unauthorized
+ GET /login 200 in 18ms (compile: 1981µs, render: 16ms)
+2026-02-15 19:46:47,730 - api_logger - INFO - rid=/api/auth/login method=POST status_code=200 user_id=anonymous time=238.15ms
+INFO:     127.0.0.1:51240 - "POST /api/auth/login HTTP/1.1" 200 OK
+ GET /sw.js 404 in 16ms (compile: 2ms, render: 14ms)
+ GET / 200 in 25ms (compile: 1284µs, render: 23ms)
+2026-02-15 19:46:47,827 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=13.91ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:51240 - "GET /api/portfolio/?refresh=false HTTP/1.1" 200 OK
+2026-02-15 19:46:47,833 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=5.15ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:51241 - "GET /api/portfolio/?refresh=false HTTP/1.1" 200 OK
+ GET /?ticker=002050 200 in 8ms (compile: 1302µs, render: 6ms)
+INFO:     127.0.0.1:51241 - "OPTIONS /api/stocks/002050/history?period=1y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51240 - "OPTIONS /api/analysis/002050 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51239 - "OPTIONS /api/stocks/002050/history?period=1y HTTP/1.1" 200 OK
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:51249 - "OPTIONS /api/user/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51250 - "OPTIONS /api/portfolio/002050/news HTTP/1.1" 200 OK
+ GET /?ticker=002050 200 in 10ms (compile: 2ms, render: 8ms)
+2026-02-15 19:46:47,915 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=4.35ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:51252 - "GET /api/user/me HTTP/1.1" 200 OK
+2026-02-15 19:46:47,918 - api_logger - INFO - rid=/api/portfolio/002050/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=7.19ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:51254 - "GET /api/portfolio/002050/news HTTP/1.1" 200 OK
+2026-02-15 19:46:47,920 - api_logger - INFO - rid=/api/analysis/002050 method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=16.06ms
+INFO:     127.0.0.1:51240 - "GET /api/analysis/002050 HTTP/1.1" 200 OK
+2026-02-15 19:46:47,921 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=5.04ms
+INFO:     127.0.0.1:51252 - "GET /api/user/me HTTP/1.1" 200 OK
+2026-02-15 19:46:47,968 - api_logger - INFO - rid=/api/stocks/002050/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=67.74ms
+INFO:     127.0.0.1:51241 - "GET /api/stocks/002050/history?period=1y HTTP/1.1" 200 OK
+2026-02-15 19:46:48,018 - api_logger - INFO - rid=/api/stocks/002050/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=48.37ms
+INFO:     127.0.0.1:51252 - "GET /api/stocks/002050/history?period=1y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51252 - "OPTIONS /api/stocks/refresh_all HTTP/1.1" 200 OK
+2026-02-15 19:46:52,560 - app.services.market_providers.tavily - WARNING - TAVILY_API_KEY not set. TavilyProvider will be disabled.
+2026-02-15 19:46:52,562 - app.services.market_providers.akshare - INFO - AkShare Cache Expired or Empty. Fetching full market spot data...
+  0%|          | 0/58 [00:00<?, ?it/s]2026-02-15 19:46:53,350 - app.services.market_providers.tavily - WARNING - TAVILY_API_KEY not set. TavilyProvider will be disabled.
+  2%|▏         | 1/58 [00:01<01:16,  1.35s/it]  3%|▎         | 2/58 [00:02<01:15,  1.35s/it]  5%|▌         | 3/58 [00:03<01:10,  1.28s/it]  7%|▋         | 4/58 [00:05<01:11,  1.33s/it]  9%|▊         | 5/58 [00:06<01:07,  1.26s/it] 10%|█         | 6/58 [00:07<01:09,  1.33s/it] 12%|█▏        | 7/58 [00:09<01:10,  1.38s/it] 14%|█▍        | 8/58 [00:10<01:05,  1.32s/it] 16%|█▌        | 9/58 [00:11<01:03,  1.29s/it] 17%|█▋        | 10/58 [00:12<00:53,  1.11s/it] 19%|█▉        | 11/58 [00:13<00:53,  1.13s/it]2026-02-15 19:47:07,561 - app.services.market_providers.akshare - INFO - AkShare Cache Expired or Empty. Fetching full market spot data...
+2026-02-15 19:47:07,563 - app.services.market_data - WARNING - Timeout fetching data for 002050, partial data may be returned.
+Failed to refresh AAPL: Method 'commit()' can't be called here; method '_prepare_impl()' is already in progress and this would cause an unexpected state change to <SessionTransactionState.CLOSED: 5> (Background on this error at: https://sqlalche.me/e/20/isce)
+Failed to refresh SLV: This transaction is closed
+Failed to refresh MSFT: This session is provisioning a new connection; concurrent operations are not permitted (Background on this error at: https://sqlalche.me/e/20/isce)
+Failed to refresh NBIS: This session is provisioning a new connection; concurrent operations are not permitted (Background on this error at: https://sqlalche.me/e/20/isce)
+Failed to refresh NDX: This session is provisioning a new connection; concurrent operations are not permitted (Background on this error at: https://sqlalche.me/e/20/isce)
+Failed to refresh NET: This session is provisioning a new connection; concurrent operations are not permitted (Background on this error at: https://sqlalche.me/e/20/isce)
+Failed to refresh NVDA: This session is provisioning a new connection; concurrent operations are not permitted (Background on this error at: https://sqlalche.me/e/20/isce)
+Failed to refresh OKLO: This session is provisioning a new connection; concurrent operations are not permitted (Background on this error at: https://sqlalche.me/e/20/isce)
+Failed to refresh SIDU: Method 'commit()' can't be called here; method '_prepare_impl()' is already in progress and this would cause an unexpected state change to <SessionTransactionState.CLOSED: 5> (Background on this error at: https://sqlalche.me/e/20/isce)
+Failed to refresh ORCL: This transaction is closed
+
+  0%|          | 0/58 [00:00<?, ?it/s][A 21%|██        | 12/58 [00:15<00:56,  1.22s/it]
+  2%|▏         | 1/58 [00:00<00:40,  1.41it/s][A2026-02-15 19:47:08,352 - app.services.market_data - WARNING - Timeout fetching data for 002970, partial data may be returned.
+2026-02-15 19:47:08,357 - api_logger - INFO - rid=/api/stocks/refresh_all method=POST status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=15804.16ms
+INFO:     127.0.0.1:51252 - "POST /api/stocks/refresh_all HTTP/1.1" 200 OK
+2026-02-15 19:47:08,373 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=9.06ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:51463 - "GET /api/portfolio/?refresh=false HTTP/1.1" 200 OK
+ 22%|██▏       | 13/58 [00:16<00:52,  1.16s/it] 24%|██▍       | 14/58 [00:17<00:47,  1.08s/it]
+  3%|▎         | 2/58 [00:02<01:02,  1.11s/it][A 26%|██▌       | 15/58 [00:17<00:42,  1.01it/s] GET /?ticker=AMD 200 in 17ms (compile: 5ms, render: 12ms)
+
+  5%|▌         | 3/58 [00:03<01:07,  1.23s/it][AINFO:     127.0.0.1:51463 - "OPTIONS /api/stocks/AMD/history?period=1y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51483 - "OPTIONS /api/analysis/AMD HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51485 - "OPTIONS /api/stocks/AMD/history?period=1y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51463 - "OPTIONS /api/portfolio/AMD/news HTTP/1.1" 200 OK
+2026-02-15 19:47:11,203 - api_logger - INFO - rid=/api/portfolio/002050/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=13.46ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:51489 - "GET /api/portfolio/002050/news HTTP/1.1" 200 OK
+2026-02-15 19:47:11,205 - api_logger - INFO - rid=/api/analysis/AMD method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=17.46ms
+INFO:     127.0.0.1:51485 - "GET /api/analysis/AMD HTTP/1.1" 200 OK
+2026-02-15 19:47:11,207 - api_logger - INFO - rid=/api/portfolio/AMD/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=16.82ms
+INFO:     127.0.0.1:51463 - "GET /api/portfolio/AMD/news HTTP/1.1" 200 OK
+2026-02-15 19:47:11,209 - api_logger - INFO - rid=/api/analysis/002050 method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=23.21ms
+INFO:     127.0.0.1:51487 - "GET /api/analysis/002050 HTTP/1.1" 200 OK
+2026-02-15 19:47:11,225 - api_logger - INFO - rid=/api/analysis/AMD method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=4.66ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:51487 - "GET /api/analysis/AMD HTTP/1.1" 200 OK
+2026-02-15 19:47:11,227 - api_logger - INFO - rid=/api/portfolio/AMD/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=5.98ms
+INFO:     127.0.0.1:51463 - "GET /api/portfolio/AMD/news HTTP/1.1" 200 OK
+2026-02-15 19:47:11,246 - api_logger - INFO - rid=/api/stocks/002050/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=61.30ms
+INFO:     127.0.0.1:51486 - "GET /api/stocks/002050/history?period=1y HTTP/1.1" 200 OK
+2026-02-15 19:47:11,293 - api_logger - INFO - rid=/api/stocks/002050/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=45.87ms
+INFO:     127.0.0.1:51463 - "GET /api/stocks/002050/history?period=1y HTTP/1.1" 200 OK
+2026-02-15 19:47:11,387 - api_logger - INFO - rid=/api/stocks/AMD/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=199.60ms
+INFO:     127.0.0.1:51483 - "GET /api/stocks/AMD/history?period=1y HTTP/1.1" 200 OK
+ 28%|██▊       | 16/58 [00:18<00:42,  1.02s/it]2026-02-15 19:47:11,594 - api_logger - INFO - rid=/api/stocks/AMD/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=204.58ms
+INFO:     127.0.0.1:51463 - "GET /api/stocks/AMD/history?period=1y HTTP/1.1" 200 OK
+2026-02-15 19:47:11,802 - api_logger - INFO - rid=/api/stocks/AMD/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=206.41ms
+INFO:     127.0.0.1:51483 - "GET /api/stocks/AMD/history?period=1y HTTP/1.1" 200 OK
+2026-02-15 19:47:11,928 - api_logger - INFO - rid=/api/stocks/AMD/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=124.77ms
+INFO:     127.0.0.1:51463 - "GET /api/stocks/AMD/history?period=1y HTTP/1.1" 200 OK
+
+  7%|▋         | 4/58 [00:04<01:07,  1.26s/it][A 29%|██▉       | 17/58 [00:20<00:47,  1.16s/it]
+  9%|▊         | 5/58 [00:05<01:05,  1.23s/it][A 31%|███       | 18/58 [00:21<00:40,  1.01s/it] GET /?ticker=002970 200 in 18ms (compile: 4ms, render: 14ms)
+INFO:     127.0.0.1:51463 - "OPTIONS /api/stocks/002970/history?period=1y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51483 - "OPTIONS /api/analysis/002970 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51486 - "OPTIONS /api/stocks/002970/history?period=1y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51489 - "OPTIONS /api/portfolio/002970/news HTTP/1.1" 200 OK
+2026-02-15 19:47:13,983 - api_logger - INFO - rid=/api/analysis/002970 method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=14.36ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:51486 - "GET /api/analysis/002970 HTTP/1.1" 200 OK
+2026-02-15 19:47:13,987 - api_logger - INFO - rid=/api/portfolio/002970/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=16.40ms
+INFO:     127.0.0.1:51489 - "GET /api/portfolio/002970/news HTTP/1.1" 200 OK
+2026-02-15 19:47:13,988 - api_logger - INFO - rid=/api/portfolio/AMD/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=21.68ms
+INFO:     127.0.0.1:51463 - "GET /api/portfolio/AMD/news HTTP/1.1" 200 OK
+2026-02-15 19:47:13,988 - api_logger - INFO - rid=/api/analysis/AMD method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=24.60ms
+INFO:     127.0.0.1:51485 - "GET /api/analysis/AMD HTTP/1.1" 200 OK
+2026-02-15 19:47:14,001 - api_logger - INFO - rid=/api/analysis/002970 method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=4.17ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:51485 - "GET /api/analysis/002970 HTTP/1.1" 200 OK
+2026-02-15 19:47:14,003 - api_logger - INFO - rid=/api/portfolio/002970/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=5.28ms
+INFO:     127.0.0.1:51463 - "GET /api/portfolio/002970/news HTTP/1.1" 200 OK
+2026-02-15 19:47:14,025 - api_logger - INFO - rid=/api/stocks/002970/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=57.55ms
+INFO:     127.0.0.1:51483 - "GET /api/stocks/002970/history?period=1y HTTP/1.1" 200 OK
+2026-02-15 19:47:14,074 - api_logger - INFO - rid=/api/stocks/002970/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=47.48ms
+INFO:     127.0.0.1:51463 - "GET /api/stocks/002970/history?period=1y HTTP/1.1" 200 OK
+2026-02-15 19:47:14,121 - api_logger - INFO - rid=/api/stocks/002970/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=46.16ms
+INFO:     127.0.0.1:51483 - "GET /api/stocks/002970/history?period=1y HTTP/1.1" 200 OK
+2026-02-15 19:47:14,153 - api_logger - INFO - rid=/api/stocks/AMD/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=190.10ms
+INFO:     127.0.0.1:51487 - "GET /api/stocks/AMD/history?period=1y HTTP/1.1" 200 OK
+2026-02-15 19:47:14,173 - api_logger - INFO - rid=/api/stocks/002970/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=49.71ms
+INFO:     127.0.0.1:51463 - "GET /api/stocks/002970/history?period=1y HTTP/1.1" 200 OK
+
+ 10%|█         | 6/58 [00:06<00:55,  1.07s/it][A2026-02-15 19:47:14,354 - api_logger - INFO - rid=/api/stocks/AMD/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=200.20ms
+INFO:     127.0.0.1:51483 - "GET /api/stocks/AMD/history?period=1y HTTP/1.1" 200 OK
+ GET /?ticker=002050 200 in 31ms (compile: 6ms, render: 25ms)
+2026-02-15 19:47:15,007 - api_logger - INFO - rid=/api/analysis/002970 method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=21.28ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:51485 - "GET /api/analysis/002970 HTTP/1.1" 200 OK
+2026-02-15 19:47:15,008 - api_logger - INFO - rid=/api/portfolio/002050/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=22.43ms
+INFO:     127.0.0.1:51489 - "GET /api/portfolio/002050/news HTTP/1.1" 200 OK
+2026-02-15 19:47:15,009 - api_logger - INFO - rid=/api/portfolio/002970/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=23.58ms
+INFO:     127.0.0.1:51486 - "GET /api/portfolio/002970/news HTTP/1.1" 200 OK
+2026-02-15 19:47:15,010 - api_logger - INFO - rid=/api/analysis/002050 method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=25.27ms
+INFO:     127.0.0.1:51463 - "GET /api/analysis/002050 HTTP/1.1" 200 OK
+2026-02-15 19:47:15,024 - api_logger - INFO - rid=/api/portfolio/002050/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=4.62ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:51486 - "GET /api/portfolio/002050/news HTTP/1.1" 200 OK
+2026-02-15 19:47:15,025 - api_logger - INFO - rid=/api/analysis/002050 method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=6.34ms
+INFO:     127.0.0.1:51463 - "GET /api/analysis/002050 HTTP/1.1" 200 OK
+2026-02-15 19:47:15,059 - api_logger - INFO - rid=/api/stocks/002970/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=74.06ms
+INFO:     127.0.0.1:51487 - "GET /api/stocks/002970/history?period=1y HTTP/1.1" 200 OK
+ 33%|███▎      | 19/58 [00:22<00:43,  1.12s/it]2026-02-15 19:47:15,062 - api_logger - INFO - rid=/api/stocks/002050/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=78.11ms
+INFO:     127.0.0.1:51483 - "GET /api/stocks/002050/history?period=1y HTTP/1.1" 200 OK
+2026-02-15 19:47:15,123 - api_logger - INFO - rid=/api/stocks/002970/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=60.61ms
+INFO:     127.0.0.1:51463 - "GET /api/stocks/002970/history?period=1y HTTP/1.1" 200 OK
+2026-02-15 19:47:15,123 - api_logger - INFO - rid=/api/stocks/002050/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=60.73ms
+INFO:     127.0.0.1:51487 - "GET /api/stocks/002050/history?period=1y HTTP/1.1" 200 OK
+2026-02-15 19:47:15,167 - api_logger - INFO - rid=/api/stocks/002050/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=42.69ms
+INFO:     127.0.0.1:51483 - "GET /api/stocks/002050/history?period=1y HTTP/1.1" 200 OK
+2026-02-15 19:47:15,216 - api_logger - INFO - rid=/api/stocks/002050/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=47.77ms
+INFO:     127.0.0.1:51487 - "GET /api/stocks/002050/history?period=1y HTTP/1.1" 200 OK
+
+ 12%|█▏        | 7/58 [00:07<00:51,  1.02s/it][A GET /?ticker=AAPL 200 in 18ms (compile: 3ms, render: 15ms)
+INFO:     127.0.0.1:51487 - "OPTIONS /api/stocks/AAPL/history?period=1y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51483 - "OPTIONS /api/analysis/AAPL HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51463 - "OPTIONS /api/stocks/AAPL/history?period=1y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51485 - "OPTIONS /api/portfolio/AAPL/news HTTP/1.1" 200 OK
+2026-02-15 19:47:15,682 - api_logger - INFO - rid=/api/portfolio/002050/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=13.63ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:51487 - "GET /api/portfolio/002050/news HTTP/1.1" 200 OK
+2026-02-15 19:47:15,686 - api_logger - INFO - rid=/api/analysis/AAPL method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=14.51ms
+INFO:     127.0.0.1:51463 - "GET /api/analysis/AAPL HTTP/1.1" 200 OK
+2026-02-15 19:47:15,687 - api_logger - INFO - rid=/api/analysis/002050 method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=21.36ms
+INFO:     127.0.0.1:51489 - "GET /api/analysis/002050 HTTP/1.1" 200 OK
+2026-02-15 19:47:15,690 - api_logger - INFO - rid=/api/portfolio/AAPL/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=16.49ms
+INFO:     127.0.0.1:51485 - "GET /api/portfolio/AAPL/news HTTP/1.1" 200 OK
+2026-02-15 19:47:15,716 - api_logger - INFO - rid=/api/analysis/AAPL method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=10.05ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:51485 - "GET /api/analysis/AAPL HTTP/1.1" 200 OK
+2026-02-15 19:47:15,716 - api_logger - INFO - rid=/api/portfolio/AAPL/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=8.96ms
+INFO:     127.0.0.1:51489 - "GET /api/portfolio/AAPL/news HTTP/1.1" 200 OK
+2026-02-15 19:47:15,730 - api_logger - INFO - rid=/api/stocks/002050/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=64.47ms
+INFO:     127.0.0.1:51486 - "GET /api/stocks/002050/history?period=1y HTTP/1.1" 200 OK
+2026-02-15 19:47:15,784 - api_logger - INFO - rid=/api/stocks/002050/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=51.50ms
+INFO:     127.0.0.1:51489 - "GET /api/stocks/002050/history?period=1y HTTP/1.1" 200 OK
+2026-02-15 19:47:15,916 - api_logger - INFO - rid=/api/stocks/AAPL/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=245.59ms
+INFO:     127.0.0.1:51483 - "GET /api/stocks/AAPL/history?period=1y HTTP/1.1" 200 OK
+2026-02-15 19:47:16,176 - api_logger - INFO - rid=/api/stocks/AAPL/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=259.02ms
+INFO:     127.0.0.1:51489 - "GET /api/stocks/AAPL/history?period=1y HTTP/1.1" 200 OK
+
+ 14%|█▍        | 8/58 [00:08<00:51,  1.03s/it][A2026-02-15 19:47:16,300 - api_logger - INFO - rid=/api/stocks/AAPL/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=121.86ms
+INFO:     127.0.0.1:51483 - "GET /api/stocks/AAPL/history?period=1y HTTP/1.1" 200 OK
+ 34%|███▍      | 20/58 [00:23<00:46,  1.23s/it]2026-02-15 19:47:16,562 - api_logger - INFO - rid=/api/stocks/AAPL/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=260.41ms
+INFO:     127.0.0.1:51489 - "GET /api/stocks/AAPL/history?period=1y HTTP/1.1" 200 OK
+
+ 16%|█▌        | 9/58 [00:09<00:43,  1.13it/s][A
+ 17%|█▋        | 10/58 [00:10<00:42,  1.12it/s][A 36%|███▌      | 21/58 [00:25<00:46,  1.26s/it] 38%|███▊      | 22/58 [00:25<00:38,  1.07s/it]
+ 19%|█▉        | 11/58 [00:11<00:44,  1.06it/s][A
+ 21%|██        | 12/58 [00:11<00:39,  1.16it/s][A 40%|███▉      | 23/58 [00:27<00:41,  1.18s/it]
+ 22%|██▏       | 13/58 [00:13<00:45,  1.00s/it][A 41%|████▏     | 24/58 [00:28<00:43,  1.28s/it]
+ 24%|██▍       | 14/58 [00:13<00:41,  1.07it/s][A 43%|████▎     | 25/58 [00:29<00:36,  1.10s/it]
+ 26%|██▌       | 15/58 [00:15<00:46,  1.07s/it][A 45%|████▍     | 26/58 [00:30<00:38,  1.21s/it]
+ 28%|██▊       | 16/58 [00:16<00:40,  1.04it/s][A
+ 29%|██▉       | 17/58 [00:17<00:41,  1.01s/it][A 47%|████▋     | 27/58 [00:32<00:38,  1.26s/it]
+ 31%|███       | 18/58 [00:18<00:38,  1.05it/s][A 48%|████▊     | 28/58 [00:33<00:39,  1.31s/it] 50%|█████     | 29/58 [00:34<00:32,  1.11s/it]
+ 33%|███▎      | 19/58 [00:20<00:50,  1.28s/it][A 52%|█████▏    | 30/58 [00:35<00:27,  1.03it/s]
+ 34%|███▍      | 20/58 [00:20<00:42,  1.11s/it][A 53%|█████▎    | 31/58 [00:35<00:23,  1.13it/s] 55%|█████▌    | 32/58 [00:37<00:26,  1.01s/it]
+ 36%|███▌      | 21/58 [00:22<00:45,  1.23s/it][A
+ 38%|███▊      | 22/58 [00:23<00:38,  1.07s/it][A 57%|█████▋    | 33/58 [00:38<00:27,  1.09s/it]
+ 40%|███▉      | 23/58 [00:24<00:39,  1.13s/it][A 59%|█████▊    | 34/58 [00:39<00:29,  1.21s/it]
+ 41%|████▏     | 24/58 [00:24<00:33,  1.01it/s][A 60%|██████    | 35/58 [00:40<00:26,  1.17s/it]
+ 43%|████▎     | 25/58 [00:26<00:38,  1.15s/it][A 62%|██████▏   | 36/58 [00:41<00:22,  1.03s/it]
+ 45%|████▍     | 26/58 [00:27<00:32,  1.01s/it][A 64%|██████▍   | 37/58 [00:42<00:20,  1.02it/s] 66%|██████▌   | 38/58 [00:43<00:20,  1.03s/it]
+ 47%|████▋     | 27/58 [00:28<00:36,  1.19s/it][A
+ 48%|████▊     | 28/58 [00:30<00:38,  1.27s/it][A 67%|██████▋   | 39/58 [00:45<00:25,  1.32s/it]
+ 50%|█████     | 29/58 [00:31<00:35,  1.21s/it][A 69%|██████▉   | 40/58 [00:47<00:24,  1.36s/it]
+ 52%|█████▏    | 30/58 [00:32<00:30,  1.10s/it][A 71%|███████   | 41/58 [00:47<00:19,  1.15s/it]
+ 53%|█████▎    | 31/58 [00:33<00:30,  1.12s/it][A 72%|███████▏  | 42/58 [00:48<00:18,  1.17s/it]
+ 55%|█████▌    | 32/58 [00:34<00:28,  1.10s/it][A 74%|███████▍  | 43/58 [00:50<00:17,  1.18s/it]
+ 57%|█████▋    | 33/58 [00:35<00:28,  1.15s/it][A 76%|███████▌  | 44/58 [00:51<00:15,  1.10s/it]
+ 59%|█████▊    | 34/58 [00:36<00:25,  1.04s/it][A 78%|███████▊  | 45/58 [00:52<00:14,  1.15s/it]
+ 60%|██████    | 35/58 [00:37<00:24,  1.06s/it][A
+ 62%|██████▏   | 36/58 [00:38<00:20,  1.07it/s][A 79%|███████▉  | 46/58 [00:53<00:13,  1.11s/it]
+ 64%|██████▍   | 37/58 [00:39<00:21,  1.00s/it][A 81%|████████  | 47/58 [00:54<00:12,  1.17s/it]
+ 66%|██████▌   | 38/58 [00:40<00:21,  1.09s/it][A 83%|████████▎ | 48/58 [00:55<00:11,  1.18s/it]
+ 67%|██████▋   | 39/58 [00:41<00:18,  1.04it/s][A 84%|████████▍ | 49/58 [00:57<00:11,  1.25s/it]
+ 69%|██████▉   | 40/58 [00:42<00:20,  1.11s/it][A 86%|████████▌ | 50/58 [00:58<00:10,  1.26s/it]
+ 71%|███████   | 41/58 [00:44<00:20,  1.19s/it][A 88%|████████▊ | 51/58 [00:59<00:07,  1.09s/it] 90%|████████▉ | 52/58 [01:00<00:06,  1.01s/it]
+ 72%|███████▏  | 42/58 [00:45<00:18,  1.16s/it][A 91%|█████████▏| 53/58 [01:00<00:04,  1.08it/s] 93%|█████████▎| 54/58 [01:01<00:03,  1.21it/s]
+ 74%|███████▍  | 43/58 [00:46<00:18,  1.24s/it][A
+ 76%|███████▌  | 44/58 [00:47<00:15,  1.12s/it][A 95%|█████████▍| 55/58 [01:02<00:02,  1.08it/s]
+ 78%|███████▊  | 45/58 [00:48<00:13,  1.04s/it][A 97%|█████████▋| 56/58 [01:03<00:02,  1.09s/it]
+ 79%|███████▉  | 46/58 [00:49<00:12,  1.00s/it][A
+ 81%|████████  | 47/58 [00:49<00:10,  1.08it/s][A 98%|█████████▊| 57/58 [01:04<00:01,  1.06s/it]
+ 83%|████████▎ | 48/58 [00:50<00:09,  1.04it/s][A100%|██████████| 58/58 [01:06<00:00,  1.14s/it]                                               
+ 84%|████████▍ | 49/58 [00:51<00:08,  1.05it/s][A
+ 86%|████████▌ | 50/58 [00:53<00:08,  1.08s/it][A
+ 88%|████████▊ | 51/58 [00:54<00:07,  1.13s/it][A
+ 90%|████████▉ | 52/58 [00:55<00:06,  1.11s/it][A
+ 91%|█████████▏| 53/58 [00:56<00:04,  1.05it/s][A
+ 93%|█████████▎| 54/58 [00:56<00:03,  1.15it/s][A
+ 95%|█████████▍| 55/58 [00:57<00:02,  1.24it/s][A
+ 97%|█████████▋| 56/58 [00:58<00:01,  1.25it/s][A
+ 98%|█████████▊| 57/58 [00:58<00:00,  1.38it/s][A
+100%|██████████| 58/58 [01:00<00:00,  1.11it/s][A
+                                               [AINFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [64277]
+INFO:     Stopping reloader process [64273]
+/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/resource_tracker.py:396: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown: {'/mp-x40ea9kd'}
+  warnings.warn(

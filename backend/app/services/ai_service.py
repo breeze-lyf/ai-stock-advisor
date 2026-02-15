@@ -13,6 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.models.ai_config import AIModelConfig
 import time
+from datetime import datetime
 
 # AI 分析服务 (AI Analysis Service)
 # 核心职责 (Core Responsibilities):
@@ -130,8 +131,9 @@ class AIService:
             logger.error(f"SiliconFlow Exception: {str(e)}\n{traceback.format_exc()}")
             return f"**Error**: SiliconFlow 网络异常。{str(e)}"
 
+
     @staticmethod
-    async def generate_analysis(ticker: str, market_data: dict, portfolio_data: dict, news_data: list = None, fundamental_data: dict = None, model: str = "gemini-1.5-flash", api_key_gemini: str = None, api_key_siliconflow: str = None, db: AsyncSession = None) -> str:
+    async def generate_analysis(ticker: str, market_data: dict, portfolio_data: dict, news_data: list = None, fundamental_data: dict = None, previous_analysis: dict = None, model: str = "gemini-1.5-flash", api_key_gemini: str = None, api_key_siliconflow: str = None, db: AsyncSession = None) -> str:
         """
         生成单支股票的深度投资分析报告 (Generate Single Stock Analysis)
         
@@ -181,7 +183,22 @@ class AIService:
         **4. 最新消息面 (Recent News)**:
         {news_data if news_data else "暂无重大相关新闻。"}
         
+        **5. 历史分析上下文 (Historical Context - Previous AI Analysis)**:
+        {f'''
+        - 上次分析时间: {previous_analysis.get('time', '未知')}
+        - 上次信心及风险: 信心(Confidence): {previous_analysis.get('confidence_level', '无')}/100 | 风险(Risk): {previous_analysis.get('risk_level', '无')}
+        - 上次研判结论: {previous_analysis.get('summary_status', '无')} (评分: {previous_analysis.get('sentiment_score', '无')})
+        - 上次策略建议: {previous_analysis.get('immediate_action', '无')} (期限: {previous_analysis.get('investment_horizon', '无')})
+        - 上次关键点位:
+            * 建仓区间: {previous_analysis.get('entry_price_low', '无')} - {previous_analysis.get('entry_price_high', '无')}
+            * 止盈目标: {previous_analysis.get('target_price', '无')}
+            * 止损红线: {previous_analysis.get('stop_loss_price', '无')}
+        - 上次核心观点: {previous_analysis.get('action_advice_short', '无')}...
+        [Instruction]: 请参考上述历史观点。如果市场形势未发生重大改变，请保持策略的一致性；如果发生反转，请明确指出改变原因。
+        ''' if previous_analysis else "该股票首次进行 AI 分析，无历史参考数据。"}
+        
         **任务 (Core Task)**:
+        当前时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         请执行“逻辑严密”的投资诊断。
         
         **重要准则 (Strict Rules)**:
@@ -192,6 +209,7 @@ class AIService:
             * 如果 [当前价格] > `target_price`，建议应侧重“分批止盈”或“警惕过热”。
         - **严禁乱造**: 不要凭空编造 99.42 之类没有任何参考意义的数字。所有的价格锚点必须在数据中有迹可循。
         - **持仓逻辑**: 如果用户当前持仓为 0，建议应侧重于建仓点位；如果已有持仓且浮盈/浮亏较大，应给出止盈/加码或减仓策略。
+        - **仓位管理**: 所有的仓位建议必须基于**总资金的百分比** (例如：5%, 10%)，严禁给出具体的股数 (如：100股)。单只个股总仓位通常不建议超过 20%。
         
         **返回格式要求**:
         - 使用简洁、专业的中文。
@@ -220,8 +238,8 @@ class AIService:
 - **行情综述**: 当前股价 **$价格** 处于 **[阶段定义]**。整体研判为 **[策略定调]**。
 
 ### 2. 结构化操作计划 (Action Plan)
-* **首批建仓 (Position 1):** **$建仓位1** (交易触发条件 Trigger，建议仓位 **Position Size**)
-* **次批加码 (Position 2):** **$建仓位2** (触发条件及仓位)
+* **首批建仓 (Position 1):** **$建仓位1** (交易触发条件 Trigger，建议仓位 **xx%**)
+* **次批加码 (Position 2):** **$建仓位2** (触发条件及建议仓位 **xx%**)
 * **止损方案 (Stop Loss):** **$止损价** (失效条件 Invalidation：明确说明什么情况下该策略失效)
 * **止盈目标 (Target):** **第一目标 $价格**，**第二目标 $价格**。
 

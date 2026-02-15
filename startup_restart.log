@@ -1,0 +1,33 @@
+🚀 Starting AI Smart Investment Advisor...
+📈 Starting Backend (FastAPI) on port 8000...
+🔄 Starting Auto Refresh Script...
+💻 Starting Frontend (Next.js) on port 3000...
+INFO:     Will watch for changes in these directories: ['/Users/breeze/Dev/ai-stock-advisor/backend']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [70305] using StatReload
+✅ Services are running!
+   - Frontend: http://localhost:3000
+   - Backend:  http://localhost:8000/docs
+Press CTRL+C to stop.
+
+> frontend@0.1.0 dev
+> next dev
+
+2026-02-15 19:49:31,890 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+INFO:     Started server process [70309]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+⚠ Port 3000 is in use by process 64308, using available port 3001 instead.
+▲ Next.js 16.1.2 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://192.168.10.139:3001
+
+✓ Starting...
+⨯ Unable to acquire lock at /Users/breeze/Dev/ai-stock-advisor/frontend/.next/dev/lock, is another instance of next dev running?
+  Suggestion: If you intended to restart next dev, terminate the other process, and then try again.
+[?25h
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [70309]
+INFO:     Stopping reloader process [70305]

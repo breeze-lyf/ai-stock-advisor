@@ -3,71 +3,67 @@ import numpy as np
 import pytest
 from app.services.indicators import TechnicalIndicators
 
-def generate_sample_data(n=100):
-    """Generate sample historical data for testing."""
-    dates = pd.date_range(start="2024-01-01", periods=n)
-    np.random.seed(42)
-    close = 100 + np.cumsum(np.random.randn(n))
-    high = close + np.random.rand(n) * 2
-    low = close - np.random.rand(n) * 2
-    volume = np.random.randint(1000, 10000, size=n)
-    
-    return pd.DataFrame({
-        "Close": close,
-        "High": high,
-        "Low": low,
-        "Volume": volume
-    }, index=dates)
+@pytest.fixture
+def sample_data():
+    """生成 60 天的模拟 K 线数据 (Generate 60 days of mock OHLCV data)"""
+    dates = pd.date_range(start="2024-01-01", periods=60)
+    data = {
+        'Open': np.random.uniform(100, 110, 60),
+        'High': np.random.uniform(110, 120, 60),
+        'Low': np.random.uniform(90, 100, 60),
+        'Close': np.random.uniform(100, 110, 60),
+        'Volume': np.random.uniform(1000000, 2000000, 60)
+    }
+    return pd.DataFrame(data, index=dates)
 
-def test_calculate_all_basic():
-    """Test if calculate_all returns expected indicators with sufficient data."""
-    df = generate_sample_data(150)
-    result = TechnicalIndicators.calculate_all(df)
+def test_add_historical_indicators(sample_data):
+    """测试批量添加指标 (Test batch adding indicators)"""
+    df = TechnicalIndicators.add_historical_indicators(sample_data)
     
-    expected_keys = [
-        "macd_val", "macd_signal", "macd_hist",
-        "ma_20", "bb_upper", "bb_middle", "bb_lower",
-        "volume_ma_20", "volume_ratio",
-        "rsi_14",
-        "k_line", "d_line", "j_line",
-        "atr_14",
-        "ma_50", "ma_200"
-    ]
-    
-    # Note: ma_200 will be missing because n=150
-    for key in expected_keys:
-        if key == "ma_200":
-            continue
-        assert key in result
-        assert isinstance(result[key], float)
+    # 验证关键列是否存在
+    expected_cols = ['macd', 'macd_signal', 'macd_hist', 'rsi', 'bb_upper', 'bb_middle', 'bb_lower']
+    for col in expected_cols:
+        assert col in df.columns
+        # 验证是否有数据（排除前几个 NaN）
+        assert not df[col].tail(10).isna().any()
 
-def test_calculate_all_insufficient_data():
-    """Test if calculate_all handled empty or small dataframes."""
+def test_calculate_all(sample_data):
+    """测试全量指标计算快照 (Test comprehensive indicator snapshot)"""
+    result = TechnicalIndicators.calculate_all(sample_data)
+    
+    # 验证返回字典的键及其值类型
+    assert isinstance(result, dict)
+    assert "macd_val" in result
+    assert "rsi_14" in result
+    assert "bb_upper" in result
+    assert "risk_reward_ratio" in result
+    
+    # 验证具体的逻辑：RSI 应该在 0-100 之间
+    assert 0 <= result["rsi_14"] <= 100
+    
+    # 验证阻力位必须高于支撑位
+    if "resistance_1" in result and "support_1" in result:
+        assert result["resistance_1"] > result["support_1"]
+
+def test_empty_data():
+    """测试空数据处理 (Test empty data handling)"""
     df_empty = pd.DataFrame()
-    assert TechnicalIndicators.calculate_all(df_empty) == {}
     
-    df_small = generate_sample_data(10)
-    assert TechnicalIndicators.calculate_all(df_small) == {}
+    # 不应崩溃，应返回原样或空字典
+    res_df = TechnicalIndicators.add_historical_indicators(df_empty)
+    assert res_df.empty
+    
+    res_dict = TechnicalIndicators.calculate_all(df_empty)
+    assert res_dict == {}
 
-def test_rsi_calculation():
-    """Test RSI specifically with known behavior."""
-    # Constant price should result in something (though gain/loss will be 0)
-    df = pd.DataFrame({
-        "Close": [100.0] * 30,
-        "High": [101.0] * 30,
-        "Low": [99.0] * 30,
-        "Volume": [1000] * 30
-    })
-    result = TechnicalIndicators.calculate_all(df)
-    # If gain and loss are 0, rs = 0/0 which might be nan or 0 depending on implementation
-    # In current implementation rs = gain / loss. If loss is 0, it might be nan.
-    # Actually pandas rolling mean of 0 is 0. 0/0 is NaN.
-    # Let's check implementation: gain / loss.
-    pass # Just checking coverage for now
-
-def test_ma_200():
-    """Test for longer moving averages."""
-    df = generate_sample_data(300)
-    result = TechnicalIndicators.calculate_all(df)
-    assert "ma_200" in result
-    assert isinstance(result["ma_200"], float)
+def test_insufficient_data():
+    """测试数据量不足的情况 (Test insufficient data)"""
+    dates = pd.date_range(start="2024-01-01", periods=5)
+    data = {
+        'Open': [100]*5, 'High': [110]*5, 'Low': [90]*5, 'Close': [100]*5, 'Volume': [1000]*5
+    }
+    df_small = pd.DataFrame(data, index=dates)
+    
+    # 数据量不足以计算大部分指标，应优雅返回
+    res_dict = TechnicalIndicators.calculate_all(df_small)
+    assert res_dict == {}

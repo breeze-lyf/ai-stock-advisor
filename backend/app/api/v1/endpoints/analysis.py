@@ -1,8 +1,12 @@
 import logging
+from datetime import datetime
+from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.core.database import get_db
+from sqlalchemy import func
+from app.models.stock import Stock, MarketDataCache, StockNews
 from app.services.ai_service import AIService
 from app.services.market_data import MarketDataService
 from app.models.portfolio import Portfolio
@@ -11,6 +15,7 @@ from app.api.deps import get_current_user
 from app.core import security
 
 from app.schemas.analysis import AnalysisResponse, PortfolioAnalysisResponse
+from app.models.analysis import AnalysisReport
 
 logger = logging.getLogger(__name__)
 
@@ -136,7 +141,6 @@ async def analyze_portfolio(
     # 4. 解析结构化结果
     import json
     import re
-    from datetime import datetime
     
     parsed_data = {}
     try:
@@ -214,10 +218,6 @@ async def analyze_stock(
     # 如果用户没有配置自己的 Gemini API Key，则视为免费用户，受到每日使用次数限制
     if not current_user.api_key_gemini:
         # 免费层级限制检查
-        from datetime import datetime
-        from app.models.analysis import AnalysisReport
-        from sqlalchemy import func
-        
         today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
         
         # 统计今日使用次数
@@ -236,7 +236,6 @@ async def analyze_stock(
             )
 
     # 2. 获取市场数据 (调用 MarketDataService)
-    from app.models.stock import Stock
     stock_stmt = select(Stock).where(Stock.ticker == ticker)
     stock_result = await db.execute(stock_stmt)
     stock_obj = stock_result.scalar_one_or_none()
@@ -283,7 +282,6 @@ async def analyze_stock(
 
     # 3. 获取新闻上下文
     # 查询该股票最近的 5 条新闻，帮助 AI 判断消息面
-    from app.models.stock import StockNews
     news_stmt = select(StockNews).where(StockNews.ticker == ticker).order_by(StockNews.publish_time.desc()).limit(5)
     news_result = await db.execute(news_stmt)
     news_articles = news_result.scalars().all()
@@ -326,7 +324,7 @@ async def analyze_stock(
 
     # 5. 检查持久化缓存 (Persistence Cache)
     # 如果 force=False，则默认检索数据库中已有的最新分析报告
-    from app.models.analysis import AnalysisReport
+    
     
     # 调试日志：查看传给 AI 的原始数据状态
     logger.info(f"Preparing AI analysis for {ticker}. Market Data keys present: {list(market_data.keys())}")
@@ -338,8 +336,7 @@ async def analyze_stock(
     if not force:
         cache_stmt = select(AnalysisReport).where(
             AnalysisReport.user_id == current_user.id,
-            AnalysisReport.ticker == ticker,
-            AnalysisReport.model_used == preferred_model
+            AnalysisReport.ticker == ticker
         ).order_by(AnalysisReport.created_at.desc()).limit(1)
         
         cache_result = await db.execute(cache_stmt)
@@ -383,6 +380,44 @@ async def analyze_stock(
                 "created_at": cached_report.created_at
             }
 
+    # 5.5 获取历史分析上下文 (Historical Context)
+    # 查找最近一次对该股票的分析报告 (不限模型，只要是针对该股票的)
+    hist_stmt = select(AnalysisReport).where(
+        AnalysisReport.user_id == current_user.id,
+        AnalysisReport.ticker == ticker
+    ).order_by(AnalysisReport.created_at.desc()).limit(1)
+    
+    hist_result = await db.execute(hist_stmt)
+    last_report = hist_result.scalar_one_or_none()
+    
+    previous_analysis_context = None
+    if last_report:
+        # 计算时间差
+        time_ago = "刚刚"
+        diff = datetime.utcnow() - last_report.created_at
+        if diff.days > 0:
+            time_ago = f"{diff.days}天前"
+        elif diff.seconds > 3600:
+            time_ago = f"{diff.seconds // 3600}小时前"
+        else:
+            time_ago = f"{diff.seconds // 60}分钟前"
+            
+        previous_analysis_context = {
+            "time": f"{last_report.created_at.strftime('%Y-%m-%d %H:%M')} ({time_ago})",
+            "summary_status": last_report.summary_status,
+            "sentiment_score": last_report.sentiment_score,
+            "immediate_action": last_report.immediate_action,
+            "target_price": last_report.target_price,
+            "stop_loss_price": last_report.stop_loss_price,
+            "entry_price_low": last_report.entry_price_low,
+            "entry_price_high": last_report.entry_price_high,
+            "risk_level": last_report.risk_level,
+            "investment_horizon": last_report.investment_horizon,
+            "confidence_level": last_report.confidence_level,
+            "action_advice_short": last_report.action_advice[:200] if last_report.action_advice else ""
+        }
+        logger.info(f"Loaded historical analysis context for {ticker} from {time_ago}")
+
     # 6. 调用 AI 服务生成分析报告 (要求 JSON 返回)
     gemini_key = security.decrypt_api_key(current_user.api_key_gemini)
     siliconflow_key = security.decrypt_api_key(current_user.api_key_siliconflow)
@@ -393,6 +428,7 @@ async def analyze_stock(
         portfolio_data,
         news_data,
         fundamental_data=fundamental_data,
+        previous_analysis=previous_analysis_context,
         model=preferred_model,
         api_key_gemini=gemini_key,
         api_key_siliconflow=siliconflow_key,
@@ -502,7 +538,6 @@ async def analyze_stock(
     # --- 同步逻辑：将高质量 AI 盈亏比刷入全局缓存 (Sync AI RRR to Cache) ---
     try:
         if new_report:
-            from app.models.stock import MarketDataCache
             sync_stmt = select(MarketDataCache).where(MarketDataCache.ticker == ticker)
             sync_result = await db.execute(sync_stmt)
             cache_to_sync = sync_result.scalar_one_or_none()
@@ -536,7 +571,6 @@ async def analyze_stock(
     except Exception as sync_e:
         logger.error(f"Failed to sync AI RRR to cache: {sync_e}")
 
-    from datetime import datetime
     return {
         "ticker": ticker,
         "sentiment_score": to_float(parsed_data.get("sentiment_score")),
@@ -569,14 +603,13 @@ async def get_latest_analysis(
     """
     获取单支股票最新的分析记录（不触发新 AI 分析，仅查库）
     """
-    from app.models.analysis import AnalysisReport
+    
     
     preferred_model = current_user.preferred_ai_model or "qwen-3-vl-thinking"
     
     stmt = select(AnalysisReport).where(
         AnalysisReport.user_id == current_user.id,
-        AnalysisReport.ticker == ticker,
-        AnalysisReport.model_used == preferred_model
+        AnalysisReport.ticker == ticker
     ).order_by(AnalysisReport.created_at.desc()).limit(1)
     
     result = await db.execute(stmt)
@@ -588,7 +621,6 @@ async def get_latest_analysis(
     # 补全历史数据的盈亏比 (Fill missing RRR for legacy reports)
     final_rr = report.rr_ratio
     if not final_rr and report.target_price and report.stop_loss_price:
-        from app.models.stock import MarketDataCache
         sync_stmt = select(MarketDataCache).where(MarketDataCache.ticker == ticker)
         sync_result = await db.execute(sync_stmt)
         cache_data = sync_result.scalar_one_or_none()

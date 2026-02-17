@@ -192,12 +192,15 @@ class MarketDataService:
             if cache.is_ai_strategy:
                 # 场景 A: AI 策略生效中 -> 锁定关键点位，仅动态重算 RRR
                 # 只要价格在 止损~目标 之间，就实时计算 RRR；否则保持原值或置空
-                # 注意：此时绝不更新 resistance_1 (Target) 和 support_1 (Stop)
                 if cache.resistance_1 and cache.support_1 and cache.current_price:
                     reward = cache.resistance_1 - cache.current_price
                     risk = cache.current_price - cache.support_1
-                    if risk > 0 and reward > 0:
-                        cache.risk_reward_ratio = round(reward / risk, 2)
+                    if risk > 0.01: # 严格正向风险
+                        # 如果 reward 为负，说明已过目标位，RRR 设为 0 或 None
+                        new_rr = round(reward / risk, 2) if reward > 0 else 0.0
+                        cache.risk_reward_ratio = new_rr
+                    else:
+                        cache.risk_reward_ratio = None # 已跌破止损
             else:
                 # 场景 B: 无 AI 策略 -> 更新通用支撑阻力，但清空 RRR (用户强制要求)
                 cache.resistance_1 = ind.get('resistance_1', cache.resistance_1)

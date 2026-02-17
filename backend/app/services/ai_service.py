@@ -194,7 +194,7 @@ class AIService:
             * 止盈目标: {previous_analysis.get('target_price', '无')}
             * 止损红线: {previous_analysis.get('stop_loss_price', '无')}
         - 上次核心观点: {previous_analysis.get('action_advice_short', '无')}...
-        [Instruction]: 请参考上述历史观点。如果市场形势未发生重大改变，请保持策略的一致性；如果发生反转，请明确指出改变原因。
+        [Instruction]: 请参考上述历史观点，根据最新数据微调或不调整。如果市场形势发生重大改变，请明确指出改变原因。
         ''' if previous_analysis else "该股票首次进行 AI 分析，无历史参考数据。"}
         
         **任务 (Core Task)**:

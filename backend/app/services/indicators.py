@@ -168,24 +168,38 @@ class TechnicalIndicators:
         if len(close_prices) >= 120:
             result["ma_200"] = float(close_prices.rolling(window=min(len(close_prices), 200)).mean().iloc[-1])
 
-        # 9. 盈亏比自动计算
+        # 9. 盈亏比自动计算 (Risk/Reward Ratio Calculation)
+        # 优先级: 枢轴位 > 布林带 > MA50/ATR
         curr_p = float(close_prices.iloc[-1])
         r1 = result.get("resistance_1")
         s1 = result.get("support_1")
+        
+        calculated_rr = None
+        
         if r1 and s1 and r1 > curr_p > s1:
             risk = curr_p - s1
             reward = r1 - curr_p
-            if risk > 0: result["risk_reward_ratio"] = round(float(reward / risk), 2)
-        elif result.get("bb_upper") and result.get("bb_lower"):
+            if risk > 0.01: # 避免除零或微小波动
+                calculated_rr = reward / risk
+        
+        # 备选 1: 布林带 (Bollinger Bands)
+        if calculated_rr is None and result.get("bb_upper") and result.get("bb_lower"):
             bb_up, bb_low = result["bb_upper"], result["bb_lower"]
             if bb_up > curr_p > bb_low:
                 risk, reward = curr_p - bb_low, bb_up - curr_p
-                if risk > 0: result["risk_reward_ratio"] = round(float(reward / risk), 2)
-        elif result.get("ma_50") and result.get("atr_14"):
+                if risk > 0.01:
+                    calculated_rr = reward / risk
+                    
+        # 备选 2: MA50/ATR (Trend following)
+        if calculated_rr is None and result.get("ma_50") and result.get("atr_14"):
             ma50, atr = result["ma_50"], result["atr_14"]
             upper_target, lower_stop = ma50 + 2 * atr, ma50 - 2 * atr
             if upper_target > curr_p > lower_stop:
                 risk, reward = curr_p - lower_stop, upper_target - curr_p
-                if risk > 0: result["risk_reward_ratio"] = round(float(reward / risk), 2)
+                if risk > 0.01:
+                    calculated_rr = reward / risk
+
+        if calculated_rr is not None:
+            result["risk_reward_ratio"] = round(float(calculated_rr), 2)
 
         return result

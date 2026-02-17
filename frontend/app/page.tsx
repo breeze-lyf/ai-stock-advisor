@@ -212,12 +212,14 @@ export default function Dashboard() {
       const result = await analyzeStock(selectedTicker, force);
       handleParseAnalysis(result);
 
-      // 分析完后刷一下新闻
+      // 分析完后刷一下新闻和持仓列表 (Refresh news and portfolio after analysis)
       try {
         const newsResult = await import("@/lib/api").then(api => api.fetchStockNews(selectedTicker));
         setNews(newsResult);
+        // 重要：刷新持仓列表以更新侧边栏的 R/R 比例 (Sync sidebar RRR)
+        fetchData(false);
       } catch (newsError) {
-        console.error("News fetch failed after analysis:", newsError);
+        console.error("News or portfolio refresh failed after analysis:", newsError);
       }
     } catch (error: any) {
       console.warn("Analysis POST request failed/terminated, entering polling recovery mode...", error);

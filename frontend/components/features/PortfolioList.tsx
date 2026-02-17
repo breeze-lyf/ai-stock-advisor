@@ -211,36 +211,52 @@ export function PortfolioList({
                                         <span className="font-mono text-xs text-slate-600 dark:text-slate-400">
                                             ${item.current_price.toFixed(2)}
                                         </span>
-                                        {item.risk_reward_ratio && item.risk_reward_ratio >= 3.0 && (
+                                        {item.risk_reward_ratio !== null && item.risk_reward_ratio !== undefined && (
                                             <Tooltip>
                                                 <TooltipTrigger asChild>
-                                                    <div className="shrink-0 px-1 py-0 rounded bg-emerald-500/10 border border-emerald-500/20 cursor-help hover:bg-emerald-500/20 transition-colors">
-                                                        <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
+                                                    <div className={clsx(
+                                                        "shrink-0 w-7 h-4 flex items-center justify-center rounded-[4px] border cursor-help transition-colors",
+                                                        item.risk_reward_ratio >= 3.0 ? "bg-emerald-500/10 border-emerald-500/20 hover:bg-emerald-500/20" :
+                                                        item.risk_reward_ratio >= 1.5 ? "bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20" :
+                                                        "bg-rose-500/10 border-rose-500/20 hover:bg-rose-500/20"
+                                                    )}>
+                                                        <span className={clsx(
+                                                            "text-[8px] font-black tabular-nums leading-none",
+                                                            item.risk_reward_ratio >= 3.0 ? "text-emerald-600 dark:text-emerald-400" :
+                                                            item.risk_reward_ratio >= 1.5 ? "text-blue-600 dark:text-blue-400" :
+                                                            "text-rose-600 dark:text-rose-400"
+                                                        )}>
                                                             {item.risk_reward_ratio.toFixed(1)}
                                                         </span>
                                                     </div>
                                                 </TooltipTrigger>
-                                                <TooltipContent className="bg-white dark:bg-slate-900 border-2 border-emerald-500/20 p-3 shadow-xl z-50">
+                                                <TooltipContent className="bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 p-3 shadow-xl z-50">
                                                     <div className="flex flex-col gap-1.5">
                                                         <div className="flex items-center justify-between gap-4">
                                                             <span className="text-[10px] font-black uppercase text-slate-400">盈亏比 (RRR)</span>
-                                                            <span className="text-sm font-black text-emerald-500 italic">
+                                                            <span className={clsx(
+                                                                "text-sm font-black italic",
+                                                                item.risk_reward_ratio >= 3.0 ? "text-emerald-500" :
+                                                                item.risk_reward_ratio >= 1.5 ? "text-blue-500" :
+                                                                "text-rose-500"
+                                                            )}>
                                                                 {item.risk_reward_ratio.toFixed(2)}
                                                             </span>
                                                         </div>
                                                         <div className="h-px bg-slate-100 dark:bg-slate-800 my-0.5" />
                                                         <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                                                             <div className="flex flex-col">
-                                                                <span className="text-[8px] font-bold text-slate-400 uppercase">阻力位 R1</span>
+                                                                <span className="text-[8px] font-bold text-slate-400 uppercase">关键阻力 (R1/Target)</span>
                                                                 <span className="text-[11px] font-black tabular-nums">${item.resistance_1?.toFixed(2)}</span>
                                                             </div>
                                                             <div className="flex flex-col">
-                                                                <span className="text-[8px] font-bold text-slate-400 uppercase">支撑位 S1</span>
+                                                                <span className="text-[8px] font-bold text-slate-400 uppercase">关键支撑 (S1/Stop)</span>
                                                                 <span className="text-[11px] font-black tabular-nums">${item.support_1?.toFixed(2)}</span>
                                                             </div>
                                                         </div>
                                                         <p className="text-[9px] text-slate-400 italic mt-1 leading-tight max-w-[150px]">
-                                                            高盈亏比机会：潜在收益是风险的 {item.risk_reward_ratio.toFixed(1)} 倍
+                                                            {item.risk_reward_ratio >= 3.0 ? "高盈亏比机会" : 
+                                                             item.risk_reward_ratio >= 1.5 ? "稳健交易机会" : "低盈亏比/风险较高"}：潜在收益是风险的 {item.risk_reward_ratio.toFixed(1)} 倍
                                                         </p>
                                                     </div>
                                                 </TooltipContent>

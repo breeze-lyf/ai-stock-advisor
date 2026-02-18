@@ -19,29 +19,30 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          command_timeout: 30m
           script: |
-            # 1. 进入项目目录（请确保服务器上该目录已存在）
+            set -e
+            # 1. 进入项目目录
             cd /root/ai-stock-advisor
 
-            # 2. 如果服务器上还没有配置 Git 仓库，建议先手动同步一次或 git clone
-            # 这里假设你是通过 Git 管理的，执行最简单的同步策略
-            git pull origin main || echo "Git pull failed, skipping for now"
+            # 2. 强制同步 Git
+            git config --global --add safe.directory /root/ai-stock-advisor
+            git fetch origin main
+            git reset --hard origin/main
 
-            # 3. 更新后端依赖并重启
+            # 3. 更新后端
             echo "Updating Backend..."
             cd backend
-            # 假设你已经创建了 venv
             ./venv/bin/pip install -r requirements.txt
-            pm2 restart stock-backend
+            pm2 restart stock-backend || pm2 start "venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000" --name stock-backend
 
-            # 4. 更新前端依赖、构建并重启
+            # 4. 更新前端 (关键：限制内存)
             echo "Updating Frontend..."
             cd ../frontend
-            # 使用淘宝镜像加速
             npm install --registry=https://registry.npmmirror.com
-            # 注入环境变量（注意：这里需要确保生产环境 API 地址正确）
+            export NODE_OPTIONS="--max-old-space-size=1024"
             export NEXT_PUBLIC_API_URL=http://47.100.109.73:8000
             npm run build
-            pm2 restart stock-frontend
+            pm2 restart stock-frontend || pm2 start "npm start" --name stock-frontend
 
             echo "Deployment Finished!"

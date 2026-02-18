@@ -7,14 +7,6 @@ class SectorExposure(BaseModel):
     weight: float
     value: float
 
-class PortfolioSummary(BaseModel):
-    total_market_value: float
-    total_unrealized_pl: float
-    total_pl_percent: float
-    day_change: float
-    holdings: List[PortfolioItem]
-    sector_exposure: List[SectorExposure]
-
 class PortfolioItem(BaseModel):
     ticker: str
     name: Optional[str] = None
@@ -68,6 +60,14 @@ class PortfolioItem(BaseModel):
     risk_reward_ratio: Optional[float] = None
     
     change_percent: Optional[float] = 0.0
+
+class PortfolioSummary(BaseModel):
+    total_market_value: float
+    total_unrealized_pl: float
+    total_pl_percent: float
+    day_change: float
+    holdings: List[PortfolioItem]
+    sector_exposure: List[SectorExposure]
 
 class PortfolioCreate(BaseModel):
     ticker: str

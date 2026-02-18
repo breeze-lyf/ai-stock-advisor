@@ -1,0 +1,47 @@
+name: Deploy to Aliyun
+
+on:
+  push:
+    branches:
+      - main # 只有当 push 到 main 分支时才触发部署
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # 1. 进入项目目录（请确保服务器上该目录已存在）
+            cd /root/ai-stock-advisor
+
+            # 2. 如果服务器上还没有配置 Git 仓库，建议先手动同步一次或 git clone
+            # 这里假设你是通过 Git 管理的，执行最简单的同步策略
+            git pull origin main || echo "Git pull failed, skipping for now"
+
+            # 3. 更新后端依赖并重启
+            echo "Updating Backend..."
+            cd backend
+            # 假设你已经创建了 venv
+            ./venv/bin/pip install -r requirements.txt
+            pm2 restart stock-backend
+
+            # 4. 更新前端依赖、构建并重启
+            echo "Updating Frontend..."
+            cd ../frontend
+            # 使用淘宝镜像加速
+            npm install --registry=https://registry.npmmirror.com
+            # 注入环境变量（注意：这里需要确保生产环境 API 地址正确）
+            export NEXT_PUBLIC_API_URL=http://47.100.109.73:8000
+            npm run build
+            pm2 restart stock-frontend
+
+            echo "Deployment Finished!"

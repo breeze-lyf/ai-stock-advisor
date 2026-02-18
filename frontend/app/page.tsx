@@ -19,7 +19,9 @@ import { SearchDialog } from "@/components/features/SearchDialog";
 import { UserMenu } from "@/components/features/UserMenu";
 import { UserProfile } from "@/types";
 
-export default function Dashboard() {
+import { Suspense } from "react";
+
+function DashboardContent() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
 
@@ -83,7 +85,7 @@ export default function Dashboard() {
   const [user, setUser] = useState<UserProfile | null>(null);
 
   const fetchData = async (refresh: boolean = false) => {
-    if (!localStorage.getItem("token")) return;
+    if (typeof window === 'undefined' || !localStorage.getItem("token")) return;
     setLoading(true);
     try {
       const data = await getPortfolio(refresh);
@@ -110,7 +112,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (!isAuthenticated && !localStorage.getItem("token")) {
+      if (typeof window !== 'undefined' && !isAuthenticated && !localStorage.getItem("token")) {
         router.push("/login");
       }
     }, 100);
@@ -250,7 +252,7 @@ export default function Dashboard() {
 
       if (!recovered) {
         if (error.response?.status === 429) {
-          alert("Limit Reached! 🛑\nPlease add your own API Key in Settings.");
+          alert("Limit Reached! \ud83d\uded1\nPlease add your own API Key in Settings.");
           router.push("/settings");
         } else {
           alert("Analysis request disconnected. Please check if the diagnosis appears after a few seconds or manually refresh.");
@@ -303,5 +305,13 @@ export default function Dashboard() {
         portfolio={portfolio}
       />
     </div>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <Suspense fallback={<div className="h-screen w-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">Loading...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }

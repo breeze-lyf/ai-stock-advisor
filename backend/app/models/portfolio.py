@@ -27,5 +27,6 @@ class Portfolio(Base):
         UniqueConstraint('user_id', 'ticker', name='unique_user_stock'),
     )
     
-    # 后续可以根据需要添加 relationship
-    # user = relationship("User", back_populates="portfolio")
+    # Relationships
+    stock = relationship("Stock", back_populates="portfolios")
+    user = relationship("User", back_populates="portfolio_items")

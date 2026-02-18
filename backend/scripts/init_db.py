@@ -1,6 +1,6 @@
 import asyncio
-from app.core.database import SessionLocal
-from app.models.stock import Stock
+from app.core.database import SessionLocal, Base, engine
+from app.models import User, Stock, Portfolio, AnalysisReport, AIModelConfig
 from sqlalchemy.future import select
 
 STOCKS_TO_SEED = [
@@ -56,7 +56,6 @@ STOCKS_TO_SEED = [
     ("PFE", "Pfizer Inc.")
 ]
 
-from app.core.database import SessionLocal, Base, engine
 
 async def seed():
     async with engine.begin() as conn:

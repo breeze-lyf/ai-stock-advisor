@@ -16,54 +16,46 @@ import time
 from datetime import datetime
 
 # AI 分析服务 (AI Analysis Service)
-# 核心职责 (Core Responsibilities):
-# 1. 统一封装与 LLM (Gemini, SiliconFlow/DeepSeek/Qwen) 的交互接口
-# 2. 管理 AI 模型配置的动态加载与缓存 (Dynamic Config & Caching)
-# 3. 构建专业的量化分析 Prompt，确保输出格式严格符合 JSON 规范
+# 核心职责：
+# 1. 统一封装与不同大模型 (Gemini, 通义千问, DeepSeek) 的对话逻辑。
+# 2. 管理并缓存模型配置，避免重复读库。
+# 3. 构造极其精准的量化分析提示词 (Prompt)，确保 AI 返回的是可以直接解析的 JSON。
 class AIService:
-    # --- 配置缓存机制 (Configuration Caching) ---
-    # 目的: 减少对数据库的高频读取，提高 API 响应速度
-    # 结构: { model_key: (AIModelConfig_Object, timestamp) }
+    # --- 性能优化：配置缓存 ---
+    # 逻辑：我们将模型配置（如 Provider 是谁、Model ID 是哪个）存在内存里 5 分钟。
+    # 这样用户在刷新页面时，不需要每次都由于获取 AI 名字而产生的数据库开销。
     _model_config_cache = {}  
-    CACHE_TTL = 300  # 缓存有效期: 5 分钟 (5 Minutes)
+    CACHE_TTL = 300  # 缓存 5 分钟
 
     @classmethod
     async def get_model_config(cls, model_key: str, db: AsyncSession = None) -> AIModelConfig:
         """
-        获取 AI 模型配置 (Get AI Model Configuration)
-        
-        策略 (Strategy): -> L1: Memory Cache -> L2: Database -> L3: Hardcoded Fallback
-        
-        Args:
-            model_key (str): 模型的唯一标识键 (e.g., "deepseek-r1", "gemini-1.5-flash")
-            db (AsyncSession, optional): 数据库会话，用于 L2 查询
-            
-        Returns:
-            AIModelConfig: 模型配置对象，包含 provider, model_id 等关键信息
+        获取模型配置的阶梯式查找：
+        1. 找内存：最快。
+        2. 找数据库：如果内存里没有或过期了，去库里翻。
+        3. 找兜底：如果库里也没有，用代码里的硬编码常量（防止服务崩溃）。
         """
-        # 1. Level 1: 检查内存缓存 (Check Memory Cache)
+        # 1. 检查内存缓存
         if model_key in cls._model_config_cache:
             config, timestamp = cls._model_config_cache[model_key]
-            # 检查 TTL 是否过期
             if time.time() - timestamp < cls.CACHE_TTL:
                 return config
 
-        # 2. Level 2: 查询数据库 (Check Database)
+        # 2. 查询数据库
         if db:
             try:
                 stmt = select(AIModelConfig).where(AIModelConfig.key == model_key)
                 result = await db.execute(stmt)
                 config = result.scalar_one_or_none()
                 if config:
-                    # 写入缓存 (Write-back to cache)
+                    # 写入缓存供下次使用
                     cls._model_config_cache[model_key] = (config, time.time())
                     return config
             except Exception as e:
-                logger.error(f"Error fetching AI model config for {model_key}: {e}")
+                logger.error(f"查询 AI 模型配置失败: {e}")
 
-        # 3. Level 3: 兜底回退 (Fallback Defaults)
-        # 场景: 数据库连接失败、配置未同步、或未传递 db session
-        # 作用: 保证系统核心功能在配置缺失时仍能降级运行 (Graceful Degradation)
+        # 3. 兜底回退：如果数据库也没配，默认指向硅基流动的几个主力模型。
+        # 这样即使是刚安装好的应用也能立即开始诊断。
         logger.warning(f"Using fallback config for {model_key} (DB lookup skipped/failed)")
         fallback_map = {
             "deepseek-v3": "Pro/deepseek-ai/DeepSeek-V3.2",
@@ -78,16 +70,8 @@ class AIService:
     @staticmethod
     async def _call_siliconflow(prompt: str, model: str, api_key: str, db: AsyncSession = None) -> str:
         """
-        调用硅基流动 (SiliconFlow) API 通用方法
-        
-        Args:
-            prompt (str): 发送给 LLM 的完整提示词
-            model (str): 模型 Key (e.g., "deepseek-r1", "qwen-3-vl-thinking")
-            api_key (str): SiliconFlow/DeepSeek API Key
-            db (AsyncSession): 数据库会话，用于动态查询模型配置 ID
-            
-        Returns:
-            str: LLM 返回的文本内容 (Content String)
+        硅基流动 (SiliconFlow) 专用调用器：
+        它是本项目推荐的国内直连方案，支持 DeepSeek 和 Qwen。
         """
         url = "https://api.siliconflow.cn/v1/chat/completions"
         headers = {
@@ -95,21 +79,20 @@ class AIService:
             "Content-Type": "application/json"
         }
         
-        # 1. 获取动态模型 ID (Resolve Model ID)
-        # 从数据库或缓存中查找 Key 对应的真实 Model ID (e.g. "Pro/deepseek-ai/DeepSeek-R1")
+        # 获取模型在平台上的真实 ID (比如 "Pro/deepseek-ai/DeepSeek-R1")
         config = await AIService.get_model_config(model, db)
         model_id = config.model_id
         
         logger.info(f"Calling SiliconFlow with Model ID: {model_id} (Key: {model})")
 
-        # 2. 构建请求载荷 (Construct Payload)
+        # 构造发给大模型的标准格式 payload
         payload = {
             "model": model_id,
             "messages": [{"role": "user", "content": prompt}],
-            # JSON Mode: 如果非 Google 模型，则尝试强制 JSON 输出以保证解析稳定性
+            # 特别注意：我们强制模型返回 JSON 对象，方便后面解析。
             "response_format": {"type": "json_object"} if "gemini" not in model else None, 
             "stream": False,
-            "temperature": 0.3  # 低温度以保证分析结果的理性和一致性
+            "temperature": 0.3  # 固定低温度，保证分析结果的逻辑性，不要瞎编乱造。
         }
         
         try:
@@ -121,7 +104,7 @@ class AIService:
                 if response.status_code != 200:
                     error_detail = response.text
                     logger.error(f"SiliconFlow API Error ({response.status_code}): {error_detail}")
-                    return f"**Error**: SiliconFlow 调用失败 (HTTP {response.status_code})。详情: {error_detail}"
+                    return f"**Error**: AI 服务商报错 (HTTP {response.status_code})。"
                 
                 result = response.json()
                 # 提取核心内容
@@ -129,32 +112,24 @@ class AIService:
         except Exception as e:
             import traceback
             logger.error(f"SiliconFlow Exception: {str(e)}\n{traceback.format_exc()}")
-            return f"**Error**: SiliconFlow 网络异常。{str(e)}"
+            return f"**Error**: AI 连接异常。"
 
 
     @staticmethod
     async def generate_analysis(ticker: str, market_data: dict, portfolio_data: dict, news_data: list = None, fundamental_data: dict = None, previous_analysis: dict = None, model: str = "gemini-1.5-flash", api_key_gemini: str = None, api_key_siliconflow: str = None, db: AsyncSession = None) -> str:
         """
-        生成单支股票的深度投资分析报告 (Generate Single Stock Analysis)
+        主方法：生成个股深度诊断。
         
-        Args:
-            ticker (str): 股票代码 (e.g., "AAPL")
-            market_data (dict): 实时行情数据 (Price, RSI, MACD, Bollinger Bands, KDJ, etc.)
-            portfolio_data (dict): 用户持仓信息 (Cost, Quantity, Unrealized P/L)
-            news_data (list): 最近新闻摘要列表，用于 RAG 上下文注入
-            fundamental_data (dict): 基础面数据 (PE, Market Cap, Sector, etc.)
-            model (str): 指定使用的模型 Key
-            db (AsyncSession): 数据库会话
-            
-        Returns:
-            str: JSON 格式的分析报告 (raw string)，包含 sentiment_score, action_advice, technical_analysis 等字段
-            
-        流程 (Workflow):
-        1. 构建包含所有上下文 (技术/基本/持仓/新闻) 的超长 System Prompt
-        2. 动态加载模型配置 (Gemini vs SiliconFlow)
-        3. 调用对应 API 并获取 JSON 响应
+        这就是本项目的“灵魂”所在。我们通过极其详细的 Prompt，把股票的：
+        1. 价格波动
+        2. 指标数值 (RSI/MACD)
+        3. 支撑位/阻力位压力
+        4. 当前新闻热度
+        5. 用户持仓成本
+        全部喂给 AI，让它像真人分析师一样给出一个结构化的结论。
         """
-        # 构建 Prompt (Construct Prompt)
+        # 构建庞大的 Context (背景板)
+        # 告诉 AI 股票的财务情况、盘面情况、甚至用户是不是亏损的（这决定了止损建议的紧迫性）。
         prompt = f"""
         你是一位资深美股投资顾问和量化策略专家。请基于以下多维数据为代码 [{ticker}] 提供严谨的诊断。
         
@@ -252,13 +227,13 @@ class AIService:
         # 记录 Prompt 到日志，方便调试分析建议的质量 (Req: user callback)
         logger.info(f"--- AI ANALYSIS PROMPT FOR {ticker} ---\n{prompt}\n--------------------------------------")
 
-        # 分发逻辑
+        # 分发请求：根据配置去调不同的供应商
         # 获取模型配置，判断 Provider
         model_config = await AIService.get_model_config(model, db)
         provider = model_config.provider
         
         if provider == "gemini":
-            # 使用 Gemini 供应商 (新版 google-genai SDK)
+            # 调 Google 的 Gemini 老家
             key = api_key_gemini or settings.GEMINI_API_KEY
             if not key:
                 return "**Error**: 缺失 Gemini API Key。"
@@ -276,9 +251,9 @@ class AIService:
                 return response.text
             except Exception as e:
                 logger.error(f"Gemini API Error: {str(e)}")
-                return f"**Error**: Gemini 分析失败。{str(e)}"
+                return f"**Error**: Gemini 解析失败。"
         else:
-            # 优先使用系统配置的 API Key
+            # 调各种国产或开源模型
             key = settings.SILICONFLOW_API_KEY or api_key_siliconflow or settings.DEEPSEEK_API_KEY
             if not key:
                 return "**Error**: 缺失 SiliconFlow API Key，请联系管理员配置或在设置中心设置。"

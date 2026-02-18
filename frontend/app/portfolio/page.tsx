@@ -76,7 +76,7 @@ export default function PortfolioPage() {
     useEffect(() => {
         if (isAuthenticated) {
             fetchData();
-        } else if (!localStorage.getItem("token")) {
+        } else if (typeof window !== 'undefined' && !localStorage.getItem("token")) {
             router.push("/login");
         }
     }, [isAuthenticated]);

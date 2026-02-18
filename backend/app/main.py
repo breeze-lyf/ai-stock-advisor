@@ -80,7 +80,7 @@ async def log_requests(request: Request, call_next):
     formatted_process_time = f"{process_time:.2f}ms"
     
     logger.info(
-        f"rid={request.scope.get('root_path')}{request.url.path} "
+        f"rid={request.scope.get('root_path') or ''}{request.url.path} "
         f"method={request.method} "
         f"status_code={response.status_code} "
         f"user_id={user_id} "
@@ -96,6 +96,8 @@ origins = [
     "http://127.0.0.1:3000",
     "http://localhost:3001",
     "http://127.0.0.1:3001",
+    "http://47.100.109.73",
+    "http://47.100.109.73:3000",
 ]
 
 env_origins = settings.ALLOWED_ORIGINS if hasattr(settings, "ALLOWED_ORIGINS") else []

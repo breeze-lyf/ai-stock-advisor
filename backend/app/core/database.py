@@ -4,23 +4,33 @@ from sqlalchemy import event, text
 from app.core.config import settings
 
 # 数据库引擎核心配置 (Database Engine Config)
-# 职责：建立 Python 与数据库之间的“高速公路”。
-# 本项目采用异步 (Async) 驱动，保证在抓取行情等耗时操作时，不会堵塞其他用户的请求。
 
-# SQLite 稳定性专项优化：
-# 由于 SQLite 本质是一个文件，高并发时容易出现 "database is locked"（数据库被锁住）。
-# 我们通过下述配置极大缓解这个问题：
+# 判断是否为 PostgreSQL (Neon 等)
+is_postgresql = "postgresql" in settings.DATABASE_URL
+
+# 数据库引擎配置
+connect_args = {}
+if "sqlite" in settings.DATABASE_URL:
+    connect_args = {
+        "check_same_thread": False,
+        "timeout": 30,
+    }
+elif is_postgresql:
+    # Neon 强制要求 SSL
+    connect_args = {
+        "ssl": "require",
+        "command_timeout": 60,
+    }
+
 engine = create_async_engine(
     settings.DATABASE_URL,
     echo=False,  
-    pool_pre_ping=True, # 每次拿连接前先“踢一脚”，确保它是活的
-    pool_size=5,        # 限制并发连接数，防止排队太长
-    max_overflow=0,
-    pool_recycle=300,   # 每 5 分钟重置连接，保持新鲜
-    connect_args={
-        "check_same_thread": False,
-        "timeout": 30,  # 如果数据库被锁，最多耐心等 30 秒，而不是直接报错
-    } if "sqlite" in settings.DATABASE_URL else {}
+    pool_pre_ping=True,
+    # PostgreSQL 连接池优化
+    pool_size=10 if is_postgresql else 5,
+    max_overflow=20 if is_postgresql else 0,
+    pool_recycle=300,
+    connect_args=connect_args
 )
 
 # --- SQLite WAL 核心模式 (上帝模式) ---

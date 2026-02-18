@@ -48,9 +48,10 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            # 更新后端依赖
+            # 更新后端依赖并运行迁移
             cd backend
             ./venv/bin/pip install -r requirements.txt
+            ./venv/bin/python -m alembic upgrade head
             pm2 restart stock-backend || pm2 start "venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000" --name stock-backend
 
       - name: Sync Frontend Build Artifacts

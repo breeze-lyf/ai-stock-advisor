@@ -1,48 +1,78 @@
-name: Deploy to Aliyun
+name: Deploy to Aliyun (Cloud Build Mode)
 
 on:
   push:
     branches:
-      - main # 只有当 push 到 main 分支时才触发部署
+      - main
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Deploy to Server
+      # --- 第一部分：在 GitHub 云端进行构建 ---
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Build Frontend
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://47.100.109.73:8000
+        run: |
+          npm install --registry=https://registry.npmmirror.com
+          npm run build
+
+      # --- 第二部分：将构建产物同步到服务器 ---
+
+      - name: Deploy to Server via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          command_timeout: 30m
+          command_timeout: 10m
           script: |
             set -e
-            # 1. 进入项目目录
             cd /root/ai-stock-advisor
 
-            # 2. 强制同步 Git
+            # 环境检查与 Git 同步 (仅代码同步，不包含 build 产物)
             git config --global --add safe.directory /root/ai-stock-advisor
             git fetch origin main
             git reset --hard origin/main
 
-            # 3. 更新后端
-            echo "Updating Backend..."
+            # 更新后端依赖
             cd backend
             ./venv/bin/pip install -r requirements.txt
             pm2 restart stock-backend || pm2 start "venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000" --name stock-backend
 
-            # 4. 更新前端 (关键：限制内存)
-            echo "Updating Frontend..."
-            cd ../frontend
-            npm install --registry=https://registry.npmmirror.com
-            export NODE_OPTIONS="--max-old-space-size=1024"
-            export NEXT_PUBLIC_API_URL=http://47.100.109.73:8000
-            npm run build
-            pm2 restart stock-frontend || pm2 start "npm start" --name stock-frontend
+      - name: Sync Frontend Build Artifacts
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # 仅同步前端编译后的关键目录，不传输 node_modules
+          source: "frontend/.next,frontend/public,frontend/package.json,frontend/next.config.js"
+          target: "/root/ai-stock-advisor/"
+          rm: false # 不删除服务器上的其他文件
 
-            echo "Deployment Finished!"
+      - name: Finalize and Restart Frontend
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /root/ai-stock-advisor/frontend
+            # 服务器端仅安装生产环境必要的依赖，避免重新编译
+            npm install --production --registry=https://registry.npmmirror.com
+            pm2 restart stock-frontend || pm2 start "npm start" --name stock-frontend
+            echo "Deployment Finished Successfully!"

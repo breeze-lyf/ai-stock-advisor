@@ -15,22 +15,10 @@ class ProviderFactory:
     @classmethod
     def get_provider(cls, ticker: str, preferred_source: str = "YFINANCE") -> MarketDataProvider:
         """
-        核心分法逻辑：
-        - 如果代码是 6 位数字开头（如 600519），判定为 A 股，强制使用 AkShare。
-        - 如果是普通代码（如 AAPL），则根据用户在设置中选择的 preferred_source 来决定。
+        核心分流逻辑：已切换至全量使用 AKSHARE，解决国内服务器访问海外 API 受限问题。
         """
-        # A 股正则匹配：6位数字，可选带 .SH 或 .SZ 后缀
-        is_a_share = re.match(r'^\d{6}(\.(SH|SZ))?$', ticker.upper())
-        
-        if is_a_share:
-            return cls._get_instance("AKSHARE")
-        
-        # 默认分发逻辑
-        source = preferred_source.upper()
-        if source not in ["YFINANCE", "ALPHA_VANTAGE", "AKSHARE"]:
-            source = "YFINANCE"
-            
-        return cls._get_instance(source)
+        # 强制使用 AKSHARE (由于国内大环境及 YFinance 受限，暂时全量切换)
+        return cls._get_instance("AKSHARE")
 
     @classmethod
     def _get_instance(cls, source: str) -> MarketDataProvider:

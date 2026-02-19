@@ -81,19 +81,33 @@ class MarketDataService:
             indicator_task = asyncio.create_task(provider.get_historical_data(ticker, period="200d"))
             
             # AI 搜索增强：我们集成了一个叫 Tavily 的搜索引擎。
-            # 如果配置了该密钥，我们会用 AI 像人一样去 Google 搜新闻并总结。
+            # 如果配置了该密钥，我们将同时抓取传统新闻和 AI 搜索增强资讯。
             from app.services.market_providers.tavily import TavilyProvider
             tavily = TavilyProvider()
-            news_coro = tavily.get_news(ticker) if tavily.api_key else provider.get_news(ticker)
-            news_task = asyncio.create_task(news_coro)
             
-            # 设置 15 秒超时保护，防止某一个源由于网络问题卡死整个页面响应
+            # 使用列表聚合多个新闻任务
+            news_tasks = [asyncio.create_task(provider.get_news(ticker))]
+            if tavily.api_key:
+                news_tasks.append(asyncio.create_task(tavily.get_news(ticker)))
+            
+            # 设置 15 秒超时保护
             try:
+                # 调整 gather 逻辑以适应动态数量的新闻任务
                 res = await asyncio.wait_for(
-                    asyncio.gather(quote_task, fundamental_task, indicator_task, news_task, return_exceptions=True),
+                    asyncio.gather(quote_task, fundamental_task, indicator_task, *news_tasks, return_exceptions=True),
                     timeout=15.0
                 )
-                quote, fundamental, indicators, news = res
+                
+                quote = res[0]
+                fundamental = res[1]
+                indicators = res[2]
+                
+                # 合并所有新闻源的结果
+                all_news = []
+                for news_res in res[3:]:
+                    if isinstance(news_res, list):
+                        all_news.extend(news_res)
+                news = all_news
             except asyncio.TimeoutError:
                 logger.warning(f"{ticker} 数据抓取部分超时，将仅返回已完成的部分。")
                 quote = quote_task.result() if quote_task.done() and not quote_task.cancelled() else None
@@ -225,14 +239,18 @@ class MarketDataService:
                 if not n.link: continue
                 
                 import hashlib
-                unique_link_id = hashlib.md5(n.link.encode()).hexdigest()
+                # 使用 (Ticker + Link) 的组合 MD5 作为 ID，实现单标的内绝对去重
+                # (Ticker + Link) prevents same news from being ignored if it applies to multiple stocks, 
+                # but duplicate fetches for the same stock will be ignored.
+                unique_id = hashlib.md5(f"{ticker}:{n.link}".encode()).hexdigest()
+                
                 # 转换日期为 naive datetime 防止与 Postgres 不匹配 (Naive UTC conversion)
                 p_time = n.publish_time or now
                 if p_time.tzinfo:
                     p_time = p_time.replace(tzinfo=None)
 
                 news_stmt = insert(StockNews).values(
-                    id=n.id or unique_link_id,
+                    id=unique_id,
                     ticker=ticker,
                     title=n.title or "无标题",
                     publisher=n.publisher or "未知媒体",
@@ -258,13 +276,13 @@ class MarketDataService:
         """
         import random
         if cache:
-            # 基于前序价格进行微小布朗运动模拟
+            # 基于前序价格进行微小布朗运动模拟 (Micro-fluctuation)
             fluctuation = 1 + (random.uniform(-0.0005, 0.0005))
             cache.current_price *= fluctuation
-            cache.last_updated = now
+            # 注意：故意不更新 last_updated，让用户知道这是旧数据，且系统会继续尝试真实抓取
             return cache
         
-        # 纯虚拟初始化
+        # 纯虚拟初始化 (初始默认时间设为 2000 年，标记为从未成功抓取)
         return MarketDataCache(
             ticker=ticker,
             current_price=100.0 * (1 + random.uniform(-0.01, 0.01)),
@@ -276,6 +294,6 @@ class MarketDataService:
             macd_hist=0.0,
             bb_upper=105.0,
             bb_lower=95.0,
-            last_updated=now,
+            last_updated=datetime(2000, 1, 1), 
             market_status=MarketStatus.OPEN
         )

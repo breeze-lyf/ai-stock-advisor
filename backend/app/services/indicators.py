@@ -49,8 +49,8 @@ class TechnicalIndicators:
     @staticmethod
     def calculate_all(hist: pd.DataFrame) -> dict:
         """
-        全量指标快照：只提取“最新那一天”的数值。
-        AI 在进行诊断时，需要知道昨晚收盘时的 RSI 是多少。
+        量化指标全量计算：计算最新快照所需的全部技术指标。
+        这些指标是本系统的“底层眼睛”，支撑起前端仪表盘并作为 AI 诊断的精确上下文。
         """
         if hist.empty or len(hist) < 10:
             return {}
@@ -61,7 +61,7 @@ class TechnicalIndicators:
         volumes = hist['Volume']
         result = {}
 
-        # 1. 计算最新的 MACD 点位和金叉/死叉状态
+        # 1. MACD (趋势动能)
         ema12 = close_prices.ewm(span=12, adjust=False).mean()
         ema26 = close_prices.ewm(span=26, adjust=False).mean()
         macd_line = ema12 - ema26
@@ -71,26 +71,52 @@ class TechnicalIndicators:
         result["macd_val"] = float(macd_line.iloc[-1])
         result["macd_signal"] = float(signal_line.iloc[-1])
         result["macd_hist"] = float(macd_hist.iloc[-1])
-        
-        curr_macd = float(macd_line.iloc[-1])
-        curr_signal = float(signal_line.iloc[-1])
-        # 判断金叉 (快线上穿慢线)
-        result["macd_cross"] = "GOLDEN" if curr_macd >= curr_signal else "DEATH"
-        
-        # 2. MA (移动平均线) & 量比
-        if len(close_prices) >= 20:
-            ma20 = close_prices.rolling(window=20).mean()
-            result["ma_20"] = float(ma20.iloc[-1])
-            # 量比：当前成交量与过去 20 天均量的比值（判断是否有大资金入场）
+        result["macd_cross"] = "GOLDEN" if macd_line.iloc[-1] >= signal_line.iloc[-1] else "DEATH"
+        if len(macd_hist) >= 2:
+            result["macd_hist_slope"] = float(macd_hist.iloc[-1] - macd_hist.iloc[-2])
+
+        # 2. RSI (14) - 相对强弱指数
+        if len(close_prices) >= 15:
+            delta = close_prices.diff()
+            gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
+            loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
+            rs = gain / (loss + 1e-9)
+            rsi = 100 - (100 / (1 + rs))
+            result["rsi_14"] = float(rsi.iloc[-1])
+
+        # 3. 移动平均线 (MA 20/50/200) & 量比
+        result["ma_20"] = float(close_prices.rolling(window=20).mean().iloc[-1]) if len(close_prices) >= 20 else None
+        result["ma_50"] = float(close_prices.rolling(window=50).mean().iloc[-1]) if len(close_prices) >= 50 else None
+        result["ma_200"] = float(close_prices.rolling(window=200).mean().iloc[-1]) if len(close_prices) >= 200 else None
+
+        if len(volumes) >= 20:
             ma20_vol = volumes.rolling(window=20).mean()
             result["volume_ma_20"] = float(ma20_vol.iloc[-1])
-            result["volume_ratio"] = float(volumes.iloc[-1] / ma20_vol.iloc[-1]) if float(ma20_vol.iloc[-1]) > 0 else 0
+            result["volume_ratio"] = float(volumes.iloc[-1] / ma20_vol.iloc[-1]) if ma20_vol.iloc[-1] > 0 else 0
 
-        # 3. KDJ (随机指标) - 用于捕捉超短期的买卖点
+        # 4. 布林带 (Bollinger Bands)
+        if len(close_prices) >= 20:
+            ma20 = close_prices.rolling(window=20).mean()
+            std20 = close_prices.rolling(window=20).std()
+            result["bb_upper"] = float((ma20 + (std20 * 2)).iloc[-1])
+            result["bb_middle"] = float(ma20.iloc[-1])
+            result["bb_lower"] = float((ma20 - (std20 * 2)).iloc[-1])
+
+        # 5. Volatility (ATR 14) - 平均真实波幅
+        if len(hist) >= 15:
+            high_low = high_prices - low_prices
+            high_close = (high_prices - close_prices.shift()).abs()
+            low_close = (low_prices - close_prices.shift()).abs()
+            true_range = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
+            atr = true_range.rolling(window=14).mean()
+            result["atr_14"] = float(atr.iloc[-1])
+
+        # 6. KDJ (随机指标)
         if len(close_prices) >= 9:
             low_9 = low_prices.rolling(window=9).min()
             high_9 = high_prices.rolling(window=9).max()
-            rsv = (close_prices - low_9) / (high_9 - low_9) * 100
+            denom = high_9 - low_9
+            rsv = (close_prices - low_9) / (denom + 1e-9) * 100
             k = rsv.ewm(com=2, adjust=False).mean()
             d = k.ewm(com=2, adjust=False).mean()
             j = 3 * k - 2 * d
@@ -98,27 +124,22 @@ class TechnicalIndicators:
             result["d_line"] = float(d.iloc[-1])
             result["j_line"] = float(j.iloc[-1])
 
-        # 4. 关键压力/支撑位 (Pivot Points)
-        # 逻辑：基于昨天的最高、最低、收盘价，预判今天的阻力位。
+        # 7. 关键压力/支撑位 (Pivot Points)
         if len(close_prices) >= 2:
             last_h, last_l, last_c = high_prices.iloc[-2], low_prices.iloc[-2], close_prices.iloc[-2]
             pivot = (last_h + last_l + last_c) / 3
             result["pivot_point"] = float(pivot)
-            result["resistance_1"] = float(2 * pivot - last_l) # 第一阻力
-            result["support_1"] = float(2 * pivot - last_h)    # 第一支撑
+            result["resistance_1"] = float(2 * pivot - last_l)
+            result["support_1"] = float(2 * pivot - last_h)
+            result["resistance_2"] = float(pivot + (last_h - last_l))
+            result["support_2"] = float(pivot - (last_h - last_l))
 
-        # 5. 【核心逻辑】盈亏比的机器估算
-        # 逻辑：如果现在买，潜在空间(到阻力位)是不是潜在风险(到支撑位)的 1.5 倍以上？
+        # 8. 盈亏比的机器估算
         curr_p = float(close_prices.iloc[-1])
         r1, s1 = result.get("resistance_1"), result.get("support_1")
-        
-        calculated_rr = None
         if r1 and s1 and r1 > curr_p > s1:
             risk, reward = curr_p - s1, r1 - curr_p
             if risk > 0.01:
-                calculated_rr = reward / risk
-
-        if calculated_rr is not None:
-            result["risk_reward_ratio"] = round(float(calculated_rr), 2)
+                result["risk_reward_ratio"] = round(float(reward / risk), 2)
 
         return result

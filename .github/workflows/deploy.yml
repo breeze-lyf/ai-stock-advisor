@@ -30,9 +30,21 @@ jobs:
           npm install --registry=https://registry.npmmirror.com
           npm run build
 
-      # --- 第二部分：将构建产物同步到服务器 ---
+      # --- 第二部分：将代码与产物同步到服务器 ---
+      # 注意：直接使用 SCP 手动同步代码，避开阿里云访问 GitHub 慢的问题
+      - name: Sync All Code to Server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # 同步后端、根目录脚本以及前端构件
+          source: "backend/**,frontend/.next/**,frontend/public/**,frontend/package.json,frontend/next.config.js,start.sh,deploy.sh"
+          target: "/root/ai-stock-advisor/"
+          rm: false
 
-      - name: Deploy to Server via SSH
+      # --- 第三部分：服务器端依赖安装与服务重启 ---
+      - name: Post-Deploy Setup and Restart
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_IP }}
@@ -43,37 +55,19 @@ jobs:
             set -e
             cd /root/ai-stock-advisor
 
-            # 环境检查与 Git 同步 (仅代码同步，不包含 build 产物)
-            git config --global --add safe.directory /root/ai-stock-advisor
-            git fetch origin main
-            git reset --hard origin/main
-
-            # 更新后端依赖并运行迁移
+            # 1. 后端依赖更新与迁移
             cd backend
+            # 确保虚拟环境存在
+            if [ ! -d "venv" ]; then
+                python3 -m venv venv
+            fi
             ./venv/bin/pip install -r requirements.txt
             ./venv/bin/python -m alembic upgrade head
-            pm2 restart stock-backend || pm2 start "venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000" --name stock-backend
+            pm2 restart stock-backend || pm2 start "./venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000" --name stock-backend
 
-      - name: Sync Frontend Build Artifacts
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          # 仅同步前端编译后的关键目录，不传输 node_modules
-          source: "frontend/.next,frontend/public,frontend/package.json,frontend/next.config.js"
-          target: "/root/ai-stock-advisor/"
-          rm: false # 不删除服务器上的其他文件
-
-      - name: Finalize and Restart Frontend
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /root/ai-stock-advisor/frontend
-            # 服务器端仅安装生产环境必要的依赖，避免重新编译
+            # 2. 前端服务端依赖安装与重启
+            cd ../frontend
             npm install --production --registry=https://registry.npmmirror.com
             pm2 restart stock-frontend || pm2 start "npm start" --name stock-frontend
-            echo "Deployment Finished Successfully!"
+
+            echo "Deployment Pipeline Executed Successfully!"

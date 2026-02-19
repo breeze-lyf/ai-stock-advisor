@@ -33,6 +33,8 @@ class AnalysisReport(Base):
     summary_status = Column(String, nullable=True)  # 模型给出的短评 (如: "空中加油中")。
     risk_level = Column(String, nullable=True)      # 风险等级 (LOW/MEDIUM/HIGH)。
     
+    technical_analysis = Column(Text, nullable=True) # 技术面分析详述
+    fundamental_news = Column(Text, nullable=True)  # 基本面/消息面详述
     action_advice = Column(Text, nullable=True)     # 具体的文字版操作建议。
     investment_horizon = Column(String, nullable=True) # 投资期限 (短期/中期/长期)。
     confidence_level = Column(Float, nullable=True)    # AI 对该结论的信心指数。
@@ -46,6 +48,7 @@ class AnalysisReport(Base):
     stop_loss_price = Column(Float, nullable=True)    # 止损位
     
     # 建议建仓区间。
+    entry_zone = Column(String, nullable=True)       # 建仓建议区间描述
     entry_price_low = Column(Float, nullable=True)   # 入场下限
     entry_price_high = Column(Float, nullable=True)  # 入场上限
     

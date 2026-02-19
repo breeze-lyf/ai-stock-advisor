@@ -219,14 +219,18 @@ class MarketDataService:
         cache.last_updated = now
 
         # 4. 新闻增量同步与去重
-        # 机制：由于 yfinance 每次返回的是列表，其中有很多重复，我们给每个 Link 取 MD5 值作为 ID 存入。
         if data.news:
-            from sqlalchemy.dialects.sqlite import insert # 注意：如果用 Postgres 请换成 .postgresql
+            from sqlalchemy.dialects.postgresql import insert
             for n in data.news:
                 if not n.link: continue
                 
                 import hashlib
                 unique_link_id = hashlib.md5(n.link.encode()).hexdigest()
+                # 转换日期为 naive datetime 防止与 Postgres 不匹配 (Naive UTC conversion)
+                p_time = n.publish_time or now
+                if p_time.tzinfo:
+                    p_time = p_time.replace(tzinfo=None)
+
                 news_stmt = insert(StockNews).values(
                     id=n.id or unique_link_id,
                     ticker=ticker,
@@ -234,39 +238,16 @@ class MarketDataService:
                     publisher=n.publisher or "未知媒体",
                     link=n.link,
                     summary=n.summary,
-                    publish_time=n.publish_time or now
+                    publish_time=p_time
                 ).on_conflict_do_nothing() # 已存在的新闻不再重复插入
                 await db.execute(news_stmt)
 
         await db.commit()
-        return cache
-
-        cache.market_status = MarketStatus.OPEN
-        cache.last_updated = now
-
-        # 4. 新闻增量同步 (Incremental News Synchronization)
-        # 策略：根据 Link 的 MD5 哈希作为去重唯一 ID (Upsert logic)
-        if data.news:
-            from sqlalchemy.dialects.sqlite import insert
-            for n in data.news:
-                if not n.link: continue
-                
-                import hashlib
-                unique_link_id = hashlib.md5(n.link.encode()).hexdigest()
-                news_stmt = insert(StockNews).values(
-                    id=n.id or unique_link_id,
-                    ticker=ticker,
-                    title=n.title or "No Title",
-                    publisher=n.publisher or "Unknown",
-                    link=n.link,
-                    summary=n.summary,
-                    publish_time=n.publish_time or now
-                ).on_conflict_do_nothing()
-                await db.execute(news_stmt)
-
-        await db.commit()
-        try: await db.refresh(cache)
-        except Exception: pass
+        try: 
+            if cache:
+                await db.refresh(cache)
+        except Exception: 
+            pass
         return cache
 
     @staticmethod

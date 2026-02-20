@@ -34,21 +34,25 @@ async def auto_refresh_job():
                     MarketDataCache, Stock.ticker == MarketDataCache.ticker
                 ).order_by(
                     MarketDataCache.last_updated.asc().nullsfirst()
-                ).limit(1)
+                ).limit(10)
                 
                 result = await db.execute(stmt)
-                ticker = result.scalar_one_or_none()
+                tickers = result.scalars().all()
                 
-                if ticker:
-                    logger.info(f"🔄 Refreshing stalest stock: {ticker}...")
-                    try:
-                        updated_cache = await MarketDataService.get_real_time_data(ticker, db, force_refresh=True)
-                        if updated_cache:
-                            logger.info(f"✅ Successfully refreshed {ticker}. New Price: {updated_cache.current_price}")
-                        else:
-                            logger.warning(f"⚠️ Failed to refresh data for {ticker}.")
-                    except Exception as fetch_error:
-                        logger.error(f"❌ Error fetching data for {ticker}: {fetch_error}")
+                if tickers:
+                    logger.info(f"🔄 Refreshing stalest {len(tickers)} stocks: {', '.join(tickers)}...")
+                    for ticker in tickers:
+                        try:
+                            updated_cache = await MarketDataService.get_real_time_data(ticker, db, force_refresh=True)
+                            if updated_cache:
+                                logger.info(f"✅ Successfully refreshed {ticker}. New Price: {updated_cache.current_price}")
+                            else:
+                                logger.warning(f"⚠️ Failed to refresh data for {ticker}.")
+                        except Exception as fetch_error:
+                            logger.error(f"❌ Error fetching data for {ticker}: {fetch_error}")
+                        
+                        # 休眠 2 秒，避免短时间内突然发出大量请求导致 IP 被封
+                        await asyncio.sleep(2)
                 else:
                     logger.info("ℹ️ No stocks found in database to refresh.")
                     

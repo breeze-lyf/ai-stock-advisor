@@ -1,89 +1,323 @@
-2026-02-19 11:37:49,046 - __main__ - INFO - 🚀 Starting auto-refresh background job...
-2026-02-19 11:37:51,964 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 11:37:52,274 - __main__ - ERROR - ❌ Error fetching data for V: (sqlalchemy.dialects.postgresql.asyncpg.ProgrammingError) <class 'asyncpg.exceptions.UndefinedColumnError'>: column market_data_cache.macd_val does not exist
-[SQL: SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.macd_hist_slope, market_data_cache.macd_cross, market_data_cache.macd_is_new_cross, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.adx_14, market_data_cache.pivot_point, market_data_cache.resistance_1, market_data_cache.resistance_2, market_data_cache.support_1, market_data_cache.support_2, market_data_cache.risk_reward_ratio, market_data_cache.is_ai_strategy, market_data_cache.market_status, market_data_cache.last_updated 
-FROM market_data_cache 
-WHERE market_data_cache.ticker = $1::VARCHAR]
-[parameters: ('V',)]
-(Background on this error at: https://sqlalche.me/e/20/f405)
-2026-02-19 11:37:52,427 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 11:42:53,954 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 11:42:55,693 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 11:42:55,847 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 11:47:57,535 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 11:47:58,744 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 11:47:58,903 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 11:53:00,414 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 11:53:01,816 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 11:53:01,970 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 11:58:03,515 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 11:58:04,897 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 11:58:05,053 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 12:03:08,509 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 12:03:16,088 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 12:03:16,357 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 12:08:17,883 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 12:08:19,218 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 12:08:19,373 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 12:13:21,108 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 12:13:22,565 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 12:13:22,722 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 12:18:24,447 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 12:18:25,673 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 12:18:25,826 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 12:23:27,378 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 12:23:28,651 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 12:23:28,805 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 12:28:30,358 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 12:28:31,578 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 12:28:31,733 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 12:33:33,432 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 12:33:34,647 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 12:33:34,801 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 12:38:36,351 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 12:38:37,564 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 12:38:37,719 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 12:43:39,238 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 12:43:40,453 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 12:43:40,607 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 12:48:42,192 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 12:48:43,702 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 12:48:43,855 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 12:53:45,384 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 12:53:46,761 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 12:53:46,914 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 12:58:48,422 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 12:58:49,632 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 12:58:49,783 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 13:03:51,648 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 13:03:53,029 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 13:03:53,184 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 13:08:56,804 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 13:08:59,273 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 13:08:59,793 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 13:14:01,503 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 13:14:02,882 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 13:14:03,042 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 13:19:04,722 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 13:19:06,073 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 13:19:06,230 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 20:26:27,314 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-19 20:26:27,316 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 21:30:18,810 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 21:30:20,058 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 21:30:20,216 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 21:35:21,739 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 21:35:23,154 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 21:35:23,308 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 21:40:24,864 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 21:40:26,415 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 21:40:26,571 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 21:45:28,205 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 21:45:29,462 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 21:45:29,660 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 21:50:31,264 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 21:50:32,575 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 21:50:32,736 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-19 21:55:34,342 - __main__ - INFO - 🔄 Refreshing stalest stock: V...
-2026-02-19 21:55:35,607 - __main__ - ERROR - ❌ Error fetching data for V: 'OnConflictDoNothing' object has no attribute 'constraint_target'
-2026-02-19 21:55:35,757 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-02-20 12:40:46,099 - __main__ - INFO - 🚀 Starting auto-refresh background job...
+2026-02-20 12:40:59,360 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: V, VZ, WFC, XOM, AMGN, AXP, BAC, AVGO, BRK.B, IREN...
+2026-02-20 12:41:00,933 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for V: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:41:01,460 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:41:01,461 - app.services.market_providers.tavily - ERROR - Tavily get_news error for V: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:41:02,557 - __main__ - INFO - ✅ Successfully refreshed V. New Price: 313.5582921485941
+2026-02-20 12:41:08,064 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for VZ: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:41:08,168 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:41:08,169 - app.services.market_providers.tavily - ERROR - Tavily get_news error for VZ: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:41:08,900 - __main__ - INFO - ✅ Successfully refreshed VZ. New Price: 48.993618048680325
+2026-02-20 12:41:14,121 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:41:14,123 - app.services.market_providers.tavily - ERROR - Tavily get_news error for WFC: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:41:19,312 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for WFC: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:41:20,058 - __main__ - INFO - ✅ Successfully refreshed WFC. New Price: 86.98783248324932
+2026-02-20 12:41:25,256 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:41:25,258 - app.services.market_providers.tavily - ERROR - Tavily get_news error for XOM: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:41:53,891 - app.services.market_data - WARNING - XOM 数据抓取部分超时，将仅返回已完成的部分。
+2026-02-20 12:41:54,628 - __main__ - INFO - ✅ Successfully refreshed XOM. New Price: 148.4750274067361
+2026-02-20 12:41:59,867 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:41:59,869 - app.services.market_providers.tavily - ERROR - Tavily get_news error for AMGN: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:42:15,163 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for AMGN: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:42:15,896 - __main__ - INFO - ✅ Successfully refreshed AMGN. New Price: 369.24140047510366
+2026-02-20 12:42:21,088 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:42:21,090 - app.services.market_providers.tavily - ERROR - Tavily get_news error for AXP: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:42:21,801 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for AXP: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:42:22,542 - __main__ - INFO - ✅ Successfully refreshed AXP. New Price: 337.35914744409257
+2026-02-20 12:42:27,656 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for BAC: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:42:27,747 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:42:27,749 - app.services.market_providers.tavily - ERROR - Tavily get_news error for BAC: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:42:28,480 - __main__ - INFO - ✅ Successfully refreshed BAC. New Price: 52.538685489458
+2026-02-20 12:42:33,376 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for AVGO: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:42:33,681 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:42:33,683 - app.services.market_providers.tavily - ERROR - Tavily get_news error for AVGO: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:42:34,424 - __main__ - INFO - ✅ Successfully refreshed AVGO. New Price: 325.14788387810233
+2026-02-20 12:42:39,625 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:42:39,628 - app.services.market_providers.tavily - ERROR - Tavily get_news error for BRK.B: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:42:39,900 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for BRK.B: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:42:40,633 - __main__ - INFO - ✅ Successfully refreshed BRK.B. New Price: 493.46400007065506
+2026-02-20 12:42:45,836 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:42:45,838 - app.services.market_providers.tavily - ERROR - Tavily get_news error for IREN: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:42:47,312 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for IREN: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:42:48,041 - __main__ - INFO - ✅ Successfully refreshed IREN. New Price: 42.23225470061458
+2026-02-20 12:42:50,043 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-02-20 12:47:53,680 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: V, VZ, WFC, XOM, AMGN, AXP, BAC, AVGO, BRK.B, IREN...
+2026-02-20 12:47:55,801 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:47:55,803 - app.services.market_providers.tavily - ERROR - Tavily get_news error for V: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:47:58,976 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for V: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:48:00,078 - __main__ - INFO - ✅ Successfully refreshed V. New Price: 313.484045651209
+2026-02-20 12:48:05,668 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:48:05,670 - app.services.market_providers.tavily - ERROR - Tavily get_news error for VZ: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:48:25,256 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for VZ: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:48:25,987 - __main__ - INFO - ✅ Successfully refreshed VZ. New Price: 48.97408134660151
+2026-02-20 12:48:31,165 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:48:31,167 - app.services.market_providers.tavily - ERROR - Tavily get_news error for WFC: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:48:34,420 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for WFC: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:48:35,150 - __main__ - INFO - ✅ Successfully refreshed WFC. New Price: 87.02976136718176
+2026-02-20 12:48:40,366 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:48:40,368 - app.services.market_providers.tavily - ERROR - Tavily get_news error for XOM: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:49:08,972 - app.services.market_data - WARNING - XOM 数据抓取部分超时，将仅返回已完成的部分。
+2026-02-20 12:49:09,703 - __main__ - INFO - ✅ Successfully refreshed XOM. New Price: 148.47602001242356
+2026-02-20 12:49:14,961 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:49:14,961 - app.services.market_providers.tavily - ERROR - Tavily get_news error for AMGN: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:49:30,986 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for AMGN: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:49:31,718 - __main__ - INFO - ✅ Successfully refreshed AMGN. New Price: 369.3975175203875
+2026-02-20 12:49:36,931 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:49:36,932 - app.services.market_providers.tavily - ERROR - Tavily get_news error for AXP: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:49:38,942 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for AXP: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:49:39,680 - __main__ - INFO - ✅ Successfully refreshed AXP. New Price: 337.52247874024965
+2026-02-20 12:49:44,332 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for BAC: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:49:44,872 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:49:44,874 - app.services.market_providers.tavily - ERROR - Tavily get_news error for BAC: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:49:45,609 - __main__ - INFO - ✅ Successfully refreshed BAC. New Price: 52.56441937976763
+2026-02-20 12:49:50,263 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for AVGO: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:49:50,829 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:49:50,832 - app.services.market_providers.tavily - ERROR - Tavily get_news error for AVGO: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:49:51,563 - __main__ - INFO - ✅ Successfully refreshed AVGO. New Price: 325.2628711842173
+2026-02-20 12:49:56,251 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for BRK.B: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:49:56,790 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:49:56,791 - app.services.market_providers.tavily - ERROR - Tavily get_news error for BRK.B: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:49:57,638 - __main__ - INFO - ✅ Successfully refreshed BRK.B. New Price: 493.3577553179
+2026-02-20 12:50:02,321 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for IREN: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:50:02,803 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:50:02,805 - app.services.market_providers.tavily - ERROR - Tavily get_news error for IREN: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:50:03,535 - __main__ - INFO - ✅ Successfully refreshed IREN. New Price: 42.22562045238535
+2026-02-20 12:50:05,537 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-02-20 12:55:09,142 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: V, VZ, WFC, XOM, AMGN, AXP, BAC, AVGO, BRK.B, IREN...
+2026-02-20 12:55:11,263 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:55:11,265 - app.services.market_providers.tavily - ERROR - Tavily get_news error for V: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:55:25,813 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for V: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:55:26,892 - __main__ - INFO - ✅ Successfully refreshed V. New Price: 313.4136922075016
+2026-02-20 12:55:31,887 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for VZ: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:55:32,412 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:55:32,414 - app.services.market_providers.tavily - ERROR - Tavily get_news error for VZ: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:55:33,138 - __main__ - INFO - ✅ Successfully refreshed VZ. New Price: 48.961929082481085
+2026-02-20 12:55:38,304 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:55:38,305 - app.services.market_providers.tavily - ERROR - Tavily get_news error for WFC: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:55:40,220 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for WFC: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:55:40,941 - __main__ - INFO - ✅ Successfully refreshed WFC. New Price: 87.04241555790253
+2026-02-20 12:55:46,129 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:55:46,131 - app.services.market_providers.tavily - ERROR - Tavily get_news error for XOM: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:55:50,358 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for XOM: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:55:51,079 - __main__ - INFO - ✅ Successfully refreshed XOM. New Price: 148.47281373674187
+2026-02-20 12:55:56,214 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:55:56,216 - app.services.market_providers.tavily - ERROR - Tavily get_news error for AMGN: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:55:58,119 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for AMGN: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:55:58,840 - __main__ - INFO - ✅ Successfully refreshed AMGN. New Price: 369.3913605457916
+2026-02-20 12:56:04,044 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:56:04,046 - app.services.market_providers.tavily - ERROR - Tavily get_news error for AXP: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:56:04,899 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for AXP: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:56:05,621 - __main__ - INFO - ✅ Successfully refreshed AXP. New Price: 337.50616092250056
+2026-02-20 12:56:10,783 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:56:10,784 - app.services.market_providers.tavily - ERROR - Tavily get_news error for BAC: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:56:17,971 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for BAC: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:56:18,693 - __main__ - INFO - ✅ Successfully refreshed BAC. New Price: 52.58086336727221
+2026-02-20 12:56:23,878 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:56:23,878 - app.services.market_providers.tavily - ERROR - Tavily get_news error for AVGO: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:56:52,492 - app.services.market_data - WARNING - AVGO 数据抓取部分超时，将仅返回已完成的部分。
+2026-02-20 12:56:53,213 - __main__ - INFO - ✅ Successfully refreshed AVGO. New Price: 325.4069127715449
+2026-02-20 12:56:58,464 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:56:58,465 - app.services.market_providers.tavily - ERROR - Tavily get_news error for BRK.B: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:57:13,437 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for BRK.B: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:57:14,160 - __main__ - INFO - ✅ Successfully refreshed BRK.B. New Price: 493.1329235092672
+2026-02-20 12:57:19,316 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 12:57:19,318 - app.services.market_providers.tavily - ERROR - Tavily get_news error for IREN: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 12:57:19,389 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for IREN: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 12:57:20,112 - __main__ - INFO - ✅ Successfully refreshed IREN. New Price: 42.22707321074013
+2026-02-20 12:57:22,115 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-02-20 13:02:25,684 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: V, VZ, WFC, XOM, AMGN, AXP, BAC, AVGO, BRK.B, IREN...
+2026-02-20 13:02:27,789 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:02:27,793 - app.services.market_providers.tavily - ERROR - Tavily get_news error for V: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:02:56,410 - app.services.market_data - WARNING - V 数据抓取部分超时，将仅返回已完成的部分。
+2026-02-20 13:02:57,480 - __main__ - INFO - ✅ Successfully refreshed V. New Price: 313.43032444328054
+2026-02-20 13:03:02,475 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for VZ: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:03:03,004 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:03:03,007 - app.services.market_providers.tavily - ERROR - Tavily get_news error for VZ: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:03:03,723 - __main__ - INFO - ✅ Successfully refreshed VZ. New Price: 48.97404732169265
+2026-02-20 13:03:08,354 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for WFC: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:03:08,908 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:03:08,910 - app.services.market_providers.tavily - ERROR - Tavily get_news error for WFC: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:03:09,626 - __main__ - INFO - ✅ Successfully refreshed WFC. New Price: 87.07396145364012
+2026-02-20 13:03:14,256 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for XOM: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:03:14,767 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:03:14,770 - app.services.market_providers.tavily - ERROR - Tavily get_news error for XOM: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:03:15,488 - __main__ - INFO - ✅ Successfully refreshed XOM. New Price: 148.41671608071493
+2026-02-20 13:03:20,108 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for AMGN: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:03:20,661 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:03:20,663 - app.services.market_providers.tavily - ERROR - Tavily get_news error for AMGN: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:03:21,379 - __main__ - INFO - ✅ Successfully refreshed AMGN. New Price: 369.32762657956977
+2026-02-20 13:03:25,979 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for AXP: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:03:26,544 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:03:26,545 - app.services.market_providers.tavily - ERROR - Tavily get_news error for AXP: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:03:27,258 - __main__ - INFO - ✅ Successfully refreshed AXP. New Price: 337.5757317379578
+2026-02-20 13:03:31,876 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for BAC: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:03:32,429 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:03:32,431 - app.services.market_providers.tavily - ERROR - Tavily get_news error for BAC: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:03:33,147 - __main__ - INFO - ✅ Successfully refreshed BAC. New Price: 52.56045968374177
+2026-02-20 13:03:38,343 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:03:38,345 - app.services.market_providers.tavily - ERROR - Tavily get_news error for AVGO: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:03:45,348 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for AVGO: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:03:46,072 - __main__ - INFO - ✅ Successfully refreshed AVGO. New Price: 325.508007639537
+2026-02-20 13:03:51,219 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:03:51,221 - app.services.market_providers.tavily - ERROR - Tavily get_news error for BRK.B: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:04:07,680 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for BRK.B: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:04:08,391 - __main__ - INFO - ✅ Successfully refreshed BRK.B. New Price: 493.24256228529816
+2026-02-20 13:04:13,428 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for IREN: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:04:13,513 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:04:13,515 - app.services.market_providers.tavily - ERROR - Tavily get_news error for IREN: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:04:14,231 - __main__ - INFO - ✅ Successfully refreshed IREN. New Price: 42.207517735657234
+2026-02-20 13:04:16,232 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-02-20 13:09:21,384 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: V, VZ, WFC, XOM, AMGN, AXP, BAC, AVGO, BRK.B, IREN...
+2026-02-20 13:09:23,869 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:09:23,869 - app.services.market_providers.tavily - ERROR - Tavily get_news error for V: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:09:27,488 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for V: HTTPSConnectionPool(host='69.push2.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/clist/get?pn=1&pz=50000&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=b%3AMK0216&fields=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf12%2Cf13%2Cf14%2Cf15%2Cf16%2Cf17%2Cf18%2Cf20%2Cf21%2Cf23%2Cf24%2Cf25%2Cf26%2Cf22%2Cf33%2Cf11%2Cf62%2Cf128%2Cf136%2Cf115%2Cf152 (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)')))
+2026-02-20 13:09:28,589 - __main__ - INFO - ✅ Successfully refreshed V. New Price: 313.56708874967416
+2026-02-20 13:09:34,086 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:09:34,088 - app.services.market_providers.tavily - ERROR - Tavily get_news error for VZ: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:10:02,746 - app.services.market_data - WARNING - VZ 数据抓取部分超时，将仅返回已完成的部分。
+2026-02-20 13:10:03,503 - __main__ - INFO - ✅ Successfully refreshed VZ. New Price: 48.96523081628915
+2026-02-20 13:10:08,652 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:10:08,654 - app.services.market_providers.tavily - ERROR - Tavily get_news error for WFC: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:10:17,157 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for WFC: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:10:17,878 - __main__ - INFO - ✅ Successfully refreshed WFC. New Price: 87.04586259024741
+2026-02-20 13:10:23,037 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:10:23,039 - app.services.market_providers.tavily - ERROR - Tavily get_news error for XOM: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:10:26,090 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for XOM: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:10:26,811 - __main__ - INFO - ✅ Successfully refreshed XOM. New Price: 148.3608980852476
+2026-02-20 13:10:31,957 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:10:31,961 - app.services.market_providers.tavily - ERROR - Tavily get_news error for AMGN: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:10:39,633 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for AMGN: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:10:40,364 - __main__ - INFO - ✅ Successfully refreshed AMGN. New Price: 369.34950356113507
+2026-02-20 13:10:45,022 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for AXP: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:10:45,551 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:10:45,553 - app.services.market_providers.tavily - ERROR - Tavily get_news error for AXP: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:10:46,281 - __main__ - INFO - ✅ Successfully refreshed AXP. New Price: 337.4314007047953
+2026-02-20 13:10:50,913 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for BAC: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:10:51,441 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:10:51,446 - app.services.market_providers.tavily - ERROR - Tavily get_news error for BAC: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:10:52,169 - __main__ - INFO - ✅ Successfully refreshed BAC. New Price: 52.53989419248479
+2026-02-20 13:10:56,845 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for AVGO: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:10:57,337 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:10:57,338 - app.services.market_providers.tavily - ERROR - Tavily get_news error for AVGO: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:10:58,063 - __main__ - INFO - ✅ Successfully refreshed AVGO. New Price: 325.53799331490495
+2026-02-20 13:11:02,733 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for BRK.B: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:11:03,258 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:11:03,261 - app.services.market_providers.tavily - ERROR - Tavily get_news error for BRK.B: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:11:03,991 - __main__ - INFO - ✅ Successfully refreshed BRK.B. New Price: 493.2174771839163
+2026-02-20 13:11:08,639 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for IREN: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:11:09,146 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:11:09,148 - app.services.market_providers.tavily - ERROR - Tavily get_news error for IREN: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:11:09,935 - __main__ - INFO - ✅ Successfully refreshed IREN. New Price: 42.21837603770943
+2026-02-20 13:11:11,937 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-02-20 13:16:15,587 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: V, VZ, WFC, XOM, AMGN, AXP, BAC, AVGO, BRK.B, IREN...
+2026-02-20 13:16:17,213 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for V: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:16:17,759 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:16:17,761 - app.services.market_providers.tavily - ERROR - Tavily get_news error for V: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:16:18,853 - __main__ - INFO - ✅ Successfully refreshed V. New Price: 313.54942654334843
+2026-02-20 13:16:24,404 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:16:24,407 - app.services.market_providers.tavily - ERROR - Tavily get_news error for VZ: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:16:31,379 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for VZ: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:16:32,153 - __main__ - INFO - ✅ Successfully refreshed VZ. New Price: 48.95360649641908
+2026-02-20 13:16:37,354 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:16:37,357 - app.services.market_providers.tavily - ERROR - Tavily get_news error for WFC: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:16:38,441 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for WFC: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:16:39,222 - __main__ - INFO - ✅ Successfully refreshed WFC. New Price: 87.00657052163302
+2026-02-20 13:16:44,399 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:16:44,401 - app.services.market_providers.tavily - ERROR - Tavily get_news error for XOM: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:16:45,098 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for XOM: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:16:45,909 - __main__ - INFO - ✅ Successfully refreshed XOM. New Price: 148.35677369721097
+2026-02-20 13:16:51,194 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for AMGN: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:16:51,205 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:16:51,206 - app.services.market_providers.tavily - ERROR - Tavily get_news error for AMGN: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:16:51,933 - __main__ - INFO - ✅ Successfully refreshed AMGN. New Price: 369.3350749648054
+2026-02-20 13:16:57,177 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:16:57,180 - app.services.market_providers.tavily - ERROR - Tavily get_news error for AXP: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:16:59,285 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for AXP: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:17:00,009 - __main__ - INFO - ✅ Successfully refreshed AXP. New Price: 337.52112883678484
+2026-02-20 13:17:05,313 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:17:05,316 - app.services.market_providers.tavily - ERROR - Tavily get_news error for BAC: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:17:13,136 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for BAC: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:17:13,892 - __main__ - INFO - ✅ Successfully refreshed BAC. New Price: 52.51632740658963
+2026-02-20 13:17:19,072 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:17:19,074 - app.services.market_providers.tavily - ERROR - Tavily get_news error for AVGO: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:17:26,544 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for AVGO: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:17:27,319 - __main__ - INFO - ✅ Successfully refreshed AVGO. New Price: 325.5427692483276
+2026-02-20 13:17:31,888 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for BRK.B: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:17:32,925 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:17:32,926 - app.services.market_providers.tavily - ERROR - Tavily get_news error for BRK.B: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:17:33,684 - __main__ - INFO - ✅ Successfully refreshed BRK.B. New Price: 493.29446158402277
+2026-02-20 13:17:38,363 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for IREN: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:17:38,933 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:17:38,935 - app.services.market_providers.tavily - ERROR - Tavily get_news error for IREN: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:17:39,690 - __main__ - INFO - ✅ Successfully refreshed IREN. New Price: 42.21783057677965
+2026-02-20 13:17:41,692 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-02-20 13:56:10,715 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: V, VZ, WFC, XOM, AMGN, AXP, BAC, AVGO, BRK.B, IREN...
+2026-02-20 13:56:12,271 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for V: _patched_get_environ_proxies() got an unexpected keyword argument 'no_proxy'
+2026-02-20 13:56:12,852 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:56:12,853 - app.services.market_providers.tavily - ERROR - Tavily get_news error for V: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 13:56:13,928 - __main__ - INFO - ✅ Successfully refreshed V. New Price: 313.6386221275894
+2026-02-20 13:56:19,409 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 400 Bad Request"
+2026-02-20 13:56:19,411 - app.services.market_providers.tavily - ERROR - Tavily get_news error for VZ: Client error '400 Bad Request' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/400
+2026-02-20 14:11:33,567 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for VZ: HTTPSConnectionPool(host='69.push2.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/clist/get?pn=1&pz=50000&po=1&np=2&ut=bd1d9ddb04089700cf9c27f6f7426281&fltt=2&invt=2&fid=f3&fs=b%3AMK0216&fields=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf12%2Cf13%2Cf14%2Cf15%2Cf16%2Cf17%2Cf18%2Cf20%2Cf21%2Cf23%2Cf24%2Cf25%2Cf26%2Cf22%2Cf33%2Cf11%2Cf62%2Cf128%2Cf136%2Cf115%2Cf152 (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)')))

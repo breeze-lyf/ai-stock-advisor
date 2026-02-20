@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Zap, RefreshCw, Activity, Newspaper, TrendingUp, BarChart3, Clock, AlertCircle, Target, ShieldAlert, ShieldCheck, Settings2 } from "lucide-react";
+import { Zap, RefreshCw, Activity, Newspaper, TrendingUp, BarChart3, Clock, AlertCircle, Target, ShieldAlert, ShieldCheck, Settings2, ChevronLeft } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import clsx from "clsx";
@@ -21,6 +21,7 @@ interface StockDetailProps {
     selectedItem: PortfolioItem | null;
     onAnalyze: (force?: boolean) => void;
     onRefresh: () => void;
+    onBack?: () => void;
     analyzing: boolean;
     aiData: {
         sentiment_score?: number;
@@ -48,6 +49,7 @@ export function StockDetail({
     selectedItem,
     onAnalyze,
     onRefresh,
+    onBack,
     analyzing,
     aiData,
     news = []
@@ -104,7 +106,7 @@ export function StockDetail({
 
     if (!selectedItem) {
         return (
-            <div className="col-span-12 lg:col-span-9 bg-white dark:bg-slate-950 p-6 flex flex-col items-center justify-center h-full text-slate-300 gap-4">
+            <div className="flex-1 bg-white dark:bg-slate-950 p-6 flex flex-col items-center justify-center h-full text-slate-300 gap-4">
                 <div className="p-8 rounded-full bg-slate-50 dark:bg-slate-900 shadow-inner">
                     <Zap className="h-16 w-16 opacity-5 animate-pulse" />
                 </div>
@@ -138,15 +140,20 @@ export function StockDetail({
     return (
         <div 
             ref={containerRef}
-            className="col-span-12 lg:col-span-9 bg-white dark:bg-slate-950 px-6 md:px-8 pb-12 flex flex-col gap-8 overflow-y-auto h-full custom-scrollbar w-full max-w-[1400px] mx-auto border-x border-slate-50 dark:border-slate-900 shadow-xl shadow-slate-200/50 dark:shadow-none relative"
+            className="flex-1 bg-white dark:bg-slate-950 px-4 md:px-8 pb-12 flex flex-col gap-6 md:gap-8 overflow-y-auto h-full custom-scrollbar w-full max-w-[1400px] mx-auto relative pt-4"
         >
             {/* --- Sticky Bar (Visible only when scrolled) --- */}
             <div className={clsx(
                 "sticky top-0 z-50 -mx-6 md:-mx-8 px-6 md:px-8 py-2 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 transition-all duration-300",
                 isScrolled ? "opacity-100 translate-y-0 pointer-events-auto shadow-sm" : "opacity-0 translate-y-[-100%] pointer-events-none"
             )} style={{ marginBottom: "-5.5rem" }}>
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 h-14">
-                    <div className="flex items-center gap-4">
+                <div className="flex md:items-center justify-between gap-4 h-14">
+                    <div className="flex items-center gap-2 md:gap-4">
+                        {onBack && (
+                            <button onClick={onBack} title="返回" aria-label="返回" className="lg:hidden p-1 -ml-1 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
+                                <ChevronLeft className="h-6 w-6" />
+                            </button>
+                        )}
                         <div className="flex flex-col">
                             <h1 className="text-lg font-black tracking-tighter text-slate-900 dark:text-white leading-tight">
                                 {selectedItem.name || selectedItem.ticker}
@@ -176,8 +183,8 @@ export function StockDetail({
 
                     <div className="flex items-center gap-6">
                         <div className="hidden sm:flex flex-col items-end">
-                            <span className="text-[8px] font-black uppercase text-slate-400 tracking-tighter">最新增幅</span>
-                            <span className={clsx("text-xs font-black tabular-nums", (selectedItem.change_percent || 0) >= 0 ? "text-emerald-500" : "text-rose-500")}>
+                            <span className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">最新增幅</span>
+                            <span className={clsx("text-sm font-black tabular-nums", (selectedItem.change_percent || 0) >= 0 ? "text-emerald-500" : "text-rose-500")}>
                                 {(selectedItem.change_percent || 0) >= 0 ? "+" : ""}{selectedItem.change_percent?.toFixed(2)}%
                             </span>
                         </div>
@@ -200,16 +207,23 @@ export function StockDetail({
                 "flex flex-col gap-2 border-b border-slate-100 dark:border-slate-800 pb-3 pt-0.5 transition-all duration-500",
                 isScrolled && "opacity-0 pointer-events-none"
             )}>
-                <div className="flex justify-between items-end">
-                    <div className="flex flex-col">
-                        <h1 className="text-4xl font-black tracking-tighter text-slate-900 dark:text-white leading-none">
-                            {selectedItem.name || selectedItem.ticker}
-                        </h1>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mt-2">
-                            {selectedItem.name ? selectedItem.ticker : "Full Financial Reputation Analysis"}
-                        </p>
+                <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-3 sm:gap-4">
+                    <div className="flex items-start gap-2">
+                        {onBack && (
+                            <button onClick={onBack} title="返回" aria-label="返回" className="lg:hidden mt-1 p-1 -ml-1 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
+                                <ChevronLeft className="h-7 w-7" />
+                            </button>
+                        )}
+                        <div className="flex flex-col">
+                            <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-slate-900 dark:text-white leading-none">
+                                {selectedItem.name || selectedItem.ticker}
+                            </h1>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mt-2">
+                                {selectedItem.name ? selectedItem.ticker : "Full Financial Reputation Analysis"}
+                            </p>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-10">
+                    <div className="flex items-center gap-6 sm:gap-10">
                         {/* --- Latest Growth (Daily Change) --- */}
                         <div className="hidden sm:flex flex-col items-end">
                             <span className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">最新涨跌</span>

@@ -30,7 +30,8 @@ class TavilyProvider(MarketDataProvider):
                 payload = {
                     "api_key": self.api_key,
                     "query": query,
-                    "search_depth": "news", # Use specialized news search
+                    "topic": "news", # Use specialized news search
+                    "search_depth": "basic",
                     "include_answer": False,
                     "include_images": False,
                     "max_results": 5

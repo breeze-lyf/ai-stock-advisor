@@ -24,14 +24,14 @@ _tls = threading.local()
 # 备份原始 requests.utils.get_environ_proxies
 _original_get_environ_proxies = requests.utils.get_environ_proxies
 
-def _patched_get_environ_proxies(url):
+def _patched_get_environ_proxies(*args, **kwargs):
     """
     monkey-patch 函数，针对标记了 bypass_proxy 的线程返回空代理。
     国内服务器访问 AkShare (EM/Sina) 必须禁用代理，否则会因代理服务器位于海外而被目标反扒机制拦截。
     """
     if getattr(_tls, 'bypass_proxy', False):
         return {}
-    return _original_get_environ_proxies(url)
+    return _original_get_environ_proxies(*args, **kwargs)
 
 # 应用全局 patch
 requests.utils.get_environ_proxies = _patched_get_environ_proxies
@@ -96,21 +96,7 @@ class AkShareProvider(MarketDataProvider):
             
         symbol = self._normalize_symbol(ticker)
         try:
-            # 1. 缓存优先
-            if AkShareProvider._cached_spot_df is not None and (time.time() - AkShareProvider._last_spot_update) < AkShareProvider._CACHE_TTL:
-                row = AkShareProvider._cached_spot_df[AkShareProvider._cached_spot_df['代码'] == symbol]
-                if not row.empty:
-                    target = row.iloc[0]
-                    return ProviderQuote(
-                        ticker=ticker,
-                        price=float(target['最新价']),
-                        change_percent=float(target['涨跌幅']),
-                        name=str(target['名称']),
-                        market_status=MarketStatus.OPEN,
-                        last_updated=datetime.utcnow()
-                    )
-
-            # 2. 个股极速路径 (Hist + Info)
+            # 个股极速路径 (Hist + Info)
             price, change_percent, name = None, 0.0, None
             try:
                 hist_df = await self._run_sync(ak.stock_zh_a_hist, symbol=symbol, period="daily", adjust="qfq")
@@ -132,18 +118,6 @@ class AkShareProvider(MarketDataProvider):
             if price is not None:
                 return ProviderQuote(ticker=ticker, price=price, change_percent=change_percent, name=name or ticker, last_updated=datetime.utcnow())
 
-            # 3. 全市场兜底
-            async with self._get_lock():
-                if AkShareProvider._cached_spot_df is None or (time.time() - AkShareProvider._last_spot_update) >= AkShareProvider._CACHE_TTL:
-                    df = await self._run_sync(ak.stock_zh_a_spot_em)
-                    if df is not None:
-                        AkShareProvider._cached_spot_df = df
-                        AkShareProvider._last_spot_update = time.time()
-                
-                row = AkShareProvider._cached_spot_df[AkShareProvider._cached_spot_df['代码'] == symbol]
-                if not row.empty:
-                    target = row.iloc[0]
-                    return ProviderQuote(ticker=ticker, price=float(target['最新价']), change_percent=float(target['涨跌幅']), name=str(target['名称']), last_updated=datetime.utcnow())
             return None
         except Exception as e:
             logger.error(f"AkShare get_quote error for {ticker}: {e}")
@@ -152,35 +126,7 @@ class AkShareProvider(MarketDataProvider):
     async def _get_us_quote(self, ticker: str) -> Optional[ProviderQuote]:
         """专用于获取美股行情的内部方法"""
         try:
-            # 1. 尝试从美股精选缓存中提取
-            now_ts = time.time()
-            if AkShareProvider._cached_us_spot_df is not None and (now_ts - AkShareProvider._last_us_spot_update) < AkShareProvider._CACHE_TTL:
-                row = AkShareProvider._cached_us_spot_df[AkShareProvider._cached_us_spot_df['代码'] == ticker]
-                if not row.empty:
-                    target = row.iloc[0]
-                    return ProviderQuote(
-                        ticker=ticker,
-                        price=float(target['最新价']),
-                        change_percent=float(target['涨跌幅']),
-                        name=str(target['名称']),
-                        market_status=MarketStatus.OPEN,
-                        last_updated=datetime.utcnow()
-                    )
-
-            # 2. 极速路径：拉取“美股著名股票”快照 (非常快)
-            async with self._get_lock():
-                if AkShareProvider._cached_us_spot_df is None or (now_ts - AkShareProvider._last_us_spot_update) >= AkShareProvider._CACHE_TTL:
-                    df = await self._run_sync(ak.stock_us_famous_spot_em)
-                    if df is not None:
-                        AkShareProvider._cached_us_spot_df = df
-                        AkShareProvider._last_us_spot_update = time.time()
-                
-                row = AkShareProvider._cached_us_spot_df[AkShareProvider._cached_us_spot_df['代码'] == ticker]
-                if not row.empty:
-                    target = row.iloc[0]
-                    return ProviderQuote(ticker=ticker, price=float(target['最新价']), change_percent=float(target['涨跌幅']), name=str(target['名称']), last_updated=datetime.utcnow())
-
-            # 3. 兜底路径：从个股历史数据中提取最近一天的收盘价
+            # 极速路径：直接从个股历史数据中提取最近一天的收盘价
             hist_df = await self._run_sync(ak.stock_us_daily, symbol=ticker)
             if hist_df is not None and not hist_df.empty:
                 latest = hist_df.iloc[-1]
@@ -191,7 +137,8 @@ class AkShareProvider(MarketDataProvider):
                     ticker=ticker,
                     price=float(latest['close']),
                     change_percent=change_pct,
-                    name=ticker, # 无法从历史接口拿名称
+                    name=ticker, # 无法从历史接口拿名称，系统稍后会用数据库里的 name 或兜底 name
+                    market_status=MarketStatus.OPEN,
                     last_updated=datetime.utcnow()
                 )
             return None

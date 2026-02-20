@@ -107,8 +107,8 @@ export function PortfolioList({
     };
 
     return (
-        <div className="col-span-3 border-r bg-white dark:bg-slate-900 flex flex-col h-full overflow-hidden">
-            <div className="py-3 px-4 border-b font-medium text-sm text-slate-500 flex justify-between items-center bg-slate-50/50">
+        <div className="flex flex-col h-full w-full bg-white dark:bg-slate-900 overflow-hidden">
+            <div className="py-3 px-4 border-b font-medium text-sm text-slate-500 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/20">
                 <div className="flex items-center gap-2">
                     <span className="font-bold text-slate-700 dark:text-slate-300">股票列表</span>
                     <Button

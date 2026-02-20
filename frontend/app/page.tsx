@@ -10,6 +10,7 @@ import Link from 'next/link';
 // API
 import { PortfolioItem } from "@/types";
 import { getPortfolio, analyzeStock, getLatestAnalysis } from "@/lib/api";
+import clsx from "clsx";
 
 // Components
 import { MarketStatusIndicator } from "@/components/features/MarketStatusIndicator";
@@ -277,7 +278,11 @@ function DashboardContent() {
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 min-h-0 grid grid-cols-12 overflow-hidden">
+      <div className="flex-1 min-h-0 flex overflow-hidden relative">
+        <div className={clsx(
+          "w-full lg:w-80 shrink-0 border-r dark:border-slate-800 bg-white dark:bg-slate-900 transition-all duration-300 absolute inset-y-0 left-0 lg:static z-20",
+          selectedTicker ? "-translate-x-full lg:translate-x-0 lg:block" : "translate-x-0"
+        )}>
         <PortfolioList
           portfolio={portfolio}
           selectedTicker={selectedTicker}
@@ -287,15 +292,23 @@ function DashboardContent() {
           onlyHoldings={onlyHoldings}
           onToggleOnlyHoldings={setOnlyHoldings}
         />
-        <StockDetail
-          key={selectedTicker}
-          selectedItem={selectedItem || null}
-          onAnalyze={handleAnalyze}
-          onRefresh={() => fetchData(false)}
-          analyzing={analyzing}
-          aiData={aiData}
-          news={news}
-        />
+        </div>
+        
+        <div className={clsx(
+          "flex-1 min-w-0 bg-white dark:bg-slate-950 transition-all duration-300 h-full absolute lg:static w-full inset-y-0 right-0 z-10",
+          selectedTicker ? "translate-x-0" : "translate-x-full lg:translate-x-0"
+        )}>
+          <StockDetail
+            key={selectedTicker || 'empty'}
+            selectedItem={selectedItem || null}
+            onAnalyze={handleAnalyze}
+            onRefresh={() => fetchData(false)}
+            onBack={() => setSelectedTicker(null)}
+            analyzing={analyzing}
+            aiData={aiData}
+            news={news}
+          />
+        </div>
       </div>
 
       <SearchDialog

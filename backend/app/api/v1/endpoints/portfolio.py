@@ -188,10 +188,15 @@ async def get_portfolio(
         tickers = [p.ticker for p, _, _ in rows]
         if tickers:
             # 使用 asyncio.gather 实现多标的同时并发抓取，极大提升响应速度
-            tasks = [
-                MarketDataService.get_real_time_data(ticker, db, current_user.preferred_data_source)
-                for ticker in tickers
-            ]
+            from app.core.database import SessionLocal
+            async def refresh_single_ticker(ticker_name):
+                async with SessionLocal() as local_session:
+                    try:
+                        await MarketDataService.get_real_time_data(ticker_name, local_session, current_user.preferred_data_source)
+                    except Exception as e:
+                        logger.error(f"Error refreshing ticker {ticker_name}: {e}")
+
+            tasks = [refresh_single_ticker(ticker) for ticker in tickers]
             await asyncio.gather(*tasks, return_exceptions=True)
             
             # 刷新成功后重新加载最新的数据库状态

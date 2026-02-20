@@ -90,19 +90,16 @@ class MarketDataService:
             if tavily.api_key:
                 news_tasks.append(asyncio.create_task(tavily.get_news(ticker)))
             
-            # 设置 15 秒超时保护
             try:
-                # 调整 gather 逻辑以适应动态数量的新闻任务
                 res = await asyncio.wait_for(
                     asyncio.gather(quote_task, fundamental_task, indicator_task, *news_tasks, return_exceptions=True),
-                    timeout=15.0
+                    timeout=30.0
                 )
                 
                 quote = res[0]
                 fundamental = res[1]
                 indicators = res[2]
                 
-                # 合并所有新闻源的结果
                 all_news = []
                 for news_res in res[3:]:
                     if isinstance(news_res, list):
@@ -110,10 +107,14 @@ class MarketDataService:
                 news = all_news
             except asyncio.TimeoutError:
                 logger.warning(f"{ticker} 数据抓取部分超时，将仅返回已完成的部分。")
-                quote = quote_task.result() if quote_task.done() and not quote_task.cancelled() else None
-                fundamental = fundamental_task.result() if fundamental_task.done() and not fundamental_task.cancelled() else None
-                indicators = indicator_task.result() if indicator_task.done() and not indicator_task.cancelled() else None
-                news = news_task.result() if news_task.done() and not news_task.cancelled() else []
+                quote = quote_task.result() if quote_task.done() and not quote_task.cancelled() and not isinstance(quote_task.result(), Exception) else None
+                fundamental = fundamental_task.result() if fundamental_task.done() and not fundamental_task.cancelled() and not isinstance(fundamental_task.result(), Exception) else None
+                indicators = indicator_task.result() if indicator_task.done() and not indicator_task.cancelled() and not isinstance(indicator_task.result(), Exception) else None
+                
+                news = []
+                for nt in news_tasks:
+                   if nt.done() and not nt.cancelled() and not isinstance(nt.result(), Exception):
+                       news.extend(nt.result() if isinstance(nt.result(), list) else [])
             
             # 将结果组装成统一的 FullMarketData 结构体
             if quote and not isinstance(quote, Exception):

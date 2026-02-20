@@ -99,13 +99,15 @@ async def refresh_all_stocks(
         
         async def refresh_one(ticker):
             async with semaphore:
-                try:
-                    # 强制刷新缓存，去调真正的 API。
-                    await MarketDataService.get_real_time_data(ticker, db, force_refresh=True)
-                    return ticker
-                except Exception as e:
-                    print(f"刷新 {ticker} 失败: {e}")
-                    return None
+                from app.core.database import SessionLocal
+                async with SessionLocal() as local_db:
+                    try:
+                        # 强制刷新缓存，去调真正的 API。
+                        await MarketDataService.get_real_time_data(ticker, local_db, force_refresh=True)
+                        return ticker
+                    except Exception as e:
+                        print(f"刷新 {ticker} 失败: {e}")
+                        return None
 
         # 构造所有任务并同步启动
         tasks = [refresh_one(t) for t in tickers]

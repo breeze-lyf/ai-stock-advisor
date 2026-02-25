@@ -74,7 +74,10 @@ class AkShareProvider(MarketDataProvider):
                 if old_https: os.environ['HTTPS_PROXY'] = old_https
 
         loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, run_isolated)
+        
+        # 使用全局锁防止底层 V8 引擎并发初始化崩溃 (PyMiniRacer)
+        async with self._get_lock():
+            return await loop.run_in_executor(None, run_isolated)
 
     def _normalize_symbol(self, ticker: str) -> str:
         return ticker.split('.')[0] if '.' in ticker else ticker
@@ -98,6 +101,7 @@ class AkShareProvider(MarketDataProvider):
         try:
             # 个股极速路径 (Hist + Info)
             price, change_percent, name = None, 0.0, None
+            
             try:
                 hist_df = await self._run_sync(ak.stock_zh_a_hist, symbol=symbol, period="daily", adjust="qfq")
                 if hist_df is not None and not hist_df.empty:
@@ -126,18 +130,52 @@ class AkShareProvider(MarketDataProvider):
     async def _get_us_quote(self, ticker: str) -> Optional[ProviderQuote]:
         """专用于获取美股行情的内部方法"""
         try:
-            # 极速路径：直接从个股历史数据中提取最近一天的收盘价
-            hist_df = await self._run_sync(ak.stock_us_daily, symbol=ticker)
+            # 兼容性逻辑：判断是否为指数 (Index)
+            is_index = ticker.upper() in ["NDX", "IXIC", "SPX", "DJI", ".NDX", ".IXIC", ".INX", ".DJI"]
+            hist_df = None
+            
+            if is_index:
+                # 指数路径：新浪接口
+                sina_symbol = ticker if ticker.startswith('.') else f".{ticker}"
+                if sina_symbol == ".SPX": sina_symbol = ".INX"
+                try:
+                    hist_df = await self._run_sync(ak.index_us_stock_sina, symbol=sina_symbol)
+                except: pass
+            
+            if hist_df is None or hist_df.empty:
+                # 极速路径：直接从个股历史数据中提取最近一天的收盘价
+                try:
+                    hist_df = await self._run_sync(ak.stock_us_daily, symbol=ticker)
+                except: pass
+            
+            # 我们在此处直接使用 httpx 调用 Yahoo 极速底层 API，耗时 < 0.2 秒
+            live_price = None
+            try:
+                import httpx
+                async with httpx.AsyncClient(timeout=3.0) as client:
+                    headers = {'User-Agent': 'Mozilla/5.0'}
+                    # Yahoo 使用原始 ticker
+                    res = await client.get(f"https://query2.finance.yahoo.com/v8/finance/chart/{ticker}?interval=1m&range=1d", headers=headers)
+                    if res.status_code == 200:
+                        data = res.json()
+                        meta = data.get("chart", {}).get("result", [{}])[0].get("meta", {})
+                        live_price = meta.get("regularMarketPrice")
+            except Exception as e:
+                logger.warning(f"Failed to fetch live US price from Yahoo for {ticker}: {e}")
+                
             if hist_df is not None and not hist_df.empty:
                 latest = hist_df.iloc[-1]
-                # 计算最后两天的涨跌幅
+                # 计算最后两天的涨跌幅 (EMA接口不同，新浪接口列名是 close，EM是个股接口)
                 prev_close = hist_df.iloc[-2]['close'] if len(hist_df) > 1 else latest['close']
-                change_pct = (latest['close'] - prev_close) / prev_close * 100 if prev_close > 0 else 0.0
+                
+                current_price = float(live_price) if live_price else float(latest['close'])
+                change_pct = float((current_price - float(prev_close)) / float(prev_close) * 100 if prev_close > 0 else 0.0)
+                
                 return ProviderQuote(
                     ticker=ticker,
-                    price=float(latest['close']),
+                    price=current_price,
                     change_percent=change_pct,
-                    name=ticker, # 无法从历史接口拿名称，系统稍后会用数据库里的 name 或兜底 name
+                    name=ticker, 
                     market_status=MarketStatus.OPEN,
                     last_updated=datetime.utcnow()
                 )
@@ -227,10 +265,28 @@ class AkShareProvider(MarketDataProvider):
 
     async def get_ohlcv(self, ticker: str, interval: str = "1d", period: str = "1y") -> List[Any]:
         try:
+            df = None
             if self._is_us_stock(ticker):
-                df = await self._run_sync(ak.stock_us_daily, symbol=ticker)
+                # 兼容性逻辑：判断是否为指数 (Index)
+                is_index = ticker.upper() in ["NDX", "IXIC", "SPX", "DJI", ".NDX", ".IXIC", ".INX", ".DJI"]
+                if is_index:
+                    sina_symbol = ticker if ticker.startswith('.') else f".{ticker}"
+                    if sina_symbol == ".SPX": sina_symbol = ".INX"
+                    try:
+                        df = await self._run_sync(ak.index_us_stock_sina, symbol=sina_symbol)
+                    except: pass
+
+                if df is None or df.empty:
+                    try:
+                        df = await self._run_sync(ak.stock_us_daily, symbol=ticker)
+                    except: pass
+                
                 if df is not None and not df.empty:
-                    df = df.rename(columns={'date': 'Date', 'open': 'Open', 'high': 'High', 'low': 'Low', 'close': 'Close', 'volume': 'Volume'})
+                    # 统一列名：新浪接口返回 date, open, high, low, close, volume
+                    # 个股接口返回相同，但列名大小写可能不同
+                    col_map = {c.lower(): c.capitalize() for c in df.columns}
+                    if 'date' in col_map: col_map['date'] = 'Date'
+                    df = df.rename(columns=col_map)
             else:
                 symbol = self._normalize_symbol(ticker)
                 df = await self._run_sync(ak.stock_zh_a_hist, symbol=symbol, period="daily", adjust="qfq")
@@ -242,20 +298,41 @@ class AkShareProvider(MarketDataProvider):
             df['Date'] = pd.to_datetime(df['Date'])
             calc_df = TechnicalIndicators.add_historical_indicators(df)
             
+            # 优化 1: 截断历史数据 (保留指标前提下)
+            from datetime import datetime, timedelta
+            now = datetime.now()
+            if period == "1mo": start_date = now - timedelta(days=30)
+            elif period == "3mo": start_date = now - timedelta(days=90)
+            elif period == "6mo": start_date = now - timedelta(days=180)
+            elif period == "1y": start_date = now - timedelta(days=365)
+            elif period == "5y": start_date = now - timedelta(days=365*5)
+            else: start_date = None
+            
+            if start_date:
+                calc_df = calc_df[calc_df['Date'] >= start_date]
+
+            # 优化 2: 向量化抛弃 iterrows
+            calc_df = calc_df.where(pd.notnull(calc_df), None)
+            calc_df['time'] = calc_df['Date'].dt.strftime('%Y-%m-%d')
+            records = calc_df.to_dict('records')
+            
             from app.schemas.market_data import OHLCVItem
             data = []
-            for _, row in calc_df.iterrows():
-                dt = row['Date']
+            for row in records:
                 data.append(OHLCVItem(
-                    time=dt.strftime('%Y-%m-%d'), open=float(row['Open']), high=float(row['High']), 
-                    low=float(row['Low']), close=float(row['Close']), volume=float(row.get('Volume', 0)),
-                    rsi=float(row['rsi']) if 'rsi' in row and not pd.isna(row['rsi']) else None,
-                    macd=float(row['macd']) if 'macd' in row and not pd.isna(row['macd']) else None,
-                    macd_signal=float(row['macd_signal']) if 'macd_signal' in row and not pd.isna(row['macd_signal']) else None,
-                    macd_hist=float(row['macd_hist']) if 'macd_hist' in row and not pd.isna(row['macd_hist']) else None,
-                    bb_upper=float(row['bb_upper']) if 'bb_upper' in row and not pd.isna(row['bb_upper']) else None,
-                    bb_middle=float(row['bb_middle']) if 'bb_middle' in row and not pd.isna(row['bb_middle']) else None,
-                    bb_lower=float(row['bb_lower']) if 'bb_lower' in row and not pd.isna(row['bb_lower']) else None,
+                    time=row['time'], 
+                    open=float(row.get('Open', 0) or 0), 
+                    high=float(row.get('High', 0) or 0), 
+                    low=float(row.get('Low', 0) or 0), 
+                    close=float(row.get('Close', 0) or 0), 
+                    volume=float(row.get('Volume', 0) or 0),
+                    rsi=row.get('rsi'),
+                    macd=row.get('macd'),
+                    macd_signal=row.get('macd_signal'),
+                    macd_hist=row.get('macd_hist'),
+                    bb_upper=row.get('bb_upper'),
+                    bb_middle=row.get('bb_middle'),
+                    bb_lower=row.get('bb_lower'),
                 ))
             return data
         except Exception as e:

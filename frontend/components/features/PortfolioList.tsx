@@ -40,6 +40,7 @@ export function PortfolioList({
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
     const [refreshingTicker, setRefreshingTicker] = useState<string | null>(null);
+    const [deletingTicker, setDeletingTicker] = useState<string | null>(null);
     const [isRefreshingAll, setIsRefreshingAll] = useState(false);
 
     const sortedPortfolio = [...portfolio]
@@ -86,11 +87,21 @@ export function PortfolioList({
     };
 
     const handleDeleteItem = async (ticker: string) => {
+        if (deletingTicker) return;
+        setDeletingTicker(ticker);
         try {
             await deletePortfolioItem(ticker);
+            // 只有当 API 真正返回成功（或至少没有抛错）时才执行
             onRefresh();
-        } catch (err) {
-            alert("删除失败");
+        } catch (err: any) {
+            // 如果是 404，说明已经删除了，不应该报错
+            if (err.response?.status !== 404) {
+                alert("删除失败");
+            } else {
+                onRefresh();
+            }
+        } finally {
+            setDeletingTicker(null);
         }
     };
 
@@ -351,13 +362,19 @@ export function PortfolioList({
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="h-7 w-7 text-slate-300 hover:text-red-500 hover:bg-red-50"
+                                        className={clsx(
+                                            "h-7 w-7",
+                                            deletingTicker === item.ticker
+                                                ? "text-red-500 bg-red-50"
+                                                : "text-slate-300 hover:text-red-500 hover:bg-red-50"
+                                        )}
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             handleDeleteItem(item.ticker);
                                         }}
+                                        disabled={deletingTicker === item.ticker}
                                     >
-                                        <Trash2 className="h-3.5 w-3.5" />
+                                        <Trash2 className={clsx("h-3.5 w-3.5", deletingTicker === item.ticker && "animate-pulse")} />
                                     </Button>
                                 </div>
                             </div>

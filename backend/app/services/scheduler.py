@@ -1,0 +1,127 @@
+import asyncio
+import logging
+from datetime import datetime, time, timedelta
+import pytz
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from app.core.database import SessionLocal
+from app.models.stock import MarketDataCache
+from app.services.market_data import MarketDataService
+
+logger = logging.getLogger(__name__)
+
+# 时区定义
+CN_TZ = pytz.timezone("Asia/Shanghai")
+US_TZ = pytz.timezone("America/New_York")
+
+def should_refresh(ticker: str, last_updated: datetime) -> bool:
+    """
+    不仅判断当前是否开盘，还需判定在休市后，最近一次数据是否已经同步到收盘价。
+    """
+    now_utc = datetime.now(pytz.utc)
+    ticker = ticker.upper()
+    
+    # 辅助函数：获取指定时区的最近一个交易日结束时间
+    def get_last_session_end(tz, close_hour, close_min):
+        now_local = now_utc.astimezone(tz)
+        # 今天的理论收盘时间
+        today_close = now_local.replace(hour=close_hour, minute=close_min, second=0, microsecond=0)
+        
+        # 如果今天是周末，回退到周五
+        if today_close.weekday() == 5: # Saturday
+            today_close -= timedelta(days=1)
+        elif today_close.weekday() == 6: # Sunday
+            today_close -= timedelta(days=2)
+            
+        # 如果现在还没到今天的收盘时间，则“最近一次收盘”应该是前一个交易日
+        if now_local < today_close:
+            days_back = 1
+            if today_close.weekday() == 0: # Monday -> Friday
+                days_back = 3
+            today_close -= timedelta(days=days_back)
+            
+        return today_close
+
+    # 1. 确定市场参数
+    if ticker.isdigit() and len(ticker) == 6: # A股
+        tz, close_h, close_m = CN_TZ, 15, 0
+        market_open = (time(9, 15) <= now_utc.astimezone(tz).time() <= time(11, 30)) or \
+                      (time(13, 0) <= now_utc.astimezone(tz).time() <= time(15, 0))
+    elif (ticker.isdigit() and len(ticker) == 5) or ticker.endswith(".HK"): # 港股
+        tz, close_h, close_m = CN_TZ, 16, 0
+        market_open = (time(9, 30) <= now_utc.astimezone(tz).time() <= time(12, 0)) or \
+                      (time(13, 0) <= now_utc.astimezone(tz).time() <= time(16, 0))
+    else: # 美股
+        tz, close_h, close_m = US_TZ, 16, 0
+        market_open = time(9, 30) <= now_utc.astimezone(tz).time() <= time(16, 0)
+
+    # 2. 逻辑判定
+    # 如果正在开盘，且数据超过 5 分钟没更新，则刷新
+    if market_open:
+        if last_updated.tzinfo is None:
+            last_updated = pytz.utc.localize(last_updated)
+        return (now_utc - last_updated) > timedelta(minutes=5)
+    
+    # 如果休市，检查最后更新时间是否早于最近一次收盘时间
+    last_session_end = get_last_session_end(tz, close_h, close_m)
+    if last_updated.tzinfo is None:
+        last_updated = pytz.utc.localize(last_updated)
+    
+    # 如果最后一次抓取是在收盘前，则需要进行一次“盘后补录”来锁定收盘价
+    return last_updated < last_session_end
+
+async def refresh_all_stocks():
+    """
+    后台轮询任务：遍历数据库中所有活跃股票，并对比开盘时间及收盘补录逻辑进行更新
+    """
+    async with SessionLocal() as db:
+        try:
+            # 1. 获取所有需要关注的股票及其最后更新时间
+            stmt = select(MarketDataCache)
+            result = await db.execute(stmt)
+            caches = result.scalars().all()
+            
+            if not caches:
+                return
+
+            # 2. 判定哪些股票需要刷新
+            active_tickers = [c.ticker for c in caches if should_refresh(c.ticker, c.last_updated)]
+            
+            if not active_tickers:
+                logger.debug("所有数据均已达到最新（包含盘后收盘价），跳过本轮刷新。")
+                return
+                
+            logger.info(f"[Scheduler] 发现 {len(active_tickers)} 只股票需要更新（盘中或盘后补录），开始后台刷新...")
+            
+            # 3. 并发刷新 (使用信号量限制压力)
+            semaphore = asyncio.Semaphore(3)
+            
+            async def safe_refresh(t):
+                async with semaphore:
+                    try:
+                        # 使用独立的 session 防止冲突
+                        async with SessionLocal() as local_db:
+                            await MarketDataService.get_real_time_data(t, local_db, force_refresh=True)
+                    except Exception as e:
+                        logger.error(f"[Scheduler] 刷新 {t} 失败: {e}")
+
+            tasks = [safe_refresh(t) for t in active_tickers]
+            await asyncio.gather(*tasks)
+            logger.info(f"[Scheduler] 本轮后台刷新完成。")
+            
+        except Exception as e:
+            logger.error(f"[Scheduler] 轮询任务发生异常: {e}")
+
+async def start_scheduler():
+    """
+    启动常驻后台循环
+    """
+    logger.info("[Scheduler] 行情自动调度器已启动 (间隔: 5分钟)")
+    while True:
+        try:
+            await refresh_all_stocks()
+        except Exception as e:
+            logger.error(f"[Scheduler] 循环处理报错: {e}")
+        
+        # 每 5 分钟刷新一次，既保证实时性又不会对服务器造成太大压力
+        await asyncio.sleep(300) 

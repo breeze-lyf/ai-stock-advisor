@@ -19,6 +19,7 @@ interface SearchDialogProps {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
     onRefresh: () => void;
+    onSelectTicker?: (ticker: string) => void;
     portfolio: PortfolioItem[];
 }
 
@@ -26,6 +27,7 @@ export function SearchDialog({
     isOpen,
     onOpenChange,
     onRefresh,
+    onSelectTicker,
     portfolio,
 }: SearchDialogProps) {
     const [searchQuery, setSearchQuery] = useState("");
@@ -53,6 +55,11 @@ export function SearchDialog({
         try {
             await addPortfolioItem(ticker, 0, 0);
             onRefresh();
+            // 自动跳转并关闭
+            if (onSelectTicker) {
+                onSelectTicker(ticker);
+            }
+            onOpenChange(false);
         } catch (err) {
             console.error(err);
             alert("添加失败");

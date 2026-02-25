@@ -315,6 +315,7 @@ function DashboardContent() {
         isOpen={isSearchOpen}
         onOpenChange={setIsSearchOpen}
         onRefresh={() => fetchData(false)}
+        onSelectTicker={setSelectedTicker}
         portfolio={portfolio}
       />
     </div>

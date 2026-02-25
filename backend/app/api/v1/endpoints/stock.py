@@ -67,7 +67,8 @@ async def get_stock_history(
         data = await provider.get_ohlcv(ticker, interval=interval, period=period)
         
         if not data:
-            raise HTTPException(status_code=404, detail="未找到历史 K 线数据。")
+            # 容错：如果抓取失败，返回空数组 [] 而非 404，防止前端 Axios 抛异常导致白屏
+            return []
         
         return _sanitize_ohlcv(data)
         

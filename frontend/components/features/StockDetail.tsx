@@ -111,7 +111,7 @@ export function StockDetail({
                     <Zap className="h-16 w-16 opacity-5 animate-pulse" />
                 </div>
                 <div className="text-center">
-                    <p className="text-lg font-black text-slate-400 dark:text-slate-600 tracking-tight uppercase">Dashboard Ready</p>
+                    <p className="text-lg font-black text-slate-400 dark:text-slate-600 tracking-tight uppercase">终端就绪</p>
                     <p className="text-sm font-medium text-slate-300">请选择一个代码开始深度诊断</p>
                 </div>
             </div>
@@ -140,7 +140,7 @@ export function StockDetail({
     return (
         <div 
             ref={containerRef}
-            className="flex-1 bg-white dark:bg-slate-950 px-4 md:px-8 pb-12 flex flex-col gap-6 md:gap-8 overflow-y-auto h-full custom-scrollbar w-full max-w-[1400px] mx-auto relative pt-4"
+            className="flex-1 bg-white dark:bg-slate-950 px-4 md:px-8 pb-12 flex flex-col gap-6 md:gap-8 overflow-y-auto h-full custom-scrollbar w-full max-w-[1400px] mx-auto relative"
         >
             {/* --- Sticky Bar (Visible only when scrolled) --- */}
             <div className={clsx(
@@ -204,7 +204,7 @@ export function StockDetail({
 
             {/* --- Section 1: Executive Identity (Full Header, fades out when scrolled) --- */}
             <div className={clsx(
-                "flex flex-col gap-2 border-b border-slate-100 dark:border-slate-800 pb-3 pt-0.5 transition-all duration-500",
+                "flex flex-col gap-2 border-b border-slate-100 dark:border-slate-800 pb-3 pt-4 transition-all duration-500",
                 isScrolled && "opacity-0 pointer-events-none"
             )}>
                 <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-3 sm:gap-4">
@@ -219,7 +219,7 @@ export function StockDetail({
                                 {selectedItem.name || selectedItem.ticker}
                             </h1>
                             <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mt-2">
-                                {selectedItem.name ? selectedItem.ticker : "Full Financial Reputation Analysis"}
+                                {selectedItem.name ? selectedItem.ticker : "全维度财务声誉分析"}
                             </p>
                         </div>
                     </div>
@@ -285,12 +285,12 @@ export function StockDetail({
                     <div className="flex items-center justify-between px-2">
                         <div className="flex items-center gap-3">
                             <div className="h-8 w-1.5 bg-blue-500 rounded-full" />
-                            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100 uppercase">动态行情分析 / Dynamic Market Stream</h2>
+                            <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100 uppercase">动态行情分析</h2>
                         </div>
                         
                         <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800/50 p-1 rounded-xl">
                             <div className="px-3 py-1.5 text-[9px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                                <Settings2 className="h-3 w-3" /> 图层控制 / Layers
+                                <Settings2 className="h-3 w-3" /> 图层控制
                             </div>
                             <button
                                 onClick={() => setShowBb(!showBb)}
@@ -451,7 +451,7 @@ export function StockDetail({
                                     <div className="flex justify-between items-center text-[11px] font-black uppercase text-slate-400 tracking-[0.3em]">
                                         <div className="flex items-center gap-3">
                                             <Activity className="h-4 w-4 text-blue-500" />
-                                            <span>AI 情绪偏差 / SENTIMENT BIAS</span>
+                                            <span>AI 情绪偏差</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <span className="text-slate-900 dark:text-white font-black italic">{aiData.sentiment_score || 58}%</span>
@@ -474,7 +474,7 @@ export function StockDetail({
                                     </div>
                                     <div className="flex justify-between text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
                                         <span>0: 极度看空</span>
-                                        <span className="text-center">50: Neutral</span>
+                                        <span className="text-center">50: 中性</span>
                                         <span className="text-right">100: 极度看多</span>
                                     </div>
                                 </div>
@@ -488,7 +488,7 @@ export function StockDetail({
                                     <div className="space-y-1">
                                         <div className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 tracking-[0.2em] flex items-center gap-2">
                                             <Target className="h-3.5 w-3.5 text-blue-500" />
-                                            <span>交易执行区间 / TRADE AXIS</span>
+                                            <span>交易执行区间</span>
                                         </div>
                                         <p className="text-[10px] font-medium text-slate-400 italic opacity-80 ml-5.5">* 基于当前价的深度研判</p>
                                     </div>
@@ -618,7 +618,7 @@ export function StockDetail({
                         <div className="pt-5 px-6 pb-2.5 bg-slate-50/10 dark:bg-white/5 border-t border-slate-100 dark:border-white/5 space-y-1">
                             <div className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 tracking-[0.2em] flex items-center gap-2">
                                 <Activity className="h-3.5 w-3.5 text-blue-500" />
-                                <span>诊断研判逻辑 / LOGICAL BREAKDOWN</span>
+                                <span>诊断研判逻辑</span>
                             </div>
                             <div className="prose dark:prose-invert max-w-none text-[13px] font-normal leading-relaxed text-slate-500 dark:text-slate-400 [&>p]:m-0">
                                 <ReactMarkdown
@@ -664,7 +664,7 @@ export function StockDetail({
             <div className="space-y-8">
                 <div className="flex items-center gap-3">
                     <div className="h-8 w-1.5 bg-emerald-500 rounded-full" />
-                    <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100 uppercase">技术面深度透视 / Technical Scan</h2>
+                    <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100 uppercase">技术面深度透视</h2>
                 </div>
 
                 {/* Optimized Layout based on Sketch: 2x2 Visuals + 5-Metric Strip + Full-Width AI */}
@@ -706,9 +706,9 @@ export function StockDetail({
                                  />
                              </div>
                             <div className="flex justify-between text-[8px] font-bold text-slate-400 uppercase tracking-widest px-1 opacity-80">
-                                <span>Oversold / 超卖</span>
-                                <span className="text-slate-300 font-normal">Neutral</span>
-                                <span>Overbought / 超买</span>
+                                <span>超卖水位</span>
+                                <span className="text-slate-300 font-normal">中性</span>
+                                <span>超买水位</span>
                             </div>
                         </div>
 

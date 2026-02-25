@@ -59,13 +59,17 @@ class YFinanceProvider(MarketDataProvider):
             tick = yf.Ticker(ticker)
             info = await self._run_sync(getattr, tick, "info")
             if not info:
+                logger.warning(f"yfinance info empty for {ticker}")
                 return None
+            
+            # 记录关键字段用于调试
+            logger.info(f"Fundamental fields for {ticker}: marketCap={info.get('marketCap')}, trailingPE={info.get('trailingPE')}, forwardPE={info.get('forwardPE')}")
                 
             return ProviderFundamental(
                 sector=info.get('sector'),
                 industry=info.get('industry'),
-                market_cap=info.get('marketCap'),
-                pe_ratio=info.get('trailingPE'),
+                market_cap=info.get('marketCap') or info.get('enterpriseValue'),
+                pe_ratio=info.get('trailingPE') or info.get('forwardPE'),
                 forward_pe=info.get('forwardPE'),
                 eps=info.get('trailingEps'),
                 dividend_yield=info.get('dividendYield'),
@@ -162,28 +166,26 @@ class YFinanceProvider(MarketDataProvider):
             hist = TechnicalIndicators.add_historical_indicators(hist)
             
             data = []
+            hist = hist.where(pd.notnull(hist), None)
+            hist['time'] = hist.index.strftime('%Y-%m-%d')
+            records = hist.to_dict('records')
+            
             from app.schemas.market_data import OHLCVItem
-            for index, row in hist.iterrows():
-                # Check for NaN as indicators might have leading NaNs
-                rsi_val = float(row['rsi']) if 'rsi' in row and not pd.isna(row['rsi']) else None
-                macd_val = float(row['macd']) if 'macd' in row and not pd.isna(row['macd']) else None
-                macd_signal = float(row['macd_signal']) if 'macd_signal' in row and not pd.isna(row['macd_signal']) else None
-                macd_hist = float(row['macd_hist']) if 'macd_hist' in row and not pd.isna(row['macd_hist']) else None
-
+            for row in records:
                 data.append(OHLCVItem(
-                    time=index.strftime('%Y-%m-%d'),
-                    open=float(row['Open']),
-                    high=float(row['High']),
-                    low=float(row['Low']),
-                    close=float(row['Close']),
-                    volume=float(row['Volume']) if 'Volume' in row else 0.0,
-                    rsi=rsi_val,
-                    macd=macd_val,
-                    macd_signal=macd_signal,
-                    macd_hist=macd_hist,
-                    bb_upper=float(row['bb_upper']) if 'bb_upper' in row and not pd.isna(row['bb_upper']) else None,
-                    bb_middle=float(row['bb_middle']) if 'bb_middle' in row and not pd.isna(row['bb_middle']) else None,
-                    bb_lower=float(row['bb_lower']) if 'bb_lower' in row and not pd.isna(row['bb_lower']) else None,
+                    time=row['time'],
+                    open=float(row.get('Open', 0) or 0),
+                    high=float(row.get('High', 0) or 0),
+                    low=float(row.get('Low', 0) or 0),
+                    close=float(row.get('Close', 0) or 0),
+                    volume=float(row.get('Volume', 0) or 0),
+                    rsi=row.get('rsi'),
+                    macd=row.get('macd'),
+                    macd_signal=row.get('macd_signal'),
+                    macd_hist=row.get('macd_hist'),
+                    bb_upper=row.get('bb_upper'),
+                    bb_middle=row.get('bb_middle'),
+                    bb_lower=row.get('bb_lower')
                 ))
             return data
         except Exception as e:
@@ -224,8 +226,8 @@ class YFinanceProvider(MarketDataProvider):
                     fundamental = ProviderFundamental(
                         sector=info.get('sector'),
                         industry=info.get('industry'),
-                        market_cap=info.get('marketCap'),
-                        pe_ratio=info.get('trailingPE'),
+                        market_cap=info.get('marketCap') or info.get('enterpriseValue'),
+                        pe_ratio=info.get('trailingPE') or info.get('forwardPE'),
                         forward_pe=info.get('forwardPE'),
                         eps=info.get('trailingEps'),
                         dividend_yield=info.get('dividendYield'),
@@ -233,6 +235,7 @@ class YFinanceProvider(MarketDataProvider):
                         fifty_two_week_high=info.get('fiftyTwoWeekHigh'),
                         fifty_two_week_low=info.get('fiftyTwoWeekLow')
                     )
+                    logger.info(f"get_full_data for {ticker} extracted fundamental: {fundamental}")
             
             # 解析 History
             if not isinstance(hist, Exception) and not hist.empty:

@@ -118,6 +118,15 @@ from app.api.v1.api import api_router
 
 app.include_router(api_router, prefix="/api")
 
+# 6. 后端后台任务启动 (Background Task Startup)
+@app.on_event("startup")
+async def startup_event():
+    from app.services.scheduler import start_scheduler
+    import asyncio
+    # 使用 create_task 将调度循环挂在后台，不阻塞 Uvicorn 主进程启动
+    asyncio.create_task(start_scheduler())
+    logger.info("PHASE: Background scheduler task launched.")
+
 @app.get("/health", tags=["System"])
 async def health_check():
     """健康检查接口：确保后端服务在线"""

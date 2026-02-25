@@ -81,40 +81,73 @@ class MarketDataService:
             indicator_task = asyncio.create_task(provider.get_historical_data(ticker, period="200d"))
             
             # AI 搜索增强：我们集成了一个叫 Tavily 的搜索引擎。
-            # 如果配置了该密钥，我们将同时抓取传统新闻和 AI 搜索增强资讯。
             from app.services.market_providers.tavily import TavilyProvider
             tavily = TavilyProvider()
             
-            # 使用列表聚合多个新闻任务
             news_tasks = [asyncio.create_task(provider.get_news(ticker))]
+            
+            # 美股增强：如果当前 provider 是 AkShare (由于工厂强制返回)，它对美股新闻无效，则额外并发调用 YFinance 获取专业新闻
+            is_us = not (ticker.isdigit() and len(ticker) == 6)
+            if is_us and type(provider).__name__ == "AkShareProvider":
+                try:
+                    from app.services.market_providers.yfinance import YFinanceProvider
+                    yf_p = YFinanceProvider()
+                    news_tasks.append(asyncio.create_task(yf_p.get_news(ticker)))
+                except Exception as e:
+                    logger.warning(f"Failed to load YFinanceProvider for news: {e}")
+
             if tavily.api_key:
                 news_tasks.append(asyncio.create_task(tavily.get_news(ticker)))
             
+            # 主力数据获取 (报价与技术指标)，容忍 5 秒
+            # 我们将基本面任务从并行核心任务中移出，因为它最容易由于网络问题超时且不影响核心行情展示
+            core_gather = asyncio.gather(quote_task, indicator_task, return_exceptions=True)
             try:
-                res = await asyncio.wait_for(
-                    asyncio.gather(quote_task, fundamental_task, indicator_task, *news_tasks, return_exceptions=True),
-                    timeout=30.0
-                )
-                
-                quote = res[0]
-                fundamental = res[1]
-                indicators = res[2]
-                
-                all_news = []
-                for news_res in res[3:]:
-                    if isinstance(news_res, list):
-                        all_news.extend(news_res)
-                news = all_news
+                core_res = await asyncio.wait_for(core_gather, timeout=5.0)
+                quote, indicators = core_res
             except asyncio.TimeoutError:
-                logger.warning(f"{ticker} 数据抓取部分超时，将仅返回已完成的部分。")
-                quote = quote_task.result() if quote_task.done() and not quote_task.cancelled() and not isinstance(quote_task.result(), Exception) else None
-                fundamental = fundamental_task.result() if fundamental_task.done() and not fundamental_task.cancelled() and not isinstance(fundamental_task.result(), Exception) else None
-                indicators = indicator_task.result() if indicator_task.done() and not indicator_task.cancelled() and not isinstance(indicator_task.result(), Exception) else None
-                
+                logger.warning(f"{ticker} 核心报价/指标抓取超时 (5s)")
+                quote, indicators = None, None
+
+            # 基本面数据获取，单独给予超时控制 (3秒)，即使失败也不影响主逻辑
+            fundamental = None
+            try:
+                fundamental = await asyncio.wait_for(fundamental_task, timeout=3.0)
+                if isinstance(fundamental, Exception):
+                    logger.warning(f"{ticker} 基本面数据抓取遇到错误: {fundamental}")
+                    fundamental = None
+            except asyncio.TimeoutError:
+                logger.warning(f"{ticker} 基本面数据抓取超时 (3s)，优先展现价格数据")
+            except Exception as e:
+                logger.error(f"{ticker} 基本面异常: {e}")
+
+            # 新闻数据并行获取，极短超时 (最高 1.5 秒) 防止拖累响应
+            news_gather = asyncio.gather(*news_tasks, return_exceptions=True)
+            try:
+                # 扣除核心任务已耗费的时间，最多再等 1.5 秒
+                news_res = await asyncio.wait_for(news_gather, timeout=1.5)
                 news = []
-                for nt in news_tasks:
-                   if nt.done() and not nt.cancelled() and not isinstance(nt.result(), Exception):
-                       news.extend(nt.result() if isinstance(nt.result(), list) else [])
+                # 合并并去重
+                seen_links = set()
+                for nr in news_res:
+                    if isinstance(nr, list):
+                        for item in nr:
+                            if item.link and item.link not in seen_links:
+                                news.append(item)
+                                seen_links.add(item.link)
+                
+                # 按照发布时间倒序排列
+                def get_sort_key(x):
+                    p_time = x.publish_time if x.publish_time else datetime.utcnow()
+                    # 统一转为 naive 格式，防止 offset-naive and offset-aware 比较报错
+                    if p_time.tzinfo is not None:
+                        p_time = p_time.replace(tzinfo=None)
+                    return p_time
+
+                news.sort(key=get_sort_key, reverse=True)
+            except asyncio.TimeoutError:
+                logger.warning(f"{ticker} 新闻抓取超时 (1.5s)，已忽略")
+                news = []
             
             # 将结果组装成统一的 FullMarketData 结构体
             if quote and not isinstance(quote, Exception):
@@ -163,16 +196,15 @@ class MarketDataService:
         # 2. 同步基本面 (PE, 股息等)
         fundamental = data.fundamental
         if fundamental:
-            stock.sector = fundamental.sector or stock.sector
-            stock.industry = fundamental.industry or stock.industry
-            stock.market_cap = fundamental.market_cap or stock.market_cap
-            stock.pe_ratio = fundamental.pe_ratio or stock.pe_ratio
-            stock.forward_pe = fundamental.forward_pe or stock.forward_pe
-            stock.eps = fundamental.eps or stock.eps
-            stock.dividend_yield = fundamental.dividend_yield or stock.dividend_yield
-            stock.beta = fundamental.beta or stock.beta
-            stock.fifty_two_week_high = fundamental.fifty_two_week_high or stock.fifty_two_week_high
-            stock.fifty_two_week_low = fundamental.fifty_two_week_low or stock.fifty_two_week_low
+            # 记录以确认进入了同步逻辑
+            logger.info(f"Syncing fundamental for {ticker}: market_cap={fundamental.market_cap}, PE={fundamental.pe_ratio}")
+            
+            # 使用 getattr/setattr 模式以防漏掉字段，且确保哪怕以前有值现在也要更新
+            fields = ['sector', 'industry', 'market_cap', 'pe_ratio', 'forward_pe', 'eps', 'dividend_yield', 'beta', 'fifty_two_week_high', 'fifty_two_week_low']
+            for field in fields:
+                val = getattr(fundamental, field, None)
+                if val is not None:
+                    setattr(stock, field, val)
 
         # 3. 同步实时缓存信息 (价格、RSI、MACD 等)
         if not cache:
@@ -236,37 +268,39 @@ class MarketDataService:
         # 4. 新闻增量同步与去重
         if data.news:
             from sqlalchemy.dialects.postgresql import insert
+            
+            news_values = []
+            import hashlib
+            
             for n in data.news:
                 if not n.link: continue
-                
-                import hashlib
-                # 使用 (Ticker + Link) 的组合 MD5 作为 ID，实现单标的内绝对去重
-                # (Ticker + Link) prevents same news from being ignored if it applies to multiple stocks, 
-                # but duplicate fetches for the same stock will be ignored.
                 unique_id = hashlib.md5(f"{ticker}:{n.link}".encode()).hexdigest()
-                
-                # 转换日期为 naive datetime 防止与 Postgres 不匹配 (Naive UTC conversion)
                 p_time = n.publish_time or now
                 if p_time.tzinfo:
                     p_time = p_time.replace(tzinfo=None)
-
-                news_stmt = insert(StockNews).values(
-                    id=unique_id,
-                    ticker=ticker,
-                    title=n.title or "无标题",
-                    publisher=n.publisher or "未知媒体",
-                    link=n.link,
-                    summary=n.summary,
-                    publish_time=p_time
-                ).on_conflict_do_nothing() # 已存在的新闻不再重复插入
+                
+                news_values.append({
+                    "id": unique_id,
+                    "ticker": ticker,
+                    "title": n.title or "无标题",
+                    "publisher": n.publisher or "未知媒体",
+                    "link": n.link,
+                    "summary": n.summary,
+                    "publish_time": p_time
+                })
+                
+            if news_values:
+                # 批量插入新闻以解决远程数据库的插入延迟 (解决单点耗时数十秒的关键)
+                news_stmt = insert(StockNews).values(news_values).on_conflict_do_nothing()
                 await db.execute(news_stmt)
 
         await db.commit()
         try: 
-            if cache:
-                await db.refresh(cache)
-        except Exception: 
-            pass
+            # 必须进行显式刷新，否则由于 SQLAlchemy 的延迟加载，返回的对象可能还是旧的
+            if stock: await db.refresh(stock)
+            if cache: await db.refresh(cache)
+        except Exception as e: 
+            logger.error(f"Error during db refresh: {e}")
         return cache
 
     @staticmethod

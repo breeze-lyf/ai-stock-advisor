@@ -25,16 +25,16 @@ class TavilyProvider(MarketDataProvider):
 
         try:
             async with httpx.AsyncClient(timeout=10.0) as client:
-                # Search for latest news about the stock ticker
-                query = f"latest business and financial news for {ticker} stock"
+                # 优化 1: 更精准的搜索词，包含 ticker 和 stock news 关键字
+                query = f"ticker:{ticker} stock news financial headlines"
                 payload = {
                     "api_key": self.api_key,
                     "query": query,
-                    "topic": "news", # Use specialized news search
+                    "topic": "news", 
                     "search_depth": "basic",
                     "include_answer": False,
                     "include_images": False,
-                    "max_results": 5
+                    "max_results": 10 # 抓多几个以便过滤
                 }
                 
                 response = await client.post(self.base_url, json=payload)
@@ -44,22 +44,36 @@ class TavilyProvider(MarketDataProvider):
                 results = data.get("results", [])
                 processed_news = []
                 
+                # 优化 2: 强制过滤逻辑 (Post-Filtering)
+                # 新闻标题或摘要必须包含 ticker
+                ticker_lower = ticker.lower()
+                
                 for idx, res in enumerate(results):
-                    # Use a stable MD5 hash of the URL as the ID to prevent duplicates
-                    import hashlib
+                    title = res.get("title", "")
+                    content = res.get("content", "")
+                    
+                    # 只有内容中确实提到了这个代码，才认为是相关的
+                    is_relevant = (ticker_lower in title.lower()) or (ticker_lower in content.lower())
+                    
+                    if not is_relevant:
+                        # 容错：有些新闻可能不带 $, 直接写公司简称。
+                        # 我们目前只做最硬的限制，防止 Apple/Amazon 这种大词漂移
+                        continue
+
                     url = res.get("url", "")
+                    import hashlib
                     unique_id = hashlib.md5(url.encode()).hexdigest() if url else f"fallback-{idx}"
                     
                     processed_news.append(ProviderNews(
                         id=f"tavily-{unique_id}",
-                        title=res.get("title"),
+                        title=title,
                         publisher=res.get("url").split("/")[2] if res.get("url") else "Tavily Search",
                         link=res.get("url"),
-                        summary=res.get("content"),
-                        publish_time=datetime.utcnow() # Fallback
+                        summary=content,
+                        publish_time=datetime.utcnow()
                     ))
                 
-                return processed_news
+                return processed_news[:5] # 返回过滤后的前 5 条
         except Exception as e:
             logger.error(f"Tavily get_news error for {ticker}: {e}")
             return []

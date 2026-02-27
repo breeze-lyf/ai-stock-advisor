@@ -171,14 +171,108 @@ class AkShareProvider(MarketDataProvider):
         if symbol.startswith(('00', '30', '12')): return f"sz{symbol}"
         return symbol
 
+    async def _get_tencent_quote(self, ticker: str) -> Optional[ProviderQuote]:
+        """从腾讯行情接口获取实时报价 (极速、高可用)"""
+        symbol = self._normalize_symbol(ticker)
+        # 腾讯格式: sh600519 或 sz000001
+        tencent_symbol = self._get_sina_symbol(symbol)
+        url = f"http://qt.gtimg.cn/q={tencent_symbol}"
+        
+        loop = asyncio.get_event_loop()
+        def fetch():
+            _tls.bypass_proxy = True
+            env_vars = ['HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY', 'http_proxy', 'https_proxy', 'all_proxy']
+            old_vals = {var: os.environ.get(var) for var in env_vars}
+            for var in env_vars: os.environ.pop(var, None)
+            
+            try:
+                resp = requests.get(url, timeout=2, proxies={'http': None, 'https': None})
+                if resp.status_code == 200:
+                    text = resp.text
+                    # 格式: v_sz000001="51~平安银行~000001~10.90~10.87~..."
+                    if '~' in text:
+                        parts = text.split('~')
+                        if len(parts) > 32:
+                            return ProviderQuote(
+                                ticker=ticker,
+                                price=float(parts[3]),
+                                change_percent=float(parts[32]),
+                                name=parts[1],
+                                last_updated=datetime.utcnow()
+                            )
+                return None
+            finally:
+                for var, val in old_vals.items():
+                    if val is not None: os.environ[var] = val
+        
+        return await loop.run_in_executor(None, fetch)
+
+    async def _get_tencent_hist(self, ticker: str, num_days: int = 365) -> Optional[pd.DataFrame]:
+        """从腾讯 K 线接口获取历史数据 (前复权)"""
+        symbol = self._normalize_symbol(ticker)
+        tencent_symbol = self._get_sina_symbol(symbol)
+        # web.ifzq.gtimg.cn 接口支持前复权
+        url = f"http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?_var=kline_dayqfq&param={tencent_symbol},day,,,{num_days},qfq"
+        
+        loop = asyncio.get_event_loop()
+        def fetch():
+            _tls.bypass_proxy = True
+            try:
+                # 环境强制禁用代理
+                env_vars = ['HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY', 'http_proxy', 'https_proxy', 'all_proxy']
+                old_vals = {var: os.environ.get(var) for var in env_vars}
+                for var in env_vars: os.environ.pop(var, None)
+                
+                try:
+                    resp = requests.get(url, timeout=3, proxies={'http': None, 'https': None})
+                    if resp.status_code == 200:
+                        content = resp.text
+                        if '=' in content:
+                            json_str = content.split('=', 1)[1]
+                            import json
+                            data = json.loads(json_str)
+                            stock_data = data.get("data", {}).get(tencent_symbol, {})
+                            # 优先取前复权数据 qfqday
+                            kline = stock_data.get("qfqday", stock_data.get("day", []))
+                            if kline:
+                                # 腾讯 K 线格式: [日期, 开盘, 收盘, 最高, 最低, 成交量]
+                                df = pd.DataFrame(kline)
+                                df = df.iloc[:, :6]
+                                df.columns = ['Date', 'Open', 'Close', 'High', 'Low', 'Volume']
+                                df['Date'] = pd.to_datetime(df['Date'])
+                                # 确保数值类型
+                                for col in ['Open', 'High', 'Low', 'Close', 'Volume']:
+                                    df[col] = pd.to_numeric(df[col], errors='coerce')
+                                # 调整列顺序以符合 indicator 计算习惯 (Date, Open, High, Low, Close, Volume)
+                                df = df[['Date', 'Open', 'High', 'Low', 'Close', 'Volume']]
+                                return df
+                    return None
+                finally:
+                    for var, val in old_vals.items():
+                        if val is not None: os.environ[var] = val
+            except Exception as e:
+                logger.error(f"Tencent hist fetch error for {ticker}: {e}")
+                return None
+        
+        return await loop.run_in_executor(None, fetch)
+
     async def get_quote(self, ticker: str) -> Optional[ProviderQuote]:
         """获取行情，智能路由 A 股或美股"""
         if self._is_us_stock(ticker):
             return await self._get_us_quote(ticker)
             
         symbol = self._normalize_symbol(ticker)
+        
+        # 1. 第一优先级：Tencent 实时行情 (目前连通性最好，极速响应)
         try:
-            # 1. 尝试从全量实时缓存获取 (速度最快)
+            tencent_quote = await self._get_tencent_quote(ticker)
+            if tencent_quote:
+                return tencent_quote
+        except Exception as e:
+            logger.warning(f"Tencent quote fetch failed for {ticker}: {e}")
+
+        try:
+            # 2. 第二优先级：从全量实时缓存获取
             await self._update_spot_cache()
             if AkShareProvider._cached_spot_df is not None:
                 df = AkShareProvider._cached_spot_df
@@ -193,17 +287,16 @@ class AkShareProvider(MarketDataProvider):
                         last_updated=datetime.utcnow()
                     )
 
-            # 2. 兜底路径 A：Sina 实时行情 (通常比 EM 稳健)
+            # 3. 兜底路径 A：Sina 实时行情
             try:
                 sina_symbol = self._get_sina_symbol(symbol)
-                # 使用 stock_zh_a_spot 而不是 stock_zh_a_spot_em
                 sina_df = await self._run_sync(ak.stock_zh_a_spot, symbol=sina_symbol)
                 if sina_df is not None and not sina_df.empty:
                     target = sina_df.iloc[0]
                     return ProviderQuote(
                         ticker=ticker,
                         price=float(target.get('now', 0)),
-                        change_percent=0.0, # Sina spot 不带涨跌幅，需计算或忽略
+                        change_percent=0.0,
                         name=str(target.get('name', ticker)),
                         last_updated=datetime.utcnow()
                     )
@@ -403,12 +496,18 @@ class AkShareProvider(MarketDataProvider):
                     df['Date'] = pd.to_datetime(df['Date'])
                     df.set_index('Date', inplace=True)
             else:
-                symbol = self._normalize_symbol(ticker)
-                df = await self._run_sync(ak.stock_zh_a_hist, symbol=symbol, period="daily", adjust="qfq")
+                # A 股改用腾讯源，绕开被封锁的东财/AkShare 原生接口
+                df = await self._get_tencent_hist(ticker, num_days=250)
                 if df is not None and not df.empty:
-                    df = df.rename(columns={'日期': 'Date', '开盘': 'Open', '最高': 'High', '最低': 'Low', '收盘': 'Close', '成交量': 'Volume'})
-                    df['Date'] = pd.to_datetime(df['Date'])
                     df.set_index('Date', inplace=True)
+                else:
+                    # 备选：原有的 AkShare 方式
+                    symbol = self._normalize_symbol(ticker)
+                    df = await self._run_sync(ak.stock_zh_a_hist, symbol=symbol, period="daily", adjust="qfq")
+                    if df is not None and not df.empty:
+                        df = df.rename(columns={'日期': 'Date', '开盘': 'Open', '最高': 'High', '最低': 'Low', '收盘': 'Close', '成交量': 'Volume'})
+                        df['Date'] = pd.to_datetime(df['Date'])
+                        df.set_index('Date', inplace=True)
             
             if df is None or df.empty: return None
             return TechnicalIndicators.calculate_all(df)
@@ -455,10 +554,14 @@ class AkShareProvider(MarketDataProvider):
                     if 'date' in col_map: col_map['date'] = 'Date'
                     df = df.rename(columns=col_map)
             else:
-                symbol = self._normalize_symbol(ticker)
-                df = await self._run_sync(ak.stock_zh_a_hist, symbol=symbol, period="daily", adjust="qfq")
-                if df is not None and not df.empty:
-                    df = df.rename(columns={'日期': 'Date', '开盘': 'Open', '最高': 'High', '最低': 'Low', '收盘': 'Close', '成交量': 'Volume'})
+                # A 股改用腾讯源
+                df = await self._get_tencent_hist(ticker, num_days=500)
+                if df is None or df.empty:
+                    # 备选
+                    symbol = self._normalize_symbol(ticker)
+                    df = await self._run_sync(ak.stock_zh_a_hist, symbol=symbol, period="daily", adjust="qfq")
+                    if df is not None and not df.empty:
+                        df = df.rename(columns={'日期': 'Date', '开盘': 'Open', '最高': 'High', '最低': 'Low', '收盘': 'Close', '成交量': 'Volume'})
 
             if df is None or df.empty: return []
             

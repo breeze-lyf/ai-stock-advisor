@@ -513,7 +513,7 @@ async def analyze_stock(
             entry_zone=to_str(parsed_data.get("entry_zone")),
             entry_price_low=to_float(parsed_data.get("entry_price_low")),
             entry_price_high=to_float(parsed_data.get("entry_price_high")),
-            rr_ratio=final_rr_str,
+            rr_ratio=str(cache_to_sync.risk_reward_ratio) if (cache_to_sync and cache_to_sync.risk_reward_ratio is not None) else final_rr_str,
             input_context_snapshot={
                 "market_data": market_data,
                 "portfolio_data": portfolio_data
@@ -617,19 +617,14 @@ async def get_latest_analysis(
     if not report:
         raise HTTPException(status_code=404, detail="No analysis found for this stock and model")
     
-    # 补全历史数据的盈亏比 (Fill missing RRR for legacy reports)
-    final_rr = report.rr_ratio
-    if not final_rr and report.target_price and report.stop_loss_price:
-        sync_stmt = select(MarketDataCache).where(MarketDataCache.ticker == ticker)
-        sync_result = await db.execute(sync_stmt)
-        cache_data = sync_result.scalar_one_or_none()
-        
-        curr_p = cache_data.current_price if cache_data else None
-        if curr_p and report.target_price and report.stop_loss_price:
-            reward = report.target_price - curr_p
-            risk = curr_p - report.stop_loss_price
-            if risk > 0 and reward > 0:
-                final_rr = f"{reward/risk:.2f}"
+    # 获取实时缓存中的盈亏比 (优先使用实时重算的数值)
+    cache_stmt = select(MarketDataCache).where(MarketDataCache.ticker == ticker)
+    cache_result = await db.execute(cache_stmt)
+    cache_data = cache_result.scalar_one_or_none()
+    
+    realtime_rr = None
+    if cache_data and cache_data.risk_reward_ratio is not None:
+        realtime_rr = f"{cache_data.risk_reward_ratio:.2f}"
 
     return {
         "ticker": ticker,
@@ -648,7 +643,7 @@ async def get_latest_analysis(
         "entry_zone": report.entry_zone or extract_entry_zone_fallback(report.action_advice),
         "entry_price_low": report.entry_price_low if report.entry_price_low is not None else extract_entry_prices_fallback(report.action_advice)[0],
         "entry_price_high": report.entry_price_high if report.entry_price_high is not None else extract_entry_prices_fallback(report.action_advice)[1],
-        "rr_ratio": final_rr,
+        "rr_ratio": realtime_rr or report.rr_ratio,
         "is_cached": True,
         "model_used": report.model_used,
         "created_at": report.created_at

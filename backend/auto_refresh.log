@@ -2310,3 +2310,27 @@ For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/St
 2026-02-27 19:03:23,519 - app.services.market_data - INFO - Syncing fundamental for AMD: market_cap=332082085888.0, PE=78.038315
 2026-02-27 19:03:24,976 - __main__ - INFO - ✅ Successfully refreshed AMD. New Price: 203.68
 2026-02-27 19:03:27,139 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-02-27 19:08:28,715 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, BRK.B, UNH, DHR, IAU, IREN, JPM, CVX, SLV, IBM...
+2026-02-27 19:08:30,026 - yfinance - ERROR - $TEST_RRR: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 19:08:30,027 - yfinance - ERROR - HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: TEST_RRR"}}}
+2026-02-27 19:08:30,873 - yfinance - ERROR - $TEST_RRR: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 19:08:30,881 - yfinance - ERROR - HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: TEST_RRR"}}}
+2026-02-27 19:08:30,894 - yfinance - ERROR - HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: TEST_RRR"}}}
+2026-02-27 19:08:30,956 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-02-27 19:08:30,958 - app.services.market_providers.tavily - ERROR - Tavily get_news error for TEST_RRR: Client error '432 ' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/432
+2026-02-27 19:08:31,186 - app.services.market_providers.yfinance - INFO - Fundamental fields for TEST_RRR: marketCap=None, trailingPE=None, forwardPE=None
+2026-02-27 19:08:31,660 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 110.85527242101669
+2026-02-27 19:08:35,635 - yfinance - ERROR - $BRK.B: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 19:08:36,309 - yfinance - ERROR - $BRK.B: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 19:08:36,311 - app.services.market_providers.yfinance - INFO - Fundamental fields for BRK.B: marketCap=None, trailingPE=None, forwardPE=None
+2026-02-27 19:08:36,385 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-02-27 19:08:36,387 - app.services.market_providers.tavily - ERROR - Tavily get_news error for BRK.B: Client error '432 ' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/432
+2026-02-27 19:08:36,707 - __main__ - INFO - ✅ Successfully refreshed BRK.B. New Price: 495.18201992817245
+2026-02-27 19:08:40,134 - app.services.market_providers.yfinance - INFO - get_full_data for UNH extracted fundamental: sector='Healthcare' industry='Healthcare Plans' market_cap=259667689472.0 pe_ratio=21.651058 forward_pe=14.314463 eps=13.24 dividend_yield=3.08 beta=0.415 fifty_two_week_high=606.36 fifty_two_week_low=234.6
+2026-02-27 19:08:40,455 - app.services.market_data - INFO - Syncing fundamental for UNH: market_cap=259667689472.0, PE=21.651058
+2026-02-27 19:08:42,203 - __main__ - INFO - ✅ Successfully refreshed UNH. New Price: 286.66
+2026-02-27 19:08:45,024 - app.services.market_providers.yfinance - INFO - get_full_data for DHR extracted fundamental: sector='Healthcare' industry='Diagnostics & Research' market_cap=147996573696.0 pe_ratio=41.70518 forward_pe=22.97206 eps=5.02 dividend_yield=0.76 beta=0.958 fifty_two_week_high=242.8 fifty_two_week_low=171.0
+2026-02-27 19:08:45,182 - app.services.market_data - INFO - Syncing fundamental for DHR: market_cap=147996573696.0, PE=41.70518
+2026-02-27 19:08:46,742 - __main__ - INFO - ✅ Successfully refreshed DHR. New Price: 209.36

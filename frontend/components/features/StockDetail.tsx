@@ -201,16 +201,6 @@ export function StockDetail({
                                 {(selectedItem.change_percent || 0) >= 0 ? "+" : ""}{(selectedItem.change_percent || 0).toFixed(2)}%
                             </span>
                         </div>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-7 px-3 text-[9px] font-black border-2 rounded-lg text-slate-400 hover:text-blue-500 hover:border-blue-500 transition-all duration-300"
-                            onClick={handleRefresh}
-                            disabled={refreshing}
-                        >
-                            <RefreshCw className={clsx("mr-1.5 h-3 w-3", refreshing && "animate-spin")} />
-                            刷新
-                        </Button>
                     </div>
                 </div>
             </div>
@@ -228,9 +218,21 @@ export function StockDetail({
                             </button>
                         )}
                         <div className="flex flex-col">
-                            <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-slate-900 dark:text-white leading-none">
-                                {selectedItem.name || selectedItem.ticker}
-                            </h1>
+                            <div className="flex items-center gap-3">
+                                <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-slate-900 dark:text-white leading-none">
+                                    {selectedItem.name || selectedItem.ticker}
+                                </h1>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 rounded-full text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300"
+                                    onClick={handleRefresh}
+                                    disabled={refreshing}
+                                    title="刷新行情"
+                                >
+                                    <RefreshCw className={clsx("h-4 w-4", refreshing && "animate-spin")} />
+                                </Button>
+                            </div>
                             <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mt-2">
                                 {selectedItem.name ? selectedItem.ticker : "全维度财务声誉分析"}
                             </p>
@@ -254,46 +256,32 @@ export function StockDetail({
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                    <div className="flex flex-col">
-                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">持有仓位</span>
-                        <span className="text-md font-bold text-slate-700 dark:text-slate-300">{selectedItem.quantity} Shares</span>
-                    </div>
-                    {selectedItem.quantity > 0 && (
-                        <>
-                            <div className="flex flex-col">
-                                <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">持仓均价</span>
-                                <span className="text-md font-bold text-slate-700 dark:text-slate-300">${selectedItem.avg_cost.toFixed(2)}</span>
+                {selectedItem.quantity > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 pt-4 border-t border-slate-50 dark:border-slate-800/50">
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">持有仓位</span>
+                            <span className="text-md font-bold text-slate-700 dark:text-slate-300">{selectedItem.quantity} Shares</span>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">持仓均价</span>
+                            <span className="text-md font-bold text-slate-700 dark:text-slate-300">${selectedItem.avg_cost.toFixed(2)}</span>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">账面盈亏</span>
+                            <div className="flex items-center gap-2">
+                                <span className={clsx("text-md font-bold", selectedItem.unrealized_pl >= 0 ? "text-emerald-500" : "text-rose-500")}>
+                                    {selectedItem.unrealized_pl >= 0 ? "+" : ""}${selectedItem.unrealized_pl.toFixed(2)}
+                                </span>
+                                <span className={clsx(
+                                    "text-[10px] font-black px-1.5 py-0.5 rounded-md",
+                                    selectedItem.pl_percent >= 0 ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400"
+                                )}>
+                                    {selectedItem.pl_percent >= 0 ? "+" : ""}{selectedItem.pl_percent.toFixed(2)}%
+                                </span>
                             </div>
-                            <div className="flex flex-col">
-                                <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">账面盈亏</span>
-                                <div className="flex items-center gap-2">
-                                    <span className={clsx("text-md font-bold", selectedItem.unrealized_pl >= 0 ? "text-emerald-500" : "text-rose-500")}>
-                                        {selectedItem.unrealized_pl >= 0 ? "+" : ""}${selectedItem.unrealized_pl.toFixed(2)}
-                                    </span>
-                                    <span className={clsx(
-                                        "text-[10px] font-black px-1.5 py-0.5 rounded-md",
-                                        selectedItem.pl_percent >= 0 ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400"
-                                    )}>
-                                        {selectedItem.pl_percent >= 0 ? "+" : ""}{selectedItem.pl_percent.toFixed(2)}%
-                                    </span>
-                                </div>
-                            </div>
-                        </>
-                    )}
-                    <div className={clsx("flex flex-col items-end justify-center", selectedItem.quantity <= 0 && "col-start-2")}>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 px-3 text-[9px] font-black border-2 rounded-lg text-slate-400 hover:text-blue-500 hover:border-blue-500 transition-all duration-300"
-                            onClick={handleRefresh}
-                            disabled={refreshing}
-                        >
-                            <RefreshCw className={clsx("mr-1.5 h-3.5 w-3.5", refreshing && "animate-spin")} />
-                            刷新行情
-                        </Button>
+                        </div>
                     </div>
-                </div>
+                )}
             </div>
 
             {/* --- Section 1.5: Technical Chart --- */}

@@ -140,3 +140,97 @@ For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/St
 2026-02-27 14:27:54,126 - app.services.market_data - INFO - Syncing fundamental for KO: market_cap=346279510016.0, PE=26.480263
 2026-02-27 14:27:55,590 - __main__ - INFO - ✅ Successfully refreshed KO. New Price: 80.5
 2026-02-27 14:27:57,756 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-02-27 14:32:59,324 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, BRK.B, 002970, OKLO, CAT, AMZN, CSCO, TMUS, SIDU, BA...
+2026-02-27 14:33:00,467 - yfinance - ERROR - HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: TEST_RRR"}}}
+2026-02-27 14:33:00,473 - yfinance - ERROR - $TEST_RRR: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 14:33:01,565 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-02-27 14:33:01,569 - app.services.market_providers.tavily - ERROR - Tavily get_news error for TEST_RRR: Client error '432 ' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/432
+2026-02-27 14:33:01,589 - yfinance - ERROR - HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: TEST_RRR"}}}
+2026-02-27 14:33:01,591 - yfinance - ERROR - $TEST_RRR: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 14:33:01,592 - yfinance - ERROR - HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: TEST_RRR"}}}
+2026-02-27 14:33:01,947 - app.services.market_providers.yfinance - INFO - Fundamental fields for TEST_RRR: marketCap=None, trailingPE=None, forwardPE=None
+2026-02-27 14:33:02,417 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 111.1437882499105
+2026-02-27 14:33:06,058 - yfinance - ERROR - $BRK.B: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 14:33:06,256 - app.services.market_providers.yfinance - INFO - Fundamental fields for BRK.B: marketCap=None, trailingPE=None, forwardPE=None
+2026-02-27 14:33:06,749 - yfinance - ERROR - $BRK.B: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 14:33:06,854 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-02-27 14:33:06,856 - app.services.market_providers.tavily - ERROR - Tavily get_news error for BRK.B: Client error '432 ' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/432
+2026-02-27 14:33:07,180 - __main__ - INFO - ✅ Successfully refreshed BRK.B. New Price: 494.9589032329355
+2026-02-27 14:33:10,147 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for 002970: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-27 14:33:10,754 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-02-27 14:33:10,755 - app.services.market_providers.tavily - ERROR - Tavily get_news error for 002970: Client error '432 ' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/432
+2026-02-27 14:33:14,811 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-27 14:33:15,503 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-27 14:33:15,867 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 81.87385361450573
+2026-02-27 14:33:19,166 - app.services.market_providers.yfinance - INFO - get_full_data for OKLO extracted fundamental: sector='Utilities' industry='Utilities - Independent Power Producers' market_cap=10791985152.0 pe_ratio=-104.193695 forward_pe=-104.193695 eps=-0.56 dividend_yield=None beta=0.774 fifty_two_week_high=193.84 fifty_two_week_low=17.42
+2026-02-27 14:33:19,499 - app.services.market_data - INFO - Syncing fundamental for OKLO: market_cap=10791985152.0, PE=-104.193695
+2026-02-27 14:33:21,247 - __main__ - INFO - ✅ Successfully refreshed OKLO. New Price: 69.07
+2026-02-27 14:33:23,922 - app.services.market_providers.yfinance - INFO - get_full_data for CAT extracted fundamental: sector='Industrials' industry='Farm & Heavy Construction Machinery' market_cap=352355876864.0 pe_ratio=40.00691 forward_pe=27.340628 eps=18.82 dividend_yield=0.8 beta=1.554 fifty_two_week_high=789.81 fifty_two_week_low=267.3
+2026-02-27 14:33:24,083 - app.services.market_data - INFO - Syncing fundamental for CAT: market_cap=352355876864.0, PE=40.00691
+2026-02-27 14:33:25,697 - __main__ - INFO - ✅ Successfully refreshed CAT. New Price: 752.93
+2026-02-27 14:33:28,545 - app.services.market_providers.yfinance - INFO - get_full_data for AMZN extracted fundamental: sector='Consumer Cyclical' industry='Internet Retail' market_cap=2232004640768.0 pe_ratio=28.998604 forward_pe=22.382742 eps=7.17 dividend_yield=None beta=1.385 fifty_two_week_high=258.6 fifty_two_week_low=161.38
+2026-02-27 14:33:28,712 - app.services.market_data - INFO - Syncing fundamental for AMZN: market_cap=2232004640768.0, PE=28.998604
+2026-02-27 14:33:30,177 - __main__ - INFO - ✅ Successfully refreshed AMZN. New Price: 207.92
+2026-02-27 14:33:32,858 - app.services.market_providers.yfinance - INFO - get_full_data for CSCO extracted fundamental: sector='Technology' industry='Communication Equipment' market_cap=308580483072.0 pe_ratio=28.093525 forward_pe=17.294754 eps=2.78 dividend_yield=2.15 beta=0.865 fifty_two_week_high=88.19 fifty_two_week_low=52.11
+2026-02-27 14:33:33,023 - app.services.market_data - INFO - Syncing fundamental for CSCO: market_cap=308580483072.0, PE=28.093525
+2026-02-27 14:33:34,580 - __main__ - INFO - ✅ Successfully refreshed CSCO. New Price: 78.1
+2026-02-27 14:33:37,267 - app.services.market_providers.yfinance - INFO - get_full_data for TMUS extracted fundamental: sector='Communication Services' industry='Telecom Services' market_cap=238409678848.0 pe_ratio=21.92901 forward_pe=15.164828 eps=9.72 dividend_yield=1.91 beta=0.435 fifty_two_week_high=276.49 fifty_two_week_low=181.36
+2026-02-27 14:33:37,431 - app.services.market_data - INFO - Syncing fundamental for TMUS: market_cap=238409678848.0, PE=21.92901
+2026-02-27 14:33:39,005 - __main__ - INFO - ✅ Successfully refreshed TMUS. New Price: 213.15
+2026-02-27 14:33:41,674 - app.services.market_providers.yfinance - INFO - get_full_data for SIDU extracted fundamental: sector='Industrials' industry='Aerospace & Defense' market_cap=145678480.0 pe_ratio=-9.125 forward_pe=-9.125 eps=-1.26 dividend_yield=None beta=-1.652 fifty_two_week_high=5.39 fifty_two_week_low=0.628
+2026-02-27 14:33:41,834 - app.services.market_data - INFO - Syncing fundamental for SIDU: market_cap=145678480.0, PE=-9.125
+2026-02-27 14:33:43,244 - __main__ - INFO - ✅ Successfully refreshed SIDU. New Price: 2.19
+2026-02-27 14:33:45,922 - app.services.market_providers.yfinance - INFO - get_full_data for BA extracted fundamental: sector='Industrials' industry='Aerospace & Defense' market_cap=180166475776.0 pe_ratio=92.504036 forward_pe=48.01723 eps=2.48 dividend_yield=None beta=1.14 fifty_two_week_high=254.35 fifty_two_week_low=128.88
+2026-02-27 14:33:46,082 - app.services.market_data - INFO - Syncing fundamental for BA: market_cap=180166475776.0, PE=92.504036
+2026-02-27 14:33:47,492 - __main__ - INFO - ✅ Successfully refreshed BA. New Price: 229.41
+2026-02-27 14:33:49,649 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-02-27 14:38:51,246 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, BRK.B, 002970, NBIS, NFLX, V, MRK, DJIA, PFE, MU...
+2026-02-27 14:38:52,403 - yfinance - ERROR - $TEST_RRR: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 14:38:52,441 - yfinance - ERROR - HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: TEST_RRR"}}}
+2026-02-27 14:38:53,547 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-02-27 14:38:53,550 - app.services.market_providers.tavily - ERROR - Tavily get_news error for TEST_RRR: Client error '432 ' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/432
+2026-02-27 14:38:53,584 - yfinance - ERROR - $TEST_RRR: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 14:38:53,628 - yfinance - ERROR - HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: TEST_RRR"}}}
+2026-02-27 14:38:53,630 - yfinance - ERROR - HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: TEST_RRR"}}}
+2026-02-27 14:38:53,932 - app.services.market_providers.yfinance - INFO - Fundamental fields for TEST_RRR: marketCap=None, trailingPE=None, forwardPE=None
+2026-02-27 14:38:54,429 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 111.10457118098408
+2026-02-27 14:38:58,220 - yfinance - ERROR - $BRK.B: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 14:38:59,005 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-02-27 14:38:59,007 - app.services.market_providers.tavily - ERROR - Tavily get_news error for BRK.B: Client error '432 ' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/432
+2026-02-27 14:38:59,078 - app.services.market_providers.yfinance - INFO - Fundamental fields for BRK.B: marketCap=None, trailingPE=None, forwardPE=None
+2026-02-27 14:38:59,115 - yfinance - ERROR - $BRK.B: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 14:38:59,436 - __main__ - INFO - ✅ Successfully refreshed BRK.B. New Price: 495.0770145666123
+2026-02-27 14:39:02,416 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for 002970: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-27 14:39:03,052 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-02-27 14:39:03,053 - app.services.market_providers.tavily - ERROR - Tavily get_news error for 002970: Client error '432 ' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/432
+2026-02-27 14:39:07,437 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-27 14:39:07,856 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-27 14:39:08,231 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 81.85550870907144
+2026-02-27 14:39:11,588 - app.services.market_providers.yfinance - INFO - get_full_data for NBIS extracted fundamental: sector='Communication Services' industry='Internet Content & Information' market_cap=26536419328.0 pe_ratio=874.0 forward_pe=-74.59459 eps=0.12 dividend_yield=None beta=1.154 fifty_two_week_high=141.1 fifty_two_week_low=18.31
+2026-02-27 14:39:11,914 - app.services.market_data - INFO - Syncing fundamental for NBIS: market_cap=26536419328.0, PE=874.0
+2026-02-27 14:39:13,679 - __main__ - INFO - ✅ Successfully refreshed NBIS. New Price: 104.88
+2026-02-27 14:39:16,356 - app.services.market_providers.yfinance - INFO - get_full_data for NFLX extracted fundamental: sector='Communication Services' industry='Entertainment' market_cap=358821429248.0 pe_ratio=33.43478 forward_pe=22.139284 eps=2.53 dividend_yield=None beta=1.712 fifty_two_week_high=134.115 fifty_two_week_low=75.01
+2026-02-27 14:39:16,524 - app.services.market_data - INFO - Syncing fundamental for NFLX: market_cap=358821429248.0, PE=33.43478
+2026-02-27 14:39:17,968 - __main__ - INFO - ✅ Successfully refreshed NFLX. New Price: 84.59
+2026-02-27 14:39:20,710 - app.services.market_providers.yfinance - INFO - get_full_data for V extracted fundamental: sector='Financial Services' industry='Credit Services' market_cap=610610118656.0 pe_ratio=29.765038 forward_pe=21.7927 eps=10.64 dividend_yield=0.85 beta=0.78 fifty_two_week_high=375.51 fifty_two_week_low=299.0
+2026-02-27 14:39:20,878 - app.services.market_data - INFO - Syncing fundamental for V: market_cap=610610118656.0, PE=29.765038
+2026-02-27 14:39:22,482 - __main__ - INFO - ✅ Successfully refreshed V. New Price: 316.7
+2026-02-27 14:39:25,163 - app.services.market_providers.yfinance - INFO - get_full_data for MRK extracted fundamental: sector='Healthcare' industry='Drug Manufacturers - General' market_cap=297985540096.0 pe_ratio=16.387363 forward_pe=12.183788 eps=7.28 dividend_yield=2.85 beta=0.296 fifty_two_week_high=125.14 fifty_two_week_low=73.31
+2026-02-27 14:39:25,329 - app.services.market_data - INFO - Syncing fundamental for MRK: market_cap=297985540096.0, PE=16.387363
+2026-02-27 14:39:26,829 - __main__ - INFO - ✅ Successfully refreshed MRK. New Price: 119.3
+2026-02-27 14:39:29,649 - app.services.market_providers.yfinance - INFO - get_full_data for DJIA extracted fundamental: sector=None industry=None market_cap=None pe_ratio=23.53738 forward_pe=None eps=None dividend_yield=8.47 beta=None fifty_two_week_high=23.093 fifty_two_week_low=19.59
+2026-02-27 14:39:29,815 - app.services.market_data - INFO - Syncing fundamental for DJIA: market_cap=None, PE=23.53738
+2026-02-27 14:39:31,289 - __main__ - INFO - ✅ Successfully refreshed DJIA. New Price: 22.49
+2026-02-27 14:39:33,970 - app.services.market_providers.yfinance - INFO - get_full_data for PFE extracted fundamental: sector='Healthcare' industry='Drug Manufacturers - General' market_cap=154082689024.0 pe_ratio=19.92647 forward_pe=9.565325 eps=1.36 dividend_yield=6.35 beta=0.441 fifty_two_week_high=27.94 fifty_two_week_low=20.92
+2026-02-27 14:39:34,140 - app.services.market_data - INFO - Syncing fundamental for PFE: market_cap=154082689024.0, PE=19.92647
+2026-02-27 14:39:35,597 - __main__ - INFO - ✅ Successfully refreshed PFE. New Price: 27.1
+2026-02-27 14:39:38,335 - app.services.market_providers.yfinance - INFO - get_full_data for MU extracted fundamental: sector='Technology' industry='Semiconductors' market_cap=467716636672.0 pe_ratio=39.539486 forward_pe=9.327175 eps=10.51 dividend_yield=0.11 beta=1.505 fifty_two_week_high=455.5 fifty_two_week_low=61.54
+2026-02-27 14:39:38,507 - app.services.market_data - INFO - Syncing fundamental for MU: market_cap=467716636672.0, PE=39.539486
+2026-02-27 14:39:39,943 - __main__ - INFO - ✅ Successfully refreshed MU. New Price: 415.56
+2026-02-27 14:39:42,108 - __main__ - INFO - 💤 Sleeping for 5 minutes...

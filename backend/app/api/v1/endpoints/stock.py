@@ -11,6 +11,7 @@ from app.models.portfolio import Portfolio
 from sqlalchemy.future import select
 
 from app.core.database import get_db
+from app.core.security import sanitize_float
 from app.schemas.market_data import OHLCVItem
 
 router = APIRouter()
@@ -18,16 +19,8 @@ router = APIRouter()
 # 数据清洗器：将无效数值转化为 None。
 # 场景：yfinance 抓取的数据有时会出现 NaN (非数字) 或 Inf (无穷大)，
 # 这种数据直接传给前端会导致 JSON 解析崩溃，所以需要过滤。
-def _sanitize_float(val):
-    if val is None:
-        return None
-    try:
-        f = float(val)
-        if math.isnan(f) or math.isinf(f):
-            return None
-        return f
-    except (ValueError, TypeError):
-        return None
+def _sanitize_float_local(val):
+    return sanitize_float(val)
 
 # OHLCV 数据集清洗：批量处理 K 线图所需的数据
 def _sanitize_ohlcv(items: list) -> list:
@@ -35,14 +28,14 @@ def _sanitize_ohlcv(items: list) -> list:
     for item in items:
         # 兼容 dict 或 Pydantic 模型
         d = item if isinstance(item, dict) else item.model_dump()
-        d["open"] = _sanitize_float(d.get("open")) or 0.0
-        d["high"] = _sanitize_float(d.get("high")) or 0.0
-        d["low"] = _sanitize_float(d.get("low")) or 0.0
-        d["close"] = _sanitize_float(d.get("close")) or 0.0
-        d["volume"] = _sanitize_float(d.get("volume"))
+        d["open"] = sanitize_float(d.get("open"), 0.0)
+        d["high"] = sanitize_float(d.get("high"), 0.0)
+        d["low"] = sanitize_float(d.get("low"), 0.0)
+        d["close"] = sanitize_float(d.get("close"), 0.0)
+        d["volume"] = sanitize_float(d.get("volume"), 0.0)
         # 清洗附带的技术指标 (RSI/MACD 等)
         for key in ["rsi", "macd", "macd_signal", "macd_hist", "bb_upper", "bb_middle", "bb_lower"]:
-            d[key] = _sanitize_float(d.get(key))
+            d[key] = sanitize_float(d.get(key))
         sanitized.append(OHLCVItem(**d))
     return sanitized
 
@@ -79,12 +72,11 @@ async def get_stock_history(
 
 @router.post("/refresh_all")
 async def refresh_all_stocks(
+    price_only: bool = False, # 支持仅刷新价格模式
     db: AsyncSession = Depends(get_db)
 ):
     """
     接口：一键同步当前数据库中所有活跃股票的最新行情。
-    
-    机制：使用“信号量 (Semaphore)”控制并发，避免瞬间发起上百个请求被 API 服务商拉黑。
     """
     try:
         # 1. 查询数据库中所有不重复的股票代码
@@ -95,7 +87,6 @@ async def refresh_all_stocks(
             return {"message": "当前没有已关注的股票需要更新。", "updated_count": 0}
 
         # 2. 并发同步逻辑
-        # 我们一次只允许 5 个任务并行，其它的排队等候，这样比较稳健。
         semaphore = asyncio.Semaphore(5)
         
         async def refresh_one(ticker):
@@ -103,8 +94,13 @@ async def refresh_all_stocks(
                 from app.core.database import SessionLocal
                 async with SessionLocal() as local_db:
                     try:
-                        # 强制刷新缓存，去调真正的 API。
-                        await MarketDataService.get_real_time_data(ticker, local_db, force_refresh=True)
+                        # 传递 price_only 标志
+                        await MarketDataService.get_real_time_data(
+                            ticker, 
+                            local_db, 
+                            force_refresh=True, 
+                            price_only=price_only
+                        )
                         return ticker
                     except Exception as e:
                         print(f"刷新 {ticker} 失败: {e}")

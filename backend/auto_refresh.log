@@ -1,1269 +1,142 @@
-2026-02-22 13:17:25,095 - __main__ - INFO - 🚀 Starting auto-refresh background job...
-2026-02-22 13:17:30,073 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: V, VZ, WFC, XOM, AMGN, AXP, BAC, AVGO, BRK.B, IREN...
-2026-02-22 13:17:32,116 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:17:32,699 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/V?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:17:36,464 - __main__ - INFO - ✅ Successfully refreshed V. New Price: 320.95
-2026-02-22 13:17:40,048 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:17:40,451 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/VZ?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:17:43,748 - __main__ - INFO - ✅ Successfully refreshed VZ. New Price: 49.25
-2026-02-22 13:17:47,240 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:17:48,267 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/WFC?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:17:50,834 - __main__ - INFO - ✅ Successfully refreshed WFC. New Price: 88.7
-2026-02-22 13:17:54,338 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:17:56,323 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/XOM?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:17:59,128 - __main__ - INFO - ✅ Successfully refreshed XOM. New Price: 147.28
-2026-02-22 13:18:02,593 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:18:03,516 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AMGN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:18:06,796 - __main__ - INFO - ✅ Successfully refreshed AMGN. New Price: 374.75
-2026-02-22 13:18:10,353 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:18:11,280 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AXP?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:18:13,913 - __main__ - INFO - ✅ Successfully refreshed AXP. New Price: 346.18
-2026-02-22 13:18:17,786 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:18:18,245 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/BAC?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:18:20,963 - __main__ - INFO - ✅ Successfully refreshed BAC. New Price: 53.06
-2026-02-22 13:18:24,399 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:18:25,162 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AVGO?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:18:28,130 - __main__ - INFO - ✅ Successfully refreshed AVGO. New Price: 332.65
-2026-02-22 13:18:31,756 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:18:32,718 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/BRK.B?interval=1m&range=1d "HTTP/1.1 404 Not Found"
-2026-02-22 13:18:35,968 - __main__ - INFO - ✅ Successfully refreshed BRK.B. New Price: 498.2
-2026-02-22 13:18:39,836 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:18:40,348 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/IREN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:18:44,073 - __main__ - INFO - ✅ Successfully refreshed IREN. New Price: 39.98
-2026-02-22 13:18:46,351 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-22 13:23:48,766 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: DJIA, BA, ^GSPC, TEST_RRR, ABBV, ABT, ACN, CAT, COST, CRM...
-2026-02-22 13:23:50,540 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:23:51,199 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/DJIA?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:23:54,830 - __main__ - INFO - ✅ Successfully refreshed DJIA. New Price: 22.61
-2026-02-22 13:23:58,480 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:23:58,899 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/BA?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:24:01,282 - __main__ - INFO - ✅ Successfully refreshed BA. New Price: 232.03
-2026-02-22 13:24:04,236 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-22 13:24:04,793 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-22 13:24:04,978 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:24:05,712 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6839.542817983712
-2026-02-22 13:24:09,723 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-22 13:24:10,156 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-22 13:24:10,253 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:24:10,759 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.93664062189012
-2026-02-22 13:24:15,681 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:24:16,994 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/ABBV?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:24:19,664 - __main__ - INFO - ✅ Successfully refreshed ABBV. New Price: 224.81
-2026-02-22 13:24:23,363 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:24:24,540 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/ABT?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:24:27,368 - __main__ - INFO - ✅ Successfully refreshed ABT. New Price: 112.21
-2026-02-22 13:24:30,977 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:24:31,641 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/ACN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:24:34,385 - __main__ - INFO - ✅ Successfully refreshed ACN. New Price: 215.35
-2026-02-22 13:24:37,939 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:24:39,254 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/CAT?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:24:42,150 - __main__ - INFO - ✅ Successfully refreshed CAT. New Price: 759.74
-2026-02-22 13:24:45,789 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:24:47,474 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/COST?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:24:50,667 - __main__ - INFO - ✅ Successfully refreshed COST. New Price: 985.27
-2026-02-22 13:24:54,243 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:24:54,979 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/CRM?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:24:57,851 - __main__ - INFO - ✅ Successfully refreshed CRM. New Price: 185.16
-2026-02-22 13:25:00,120 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-22 13:30:03,191 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, CSCO, CVX, DHR, DIS, HD, IBM, INTC, INTU...
-2026-02-22 13:30:04,277 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-22 13:30:04,717 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-22 13:30:05,034 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:30:05,781 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6842.484122331517
-2026-02-22 13:30:09,984 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-22 13:30:10,397 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-22 13:30:10,629 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:30:11,423 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.91182420787231
-2026-02-22 13:30:16,356 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:30:17,662 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/CSCO?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:30:21,344 - __main__ - INFO - ✅ Successfully refreshed CSCO. New Price: 79.2
-2026-02-22 13:30:25,537 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/CVX?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:30:25,604 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:30:28,137 - __main__ - INFO - ✅ Successfully refreshed CVX. New Price: 183.93
-2026-02-22 13:30:32,003 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:30:32,360 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/DHR?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:30:35,721 - __main__ - INFO - ✅ Successfully refreshed DHR. New Price: 209.5
-2026-02-22 13:30:39,897 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:30:40,314 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/DIS?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:30:43,545 - __main__ - INFO - ✅ Successfully refreshed DIS. New Price: 105.58
-2026-02-22 13:30:47,174 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:30:47,816 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/HD?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:30:50,827 - __main__ - INFO - ✅ Successfully refreshed HD. New Price: 382.25
-2026-02-22 13:30:54,842 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:30:55,437 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/IBM?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:30:58,015 - __main__ - INFO - ✅ Successfully refreshed IBM. New Price: 257.16
-2026-02-22 13:31:01,541 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:31:02,087 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/INTC?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:31:05,113 - __main__ - INFO - ✅ Successfully refreshed INTC. New Price: 44.11
-2026-02-22 13:31:08,781 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:31:09,399 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/INTU?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:31:12,184 - __main__ - INFO - ✅ Successfully refreshed INTU. New Price: 380.55
-2026-02-22 13:31:14,428 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-22 13:36:20,483 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, JNJ, JPM, KO, LIN, LLY, MA, MCD, MRK...
-2026-02-22 13:36:21,576 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-22 13:36:22,029 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-22 13:36:22,365 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:36:23,105 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6840.284057365736
-2026-02-22 13:36:27,116 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-22 13:36:31,556 - app.services.market_data - WARNING - TEST_RRR 核心数据源获取超时
-2026-02-22 13:36:32,608 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:36:33,088 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.90112886781958
-2026-02-22 13:36:37,701 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:36:38,453 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/JNJ?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:36:41,984 - __main__ - INFO - ✅ Successfully refreshed JNJ. New Price: 242.49
-2026-02-22 13:36:45,658 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:36:46,570 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/JPM?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:36:49,942 - __main__ - INFO - ✅ Successfully refreshed JPM. New Price: 310.79
-2026-02-22 13:36:53,485 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:36:54,487 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/KO?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:36:57,228 - __main__ - INFO - ✅ Successfully refreshed KO. New Price: 79.84
-2026-02-22 13:37:00,766 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:37:01,328 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/LIN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:37:04,106 - __main__ - INFO - ✅ Successfully refreshed LIN. New Price: 496.51
-2026-02-22 13:37:07,680 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:37:08,540 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/LLY?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:37:11,107 - __main__ - INFO - ✅ Successfully refreshed LLY. New Price: 1009.52
-2026-02-22 13:37:14,604 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:37:15,683 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/MA?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:37:18,508 - __main__ - INFO - ✅ Successfully refreshed MA. New Price: 526.41
-2026-02-22 13:37:22,168 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:37:22,847 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/MCD?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:37:26,063 - __main__ - INFO - ✅ Successfully refreshed MCD. New Price: 329.23
-2026-02-22 13:37:30,232 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:37:31,356 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/MRK?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:37:34,678 - __main__ - INFO - ✅ Successfully refreshed MRK. New Price: 122.26
-2026-02-22 13:37:36,934 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-22 13:42:39,412 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NFLX, PEP, PFE, QCOM, TMO, TMUS, TXN, UNH...
-2026-02-22 13:42:40,675 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-22 13:42:41,188 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-22 13:42:41,603 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:42:42,351 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6842.30776627584
-2026-02-22 13:42:46,574 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-22 13:42:46,962 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-22 13:42:47,113 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:42:47,653 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.92496577897552
-2026-02-22 13:42:52,152 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:42:53,204 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/NFLX?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:42:56,445 - __main__ - INFO - ✅ Successfully refreshed NFLX. New Price: 78.67
-2026-02-22 13:42:59,975 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:43:01,743 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/PEP?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:43:04,627 - __main__ - INFO - ✅ Successfully refreshed PEP. New Price: 164.94
-2026-02-22 13:43:08,259 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:43:08,914 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/PFE?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:43:11,620 - __main__ - INFO - ✅ Successfully refreshed PFE. New Price: 26.65
-2026-02-22 13:43:15,142 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:43:15,801 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/QCOM?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:43:18,637 - __main__ - INFO - ✅ Successfully refreshed QCOM. New Price: 142.88
-2026-02-22 13:43:22,231 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:43:23,719 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/TMO?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:43:26,618 - __main__ - INFO - ✅ Successfully refreshed TMO. New Price: 510.93
-2026-02-22 13:43:30,191 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:43:30,704 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/TMUS?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:43:33,175 - __main__ - INFO - ✅ Successfully refreshed TMUS. New Price: 215.46
-2026-02-22 13:43:36,671 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:43:37,328 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/TXN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:43:39,855 - __main__ - INFO - ✅ Successfully refreshed TXN. New Price: 219.73
-2026-02-22 13:43:43,469 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:43:44,184 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/UNH?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:43:46,768 - __main__ - INFO - ✅ Successfully refreshed UNH. New Price: 290.0
-2026-02-22 13:43:49,039 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-22 13:48:51,446 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, RKLB, META, AAPL, MSFT, OKLO, SLV, AMAT...
-2026-02-22 13:48:52,501 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-22 13:48:52,909 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-22 13:48:53,254 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:48:53,978 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6844.7788367897265
-2026-02-22 13:48:59,007 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-22 13:48:59,850 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:49:00,059 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-22 13:49:00,550 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.87194533329337
-2026-02-22 13:49:04,383 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-22 13:49:05,085 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-22 13:49:05,153 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:49:05,727 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17434.708075924707
-2026-02-22 13:49:11,181 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:49:12,563 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/RKLB?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:49:16,028 - __main__ - INFO - ✅ Successfully refreshed RKLB. New Price: 70.86
-2026-02-22 13:49:19,649 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:49:20,198 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/META?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:49:22,820 - __main__ - INFO - ✅ Successfully refreshed META. New Price: 655.66
-2026-02-22 13:49:26,319 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:49:26,859 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AAPL?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:49:29,827 - __main__ - INFO - ✅ Successfully refreshed AAPL. New Price: 264.58
-2026-02-22 13:49:33,510 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:49:33,833 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/MSFT?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:49:36,839 - __main__ - INFO - ✅ Successfully refreshed MSFT. New Price: 397.23
-2026-02-22 13:49:40,747 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:49:41,269 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/OKLO?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:49:44,094 - __main__ - INFO - ✅ Successfully refreshed OKLO. New Price: 63.83
-2026-02-22 13:49:47,759 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:49:48,731 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/SLV?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:49:52,165 - __main__ - INFO - ✅ Successfully refreshed SLV. New Price: 76.62
-2026-02-22 13:49:55,936 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:49:56,827 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AMAT?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:50:00,444 - __main__ - INFO - ✅ Successfully refreshed AMAT. New Price: 375.38
-2026-02-22 13:50:02,672 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-22 13:55:04,994 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, ORCL, PG, IAU, GLD, NET, AMD, 002970...
-2026-02-22 13:55:05,899 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-22 13:55:06,392 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-22 13:55:06,855 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:55:07,565 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6846.447590500765
-2026-02-22 13:55:12,150 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-22 13:55:12,526 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-22 13:55:12,612 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:55:13,254 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.81741275104018
-2026-02-22 13:55:17,238 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-22 13:55:17,622 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-22 13:55:18,186 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:55:18,669 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17429.124126144277
-2026-02-22 13:55:23,287 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:55:23,854 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/ORCL?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:55:26,801 - __main__ - INFO - ✅ Successfully refreshed ORCL. New Price: 148.08
-2026-02-22 13:55:30,955 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:55:32,624 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/PG?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:55:35,103 - __main__ - INFO - ✅ Successfully refreshed PG. New Price: 160.78
-2026-02-22 13:55:38,568 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:55:39,760 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/IAU?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:55:42,437 - __main__ - INFO - ✅ Successfully refreshed IAU. New Price: 95.95
-2026-02-22 13:55:45,944 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:55:46,875 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/GLD?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:55:50,217 - __main__ - INFO - ✅ Successfully refreshed GLD. New Price: 468.62
-2026-02-22 13:55:53,662 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:55:55,990 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/NET?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:55:58,632 - __main__ - INFO - ✅ Successfully refreshed NET. New Price: 177.14
-2026-02-22 13:56:02,224 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:56:03,506 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AMD?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 13:56:06,338 - __main__ - INFO - ✅ Successfully refreshed AMD. New Price: 200.15
-2026-02-22 13:56:09,945 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 13:56:14,874 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 77.04
-2026-02-22 13:56:17,117 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-22 14:01:19,410 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, 002050, FCX, NVDA, FRO, TSLA, PLTR, SIDU...
-2026-02-22 14:01:20,397 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-22 14:01:20,760 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-22 14:01:21,275 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 14:01:21,966 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6847.878063863724
-2026-02-22 14:01:25,840 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-22 14:01:26,338 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-22 14:01:26,741 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 14:01:27,226 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.81417598572045
-2026-02-22 14:01:30,959 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-22 14:01:31,345 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-22 14:01:31,967 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 14:01:32,430 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17428.63802866641
-2026-02-22 14:01:36,748 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 14:01:41,873 - __main__ - INFO - ✅ Successfully refreshed 002050. New Price: 53.48
-2026-02-22 14:01:45,332 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 14:01:46,353 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/FCX?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 14:01:48,818 - __main__ - INFO - ✅ Successfully refreshed FCX. New Price: 64.34
-2026-02-22 14:01:52,452 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 14:01:53,151 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/NVDA?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 14:01:55,618 - __main__ - INFO - ✅ Successfully refreshed NVDA. New Price: 189.82
-2026-02-22 14:01:59,393 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 14:01:59,722 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/FRO?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 14:02:02,191 - __main__ - INFO - ✅ Successfully refreshed FRO. New Price: 34.72
-2026-02-22 14:02:05,726 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 14:02:06,875 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/TSLA?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 14:02:09,045 - __main__ - INFO - ✅ Successfully refreshed TSLA. New Price: 411.82
-2026-02-22 14:02:12,598 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 14:02:13,243 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/PLTR?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 14:02:15,646 - __main__ - INFO - ✅ Successfully refreshed PLTR. New Price: 135.24
-2026-02-22 14:02:19,099 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-22 14:02:19,856 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/SIDU?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-22 14:02:21,998 - __main__ - INFO - ✅ Successfully refreshed SIDU. New Price: 2.07
-2026-02-22 14:02:24,294 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-22 18:08:56,541 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-22 18:08:56,543 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-23 07:06:10,625 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-23 07:06:10,626 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-23 19:05:32,816 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-23 19:05:32,818 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 01:36:22,657 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, WMT, GOOGL, AMZN, SNDK, V, VZ, WFC...
-2026-02-24 01:36:23,784 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-24 01:36:24,371 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-24 01:36:24,675 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:36:25,652 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6845.939362942408
-2026-02-24 01:36:30,109 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-24 01:36:31,343 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:36:31,393 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-24 01:36:31,880 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.79430282567733
-2026-02-24 01:36:35,908 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-24 01:36:36,378 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-24 01:36:36,515 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:36:37,089 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17421.069658496996
-2026-02-24 01:36:42,287 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:36:42,367 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/WMT?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:36:45,970 - __main__ - INFO - ✅ Successfully refreshed WMT. New Price: 126.33
-2026-02-24 01:36:49,634 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:36:50,163 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/GOOGL?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:36:53,063 - __main__ - INFO - ✅ Successfully refreshed GOOGL. New Price: 314.38
-2026-02-24 01:36:57,194 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AMZN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:36:57,319 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:37:00,107 - __main__ - INFO - ✅ Successfully refreshed AMZN. New Price: 204.465
-2026-02-24 01:37:03,698 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:37:03,959 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/SNDK?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:37:06,909 - __main__ - INFO - ✅ Successfully refreshed SNDK. New Price: 683.87
-2026-02-24 01:37:10,612 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:37:11,802 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/V?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:37:15,140 - __main__ - INFO - ✅ Successfully refreshed V. New Price: 309.06
-2026-02-24 01:37:18,659 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:37:20,351 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/VZ?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:37:22,951 - __main__ - INFO - ✅ Successfully refreshed VZ. New Price: 50.1
-2026-02-24 01:37:26,430 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:37:29,022 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/WFC?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:37:33,324 - __main__ - INFO - ✅ Successfully refreshed WFC. New Price: 85.19
-2026-02-24 01:37:35,974 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 01:42:38,586 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, XOM, AMGN, AXP, BAC, AVGO, ASTS, BRK.B...
-2026-02-24 01:42:39,541 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-24 01:42:40,992 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-24 01:42:41,291 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:42:42,029 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6844.429131824275
-2026-02-24 01:42:46,113 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-24 01:42:46,508 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-24 01:42:47,028 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:42:47,738 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.79871285771222
-2026-02-24 01:42:53,073 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-24 01:42:54,293 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:42:54,342 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-24 01:42:55,279 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17424.168154633273
-2026-02-24 01:43:00,348 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:43:00,570 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/XOM?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:43:05,334 - __main__ - INFO - ✅ Successfully refreshed XOM. New Price: 150.335
-2026-02-24 01:43:09,224 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:43:10,991 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AMGN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:43:16,166 - __main__ - INFO - ✅ Successfully refreshed AMGN. New Price: 381.53
-2026-02-24 01:43:20,133 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:43:20,677 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AXP?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:43:23,777 - __main__ - INFO - ✅ Successfully refreshed AXP. New Price: 319.075
-2026-02-24 01:43:27,643 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:43:28,883 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/BAC?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:43:31,696 - __main__ - INFO - ✅ Successfully refreshed BAC. New Price: 51.285
-2026-02-24 01:43:35,324 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:43:35,851 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AVGO?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:43:38,933 - __main__ - INFO - ✅ Successfully refreshed AVGO. New Price: 330.36
-2026-02-24 01:43:42,568 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:43:44,492 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/ASTS?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:43:50,645 - __main__ - INFO - ✅ Successfully refreshed ASTS. New Price: 86.33
-2026-02-24 01:43:54,806 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:43:55,258 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/BRK.B?interval=1m&range=1d "HTTP/1.1 404 Not Found"
-2026-02-24 01:43:58,917 - __main__ - INFO - ✅ Successfully refreshed BRK.B. New Price: 498.2
-2026-02-24 01:44:01,342 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 01:49:03,868 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, IREN, DJIA, BA, ABBV, ABT, ACN, CAT...
-2026-02-24 01:49:05,072 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-24 01:49:05,538 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-24 01:49:05,712 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:49:06,448 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6842.021404848021
-2026-02-24 01:49:10,411 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-24 01:49:10,818 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-24 01:49:11,590 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:49:12,073 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.78994263833928
-2026-02-24 01:49:15,892 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-24 01:49:16,387 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-24 01:49:16,659 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:49:17,172 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17427.369803805956
-2026-02-24 01:49:21,765 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:49:22,378 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/IREN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:49:25,864 - __main__ - INFO - ✅ Successfully refreshed IREN. New Price: 42.04
-2026-02-24 01:49:29,620 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:49:30,009 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/DJIA?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:49:32,659 - __main__ - INFO - ✅ Successfully refreshed DJIA. New Price: 22.35
-2026-02-24 01:49:36,611 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:49:36,679 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/BA?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:49:39,368 - __main__ - INFO - ✅ Successfully refreshed BA. New Price: 229.6
-2026-02-24 01:49:43,479 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/ABBV?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:49:43,698 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:49:46,169 - __main__ - INFO - ✅ Successfully refreshed ABBV. New Price: 228.625
-2026-02-24 01:49:50,183 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:49:50,535 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/ABT?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:49:53,478 - __main__ - INFO - ✅ Successfully refreshed ABT. New Price: 114.69
-2026-02-24 01:49:57,180 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:49:58,030 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/ACN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:50:00,629 - __main__ - INFO - ✅ Successfully refreshed ACN. New Price: 207.258
-2026-02-24 01:50:04,157 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:50:05,217 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/CAT?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:50:08,622 - __main__ - INFO - ✅ Successfully refreshed CAT. New Price: 754.59
-2026-02-24 01:50:11,231 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 01:55:13,776 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, COST, CRM, CSCO, CVX, DHR, DIS, HD...
-2026-02-24 01:55:14,685 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-24 01:55:15,140 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-24 01:55:15,439 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:55:16,186 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6843.815356366334
-2026-02-24 01:55:20,251 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-24 01:55:20,674 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-24 01:55:21,055 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:55:21,640 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.75787668013677
-2026-02-24 01:55:25,644 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-24 01:55:26,901 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:55:26,902 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-24 01:55:28,760 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17425.626310833428
-2026-02-24 01:55:33,441 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:55:34,974 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/COST?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:55:38,562 - __main__ - INFO - ✅ Successfully refreshed COST. New Price: 986.775
-2026-02-24 01:55:42,160 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:55:42,686 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/CRM?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:55:45,399 - __main__ - INFO - ✅ Successfully refreshed CRM. New Price: 175.64
-2026-02-24 01:55:48,904 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:55:49,825 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/CSCO?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:55:52,755 - __main__ - INFO - ✅ Successfully refreshed CSCO. New Price: 77.315
-2026-02-24 01:55:56,467 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:55:56,879 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/CVX?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:55:59,462 - __main__ - INFO - ✅ Successfully refreshed CVX. New Price: 184.765
-2026-02-24 01:56:02,965 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:56:04,494 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/DHR?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:56:07,150 - __main__ - INFO - ✅ Successfully refreshed DHR. New Price: 209.79
-2026-02-24 01:56:10,703 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:56:11,279 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/DIS?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:56:13,983 - __main__ - INFO - ✅ Successfully refreshed DIS. New Price: 103.39
-2026-02-24 01:56:17,535 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 01:56:18,359 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/HD?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 01:56:21,048 - __main__ - INFO - ✅ Successfully refreshed HD. New Price: 377.145
-2026-02-24 01:56:23,281 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 02:01:25,918 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, IBM, INTC, INTU, JNJ, JPM, KO, LIN...
-2026-02-24 02:01:26,989 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-24 02:01:27,862 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:01:28,511 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-24 02:01:29,308 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6845.543287234582
-2026-02-24 02:01:33,634 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-24 02:01:34,464 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:01:34,468 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-24 02:01:35,172 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.76409230529578
-2026-02-24 02:01:40,446 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-24 02:01:40,935 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-24 02:01:41,612 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:01:42,445 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17417.759712822837
-2026-02-24 02:01:47,497 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:01:50,144 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/IBM?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:01:55,146 - __main__ - INFO - ✅ Successfully refreshed IBM. New Price: 240.68
-2026-02-24 02:01:59,028 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:02:00,495 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/INTC?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:02:03,567 - __main__ - INFO - ✅ Successfully refreshed INTC. New Price: 43.3
-2026-02-24 02:02:07,606 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:02:08,239 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/INTU?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:02:13,261 - __main__ - INFO - ✅ Successfully refreshed INTU. New Price: 351.865
-2026-02-24 02:02:18,523 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:02:20,509 - app.services.market_data - WARNING - JNJ 核心数据源获取超时
-2026-02-24 02:02:23,410 - __main__ - INFO - ✅ Successfully refreshed JNJ. New Price: 242.48447713328454
-2026-02-24 02:02:37,289 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:02:38,844 - app.services.market_data - WARNING - JPM 核心数据源获取超时
-2026-02-24 02:02:42,717 - __main__ - INFO - ✅ Successfully refreshed JPM. New Price: 310.9125624150759
-2026-02-24 02:02:50,470 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:02:53,547 - app.services.market_data - WARNING - KO 核心数据源获取超时
-2026-02-24 02:02:55,651 - __main__ - INFO - ✅ Successfully refreshed KO. New Price: 79.83212292939773
-2026-02-24 02:03:08,652 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:03:09,573 - app.services.market_data - WARNING - LIN 核心数据源获取超时
-2026-02-24 02:03:10,636 - __main__ - INFO - ✅ Successfully refreshed LIN. New Price: 496.52433406077864
-2026-02-24 02:03:12,638 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 02:08:15,213 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, JNJ, JPM, KO, LIN, LLY, MA, MCD...
-2026-02-24 02:08:16,124 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-24 02:08:16,484 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-24 02:08:17,160 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:08:17,940 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6844.677055493013
-2026-02-24 02:08:21,816 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-24 02:08:22,199 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-24 02:08:22,665 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:08:23,155 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.80282120456565
-2026-02-24 02:08:26,806 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-24 02:08:27,209 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-24 02:08:28,056 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:08:28,572 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17416.636729975136
-2026-02-24 02:08:33,130 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:08:33,660 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/JNJ?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:08:37,127 - __main__ - INFO - ✅ Successfully refreshed JNJ. New Price: 245.22
-2026-02-24 02:08:40,899 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:08:41,346 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/JPM?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:08:44,276 - __main__ - INFO - ✅ Successfully refreshed JPM. New Price: 297.525
-2026-02-24 02:08:47,910 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:08:48,428 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/KO?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:08:51,127 - __main__ - INFO - ✅ Successfully refreshed KO. New Price: 80.4
-2026-02-24 02:08:54,695 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:08:55,326 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/LIN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:08:57,967 - __main__ - INFO - ✅ Successfully refreshed LIN. New Price: 499.88
-2026-02-24 02:09:01,610 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:09:02,194 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/LLY?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:09:04,902 - __main__ - INFO - ✅ Successfully refreshed LLY. New Price: 1048.99
-2026-02-24 02:09:08,940 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:09:09,230 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/MA?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:09:12,207 - __main__ - INFO - ✅ Successfully refreshed MA. New Price: 495.62
-2026-02-24 02:09:16,126 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:09:16,421 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/MCD?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:09:19,094 - __main__ - INFO - ✅ Successfully refreshed MCD. New Price: 334.795
-2026-02-24 02:09:21,387 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 02:14:23,965 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, MRK, NFLX, PEP, PFE, QCOM, TMO, TMUS...
-2026-02-24 02:14:25,190 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-24 02:14:25,751 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-24 02:14:25,945 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:14:27,418 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6841.658876395611
-2026-02-24 02:14:31,514 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-24 02:14:31,965 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-24 02:14:32,296 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:14:32,821 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.77462482244539
-2026-02-24 02:14:36,461 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-24 02:14:36,938 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-24 02:14:37,599 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:14:38,096 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17416.977516330116
-2026-02-24 02:14:42,581 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:14:43,461 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/MRK?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:14:46,822 - __main__ - INFO - ✅ Successfully refreshed MRK. New Price: 123.51
-2026-02-24 02:14:50,741 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:14:51,181 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/NFLX?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:14:54,579 - __main__ - INFO - ✅ Successfully refreshed NFLX. New Price: 76.175
-2026-02-24 02:14:58,267 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:14:58,755 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/PEP?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:15:01,421 - __main__ - INFO - ✅ Successfully refreshed PEP. New Price: 167.58
-2026-02-24 02:15:05,022 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:15:05,713 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/PFE?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:15:08,422 - __main__ - INFO - ✅ Successfully refreshed PFE. New Price: 27.045
-2026-02-24 02:15:12,210 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:15:12,743 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/QCOM?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:15:15,633 - __main__ - INFO - ✅ Successfully refreshed QCOM. New Price: 140.11
-2026-02-24 02:15:19,310 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:15:19,973 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/TMO?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:15:22,798 - __main__ - INFO - ✅ Successfully refreshed TMO. New Price: 517.93
-2026-02-24 02:15:26,306 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:15:26,976 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/TMUS?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:15:29,625 - __main__ - INFO - ✅ Successfully refreshed TMUS. New Price: 218.57
-2026-02-24 02:15:31,876 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 02:20:34,370 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, TXN, UNH, RKLB, META, AAPL, MSFT, OKLO...
-2026-02-24 02:20:35,327 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-24 02:20:35,861 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-24 02:20:36,476 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:20:37,241 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6843.734062635096
-2026-02-24 02:20:41,308 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-24 02:20:41,710 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-24 02:20:42,237 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:20:42,725 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.74125924918953
-2026-02-24 02:20:46,482 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-24 02:20:46,870 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-24 02:20:47,474 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:20:47,978 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17423.62809590887
-2026-02-24 02:20:52,546 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:20:53,031 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/TXN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:20:56,864 - __main__ - INFO - ✅ Successfully refreshed TXN. New Price: 222.165
-2026-02-24 02:21:00,804 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:21:01,233 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/UNH?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:21:03,945 - __main__ - INFO - ✅ Successfully refreshed UNH. New Price: 283.968
-2026-02-24 02:21:07,577 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:21:08,068 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/RKLB?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:21:11,222 - __main__ - INFO - ✅ Successfully refreshed RKLB. New Price: 70.02
-2026-02-24 02:21:14,946 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:21:15,349 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/META?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:21:18,106 - __main__ - INFO - ✅ Successfully refreshed META. New Price: 639.32
-2026-02-24 02:21:21,594 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:21:22,297 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AAPL?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:21:24,973 - __main__ - INFO - ✅ Successfully refreshed AAPL. New Price: 267.665
-2026-02-24 02:21:29,341 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:21:29,611 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/MSFT?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:21:31,954 - __main__ - INFO - ✅ Successfully refreshed MSFT. New Price: 386.305
-2026-02-24 02:21:35,650 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:21:36,124 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/OKLO?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:21:38,516 - __main__ - INFO - ✅ Successfully refreshed OKLO. New Price: 62.03
-2026-02-24 02:21:40,760 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 02:26:43,330 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, SLV, AMAT, ORCL, PG, IAU, GLD, NET...
-2026-02-24 02:26:44,364 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-24 02:26:44,763 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-24 02:26:45,690 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:26:46,531 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6844.133575509803
-2026-02-24 02:26:50,814 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-24 02:26:51,172 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-24 02:26:51,590 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:26:52,082 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.72441050609373
-2026-02-24 02:26:55,916 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-24 02:26:56,273 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-24 02:26:56,748 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:26:57,248 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17422.791246356952
-2026-02-24 02:27:01,817 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:27:02,374 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/SLV?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:27:05,768 - __main__ - INFO - ✅ Successfully refreshed SLV. New Price: 79.37
-2026-02-24 02:27:09,393 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:27:09,948 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AMAT?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:27:12,487 - __main__ - INFO - ✅ Successfully refreshed AMAT. New Price: 371.65
-2026-02-24 02:27:16,010 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:27:16,494 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/ORCL?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:27:19,379 - __main__ - INFO - ✅ Successfully refreshed ORCL. New Price: 139.68
-2026-02-24 02:27:22,914 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:27:23,439 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/PG?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:27:26,059 - __main__ - INFO - ✅ Successfully refreshed PG. New Price: 164.91
-2026-02-24 02:27:29,762 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:27:29,991 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/IAU?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:27:32,603 - __main__ - INFO - ✅ Successfully refreshed IAU. New Price: 98.09
-2026-02-24 02:27:36,241 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:27:36,793 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/GLD?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:27:39,335 - __main__ - INFO - ✅ Successfully refreshed GLD. New Price: 478.83
-2026-02-24 02:27:43,139 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:27:43,442 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/NET?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:27:46,682 - __main__ - INFO - ✅ Successfully refreshed NET. New Price: 159.565
-2026-02-24 02:27:48,937 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 02:32:51,385 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, AMD, 002970, 002050, FCX, NVDA, FRO, TSLA...
-2026-02-24 02:32:52,317 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-24 02:32:52,863 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-24 02:32:53,250 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:32:54,056 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6842.379928325275
-2026-02-24 02:32:58,074 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-24 02:32:58,492 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-24 02:32:58,937 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:32:59,452 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.69378938070099
-2026-02-24 02:33:03,281 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-24 02:33:03,703 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-24 02:33:04,282 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:33:04,807 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17426.616104731434
-2026-02-24 02:33:09,462 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:33:10,017 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AMD?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:33:13,730 - __main__ - INFO - ✅ Successfully refreshed AMD. New Price: 195.43
-2026-02-24 02:33:17,408 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:33:22,324 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 77.04
-2026-02-24 02:33:25,855 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:33:31,519 - __main__ - INFO - ✅ Successfully refreshed 002050. New Price: 53.48
-2026-02-24 02:33:35,176 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:33:36,250 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/FCX?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:33:38,884 - __main__ - INFO - ✅ Successfully refreshed FCX. New Price: 65.355
-2026-02-24 02:33:42,496 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:33:42,963 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/NVDA?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:33:45,933 - __main__ - INFO - ✅ Successfully refreshed NVDA. New Price: 190.675
-2026-02-24 02:33:49,474 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:33:50,099 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/FRO?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:33:52,699 - __main__ - INFO - ✅ Successfully refreshed FRO. New Price: 34.915
-2026-02-24 02:33:56,284 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:33:56,735 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/TSLA?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:33:59,349 - __main__ - INFO - ✅ Successfully refreshed TSLA. New Price: 394.49
-2026-02-24 02:34:01,641 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 02:39:04,086 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, PLTR, SIDU, NBIS, WMT, GOOGL, AMZN, SNDK...
-2026-02-24 02:39:05,227 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-24 02:39:05,909 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:39:05,925 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-24 02:39:06,688 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6842.009067237163
-2026-02-24 02:39:10,858 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-24 02:39:11,280 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-24 02:39:11,644 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:39:12,135 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.73700153737381
-2026-02-24 02:39:15,975 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-24 02:39:16,377 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-24 02:39:16,908 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:39:17,433 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17433.83655487604
-2026-02-24 02:39:21,896 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:39:22,405 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/PLTR?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:39:25,750 - __main__ - INFO - ✅ Successfully refreshed PLTR. New Price: 130.277
-2026-02-24 02:39:29,706 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:39:29,745 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/SIDU?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:39:32,773 - __main__ - INFO - ✅ Successfully refreshed SIDU. New Price: 2.025
-2026-02-24 02:39:36,469 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:39:36,866 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/NBIS?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:39:39,438 - __main__ - INFO - ✅ Successfully refreshed NBIS. New Price: 99.62
-2026-02-24 02:39:43,097 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:39:43,680 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/WMT?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:39:46,407 - __main__ - INFO - ✅ Successfully refreshed WMT. New Price: 126.38
-2026-02-24 02:39:50,395 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:39:50,491 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/GOOGL?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:39:53,281 - __main__ - INFO - ✅ Successfully refreshed GOOGL. New Price: 312.535
-2026-02-24 02:39:56,886 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:39:57,413 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AMZN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:40:00,216 - __main__ - INFO - ✅ Successfully refreshed AMZN. New Price: 204.77
-2026-02-24 02:40:03,883 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:40:04,142 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/SNDK?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:40:06,863 - __main__ - INFO - ✅ Successfully refreshed SNDK. New Price: 670.645
-2026-02-24 02:40:09,130 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 02:45:11,671 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, V, VZ, WFC, XOM, AMGN, AXP, BAC...
-2026-02-24 02:45:12,640 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-24 02:45:13,061 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-24 02:45:13,589 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:45:14,491 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6844.885248776372
-2026-02-24 02:45:18,638 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-24 02:45:19,145 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-24 02:45:19,540 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:45:20,055 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.76157818688547
-2026-02-24 02:45:23,760 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-24 02:45:24,184 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-24 02:45:24,540 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:45:25,053 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17441.702625932674
-2026-02-24 02:45:29,692 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:45:30,255 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/V?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:45:33,551 - __main__ - INFO - ✅ Successfully refreshed V. New Price: 306.28
-2026-02-24 02:45:37,773 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/VZ?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:45:38,126 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:45:40,380 - __main__ - INFO - ✅ Successfully refreshed VZ. New Price: 49.773
-2026-02-24 02:45:44,183 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:45:44,783 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/WFC?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:45:47,571 - __main__ - INFO - ✅ Successfully refreshed WFC. New Price: 84.81
-2026-02-24 02:45:51,071 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:45:51,622 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/XOM?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:45:54,374 - __main__ - INFO - ✅ Successfully refreshed XOM. New Price: 150.22
-2026-02-24 02:45:58,080 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:45:58,721 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AMGN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:46:01,500 - __main__ - INFO - ✅ Successfully refreshed AMGN. New Price: 380.13
-2026-02-24 02:46:05,257 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:46:05,594 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AXP?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:46:08,455 - __main__ - INFO - ✅ Successfully refreshed AXP. New Price: 318.735
-2026-02-24 02:46:12,034 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:46:12,703 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/BAC?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:46:15,818 - __main__ - INFO - ✅ Successfully refreshed BAC. New Price: 51.325
-2026-02-24 02:46:18,093 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 02:51:20,566 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, AVGO, ASTS, BRK.B, IREN, DJIA, BA, ABBV...
-2026-02-24 02:51:21,733 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-24 02:51:22,313 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-24 02:51:22,597 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:51:23,358 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6844.689631369688
-2026-02-24 02:51:27,496 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-24 02:51:27,993 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-24 02:51:28,087 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:51:28,607 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.7912711285928
-2026-02-24 02:51:32,667 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-24 02:51:33,333 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:51:33,491 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-24 02:51:34,057 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17441.52462424907
-2026-02-24 02:51:38,951 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:51:39,545 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AVGO?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:51:44,162 - __main__ - INFO - ✅ Successfully refreshed AVGO. New Price: 326.36
-2026-02-24 02:51:47,655 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:51:48,188 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/ASTS?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:51:50,905 - __main__ - INFO - ✅ Successfully refreshed ASTS. New Price: 84.29
-2026-02-24 02:51:54,700 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:51:55,228 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/BRK.B?interval=1m&range=1d "HTTP/1.1 404 Not Found"
-2026-02-24 02:51:59,273 - __main__ - INFO - ✅ Successfully refreshed BRK.B. New Price: 498.2
-2026-02-24 02:52:03,488 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/IREN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:52:04,962 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:52:08,435 - __main__ - INFO - ✅ Successfully refreshed IREN. New Price: 42.095
-2026-02-24 02:52:12,061 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:52:12,332 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/DJIA?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:52:15,272 - __main__ - INFO - ✅ Successfully refreshed DJIA. New Price: 22.3155
-2026-02-24 02:52:18,812 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:52:19,613 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/BA?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:52:22,710 - __main__ - INFO - ✅ Successfully refreshed BA. New Price: 230.255
-2026-02-24 02:52:26,479 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:52:26,816 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/ABBV?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:52:29,604 - __main__ - INFO - ✅ Successfully refreshed ABBV. New Price: 228.37
-2026-02-24 02:52:31,867 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 02:57:34,445 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, ABT, ACN, CAT, COST, CRM, CSCO, CVX...
-2026-02-24 02:57:35,400 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-24 02:57:35,764 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-24 02:57:36,582 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:57:37,361 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6845.842537923838
-2026-02-24 02:57:41,394 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-24 02:57:41,798 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-24 02:57:42,420 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:57:42,920 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.81654626198758
-2026-02-24 02:57:46,606 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-24 02:57:47,179 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-24 02:57:47,314 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:57:47,947 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17444.015060288566
-2026-02-24 02:57:52,489 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:57:53,361 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/ABT?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:57:56,508 - __main__ - INFO - ✅ Successfully refreshed ABT. New Price: 114.931
-2026-02-24 02:58:00,055 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:58:01,294 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/ACN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:58:03,505 - __main__ - INFO - ✅ Successfully refreshed ACN. New Price: 203.58
-2026-02-24 02:58:07,084 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:58:07,920 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/CAT?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:58:10,599 - __main__ - INFO - ✅ Successfully refreshed CAT. New Price: 757.125
-2026-02-24 02:58:14,259 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:58:15,000 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/COST?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:58:17,251 - __main__ - INFO - ✅ Successfully refreshed COST. New Price: 987.09
-2026-02-24 02:58:20,789 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:58:21,952 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/CRM?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:58:24,312 - __main__ - INFO - ✅ Successfully refreshed CRM. New Price: 176.66
-2026-02-24 02:58:27,951 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:58:28,941 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/CSCO?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:58:31,190 - __main__ - INFO - ✅ Successfully refreshed CSCO. New Price: 77.54
-2026-02-24 02:58:34,827 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 02:58:35,931 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/CVX?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 02:58:38,631 - __main__ - INFO - ✅ Successfully refreshed CVX. New Price: 184.74
-2026-02-24 02:58:40,868 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 03:03:43,351 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, DHR, DIS, HD, IBM, INTC, INTU, JNJ...
-2026-02-24 03:03:44,489 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-24 03:03:44,987 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-24 03:03:45,043 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:03:45,824 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6843.857458151051
-2026-02-24 03:03:49,837 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-24 03:03:50,224 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-24 03:03:50,755 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:03:51,232 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.8329573830409
-2026-02-24 03:03:55,047 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-24 03:03:55,458 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-24 03:03:55,789 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:03:56,303 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17451.500425705675
-2026-02-24 03:04:00,829 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:04:01,742 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/DHR?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:04:05,121 - __main__ - INFO - ✅ Successfully refreshed DHR. New Price: 210.86
-2026-02-24 03:04:08,787 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:04:09,630 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/DIS?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:04:12,154 - __main__ - INFO - ✅ Successfully refreshed DIS. New Price: 104.11
-2026-02-24 03:04:15,944 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:04:16,814 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/HD?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:04:19,284 - __main__ - INFO - ✅ Successfully refreshed HD. New Price: 378.54
-2026-02-24 03:04:22,838 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:04:23,764 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/IBM?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:04:26,156 - __main__ - INFO - ✅ Successfully refreshed IBM. New Price: 229.97
-2026-02-24 03:04:29,878 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:04:30,564 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/INTC?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:04:33,339 - __main__ - INFO - ✅ Successfully refreshed INTC. New Price: 43.37
-2026-02-24 03:04:36,968 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:04:37,649 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/INTU?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:04:39,911 - __main__ - INFO - ✅ Successfully refreshed INTU. New Price: 356.13
-2026-02-24 03:04:43,498 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:04:44,547 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/JNJ?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:04:46,873 - __main__ - INFO - ✅ Successfully refreshed JNJ. New Price: 245.91
-2026-02-24 03:04:49,123 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 03:23:14,022 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 03:23:14,023 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 03:28:16,776 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, JPM, KO, LIN, LLY, MA, MCD, MRK...
-2026-02-24 03:28:17,896 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-24 03:28:18,451 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-24 03:28:18,668 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:28:19,457 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6841.814953413197
-2026-02-24 03:28:23,574 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-24 03:28:23,967 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-24 03:28:24,281 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:28:24,807 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.84653904533634
-2026-02-24 03:28:28,661 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-24 03:28:29,086 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-24 03:28:29,503 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:28:30,031 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17443.39601707773
-2026-02-24 03:28:34,739 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:28:35,473 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/JPM?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:28:39,025 - __main__ - INFO - ✅ Successfully refreshed JPM. New Price: 298.415
-2026-02-24 03:28:42,770 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:28:43,189 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/KO?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:28:45,861 - __main__ - INFO - ✅ Successfully refreshed KO. New Price: 80.795
-2026-02-24 03:28:49,672 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:28:50,241 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/LIN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:28:52,874 - __main__ - INFO - ✅ Successfully refreshed LIN. New Price: 497.38
-2026-02-24 03:28:56,535 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:28:57,505 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/LLY?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:29:00,526 - __main__ - INFO - ✅ Successfully refreshed LLY. New Price: 1047.85
-2026-02-24 03:29:04,216 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:29:04,661 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/MA?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:29:07,392 - __main__ - INFO - ✅ Successfully refreshed MA. New Price: 492.11
-2026-02-24 03:29:10,996 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:29:11,767 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/MCD?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:29:14,482 - __main__ - INFO - ✅ Successfully refreshed MCD. New Price: 334.86
-2026-02-24 03:29:18,052 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:29:18,811 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/MRK?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:29:21,777 - __main__ - INFO - ✅ Successfully refreshed MRK. New Price: 123.45
-2026-02-24 03:29:24,159 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 03:34:26,802 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, NFLX, PEP, PFE, QCOM, TMO, TMUS, TXN...
-2026-02-24 03:34:27,822 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-24 03:34:28,276 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-24 03:34:28,999 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:34:29,758 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6840.4352317787325
-2026-02-24 03:34:33,892 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-24 03:34:34,358 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-24 03:34:34,721 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:34:35,246 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.82363006979743
-2026-02-24 03:34:39,029 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-24 03:34:39,470 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-24 03:34:39,860 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:34:40,963 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17438.448805113603
-2026-02-24 03:34:47,110 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:34:48,031 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/NFLX?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:34:51,726 - __main__ - INFO - ✅ Successfully refreshed NFLX. New Price: 76.065
-2026-02-24 03:34:55,429 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:34:56,099 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/PEP?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:34:58,934 - __main__ - INFO - ✅ Successfully refreshed PEP. New Price: 168.42
-2026-02-24 03:35:02,644 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:35:03,424 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/PFE?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:35:06,561 - __main__ - INFO - ✅ Successfully refreshed PFE. New Price: 27.045
-2026-02-24 03:35:10,324 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:35:11,024 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/QCOM?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:35:14,240 - __main__ - INFO - ✅ Successfully refreshed QCOM. New Price: 140.08
-2026-02-24 03:35:17,869 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:35:19,164 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/TMO?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:35:22,265 - __main__ - INFO - ✅ Successfully refreshed TMO. New Price: 515.69
-2026-02-24 03:35:26,229 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:35:26,695 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/TMUS?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:35:29,672 - __main__ - INFO - ✅ Successfully refreshed TMUS. New Price: 219.68
-2026-02-24 03:35:33,297 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:35:34,144 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/TXN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:35:36,725 - __main__ - INFO - ✅ Successfully refreshed TXN. New Price: 220.49
-2026-02-24 03:35:38,973 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 03:40:41,686 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, UNH, RKLB, META, AAPL, MSFT, OKLO, SLV...
-2026-02-24 03:40:42,810 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-24 03:40:43,223 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-24 03:40:43,753 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:40:44,530 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6841.872744591419
-2026-02-24 03:40:48,624 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-24 03:40:49,113 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-24 03:40:49,479 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:40:50,217 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.86043500097502
-2026-02-24 03:40:54,079 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-24 03:40:54,513 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-24 03:40:54,825 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:40:55,351 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17443.497721237112
-2026-02-24 03:40:59,891 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:41:00,847 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/UNH?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:41:04,311 - __main__ - INFO - ✅ Successfully refreshed UNH. New Price: 282.81
-2026-02-24 03:41:07,854 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:41:08,466 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/RKLB?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:41:11,306 - __main__ - INFO - ✅ Successfully refreshed RKLB. New Price: 70.62
-2026-02-24 03:41:15,039 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:41:16,638 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/META?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:41:20,606 - __main__ - INFO - ✅ Successfully refreshed META. New Price: 637.25
-2026-02-24 03:41:24,764 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:41:25,603 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AAPL?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:41:28,414 - __main__ - INFO - ✅ Successfully refreshed AAPL. New Price: 266.585
-2026-02-24 03:41:32,692 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:41:33,638 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/MSFT?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:41:36,452 - __main__ - INFO - ✅ Successfully refreshed MSFT. New Price: 383.453
-2026-02-24 03:41:40,081 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:41:40,834 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/OKLO?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:41:43,655 - __main__ - INFO - ✅ Successfully refreshed OKLO. New Price: 62.72
-2026-02-24 03:41:47,702 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:41:49,347 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/SLV?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:41:52,238 - __main__ - INFO - ✅ Successfully refreshed SLV. New Price: 80.505
-2026-02-24 03:41:54,493 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 03:46:57,122 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, AMAT, ORCL, PG, IAU, GLD, NET, AMD...
-2026-02-24 03:46:58,013 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-24 03:46:58,529 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-24 03:46:58,917 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:47:00,005 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6841.161769191268
-2026-02-24 03:47:04,175 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-24 03:47:04,609 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-24 03:47:04,972 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:47:05,471 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.91508177159153
-2026-02-24 03:47:09,225 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-24 03:47:09,707 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-24 03:47:10,074 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:47:10,581 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17439.7289523624
-2026-02-24 03:47:15,872 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:47:16,533 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AMAT?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:47:20,082 - __main__ - INFO - ✅ Successfully refreshed AMAT. New Price: 372.25
-2026-02-24 03:47:23,640 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:47:24,231 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/ORCL?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:47:27,043 - __main__ - INFO - ✅ Successfully refreshed ORCL. New Price: 140.88
-2026-02-24 03:47:30,771 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:47:31,315 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/PG?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:47:34,027 - __main__ - INFO - ✅ Successfully refreshed PG. New Price: 164.985
-2026-02-24 03:47:37,671 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:47:38,367 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/IAU?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:47:41,030 - __main__ - INFO - ✅ Successfully refreshed IAU. New Price: 98.355
-2026-02-24 03:47:44,628 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:47:45,473 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/GLD?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:47:48,074 - __main__ - INFO - ✅ Successfully refreshed GLD. New Price: 480.37
-2026-02-24 03:47:51,781 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-24 03:47:52,501 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/NET?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-24 03:47:55,682 - __main__ - INFO - ✅ Successfully refreshed NET. New Price: 159.72
-2026-02-24 04:04:09,516 - __main__ - ERROR - ❌ Error fetching data for AMD: (sqlalchemy.dialects.postgresql.asyncpg.Error) <class 'asyncpg.exceptions.ConnectionDoesNotExistError'>: connection was closed in the middle of operation
-[SQL: SELECT market_data_cache.ticker, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.macd_hist_slope, market_data_cache.macd_cross, market_data_cache.macd_is_new_cross, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.adx_14, market_data_cache.pivot_point, market_data_cache.resistance_1, market_data_cache.resistance_2, market_data_cache.support_1, market_data_cache.support_2, market_data_cache.risk_reward_ratio, market_data_cache.is_ai_strategy, market_data_cache.market_status, market_data_cache.last_updated 
-FROM market_data_cache 
-WHERE market_data_cache.ticker = $1::VARCHAR]
-[parameters: ('AMD',)]
-(Background on this error at: https://sqlalche.me/e/20/dbapi)
-2026-02-24 04:04:11,520 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 05:09:02,646 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 05:09:02,647 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 05:43:59,066 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 05:43:59,067 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 06:09:25,962 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 06:09:25,963 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 06:14:25,969 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 06:14:25,970 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 06:19:25,976 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 06:19:25,978 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 06:24:25,995 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 06:24:25,996 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 06:29:26,004 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 06:29:26,004 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 06:34:26,011 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 06:34:26,012 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 06:39:26,020 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 06:39:26,021 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 06:44:26,028 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 06:44:26,030 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 06:49:26,049 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 06:49:26,049 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 06:54:26,054 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 06:54:26,056 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 06:59:26,063 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 06:59:26,065 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 07:04:26,071 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 07:04:26,072 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 07:09:26,080 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 07:09:26,081 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 07:14:26,088 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 07:14:26,090 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 07:19:26,097 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 07:19:26,098 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 07:24:26,106 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 07:24:26,108 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 07:29:26,115 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 07:29:26,116 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 07:34:26,123 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 07:34:26,125 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 07:39:26,133 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 07:39:26,135 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 07:50:26,771 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 07:50:26,771 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 09:24:33,730 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 09:24:33,731 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 12:17:33,080 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 12:17:33,081 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 15:58:08,321 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 15:58:08,322 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 20:30:25,824 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 20:30:25,825 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-24 23:41:36,790 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-24 23:41:36,792 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 00:59:14,305 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-25 00:59:14,306 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 01:25:29,877 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-25 01:25:29,879 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 01:48:37,041 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-25 01:48:37,042 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 02:08:33,719 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-25 02:08:33,721 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 03:03:55,917 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-25 03:03:55,919 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 04:43:52,368 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-25 04:43:52,369 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 05:55:08,503 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-25 05:55:08,503 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 07:18:22,761 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-25 07:18:22,763 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 11:33:51,002 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-25 11:33:51,004 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 15:23:54,415 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-25 15:23:54,416 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 15:46:01,190 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-25 15:46:01,191 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 17:00:17,326 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: unexpected connection_lost() call
-2026-02-25 17:00:17,329 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 17:05:22,350 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: unexpected connection_lost() call
-2026-02-25 17:05:22,353 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 17:10:22,357 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
-2026-02-25 17:10:22,359 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 17:15:39,161 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, AMD, 002970, 002050, FCX, NVDA, FRO, TSLA...
-2026-02-25 17:15:47,583 - app.services.market_data - WARNING - ^GSPC 核心数据源获取超时
-2026-02-25 17:15:48,870 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:15:51,633 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6842.672198370987
-2026-02-25 17:16:01,497 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-25 17:16:03,577 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:16:04,860 - app.services.market_data - WARNING - TEST_RRR 核心数据源获取超时
-2026-02-25 17:16:07,237 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.91327287022055
-2026-02-25 17:16:14,337 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-25 17:16:15,505 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:16:16,054 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-25 17:16:17,257 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17447.15926028136
-2026-02-25 17:16:24,512 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:16:27,113 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AMD?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:16:27,354 - app.services.market_data - WARNING - AMD 核心数据源获取超时
-2026-02-25 17:16:28,940 - __main__ - INFO - ✅ Successfully refreshed AMD. New Price: 195.50452273497922
-2026-02-25 17:16:37,202 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:16:39,225 - app.services.market_data - WARNING - 002970 核心数据源获取超时
-2026-02-25 17:16:39,901 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 77.01972497814654
-2026-02-25 17:16:44,912 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:16:45,092 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for 002050: HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61%2Cf116&ut=7eea3edcaed734bea9cbfc24409ed989&klt=101&fqt=1&secid=0.002050&beg=19700101&end=20500101 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
-2026-02-25 17:16:50,864 - __main__ - INFO - ✅ Successfully refreshed 002050. New Price: 52.15
-2026-02-25 17:16:54,620 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:16:55,238 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/FCX?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:16:58,869 - __main__ - INFO - ✅ Successfully refreshed FCX. New Price: 67.88
-2026-02-25 17:17:02,697 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:17:03,150 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/NVDA?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:17:06,521 - __main__ - INFO - ✅ Successfully refreshed NVDA. New Price: 192.85
-2026-02-25 17:17:10,417 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:17:10,667 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/FRO?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:17:13,880 - __main__ - INFO - ✅ Successfully refreshed FRO. New Price: 36.52
-2026-02-25 17:17:17,977 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:17:18,078 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/TSLA?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:17:21,095 - __main__ - INFO - ✅ Successfully refreshed TSLA. New Price: 409.38
-2026-02-25 17:17:23,409 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 17:22:34,259 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, AMD, 002970, PLTR, SIDU, NBIS, WMT, GOOGL...
-2026-02-25 17:22:38,769 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-25 17:22:38,931 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:22:39,251 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-25 17:22:40,234 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6844.361302098144
-2026-02-25 17:22:44,634 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-25 17:22:45,129 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-25 17:22:45,949 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:22:46,743 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.94054815959181
-2026-02-25 17:22:50,772 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-25 17:22:51,260 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-25 17:22:51,841 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:22:52,476 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17452.30507006491
-2026-02-25 17:22:57,513 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:22:57,916 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AMD?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:23:02,061 - __main__ - INFO - ✅ Successfully refreshed AMD. New Price: 213.84
-2026-02-25 17:23:05,881 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:23:06,168 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for 002970: HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61%2Cf116&ut=7eea3edcaed734bea9cbfc24409ed989&klt=101&fqt=1&secid=0.002970&beg=19700101&end=20500101 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
-2026-02-25 17:23:07,952 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 76.99149468871504
-2026-02-25 17:23:13,195 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:23:13,758 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/PLTR?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:23:16,821 - __main__ - INFO - ✅ Successfully refreshed PLTR. New Price: 128.84
-2026-02-25 17:23:20,706 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:23:21,410 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/SIDU?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:23:24,675 - __main__ - INFO - ✅ Successfully refreshed SIDU. New Price: 2.1
-2026-02-25 17:23:28,542 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:23:28,867 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/NBIS?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:23:32,085 - __main__ - INFO - ✅ Successfully refreshed NBIS. New Price: 102.58
-2026-02-25 17:23:36,069 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:23:36,893 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/WMT?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:23:40,690 - __main__ - INFO - ✅ Successfully refreshed WMT. New Price: 126.75
-2026-02-25 17:23:44,723 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:23:45,130 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/GOOGL?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:23:48,122 - __main__ - INFO - ✅ Successfully refreshed GOOGL. New Price: 310.9
-2026-02-25 17:23:50,428 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 17:28:58,605 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, NDX, 002970, AMZN, SNDK, V, VZ, WFC, XOM...
-2026-02-25 17:29:00,810 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-25 17:29:01,343 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-25 17:29:01,570 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:29:02,699 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6842.83440435865
-2026-02-25 17:29:07,448 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-25 17:29:07,903 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-25 17:29:08,131 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:29:08,781 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.88689189736981
-2026-02-25 17:29:12,856 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for NDX: list index out of range
-2026-02-25 17:29:13,362 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
-2026-02-25 17:29:13,848 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:29:14,523 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 17460.07408384221
-2026-02-25 17:29:19,519 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:29:19,614 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for 002970: HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61%2Cf116&ut=7eea3edcaed734bea9cbfc24409ed989&klt=101&fqt=1&secid=0.002970&beg=19700101&end=20500101 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
-2026-02-25 17:29:21,345 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 76.98407127617456
-2026-02-25 17:29:26,463 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:29:27,111 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AMZN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:29:31,404 - __main__ - INFO - ✅ Successfully refreshed AMZN. New Price: 208.56
-2026-02-25 17:29:35,335 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:29:35,750 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/SNDK?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:29:38,585 - __main__ - INFO - ✅ Successfully refreshed SNDK. New Price: 638.52
-2026-02-25 17:29:42,323 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:29:42,998 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/V?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:29:46,725 - __main__ - INFO - ✅ Successfully refreshed V. New Price: 307.22
-2026-02-25 17:29:50,504 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:29:51,342 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/VZ?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:29:54,781 - __main__ - INFO - ✅ Successfully refreshed VZ. New Price: 49.86
-2026-02-25 17:29:58,638 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:29:59,207 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/WFC?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:30:02,443 - __main__ - INFO - ✅ Successfully refreshed WFC. New Price: 84.57
-2026-02-25 17:30:06,186 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:30:06,878 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/XOM?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:30:10,011 - __main__ - INFO - ✅ Successfully refreshed XOM. New Price: 149.26
-2026-02-25 17:30:12,397 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 17:35:15,428 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, 002970, AMGN, AXP, DJIA, ABT, ACN, DIS, 002050...
-2026-02-25 17:35:16,488 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-25 17:35:16,950 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-25 17:35:17,459 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:35:18,375 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6845.212302706086
-2026-02-25 17:35:22,590 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-25 17:35:23,096 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-25 17:35:23,543 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:35:24,191 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.9031904754645
-2026-02-25 17:35:29,214 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:35:29,290 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for 002970: HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61%2Cf116&ut=7eea3edcaed734bea9cbfc24409ed989&klt=101&fqt=1&secid=0.002970&beg=19700101&end=20500101 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
-2026-02-25 17:35:30,927 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 76.98027067052146
-2026-02-25 17:35:36,249 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:35:36,587 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AMGN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:35:40,802 - __main__ - INFO - ✅ Successfully refreshed AMGN. New Price: 382.87
-2026-02-25 17:35:44,717 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:35:45,351 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AXP?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:35:49,052 - __main__ - INFO - ✅ Successfully refreshed AXP. New Price: 320.48
-2026-02-25 17:35:53,051 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:35:53,258 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/DJIA?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:35:58,039 - __main__ - INFO - ✅ Successfully refreshed DJIA. New Price: 22.417
-2026-02-25 17:36:01,872 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:36:02,461 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/ABT?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:36:06,038 - __main__ - INFO - ✅ Successfully refreshed ABT. New Price: 114.58
-2026-02-25 17:36:09,869 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:36:10,633 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/ACN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:36:13,476 - __main__ - INFO - ✅ Successfully refreshed ACN. New Price: 196.73
-2026-02-25 17:36:17,294 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:36:17,890 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/DIS?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:36:21,088 - __main__ - INFO - ✅ Successfully refreshed DIS. New Price: 106.05
-2026-02-25 17:36:25,021 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:36:25,178 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for 002050: HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61%2Cf116&ut=7eea3edcaed734bea9cbfc24409ed989&klt=101&fqt=1&secid=0.002050&beg=19700101&end=20500101 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
-2026-02-25 17:36:26,818 - __main__ - INFO - ✅ Successfully refreshed 002050. New Price: 52.14952362193682
-2026-02-25 17:36:28,820 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 17:41:32,146 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, 002970, 002050, FCX, FRO, NVDA, AMD, PLTR, SIDU...
-2026-02-25 17:41:33,328 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-25 17:41:33,835 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-25 17:41:34,207 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:41:35,164 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6845.097896463
-2026-02-25 17:41:39,622 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-25 17:41:40,157 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-25 17:41:40,511 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:41:41,141 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.97406680248407
-2026-02-25 17:41:46,222 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:41:46,440 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for 002970: HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61%2Cf116&ut=7eea3edcaed734bea9cbfc24409ed989&klt=101&fqt=1&secid=0.002970&beg=19700101&end=20500101 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
-2026-02-25 17:41:48,214 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 76.99367883973134
-2026-02-25 17:41:53,179 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:41:53,457 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for 002050: HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61%2Cf116&ut=7eea3edcaed734bea9cbfc24409ed989&klt=101&fqt=1&secid=0.002050&beg=19700101&end=20500101 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
-2026-02-25 17:41:55,480 - __main__ - INFO - ✅ Successfully refreshed 002050. New Price: 52.151895626350026
-2026-02-25 17:42:00,439 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:42:01,352 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/FCX?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:42:05,354 - __main__ - INFO - ✅ Successfully refreshed FCX. New Price: 67.88
-2026-02-25 17:42:09,057 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:42:09,798 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/FRO?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:42:12,895 - __main__ - INFO - ✅ Successfully refreshed FRO. New Price: 36.52
-2026-02-25 17:42:16,688 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:42:17,218 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/NVDA?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:42:20,317 - __main__ - INFO - ✅ Successfully refreshed NVDA. New Price: 192.85
-2026-02-25 17:42:24,175 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:42:24,597 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AMD?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:42:27,722 - __main__ - INFO - ✅ Successfully refreshed AMD. New Price: 213.84
-2026-02-25 17:42:31,640 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:42:31,992 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/PLTR?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:42:35,094 - __main__ - INFO - ✅ Successfully refreshed PLTR. New Price: 128.84
-2026-02-25 17:42:38,879 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:42:39,287 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/SIDU?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:42:42,280 - __main__ - INFO - ✅ Successfully refreshed SIDU. New Price: 2.1
-2026-02-25 17:42:44,595 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 17:47:47,725 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, 002970, 002050, NBIS, WMT, GOOGL, AMZN, SNDK, V...
-2026-02-25 17:47:48,804 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-25 17:47:49,264 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-25 17:47:49,816 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:47:50,762 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6845.985153832229
-2026-02-25 17:47:55,142 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-25 17:47:55,623 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-25 17:47:56,674 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:47:57,320 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.92033387090052
-2026-02-25 17:48:02,408 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:48:02,523 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for 002970: HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61%2Cf116&ut=7eea3edcaed734bea9cbfc24409ed989&klt=101&fqt=1&secid=0.002970&beg=19700101&end=20500101 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
-2026-02-25 17:48:04,236 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 76.9905678499444
-2026-02-25 17:48:09,497 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for 002050: HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61%2Cf116&ut=7eea3edcaed734bea9cbfc24409ed989&klt=101&fqt=1&secid=0.002050&beg=19700101&end=20500101 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
-2026-02-25 17:48:09,572 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:48:11,164 - __main__ - INFO - ✅ Successfully refreshed 002050. New Price: 52.147772075586786
-2026-02-25 17:48:16,320 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:48:16,629 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/NBIS?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:48:20,756 - __main__ - INFO - ✅ Successfully refreshed NBIS. New Price: 102.58
-2026-02-25 17:48:24,494 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:48:25,384 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/WMT?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:48:28,609 - __main__ - INFO - ✅ Successfully refreshed WMT. New Price: 126.75
-2026-02-25 17:48:32,545 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:48:32,737 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/GOOGL?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:48:35,976 - __main__ - INFO - ✅ Successfully refreshed GOOGL. New Price: 310.9
-2026-02-25 17:48:39,877 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:48:40,390 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/AMZN?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:48:43,638 - __main__ - INFO - ✅ Successfully refreshed AMZN. New Price: 208.56
-2026-02-25 17:48:47,460 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:48:47,699 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/SNDK?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:48:50,796 - __main__ - INFO - ✅ Successfully refreshed SNDK. New Price: 638.52
-2026-02-25 17:48:54,540 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:48:55,135 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/V?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:48:58,159 - __main__ - INFO - ✅ Successfully refreshed V. New Price: 307.22
-2026-02-25 17:49:00,460 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-02-25 17:54:03,584 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: ^GSPC, TEST_RRR, 002970, 002050, VZ, WFC, XOM, PG, IAU, DHR...
-2026-02-25 17:54:04,756 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for ^GSPC: list index out of range
-2026-02-25 17:54:05,297 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
-2026-02-25 17:54:05,802 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:54:06,748 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6842.757443189862
-2026-02-25 17:54:11,187 - app.services.market_providers.akshare - ERROR - AkShare _get_us_quote error for TEST_RRR: list index out of range
-2026-02-25 17:54:11,684 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
-2026-02-25 17:54:12,116 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:54:12,752 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 109.91193540115454
-2026-02-25 17:54:17,895 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:54:18,033 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for 002970: HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61%2Cf116&ut=7eea3edcaed734bea9cbfc24409ed989&klt=101&fqt=1&secid=0.002970&beg=19700101&end=20500101 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
-2026-02-25 17:54:19,686 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 76.89359734985416
-2026-02-25 17:54:24,756 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:54:24,961 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for 002050: HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61%2Cf116&ut=7eea3edcaed734bea9cbfc24409ed989&klt=101&fqt=1&secid=0.002050&beg=19700101&end=20500101 (Caused by ProxyError('Unable to connect to proxy', RemoteDisconnected('Remote end closed connection without response')))
-2026-02-25 17:54:26,772 - __main__ - INFO - ✅ Successfully refreshed 002050. New Price: 52.17291583777427
-2026-02-25 17:54:31,906 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:54:32,346 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/VZ?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:54:36,395 - __main__ - INFO - ✅ Successfully refreshed VZ. New Price: 49.86
-2026-02-25 17:54:40,171 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:54:41,171 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/WFC?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:54:44,379 - __main__ - INFO - ✅ Successfully refreshed WFC. New Price: 84.57
-2026-02-25 17:54:48,257 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:54:48,866 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/XOM?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:54:53,901 - __main__ - INFO - ✅ Successfully refreshed XOM. New Price: 149.26
-2026-02-25 17:54:57,794 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:54:58,696 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/PG?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:55:01,916 - __main__ - INFO - ✅ Successfully refreshed PG. New Price: 165.28
-2026-02-25 17:55:05,842 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:55:06,238 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/IAU?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:55:09,307 - __main__ - INFO - ✅ Successfully refreshed IAU. New Price: 97.2
-2026-02-25 17:55:13,197 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
-2026-02-25 17:55:13,625 - httpx - INFO - HTTP Request: GET https://query2.finance.yahoo.com/v8/finance/chart/DHR?interval=1m&range=1d "HTTP/1.1 200 OK"
-2026-02-25 17:55:16,754 - __main__ - INFO - ✅ Successfully refreshed DHR. New Price: 209.19
-2026-02-25 17:55:19,061 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-02-27 14:15:17,573 - __main__ - INFO - 🚀 Starting auto-refresh background job...
+2026-02-27 14:15:20,512 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, 002050, BRK.B, ABBV, MA, AVGO, NET, MSFT, QCOM, ^GSPC...
+2026-02-27 14:15:22,446 - yfinance - ERROR - HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: TEST_RRR"}}}
+2026-02-27 14:15:23,375 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-02-27 14:15:23,376 - app.services.market_providers.tavily - ERROR - Tavily get_news error for TEST_RRR: Client error '432 ' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/432
+2026-02-27 14:15:23,489 - yfinance - ERROR - HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: TEST_RRR"}}}
+2026-02-27 14:15:23,492 - yfinance - ERROR - HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: TEST_RRR"}}}
+2026-02-27 14:15:23,500 - yfinance - ERROR - HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: TEST_RRR"}}}
+2026-02-27 14:15:23,795 - app.services.market_providers.yfinance - INFO - Fundamental fields for TEST_RRR: marketCap=None, trailingPE=None, forwardPE=None
+2026-02-27 14:15:24,415 - yfinance - ERROR - $TEST_RRR: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 14:15:24,881 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 111.22034823068051
+2026-02-27 14:15:27,995 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for 002050: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-27 14:15:28,579 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-02-27 14:15:28,580 - app.services.market_providers.tavily - ERROR - Tavily get_news error for 002050: Client error '432 ' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/432
+2026-02-27 14:15:32,875 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-27 14:15:33,011 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-27 14:15:33,477 - __main__ - INFO - ✅ Successfully refreshed 002050. New Price: 52.30647329695827
+2026-02-27 14:15:37,683 - yfinance - ERROR - $BRK.B: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 14:15:38,420 - app.services.market_providers.yfinance - INFO - Fundamental fields for BRK.B: marketCap=None, trailingPE=None, forwardPE=None
+2026-02-27 14:15:38,429 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-02-27 14:15:38,430 - app.services.market_providers.tavily - ERROR - Tavily get_news error for BRK.B: Client error '432 ' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/432
+2026-02-27 14:15:38,466 - yfinance - ERROR - $BRK.B: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 14:15:38,859 - __main__ - INFO - ✅ Successfully refreshed BRK.B. New Price: 494.6663313315315
+2026-02-27 14:15:42,197 - app.services.market_providers.yfinance - INFO - get_full_data for ABBV extracted fundamental: sector='Healthcare' industry='Drug Manufacturers - General' market_cap=397289881600.0 pe_ratio=95.207634 forward_pe=13.9447365 eps=2.36 dividend_yield=3.0 beta=0.334 fifty_two_week_high=244.81 fifty_two_week_low=164.39
+2026-02-27 14:15:42,511 - app.services.market_data - INFO - Syncing fundamental for ABBV: market_cap=397289881600.0, PE=95.207634
+2026-02-27 14:15:44,243 - __main__ - INFO - ✅ Successfully refreshed ABBV. New Price: 224.69
+2026-02-27 14:15:46,955 - app.services.market_providers.yfinance - INFO - get_full_data for MA extracted fundamental: sector='Financial Services' industry='Credit Services' market_cap=459400183808.0 pe_ratio=31.160412 forward_pe=22.75822 eps=16.52 dividend_yield=0.68 beta=0.821 fifty_two_week_high=601.77 fifty_two_week_low=465.59
+2026-02-27 14:15:47,113 - app.services.market_data - INFO - Syncing fundamental for MA: market_cap=459400183808.0, PE=31.160412
+2026-02-27 14:15:48,519 - __main__ - INFO - ✅ Successfully refreshed MA. New Price: 514.77
+2026-02-27 14:15:51,247 - app.services.market_providers.yfinance - INFO - get_full_data for AVGO extracted fundamental: sector='Technology' industry='Semiconductors' market_cap=1525267824640.0 pe_ratio=67.58403 forward_pe=22.157175 eps=4.76 dividend_yield=0.81 beta=1.221 fifty_two_week_high=414.61 fifty_two_week_low=138.1
+2026-02-27 14:15:51,408 - app.services.market_data - INFO - Syncing fundamental for AVGO: market_cap=1525267824640.0, PE=67.58403
+2026-02-27 14:15:52,989 - __main__ - INFO - ✅ Successfully refreshed AVGO. New Price: 321.7
+2026-02-27 14:15:55,712 - app.services.market_providers.yfinance - INFO - get_full_data for NET extracted fundamental: sector='Technology' industry='Software - Infrastructure' market_cap=61460586496.0 pe_ratio=120.88369 forward_pe=120.88369 eps=-0.3 dividend_yield=None beta=1.98 fifty_two_week_high=260.0 fifty_two_week_low=89.42
+2026-02-27 14:15:55,872 - app.services.market_data - INFO - Syncing fundamental for NET: market_cap=61460586496.0, PE=120.88369
+2026-02-27 14:15:57,280 - __main__ - INFO - ✅ Successfully refreshed NET. New Price: 174.66
+2026-02-27 14:15:59,993 - app.services.market_providers.yfinance - INFO - get_full_data for MSFT extracted fundamental: sector='Technology' industry='Software - Infrastructure' market_cap=2985734963200.0 pe_ratio=25.123203 forward_pe=21.311869 eps=15.99 dividend_yield=0.91 beta=1.084 fifty_two_week_high=555.45 fifty_two_week_low=344.79
+2026-02-27 14:16:00,153 - app.services.market_data - INFO - Syncing fundamental for MSFT: market_cap=2985734963200.0, PE=25.123203
+2026-02-27 14:16:01,572 - __main__ - INFO - ✅ Successfully refreshed MSFT. New Price: 401.72
+2026-02-27 14:16:04,313 - app.services.market_providers.yfinance - INFO - get_full_data for QCOM extracted fundamental: sector='Technology' industry='Semiconductors' market_cap=155496677376.0 pe_ratio=29.352821 forward_pe=12.959707 eps=4.96 dividend_yield=2.45 beta=1.238 fifty_two_week_high=205.95 fifty_two_week_low=120.8
+2026-02-27 14:16:04,472 - app.services.market_data - INFO - Syncing fundamental for QCOM: market_cap=155496677376.0, PE=29.352821
+2026-02-27 14:16:05,894 - __main__ - INFO - ✅ Successfully refreshed QCOM. New Price: 145.59
+2026-02-27 14:16:08,609 - app.services.market_providers.yfinance - INFO - get_full_data for ^GSPC extracted fundamental: sector=None industry=None market_cap=None pe_ratio=None forward_pe=None eps=None dividend_yield=None beta=None fifty_two_week_high=7002.28 fifty_two_week_low=4835.04
+2026-02-27 14:16:08,769 - app.services.market_data - INFO - Syncing fundamental for ^GSPC: market_cap=None, PE=None
+2026-02-27 14:16:10,188 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6908.86
+2026-02-27 14:16:12,347 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-02-27 14:21:13,941 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, BRK.B, 002970, CR, AMGN, PG, AAPL, FRO, BAC, VZ...
+2026-02-27 14:21:15,238 - yfinance - ERROR - $TEST_RRR: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 14:21:15,239 - yfinance - ERROR - HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: TEST_RRR"}}}
+2026-02-27 14:21:16,307 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-02-27 14:21:16,311 - app.services.market_providers.tavily - ERROR - Tavily get_news error for TEST_RRR: Client error '432 ' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/432
+2026-02-27 14:21:16,361 - yfinance - ERROR - HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: TEST_RRR"}}}
+2026-02-27 14:21:16,370 - yfinance - ERROR - $TEST_RRR: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 14:21:16,493 - yfinance - ERROR - HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: TEST_RRR"}}}
+2026-02-27 14:21:16,663 - app.services.market_providers.yfinance - INFO - Fundamental fields for TEST_RRR: marketCap=None, trailingPE=None, forwardPE=None
+2026-02-27 14:21:17,279 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 111.22685338187489
+2026-02-27 14:21:20,939 - yfinance - ERROR - $BRK.B: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 14:21:21,284 - app.services.market_providers.yfinance - INFO - Fundamental fields for BRK.B: marketCap=None, trailingPE=None, forwardPE=None
+2026-02-27 14:21:21,718 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-02-27 14:21:21,720 - app.services.market_providers.tavily - ERROR - Tavily get_news error for BRK.B: Client error '432 ' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/432
+2026-02-27 14:21:21,770 - yfinance - ERROR - $BRK.B: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 14:21:22,090 - __main__ - INFO - ✅ Successfully refreshed BRK.B. New Price: 494.65916560234524
+2026-02-27 14:21:25,043 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for 002970: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-27 14:21:25,652 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-02-27 14:21:25,653 - app.services.market_providers.tavily - ERROR - Tavily get_news error for 002970: Client error '432 ' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/432
+2026-02-27 14:21:30,160 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-27 14:21:30,477 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-27 14:21:30,953 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 81.90537215933672
+2026-02-27 14:21:34,271 - app.services.market_providers.yfinance - INFO - get_full_data for CR extracted fundamental: sector='Industrials' industry='Specialty Industrial Machinery' market_cap=11761284096.0 pe_ratio=36.07774 forward_pe=27.037119 eps=5.66 dividend_yield=0.46 beta=1.167 fifty_two_week_high=214.31 fifty_two_week_low=127.04
+2026-02-27 14:21:34,594 - app.services.market_data - INFO - Syncing fundamental for CR: market_cap=11761284096.0, PE=36.07774
+2026-02-27 14:21:36,345 - __main__ - INFO - ✅ Successfully refreshed CR. New Price: 204.2
+2026-02-27 14:21:39,027 - app.services.market_providers.yfinance - INFO - get_full_data for AMGN extracted fundamental: sector='Healthcare' industry='Drug Manufacturers - General' market_cap=204484526080.0 pe_ratio=26.675808 forward_pe=16.310442 eps=14.22 dividend_yield=2.55 beta=0.472 fifty_two_week_high=387.49 fifty_two_week_low=261.43
+2026-02-27 14:21:39,193 - app.services.market_data - INFO - Syncing fundamental for AMGN: market_cap=204484526080.0, PE=26.675808
+2026-02-27 14:21:40,788 - __main__ - INFO - ✅ Successfully refreshed AMGN. New Price: 379.33
+2026-02-27 14:21:43,468 - app.services.market_providers.yfinance - INFO - get_full_data for PG extracted fundamental: sector='Consumer Defensive' industry='Household & Personal Products' market_cap=382640095232.0 pe_ratio=24.25926 forward_pe=22.337627 eps=6.75 dividend_yield=2.58 beta=0.38 fifty_two_week_high=179.99 fifty_two_week_low=137.62
+2026-02-27 14:21:43,633 - app.services.market_data - INFO - Syncing fundamental for PG: market_cap=382640095232.0, PE=24.25926
+2026-02-27 14:21:45,261 - __main__ - INFO - ✅ Successfully refreshed PG. New Price: 163.75
+2026-02-27 14:21:47,937 - app.services.market_providers.yfinance - INFO - get_full_data for AAPL extracted fundamental: sector='Technology' industry='Consumer Electronics' market_cap=4011799085056.0 pe_ratio=34.594425 forward_pe=29.352085 eps=7.89 dividend_yield=0.38 beta=1.107 fifty_two_week_high=288.62 fifty_two_week_low=169.21
+2026-02-27 14:21:48,098 - app.services.market_data - INFO - Syncing fundamental for AAPL: market_cap=4011799085056.0, PE=34.594425
+2026-02-27 14:21:49,538 - __main__ - INFO - ✅ Successfully refreshed AAPL. New Price: 272.95
+2026-02-27 14:21:52,222 - app.services.market_providers.yfinance - INFO - get_full_data for FRO extracted fundamental: sector='Energy' industry='Oil & Gas Midstream' market_cap=8299381248.0 pe_ratio=38.040813 forward_pe=10.797284 eps=0.98 dividend_yield=2.49 beta=0.049 fifty_two_week_high=37.93 fifty_two_week_low=12.4
+2026-02-27 14:21:52,394 - app.services.market_data - INFO - Syncing fundamental for FRO: market_cap=8299381248.0, PE=38.040813
+2026-02-27 14:21:53,828 - __main__ - INFO - ✅ Successfully refreshed FRO. New Price: 37.28
+2026-02-27 14:21:56,648 - app.services.market_providers.yfinance - INFO - get_full_data for BAC extracted fundamental: sector='Financial Services' industry='Banks - Diversified' market_cap=381920509952.0 pe_ratio=13.727035 forward_pe=10.525828 eps=3.81 dividend_yield=2.1 beta=1.273 fifty_two_week_high=57.55 fifty_two_week_low=33.07
+2026-02-27 14:21:56,809 - app.services.market_data - INFO - Syncing fundamental for BAC: market_cap=381920509952.0, PE=13.727035
+2026-02-27 14:21:58,253 - __main__ - INFO - ✅ Successfully refreshed BAC. New Price: 52.3
+2026-02-27 14:22:01,069 - app.services.market_providers.yfinance - INFO - get_full_data for VZ extracted fundamental: sector='Communication Services' industry='Telecom Services' market_cap=206202585088.0 pe_ratio=12.041872 forward_pe=9.313694 eps=4.06 dividend_yield=5.79 beta=0.316 fifty_two_week_high=50.48 fifty_two_week_low=38.39
+2026-02-27 14:22:01,235 - app.services.market_data - INFO - Syncing fundamental for VZ: market_cap=206202585088.0, PE=12.041872
+2026-02-27 14:22:02,872 - __main__ - INFO - ✅ Successfully refreshed VZ. New Price: 48.89
+2026-02-27 14:22:05,033 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-02-27 14:27:06,686 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, BRK.B, 002970, AMAT, TXN, INTU, LLY, WFC, TSLA, KO...
+2026-02-27 14:27:07,848 - yfinance - ERROR - $TEST_RRR: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 14:27:07,978 - yfinance - ERROR - HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: TEST_RRR"}}}
+2026-02-27 14:27:09,046 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-02-27 14:27:09,048 - app.services.market_providers.tavily - ERROR - Tavily get_news error for TEST_RRR: Client error '432 ' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/432
+2026-02-27 14:27:09,097 - yfinance - ERROR - $TEST_RRR: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 14:27:09,097 - yfinance - ERROR - HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: TEST_RRR"}}}
+2026-02-27 14:27:09,148 - yfinance - ERROR - HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: TEST_RRR"}}}
+2026-02-27 14:27:09,394 - app.services.market_providers.yfinance - INFO - Fundamental fields for TEST_RRR: marketCap=None, trailingPE=None, forwardPE=None
+2026-02-27 14:27:09,942 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 111.19457867956845
+2026-02-27 14:27:13,609 - yfinance - ERROR - $BRK.B: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 14:27:14,408 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-02-27 14:27:14,410 - app.services.market_providers.tavily - ERROR - Tavily get_news error for BRK.B: Client error '432 ' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/432
+2026-02-27 14:27:14,493 - yfinance - ERROR - $BRK.B: possibly delisted; no price data found  (period=200d) (Yahoo error = "No data found, symbol may be delisted")
+2026-02-27 14:27:14,495 - app.services.market_providers.yfinance - INFO - Fundamental fields for BRK.B: marketCap=None, trailingPE=None, forwardPE=None
+2026-02-27 14:27:14,830 - __main__ - INFO - ✅ Successfully refreshed BRK.B. New Price: 494.8369469706543
+2026-02-27 14:27:17,830 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for 002970: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-27 14:27:18,412 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-02-27 14:27:18,414 - app.services.market_providers.tavily - ERROR - Tavily get_news error for 002970: Client error '432 ' for url 'https://api.tavily.com/search'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/432
+2026-02-27 14:27:22,896 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-27 14:27:23,035 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-27 14:27:23,546 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 81.87541176649869
+2026-02-27 14:27:26,875 - app.services.market_providers.yfinance - INFO - get_full_data for AMAT extracted fundamental: sector='Technology' industry='Semiconductor Equipment & Materials' market_cap=298175102976.0 pe_ratio=38.456497 forward_pe=27.247768 eps=9.77 dividend_yield=0.49 beta=1.677 fifty_two_week_high=395.95 fifty_two_week_low=123.74
+2026-02-27 14:27:27,201 - app.services.market_data - INFO - Syncing fundamental for AMAT: market_cap=298175102976.0, PE=38.456497
+2026-02-27 14:27:28,998 - __main__ - INFO - ✅ Successfully refreshed AMAT. New Price: 375.72
+2026-02-27 14:27:31,695 - app.services.market_providers.yfinance - INFO - get_full_data for TXN extracted fundamental: sector='Technology' industry='Semiconductors' market_cap=193200521216.0 pe_ratio=39.0864 forward_pe=26.885923 eps=5.44 dividend_yield=2.67 beta=0.995 fifty_two_week_high=231.32 fifty_two_week_low=139.95
+2026-02-27 14:27:31,862 - app.services.market_data - INFO - Syncing fundamental for TXN: market_cap=193200521216.0, PE=39.0864
+2026-02-27 14:27:33,331 - __main__ - INFO - ✅ Successfully refreshed TXN. New Price: 212.63
+2026-02-27 14:27:36,024 - app.services.market_providers.yfinance - INFO - get_full_data for INTU extracted fundamental: sector='Technology' industry='Software - Application' market_cap=109806534656.0 pe_ratio=27.107904 forward_pe=14.924029 eps=14.55 dividend_yield=1.14 beta=1.234 fifty_two_week_high=813.7 fifty_two_week_low=349.0
+2026-02-27 14:27:36,191 - app.services.market_data - INFO - Syncing fundamental for INTU: market_cap=109806534656.0, PE=27.107904
+2026-02-27 14:27:37,646 - __main__ - INFO - ✅ Successfully refreshed INTU. New Price: 394.42
+2026-02-27 14:27:40,466 - app.services.market_providers.yfinance - INFO - get_full_data for LLY extracted fundamental: sector='Healthcare' industry='Drug Manufacturers - General' market_cap=964130177024.0 pe_ratio=44.435654 forward_pe=24.40234 eps=23.0 dividend_yield=0.61 beta=0.394 fifty_two_week_high=1133.95 fifty_two_week_low=623.78
+2026-02-27 14:27:40,639 - app.services.market_data - INFO - Syncing fundamental for LLY: market_cap=964130177024.0, PE=44.435654
+2026-02-27 14:27:42,282 - __main__ - INFO - ✅ Successfully refreshed LLY. New Price: 1022.02
+2026-02-27 14:27:44,967 - app.services.market_providers.yfinance - INFO - get_full_data for WFC extracted fundamental: sector='Financial Services' industry='Banks - Diversified' market_cap=270903001088.0 pe_ratio=13.785942 forward_pe=10.891418 eps=6.26 dividend_yield=2.09 beta=1.062 fifty_two_week_high=97.76 fifty_two_week_low=58.42
+2026-02-27 14:27:45,141 - app.services.market_data - INFO - Syncing fundamental for WFC: market_cap=270903001088.0, PE=13.785942
+2026-02-27 14:27:46,623 - __main__ - INFO - ✅ Successfully refreshed WFC. New Price: 86.3
+2026-02-27 14:27:49,447 - app.services.market_providers.yfinance - INFO - get_full_data for TSLA extracted fundamental: sector='Consumer Cyclical' industry='Auto Manufacturers' market_cap=1533168582656.0 pe_ratio=385.45285 forward_pe=145.69662 eps=1.06 dividend_yield=None beta=1.887 fifty_two_week_high=498.83 fifty_two_week_low=214.25
+2026-02-27 14:27:49,614 - app.services.market_data - INFO - Syncing fundamental for TSLA: market_cap=1533168582656.0, PE=385.45285
+2026-02-27 14:27:51,252 - __main__ - INFO - ✅ Successfully refreshed TSLA. New Price: 408.58
+2026-02-27 14:27:53,949 - app.services.market_providers.yfinance - INFO - get_full_data for KO extracted fundamental: sector='Consumer Defensive' industry='Beverages - Non-Alcoholic' market_cap=346279510016.0 pe_ratio=26.480263 forward_pe=23.244936 eps=3.04 dividend_yield=2.56 beta=0.364 fifty_two_week_high=81.09 fifty_two_week_low=65.35
+2026-02-27 14:27:54,126 - app.services.market_data - INFO - Syncing fundamental for KO: market_cap=346279510016.0, PE=26.480263
+2026-02-27 14:27:55,590 - __main__ - INFO - ✅ Successfully refreshed KO. New Price: 80.5
+2026-02-27 14:27:57,756 - __main__ - INFO - 💤 Sleeping for 5 minutes...

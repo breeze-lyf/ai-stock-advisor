@@ -11,8 +11,9 @@ from app.services.ai_service import AIService
 from app.services.market_data import MarketDataService
 from app.models.portfolio import Portfolio
 from app.models.user import User
-from app.api.deps import get_current_user
 from app.core import security
+from app.core.security import sanitize_float
+from app.api.deps import get_current_user
 
 from app.schemas.analysis import AnalysisResponse, PortfolioAnalysisResponse
 from app.models.analysis import AnalysisReport
@@ -87,10 +88,10 @@ async def analyze_portfolio(
         holdings_data.append({
             "ticker": h.ticker,
             "name": h.name,
-            "market_value": h.market_value,
-            "pl_percent": h.pl_percent,
+            "market_value": sanitize_float(h.market_value, 0.0),
+            "pl_percent": sanitize_float(h.pl_percent, 0.0),
             "sector": h.sector,
-            "rrr": h.risk_reward_ratio
+            "rrr": sanitize_float(h.risk_reward_ratio)
         })
     
     # 3. 增强型 RAG：抓取宏观市场及重点持仓实时新闻 (Enhanced RAG: Fetch Macro & Top Holdings News)
@@ -246,29 +247,27 @@ async def analyze_stock(
     # 将对象转换为字典，方便后续传给 AI Prompt
     if hasattr(market_data_obj, "__dict__"):
         market_data = {
-            "current_price": round(market_data_obj.current_price, 2) if market_data_obj.current_price else None,
-            "change_percent": round(market_data_obj.change_percent, 2) if market_data_obj.change_percent else None,
-            "rsi_14": round(market_data_obj.rsi_14, 2) if market_data_obj.rsi_14 else None,
-            "ma_20": round(market_data_obj.ma_20, 2) if market_data_obj.ma_20 else None,
-            "ma_50": round(market_data_obj.ma_50, 2) if market_data_obj.ma_50 else None,
-            "ma_200": round(market_data_obj.ma_200, 2) if market_data_obj.ma_200 else None,
-            "macd_val": round(market_data_obj.macd_val, 2) if market_data_obj.macd_val else None,
-            "macd_hist": round(market_data_obj.macd_hist, 2) if market_data_obj.macd_hist else None,
-            "macd_hist_slope": round(market_data_obj.macd_hist_slope, 2) if market_data_obj.macd_hist_slope else 0.0,
-            "bb_upper": round(market_data_obj.bb_upper, 2) if market_data_obj.bb_upper else None,
-            "bb_middle": round(market_data_obj.bb_middle, 2) if market_data_obj.bb_middle else None,
-            "bb_lower": round(market_data_obj.bb_lower, 2) if market_data_obj.bb_lower else None,
-            # KDJ 映射修复 (K/D/J)
-            "k_line": round(market_data_obj.k_line, 2) if market_data_obj.k_line else None,
-            "d_line": round(market_data_obj.d_line, 2) if market_data_obj.d_line else None,
-            "j_line": round(market_data_obj.j_line, 2) if market_data_obj.j_line else None,
-            "atr_14": round(market_data_obj.atr_14, 2) if market_data_obj.atr_14 else None,
-            "adx_14": round(market_data_obj.adx_14, 2) if market_data_obj.adx_14 else None,
-            # 枢轴位映射补全 (Pivots)
-            "resistance_1": round(market_data_obj.resistance_1, 2) if market_data_obj.resistance_1 else None,
-            "resistance_2": round(market_data_obj.resistance_2, 2) if market_data_obj.resistance_2 else None,
-            "support_1": round(market_data_obj.support_1, 2) if market_data_obj.support_1 else None,
-            "support_2": round(market_data_obj.support_2, 2) if market_data_obj.support_2 else None,
+            "current_price": sanitize_float(market_data_obj.current_price, 0.0),
+            "change_percent": sanitize_float(market_data_obj.change_percent, 0.0),
+            "rsi_14": sanitize_float(market_data_obj.rsi_14),
+            "ma_20": sanitize_float(market_data_obj.ma_20),
+            "ma_50": sanitize_float(market_data_obj.ma_50),
+            "ma_200": sanitize_float(market_data_obj.ma_200),
+            "macd_val": sanitize_float(market_data_obj.macd_val),
+            "macd_hist": sanitize_float(market_data_obj.macd_hist),
+            "macd_hist_slope": sanitize_float(market_data_obj.macd_hist_slope, 0.0),
+            "bb_upper": sanitize_float(market_data_obj.bb_upper),
+            "bb_middle": sanitize_float(market_data_obj.bb_middle),
+            "bb_lower": sanitize_float(market_data_obj.bb_lower),
+            "k_line": sanitize_float(market_data_obj.k_line),
+            "d_line": sanitize_float(market_data_obj.d_line),
+            "j_line": sanitize_float(market_data_obj.j_line),
+            "atr_14": sanitize_float(market_data_obj.atr_14),
+            "adx_14": sanitize_float(market_data_obj.adx_14),
+            "resistance_1": sanitize_float(market_data_obj.resistance_1),
+            "resistance_2": sanitize_float(market_data_obj.resistance_2),
+            "support_1": sanitize_float(market_data_obj.support_1),
+            "support_2": sanitize_float(market_data_obj.support_2),
             "market_status": market_data_obj.market_status
         }
     else:
@@ -312,14 +311,14 @@ async def analyze_stock(
         fundamental_data = {
             "sector": stock_obj.sector,
             "industry": stock_obj.industry,
-            "market_cap": stock_obj.market_cap,
-            "pe_ratio": round(stock_obj.pe_ratio, 2) if stock_obj.pe_ratio else None,
-            "forward_pe": round(stock_obj.forward_pe, 2) if stock_obj.forward_pe else None,
-            "eps": round(stock_obj.eps, 2) if stock_obj.eps else None,
-            "dividend_yield": round(stock_obj.dividend_yield, 2) if stock_obj.dividend_yield else None,
-            "beta": round(stock_obj.beta, 2) if stock_obj.beta else None,
-            "fifty_two_week_high": round(stock_obj.fifty_two_week_high, 2) if stock_obj.fifty_two_week_high else None,
-            "fifty_two_week_low": round(stock_obj.fifty_two_week_low, 2) if stock_obj.fifty_two_week_low else None
+            "market_cap": sanitize_float(stock_obj.market_cap),
+            "pe_ratio": sanitize_float(stock_obj.pe_ratio),
+            "forward_pe": sanitize_float(stock_obj.forward_pe),
+            "eps": sanitize_float(stock_obj.eps),
+            "dividend_yield": sanitize_float(stock_obj.dividend_yield),
+            "beta": sanitize_float(stock_obj.beta),
+            "fifty_two_week_high": sanitize_float(stock_obj.fifty_two_week_high),
+            "fifty_two_week_low": sanitize_float(stock_obj.fifty_two_week_low)
         }
 
     # 5. 检查持久化缓存 (Persistence Cache)

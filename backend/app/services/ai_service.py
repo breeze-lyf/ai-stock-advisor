@@ -103,11 +103,15 @@ class AIService:
                 # 4. 错误处理 (Error Handling)
                 if response.status_code != 200:
                     error_detail = response.text
-                    logger.error(f"SiliconFlow API Error ({response.status_code}): {error_detail}")
+                    logger.error(f"SiliconFlow API Error: HTTP {response.status_code} - {error_detail}")
                     return f"**Error**: AI 服务商报错 (HTTP {response.status_code})。"
                 
                 result = response.json()
                 # 提取核心内容
+                if "choices" not in result or not result["choices"]:
+                    logger.error(f"SiliconFlow Unexpected Response: {result}")
+                    return f"**Error**: AI 返回数据格式异常。"
+                    
                 return result["choices"][0]["message"]["content"]
         except Exception as e:
             import traceback

@@ -15,10 +15,19 @@ class ProviderFactory:
     @classmethod
     def get_provider(cls, ticker: str, preferred_source: str = "YFINANCE") -> MarketDataProvider:
         """
-        核心分流逻辑：已切换至全量使用 AKSHARE，解决国内服务器访问海外 API 受限问题。
+        核心分流逻辑：
+        1. 6 位数字代码 -> AkShare (A 股)
+        2. 带 .SS 或 .SZ 后缀 -> AkShare (A 股)
+        3. 其他 -> YFinance (美股)
         """
-        # 强制使用 AKSHARE (由于国内大环境及 YFinance 受限，暂时全量切换)
-        return cls._get_instance("AKSHARE")
+        # A 股判断逻辑
+        is_cn = (ticker.isdigit() and len(ticker) == 6) or \
+                any(suffix in ticker.upper() for suffix in ['.SS', '.SZ'])
+        
+        if is_cn:
+            return cls._get_instance("AKSHARE")
+            
+        return cls._get_instance("YFINANCE")
 
     @classmethod
     def _get_instance(cls, source: str) -> MarketDataProvider:

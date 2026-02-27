@@ -43,6 +43,11 @@ export function PortfolioList({
     const [deletingTicker, setDeletingTicker] = useState<string | null>(null);
     const [isRefreshingAll, setIsRefreshingAll] = useState(false);
 
+    const getCurrencySymbol = (ticker: string) => {
+        const isCN = /^\d{6}/.test(ticker) || ticker.toUpperCase().endsWith('.SS') || ticker.toUpperCase().endsWith('.SZ');
+        return isCN ? "¥" : "$";
+    };
+
     const sortedPortfolio = [...portfolio]
         .filter((item) => !onlyHoldings || item.quantity > 0)
         .sort((a, b) => {
@@ -108,7 +113,8 @@ export function PortfolioList({
     const handleRefreshItem = async (ticker: string) => {
         setRefreshingTicker(ticker);
         try {
-            await refreshStock(ticker);
+            // 侧边栏列表默认使用“价格模式”
+            await refreshStock(ticker, true);
             onRefresh();
         } catch (err) {
             console.error("Refresh failed", err);
@@ -142,7 +148,8 @@ export function PortfolioList({
                             if (isRefreshingAll) return;
                             setIsRefreshingAll(true);
                             try {
-                                const res = await refreshAllStocks();
+                                // 侧边栏列表默认使用“价格模式”，极速响应
+                                const res = await refreshAllStocks(true);
                                 console.log(res.message);
                                 onRefresh();
                             } catch (err) {
@@ -220,7 +227,7 @@ export function PortfolioList({
                                     
                                     <div className="flex items-center justify-center gap-1.5">
                                         <span className="font-mono text-xs text-slate-600 dark:text-slate-400">
-                                            ${item.current_price.toFixed(2)}
+                                            {getCurrencySymbol(item.ticker)}{item.current_price.toFixed(2)}
                                         </span>
                                         {item.risk_reward_ratio !== null && item.risk_reward_ratio !== undefined && (
                                             <Tooltip>

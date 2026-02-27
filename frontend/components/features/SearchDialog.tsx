@@ -54,12 +54,15 @@ export function SearchDialog({
         setAddingTicker(ticker);
         try {
             await addPortfolioItem(ticker, 0, 0);
+            
+            // 核心修复：闭合优先。先关闭弹窗以卸载 Overlay 遮罩，防止后续重渲染干扰导致灰屏。
+            onOpenChange(false);
+            
             onRefresh();
-            // 自动跳转并关闭
+            // 自动跳转
             if (onSelectTicker) {
                 onSelectTicker(ticker);
             }
-            onOpenChange(false);
         } catch (err) {
             console.error(err);
             alert("添加失败");

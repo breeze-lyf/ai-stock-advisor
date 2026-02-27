@@ -54,6 +54,19 @@ export function StockDetail({
     aiData,
     news = []
 }: StockDetailProps) {
+    // --- 辅助工具 (Helper Utilities) ---
+    const sanitizePrice = (val: number | null | undefined): string => {
+        if (val === null || val === undefined || isNaN(val)) return "--";
+        return val.toFixed(2);
+    };
+
+    const getCurrencySymbol = (ticker: string) => {
+        const isCN = /^\d{6}/.test(ticker) || ticker.toUpperCase().endsWith('.SS') || ticker.toUpperCase().endsWith('.SZ');
+        return isCN ? "¥" : "$";
+    };
+
+    const currency = selectedItem ? getCurrencySymbol(selectedItem.ticker) : "$";
+
     // --- 状态管理 (State Management) ---
     const [refreshing, setRefreshing] = useState(false);
     const [historyData, setHistoryData] = useState<any[]>([]); // 存储 K 线历史数据
@@ -167,7 +180,7 @@ export function StockDetail({
 
                         <div className="flex items-center gap-3">
                             <span className="text-lg font-black text-slate-800 dark:text-slate-100 tabular-nums leading-none">
-                                ${selectedItem.current_price.toFixed(2)}
+                                {currency}{sanitizePrice(selectedItem.current_price)}
                             </span>
                             {selectedItem.quantity > 0 && (
                                 <div className={clsx(
@@ -185,7 +198,7 @@ export function StockDetail({
                         <div className="hidden sm:flex flex-col items-end">
                             <span className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">最新增幅</span>
                             <span className={clsx("text-sm font-black tabular-nums", (selectedItem.change_percent || 0) >= 0 ? "text-emerald-500" : "text-rose-500")}>
-                                {(selectedItem.change_percent || 0) >= 0 ? "+" : ""}{selectedItem.change_percent?.toFixed(2)}%
+                                {(selectedItem.change_percent || 0) >= 0 ? "+" : ""}{(selectedItem.change_percent || 0).toFixed(2)}%
                             </span>
                         </div>
                         <Button
@@ -246,25 +259,29 @@ export function StockDetail({
                         <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">持有仓位</span>
                         <span className="text-md font-bold text-slate-700 dark:text-slate-300">{selectedItem.quantity} Shares</span>
                     </div>
-                    <div className="flex flex-col">
-                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">持仓均价</span>
-                        <span className="text-md font-bold text-slate-700 dark:text-slate-300">${selectedItem.avg_cost.toFixed(2)}</span>
-                    </div>
-                    <div className="flex flex-col">
-                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">账面盈亏</span>
-                        <div className="flex items-center gap-2">
-                            <span className={clsx("text-md font-bold", selectedItem.unrealized_pl >= 0 ? "text-emerald-500" : "text-rose-500")}>
-                                {selectedItem.unrealized_pl >= 0 ? "+" : ""}${selectedItem.unrealized_pl.toFixed(2)}
-                            </span>
-                            <span className={clsx(
-                                "text-[10px] font-black px-1.5 py-0.5 rounded-md",
-                                selectedItem.pl_percent >= 0 ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400"
-                            )}>
-                                {selectedItem.pl_percent >= 0 ? "+" : ""}{selectedItem.pl_percent.toFixed(2)}%
-                            </span>
-                        </div>
-                    </div>
-                    <div className="flex flex-col items-end justify-center">
+                    {selectedItem.quantity > 0 && (
+                        <>
+                            <div className="flex flex-col">
+                                <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">持仓均价</span>
+                                <span className="text-md font-bold text-slate-700 dark:text-slate-300">${selectedItem.avg_cost.toFixed(2)}</span>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">账面盈亏</span>
+                                <div className="flex items-center gap-2">
+                                    <span className={clsx("text-md font-bold", selectedItem.unrealized_pl >= 0 ? "text-emerald-500" : "text-rose-500")}>
+                                        {selectedItem.unrealized_pl >= 0 ? "+" : ""}${selectedItem.unrealized_pl.toFixed(2)}
+                                    </span>
+                                    <span className={clsx(
+                                        "text-[10px] font-black px-1.5 py-0.5 rounded-md",
+                                        selectedItem.pl_percent >= 0 ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400"
+                                    )}>
+                                        {selectedItem.pl_percent >= 0 ? "+" : ""}{selectedItem.pl_percent.toFixed(2)}%
+                                    </span>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                    <div className={clsx("flex flex-col items-end justify-center", selectedItem.quantity <= 0 && "col-start-2")}>
                         <Button
                             variant="outline"
                             size="sm"
@@ -590,7 +607,7 @@ export function StockDetail({
                                                     {/* Tooltip - Floating directly above */}
                                                     <div className="absolute bottom-full mb-2 flex flex-col items-center group">
                                                         <div className="bg-slate-900 dark:bg-black text-white text-[10px] font-black px-2.5 py-1 rounded-lg shadow-2xl border border-white/10 whitespace-nowrap">
-                                                            ${current.toFixed(2)}
+                                                            ${sanitizePrice(current)}
                                                         </div>
                                                         <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[4px] border-l-transparent border-r-transparent border-t-slate-900 dark:border-t-black -mt-px" />
                                                     </div>

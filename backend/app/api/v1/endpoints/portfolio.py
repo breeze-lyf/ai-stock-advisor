@@ -159,6 +159,7 @@ async def get_portfolio_summary(
 @router.get("/", response_model=List[PortfolioItem])
 async def get_portfolio(
     refresh: bool = False,
+    price_only: bool = False, # 支持仅刷新价格模式
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -195,7 +196,13 @@ async def get_portfolio(
                 async with semaphore:
                     async with SessionLocal() as local_session:
                         try:
-                            await MarketDataService.get_real_time_data(ticker_name, local_session, current_user.preferred_data_source)
+                            await MarketDataService.get_real_time_data(
+                                ticker_name, 
+                                local_session, 
+                                preferred_source=current_user.preferred_data_source,
+                                force_refresh=True,
+                                price_only=price_only
+                            )
                         except Exception as e:
                             logger.error(f"Error refreshing ticker {ticker_name}: {e}")
 
@@ -355,23 +362,40 @@ async def delete_portfolio_item(
 async def refresh_stock_data(
     ticker: str,
     background_tasks: BackgroundTasks,
+    price_only: bool = False, # 支持仅刷新价格模式
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """针对单个股票的手动强制刷新接口 (超级优化版)"""
+    """针对单个股票的手动强制刷新接口 (支持极速模式)"""
     ticker = ticker.upper().strip()
     
     try:
-        # 1. 极致提速：跳过所有数据库阻塞，直接拉取最新行情 (仅需 1.5s - 2s)
-        data = await MarketDataService._fetch_from_providers(ticker, current_user.preferred_data_source)
+        # 传递 price_only 标志
+        data = await MarketDataService._fetch_from_providers(ticker, current_user.preferred_data_source, price_only=price_only)
         
         if not data or not data.quote:
-            raise HTTPException(status_code=500, detail="网络或数据源故障，无法获取实时行情")
+            # 取消硬编码的 500 错误，改为优雅回退：尝试从数据库拉取旧缓存
+            stmt = select(MarketDataCache).where(MarketDataCache.ticker == ticker)
+            res = await db.execute(stmt)
+            cache = res.scalar_one_or_none()
+            
+            if cache:
+                return {
+                    "ticker": ticker,
+                    "success": False,
+                    "message": "实时刷新失败（可能受频率限制），已显示最近一次成功抓取的缓存数据。",
+                    "current_price": cache.current_price,
+                    "change_percent": cache.change_percent,
+                    "last_updated": cache.last_updated
+                }
+            
+            return {
+                "ticker": ticker,
+                "success": False,
+                "message": "刷新失败且数据库无历史记录。请稍后再试。"
+            }
             
         # 2. 异步持久化：将耗时 5-8s 的远程 Neon 数据库同步放入后台去执行
-        # (由于 asyncio session 不能直接给 BackgroundTask 带出生命周期，我们需要重新获取一个 db connection，或者封装)
-        # 实际上，get_real_time_data 是我们现成的逻辑，我们让后台任务独立用新 session 运行它即可
-        
         async def background_sync():
             from app.core.database import SessionLocal
             from sqlalchemy.future import select
@@ -390,12 +414,19 @@ async def refresh_stock_data(
         # 3. 秒回前端
         return {
             "ticker": ticker,
+            "success": True,
+            "message": "刷新成功",
             "current_price": data.quote.price,
             "change_percent": data.quote.change_percent,
             "last_updated": data.quote.last_updated
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Refresh failed: {str(e)}")
+        logger.error(f"Refresh failed for {ticker}: {e}")
+        return {
+            "ticker": ticker,
+            "success": False,
+            "message": f"服务器内部错误: {str(e)}"
+        }
 
 
 @router.get("/{ticker}/news")

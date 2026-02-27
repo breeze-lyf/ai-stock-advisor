@@ -106,9 +106,9 @@ export const getPortfolioSummary = async (): Promise<PortfolioSummary> => {
     return response.data;
 };
 
-/** 获取用户持仓列表，refresh=true 时强制触发后端抓取最新行情 */
-export const getPortfolio = async (refresh: boolean = false): Promise<PortfolioItem[]> => {
-    const response = await api.get(`/api/portfolio/?refresh=${refresh}`);
+/** 获取用户持仓列表，refresh=true 时强制触发后端抓取，priceOnly=true 时仅同步价格 */
+export const getPortfolio = async (refresh: boolean = false, priceOnly: boolean = false): Promise<PortfolioItem[]> => {
+    const response = await api.get(`/api/portfolio/?refresh=${refresh}&price_only=${priceOnly}`);
     return response.data;
 };
 
@@ -124,9 +124,9 @@ export const deletePortfolioItem = async (ticker: string) => {
     return response.data;
 };
 
-/** 单个股票行情强制刷新 */
-export const refreshStock = async (ticker: string): Promise<Partial<PortfolioItem>> => {
-    const response = await api.post(`/api/portfolio/${ticker}/refresh`);
+/** 单个股票行情强制刷新 (支持 priceOnly) */
+export const refreshStock = async (ticker: string, priceOnly: boolean = false): Promise<Partial<PortfolioItem>> => {
+    const response = await api.post(`/api/portfolio/${ticker}/refresh?price_only=${priceOnly}`);
     return response.data;
 };
 
@@ -195,9 +195,9 @@ export const fetchStockHistory = async (ticker: string, period: string = "1y") =
     return response.data;
 };
 
-/** 强制刷新所有持仓股票数据 */
-export const refreshAllStocks = async (): Promise<{ message: string, updated_count: number }> => {
-    const response = await api.post("/api/stocks/refresh_all");
+/** 强制刷新所有持仓股票数据 (支持 priceOnly) */
+export const refreshAllStocks = async (priceOnly: boolean = false): Promise<{ message: string, updated_count: number }> => {
+    const response = await api.post(`/api/stocks/refresh_all?price_only=${priceOnly}`);
     return response.data;
 };
 

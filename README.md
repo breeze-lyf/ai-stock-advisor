@@ -45,6 +45,7 @@ Frontend: http://localhost:3000
 ## 📂 Project Structure
 
 ### Backend (FastAPI)
+
 - `backend/app/api/v1/`: Versioned endpoints (Analysis, Portfolio, Auth, User).
 - `backend/app/services/market_providers/`: Modular data providers (yfinance, Alpha Vantage).
 - `backend/app/services/indicators.py`: Centralized technical indicator calculations.
@@ -52,8 +53,15 @@ Frontend: http://localhost:3000
 - `backend/tests/`: Automated test suite.
 
 ### Frontend (Next.js)
+
 - `frontend/app/`: App router pages.
 - `frontend/components/features/`: Extracted business logic components (PortfolioList, StockDetail, etc).
 - `frontend/components/ui/`: Reusable Shadcn base components.
 - `frontend/types/`: Centralized TypeScript interfaces.
 - `frontend/lib/api.ts`: API client with Axios interceptors.
+
+## ⚠️ Important: Mainland Server Deployment
+For deployment on servers in mainland China without a proxy:
+- **Market Data**: The system automatically uses domestic mirrors (East Money/Sina) via AkShare for both US and A-shares.
+- **Proxy Conflict**: The system is designed to bypass proxies for domestic data sources automatically to prevent 403 errors.
+- **AI News**: US news might be restricted without a proxy; domestic news remains accessible.

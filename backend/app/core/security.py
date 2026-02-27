@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import math
 from typing import Any, Union
 from jose import jwt
 from passlib.context import CryptContext
@@ -27,6 +28,22 @@ def decrypt_api_key(encrypted_key: str) -> str:
         return f.decrypt(encrypted_key.encode()).decode()
     except Exception:
         return encrypted_key # If decryption fails, return as is (might be old plain data)
+
+def sanitize_float(val: Any, default: Any = None) -> Any:
+    """
+    数值清洗工具 (Numeric Sanitizer)
+    职责：防止 NaN (非数字) 或 Inf (无穷大) 导致 JSON 序列化崩溃。
+    常用于从 yfinance 或 TA 库抓取的数据。
+    """
+    if val is None:
+        return default
+    try:
+        f = float(val)
+        if math.isnan(f) or math.isinf(f):
+            return default
+        return f
+    except (ValueError, TypeError):
+        return default
 
 def create_access_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:
     if expires_delta:

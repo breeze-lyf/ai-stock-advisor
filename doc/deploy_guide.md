@@ -81,6 +81,8 @@ SECRET_KEY=yoursecretkeyhere
 ALPHAVANTAGE_API_KEY=yourkey
 # 境外 API 代理 (如果需要)
 # HTTP_PROXY=http://127.0.0.1:xxxx
+# 注意：在上海服务器上，美股和 A 股行情均会自动通过 AkShare 的国内镜像获取，无需代理。
+# 只有在本地开发且已安装 Clash 时，才建议启用代理以获得极速 Yahoo Finance 体验。
 ```
 
 ---

@@ -256,10 +256,86 @@ class AkShareProvider(MarketDataProvider):
         
         return await loop.run_in_executor(None, fetch)
 
+    async def _get_sina_us_quote(self, ticker: str) -> Optional[ProviderQuote]:
+        """从新浪财经获取美股行情 (支持盘前/盘后感知)"""
+        # 新浪美股代码格式: gb_aapl (小写)
+        sina_ticker = f"gb_{ticker.lower()}"
+        url = f"http://hq.sinajs.cn/list={sina_ticker}"
+        
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Referer": "https://finance.sina.com.cn/"
+        }
+
+        loop = asyncio.get_event_loop()
+        def fetch():
+            _tls.bypass_proxy = True
+            try:
+                # 环境强制禁用代理
+                env_vars = ['HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY', 'http_proxy', 'https_proxy', 'all_proxy']
+                old_vals = {var: os.environ.get(var) for var in env_vars}
+                for var in env_vars: os.environ.pop(var, None)
+                
+                try:
+                    resp = requests.get(url, headers=headers, timeout=3, proxies={'http': None, 'https': None})
+                    if resp.status_code == 200:
+                        content = resp.text
+                        if '=' in content:
+                            data_str = content.split('=', 1)[1].strip().strip(';').strip('"')
+                            if not data_str: return None
+                            data = data_str.split(',')
+                            if len(data) < 30: return None
+                            
+                            # 新浪美股格式解析:
+                            # 新浪美股格式解析:
+                            # 0:名称, 1:现价, 2:涨跌额, 3:时间, 21:盘前盘后价, 24:盘前时间, 26:昨收
+                            price = float(data[1])
+                            name = data[0]
+                            prev_close = float(data[26])
+                            # 计算涨跌幅 (相比昨收)
+                            change_percent = ((price - prev_close) / prev_close * 100) if prev_close > 0 else 0.0
+                            
+                            # 状态判定逻辑
+                            status = MarketStatus.OPEN.value
+                            pre_post_price = float(data[21]) if data[21] else 0.0
+                            pre_post_time = data[24] # 例如 "Feb 27 09:06AM EST"
+                            
+                            if pre_post_price > 0 and pre_post_time:
+                                if "AM" in pre_post_time:
+                                    status = MarketStatus.PRE_MARKET.value
+                                    price = pre_post_price
+                                    change_percent = ((price - prev_close) / prev_close * 100) if prev_close > 0 else change_percent
+                                elif "PM" in pre_post_time and "04:00PM" not in pre_post_time:
+                                    status = MarketStatus.AFTER_HOURS.value
+                                    price = pre_post_price
+                                    change_percent = ((price - prev_close) / prev_close * 100) if prev_close > 0 else change_percent
+
+                            return ProviderQuote(
+                                ticker=ticker,
+                                price=price,
+                                change_percent=change_percent,
+                                name=name,
+                                last_updated=datetime.now(),
+                                market_status=status
+                            )
+                    return None
+                finally:
+                    for var, val in old_vals.items():
+                        if val is not None: os.environ[var] = val
+            except Exception as e:
+                logger.error(f"Sina US fetch error for {ticker}: {e}")
+                return None
+        
+        return await loop.run_in_executor(None, fetch)
+
     async def get_quote(self, ticker: str) -> Optional[ProviderQuote]:
         """获取行情，智能路由 A 股或美股"""
         if self._is_us_stock(ticker):
-            return await self._get_us_quote(ticker)
+            # 美股优先使用新浪财经适配器 (盘前感知)
+            quote = await self._get_sina_us_quote(ticker)
+            if quote: return quote
+            # 备选
+            return await self._get_tencent_quote(ticker)
             
         symbol = self._normalize_symbol(ticker)
         

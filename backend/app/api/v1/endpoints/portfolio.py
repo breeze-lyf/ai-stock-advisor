@@ -180,6 +180,7 @@ async def get_portfolio(
         .outerjoin(MarketDataCache, Portfolio.ticker == MarketDataCache.ticker)
         .outerjoin(Stock, Portfolio.ticker == Stock.ticker)
         .where(Portfolio.user_id == user_id)
+        .order_by(Portfolio.sort_order.asc(), Portfolio.created_at.asc())
     )
     result = await db.execute(stmt)
     rows = result.all()
@@ -300,11 +301,17 @@ async def add_portfolio_item(
         existing.quantity = item.quantity
         existing.avg_cost = item.avg_cost
     else:
+        # 计算当前最大的 sort_order，确保新股排在最后
+        max_order_stmt = select(Portfolio.sort_order).where(Portfolio.user_id == user_id).order_by(Portfolio.sort_order.desc()).limit(1)
+        max_order_result = await db.execute(max_order_stmt)
+        max_order = max_order_result.scalar_one_or_none() or 0
+        
         new_item = Portfolio(
             user_id=user_id,
             ticker=ticker,
             quantity=item.quantity,
-            avg_cost=item.avg_cost
+            avg_cost=item.avg_cost,
+            sort_order=max_order + 1
         )
         db.add(new_item)
     
@@ -459,3 +466,25 @@ async def get_stock_news(
         }
         for n in news
     ]
+@router.patch("/reorder")
+async def reorder_portfolio(
+    orders: List[dict], # [{ticker: "AAPL", sort_order: 1}, ...]
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    批量更新排序权重 (Batch update sort_order)
+    """
+    user_id = current_user.id
+    for item in orders:
+        ticker = item.get("ticker")
+        new_order = item.get("sort_order")
+        if ticker is not None and new_order is not None:
+            stmt = select(Portfolio).where(Portfolio.user_id == user_id, Portfolio.ticker == ticker)
+            result = await db.execute(stmt)
+            portfolio = result.scalar_one_or_none()
+            if portfolio:
+                portfolio.sort_order = new_order
+    
+    await db.commit()
+    return {"message": "Reorder successful"}

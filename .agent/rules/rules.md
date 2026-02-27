@@ -2,45 +2,37 @@
 trigger: always_on
 ---
 
-1. 核心技术栈架构 (Architecture Context)
-   Frontend: 使用 Next.js 14+ (App Router), Tailwind CSS, 以及 Lucide React 图标。
+# 🤖 AI Stock Advisor - 核心开发系统准则 (System Rules)
 
-Backend: 使用 Python (FastAPI/Flask) 处理量化逻辑，集成 pandas-ta 进行指标计算。
+> **【最高纪律】** > 1. 本项目的所有思考过程 (Planning/Reasoning)、代码注释、文档编写以及与用户的对话，**必须全程使用标准中文**。
+> 2. 当用户指令包含“输出方案”、“等我确认”、“分析一下”等字眼时，**绝对禁止**自动调用工具执行修改文件或运行命令！必须严格等待用户的明确确认指令 (`Proceed` 或 `确认`)。
+> 3. **绝对禁止**自动调用浏览器/Chrome进行自动化测试。请只输出详细的测试步骤，由用户手动在浏览器中完成测试。
 
-AI Model: 优先使用硅基流动 API 调用的 DeepSeek-R1 或 Qwen3 系列模型。
+---
 
-2. UI 渲染与样式准则 (UI/UX Standards)
-   专业金融风: 界面必须保持克制、理性，使用 Slate 或 Zinc 灰阶作为背景，严禁使用高饱和度、非功能性的装饰性颜色。
+## 1. 核心技术栈与环境 (Architecture & Environment)
+- **Frontend**: Next.js 14+ (严格使用 App Router), Tailwind CSS, Lucide React 图标。
+- **Backend**: Python (FastAPI/Flask)。
+- **AI Model**: 必须优先使用**硅基流动 API** (DeepSeek-R1 / Qwen3 系列) 进行逻辑调用。禁止在业务代码中默认调用 Gemini。
+- **🔥 部署环境 (极其重要)**: 服务器部署在中国大陆（上海），无翻墙代理。
+  - **网络限制边界**: 绝对禁止使用 `yfinance` 等强依赖海外网络的库。
+  - **包管理强制换源**: 终端命令遇到依赖安装时，必须默认带上国内镜像源（如 `pip install -i https://pypi.tuna.tsinghua.edu.cn/simple` 或 `npm --registry=https://registry.npmmirror.com`）。
 
-语义化配色: \* 🔴 止损/下跌: text-rose-600 / bg-rose-100。
+## 2. 量化逻辑与数据准则 (Quant & Data Logic)
+- **国内数据源优先**: 实时行情和历史数据抓取，必须优先使用 `AKShare` 或其他国内合规/连通性好的 API。确保数据滞后不超过 1 分钟。
+- **计算 > 视觉**: 绝对禁止让 AI 多模态大模型直接通过“看 K 线截图”来猜具体价格。所有量化分析（如 RSI、MACD）必须基于后端精准计算并作为 JSON 传入 prompt。
+- **盈亏比强制校验 (Risk/Reward)**: 在生成交易研判和策略时，必须在代码逻辑中自动计算（目标盈利空间 / 潜在止损空间）。如果盈亏比低于 `1:1.5`，必须在返回的数据和 UI 中强标记为 **“低性价比机会”**。
 
-🟢 买入/上涨: text-emerald-600 / bg-emerald-100。
+## 3. UI 渲染与样式准则 (UI/UX Standards)
+- **极简金融风**: 界面保持克制、专业。背景色系限定为 `Slate` 或 `Zinc` 灰阶。严禁使用高饱和度、非功能性的花哨颜色。
+- **语义化绝对配色 (Tailwind)**:
+  - 🔴 止损/下跌: `text-rose-600` / `bg-rose-100`
+  - 🟢 买入/上涨: `text-emerald-600` / `bg-emerald-100`
+  - 🔵 止盈/目标: `text-blue-600` / `bg-blue-100`
+  - ⚪ 持仓/中性: `text-slate-500` / `bg-slate-100`
+- **高度组件化**: 诸如 Trade Axis (交易轴)、Sentiment Bias (情绪偏好) 等所有可视化元素，必须抽取为独立且可无状态复用的 React Component。
 
-🔵 止盈/目标: text-blue-600 / bg-blue-100。
-
-⚪ 持仓/中性: text-slate-500 / bg-slate-100。
-
-组件化: 所有的可视化组件（如 Trade Axis, Sentiment Bias）必须作为独立、可重用的 React 组件编写。
-
-3. 量化逻辑与 RAG 准则 (Quant & RAG Logic)
-   计算优先: 禁止让 AI 视觉模型通过图片识别价格。所有分析必须基于后端传入的精确 JSON 数值（如 RSI、MACD 详细值）。
-
-盈亏比校验: 在生成交易研判逻辑时，必须自动计算盈利空间与亏损空间的比例（Reward/Risk），且默认盈亏比低于 1:1.5 时需标记为“低性价比机会”。
-
-实时性: 编写数据抓取逻辑时，优先考虑集成 MCP 协议或实时金融 API（如 Yahoo Finance），确保信息滞后不超过 1 分钟。
-
-4. 代码质量要求 (Code Quality)
-   TypeScript: 强制使用严格类型，禁止使用 any。对于股票数据结构，定义清晰的 interface 或 type。
-
-错误处理: 在处理 API 调用（如硅基流动接口）时，必须包含完善的 try-catch 逻辑和用户侧的错误提示。
-
-注释规范: 复杂的量化公式（如空中加油形态的数学定义）必须在代码上方编写详细的逻辑注释。
-
-5. 其他要求
-回答以及思考过程全程需要使用中文
-当我让你输出方案等我确认再执行时，你本次回答就不要执行开发任务，一定要等到我明确的确认指令
-你不要自动调用chrome进行测试，你只需要告诉我怎么测试，由我来手动测试
-在新的需要调用ai的功能点开发过程中，优先使用硅基流动的api来调用ai，而不是gemini
-让你创建的文档需要是中文的
-写代码一定要加注释
-服务器部署在中国上海，需要考虑到补发访问部分海外网站（服务器没有部署翻墙代理），以及和海外服务器交互的延迟。
+## 4. 代码质量与工程规范 (Code Quality)
+- **TypeScript (前端)**: 强制开启 Strict 模式，**严禁出现 `any`**。所有涉及股票数据的变量必须拥有明确的 `interface` 或 `type` 声明。
+- **Python (后端) & 注释**: 复杂的量化公式（如“空中加油”形态的数学定义、均线缠绕等）**必须在紧挨着的代码上方编写极度详尽的中文业务逻辑注释**。
+- **容错防御机制**: 所有的外部 API 调用（特别是硅基流动 AI 接口、金融数据接口）必须包裹严密的 `try-catch` (前端) 或 `try...except` (后端)，遇到跨国请求超时或被阻断时，必须有优雅的 fallback 逻辑和用户侧的中文友好的错误提示。

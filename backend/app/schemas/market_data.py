@@ -4,10 +4,10 @@ from datetime import datetime
 from enum import Enum
 
 class MarketStatus(str, Enum):
-    OPEN = "OPEN"
-    CLOSED = "CLOSED"
-    PRE_MARKET = "PRE_MARKET"
-    POST_MARKET = "POST_MARKET"
+    PRE_MARKET = "PRE_MARKET"   # 盘前交易
+    OPEN = "OPEN"               # 正常交易时间
+    AFTER_HOURS = "AFTER_HOURS" # 盘后交易
+    CLOSED = "CLOSED"           # 休市
 
 class ProviderQuote(BaseModel):
     ticker: str

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, DateTime, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, String, Float, DateTime, ForeignKey, UniqueConstraint, Integer
 from sqlalchemy.orm import relationship
 import uuid
 from datetime import datetime
@@ -18,6 +18,8 @@ class Portfolio(Base):
     avg_cost = Column(Float, nullable=False)      # 持仓均价
     target_price = Column(Float, nullable=True)   # 目标价 (预留)
     stop_loss_price = Column(Float, nullable=True) # 止损价 (预留)
+    
+    sort_order = Column(Integer, default=0, nullable=False) # 排序权重，数值越小越靠前
     
     created_at = Column(DateTime, default=datetime.utcnow) # 创建时间
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow) # 更新时间

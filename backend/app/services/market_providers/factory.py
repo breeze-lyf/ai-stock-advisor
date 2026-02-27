@@ -26,8 +26,9 @@ class ProviderFactory:
         
         if is_cn:
             return cls._get_instance("AKSHARE")
-            
-        return cls._get_instance("YFINANCE")
+        
+        # 美股也引导至 AKSHARE (集成了新浪直连行情，适合国内服务器环境)
+        return cls._get_instance("AKSHARE")
 
     @classmethod
     def _get_instance(cls, source: str) -> MarketDataProvider:

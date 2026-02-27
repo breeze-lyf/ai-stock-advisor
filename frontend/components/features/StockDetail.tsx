@@ -191,6 +191,16 @@ export function StockDetail({
                                     {selectedItem.pl_percent >= 0 ? "+" : ""}{selectedItem.pl_percent.toFixed(2)}%
                                 </div>
                             )}
+                            {selectedItem.market_status === "PRE_MARKET" && (
+                                <span className="text-[10px] px-2 py-0.5 rounded-md bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 font-black border border-orange-200 dark:border-orange-500/20 leading-none">
+                                    PRE
+                                </span>
+                            )}
+                            {selectedItem.market_status === "AFTER_HOURS" && (
+                                <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-500/10 text-slate-500 dark:text-slate-400 font-black border border-slate-200 dark:border-slate-500/20 leading-none">
+                                    POST
+                                </span>
+                            )}
                         </div>
                     </div>
 
@@ -421,7 +431,7 @@ export function StockDetail({
                                         )}>
                                             {activeZone.name}
                                         </span>
-                                        <div className={clsx(
+                                            <div className={clsx(
                                             "flex items-center gap-1.5 px-2 py-0.5 rounded-md border ml-1",
                                             parseFloat(effectiveRR || "0") >= 2.5 ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20" :
                                             parseFloat(effectiveRR || "0") >= 1.8 ? "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20" :
@@ -430,6 +440,16 @@ export function StockDetail({
                                             <span className="text-[8px] font-bold uppercase tracking-tighter opacity-70">盈亏比 R/R</span>
                                             <span className="text-[10px] font-black tabular-nums">{effectiveRR || "--"}</span>
                                         </div>
+                                        {selectedItem.market_status === "PRE_MARKET" && (
+                                            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-orange-200 bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20 ml-1">
+                                                <span className="text-[8px] font-bold uppercase tracking-tighter opacity-70 italic">盘前 PRE</span>
+                                            </div>
+                                        )}
+                                        {selectedItem.market_status === "AFTER_HOURS" && (
+                                            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-slate-200 bg-slate-50 text-slate-500 dark:bg-slate-500/10 dark:text-slate-400 dark:border-slate-500/20 ml-1">
+                                                <span className="text-[8px] font-bold uppercase tracking-tighter opacity-70 italic">盘后 POST</span>
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <span className="text-sm font-semibold text-blue-600 dark:text-blue-500 opacity-90">{aiData.summary_status || "技术修复中"}</span>

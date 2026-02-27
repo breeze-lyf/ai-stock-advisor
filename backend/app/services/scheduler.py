@@ -99,15 +99,22 @@ async def refresh_all_stocks():
             async def safe_refresh(t):
                 async with semaphore:
                     try:
+                        # 增加微小延迟，防止瞬时撞击三方 API (Tavily/AkShare)
+                        await asyncio.sleep(1)
                         # 使用独立的 session 防止冲突
                         async with SessionLocal() as local_db:
-                            await MarketDataService.get_real_time_data(t, local_db, force_refresh=True)
+                            # 后台自动刷新强制跳过新闻抓取 (skip_news=True)，以节省终端/Tavily 额度
+                            await MarketDataService.get_real_time_data(t, local_db, force_refresh=True, skip_news=True)
+                        logger.info(f"[Scheduler] 成功更新股票行情: {t}")
                     except Exception as e:
                         logger.error(f"[Scheduler] 刷新 {t} 失败: {e}")
 
             tasks = [safe_refresh(t) for t in active_tickers]
-            await asyncio.gather(*tasks)
-            logger.info(f"[Scheduler] 本轮后台刷新完成。")
+            # 串行执行或小并发执行，确保 API 稳定性
+            for task in tasks:
+                await task
+            
+            logger.info(f"[Scheduler] 本轮后台刷新成功完成，共更新 {len(active_tickers)} 只标的。")
             
         except Exception as e:
             logger.error(f"[Scheduler] 轮询任务发生异常: {e}")

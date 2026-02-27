@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 # 这是本项目的“行情发动机”。
 class MarketDataService:
     @staticmethod
-    async def get_real_time_data(ticker: str, db: AsyncSession, preferred_source: str = "YFINANCE", force_refresh: bool = False, price_only: bool = False):
+    async def get_real_time_data(ticker: str, db: AsyncSession, preferred_source: str = "YFINANCE", force_refresh: bool = False, price_only: bool = False, skip_news: bool = False):
         """
         核心方法：获取单支股票最新的行情。支持 price_only 模式以提高响应速度。
         """
@@ -36,8 +36,21 @@ class MarketDataService:
             if price_only or cache.rsi_14 is not None:
                 return cache
 
+        # 智能判定：如果 force_refresh=True 且没有显式要求 skip_news，
+        # 则检查数据库近期是否已有新闻（缓存 4 小时）
+        if not skip_news and force_refresh:
+            from app.models.stock import StockNews
+            news_stmt = select(StockNews).where(StockNews.stock_ticker == ticker).order_by(StockNews.publish_time.desc()).limit(1)
+            news_res = await db.execute(news_stmt)
+            latest_news = news_res.scalar_one_or_none()
+            if latest_news and latest_news.publish_time:
+                p_time = latest_news.publish_time.replace(tzinfo=None)
+                if (now - p_time) < timedelta(hours=4):
+                    logger.info(f"Skipping Tavily for {ticker} as news is recently updated within 4 hours.")
+                    skip_news = True
+
         # 2. 第二步：执行真正的抓取
-        data = await MarketDataService._fetch_from_providers(ticker, preferred_source, price_only=price_only)
+        data = await MarketDataService._fetch_from_providers(ticker, preferred_source, price_only=price_only, skip_news=skip_news)
 
         if not data:
             if cache:
@@ -52,9 +65,9 @@ class MarketDataService:
         return await MarketDataService._update_database(ticker, data, cache, db, now)
 
     @staticmethod
-    async def _fetch_from_providers(ticker: str, preferred_source: str, price_only: bool = False) -> Optional[FullMarketData]:
+    async def _fetch_from_providers(ticker: str, preferred_source: str, price_only: bool = False, skip_news: bool = False) -> Optional[FullMarketData]:
         """
-        底层抓取器：支持 price_only 模式跳过重型指标和新闻。
+        底层抓取器：支持 price_only 模式跳过重型指标和新闻，支持 skip_news 排除 Tavily。
         """
         provider = ProviderFactory.get_provider(ticker, preferred_source)
         
@@ -87,9 +100,12 @@ class MarketDataService:
                 
                 from app.services.market_providers.tavily import TavilyProvider
                 tavily = TavilyProvider()
+                
+                # 原始新闻源（AkShare/Tencent）总是开启（不计费）
                 news_tasks = [asyncio.create_task(provider.get_news(ticker))]
                 
-                if tavily.api_key:
+                # Tavily 仅在不 skip_news 时开启
+                if not skip_news and tavily.api_key:
                     news_tasks.append(asyncio.create_task(tavily.get_news(ticker)))
                 
                 is_us = not (ticker.isdigit() and len(ticker) == 6)
@@ -255,28 +271,37 @@ class MarketDataService:
             
             # ---【本项目核心逻辑】盈亏比的动态重算 ---
             # 盈亏比 (Reward/Risk) = (目标价 - 现价) / (现价 - 止损价)
-            if cache.is_ai_strategy:
-                # 如果这个点位已经被 AI 锁定 (is_ai_strategy=True)
-                # 我们就不再使用通用的 S1/R1，而是使用 AI 建议的止盈止损位。
-                if cache.resistance_1 and cache.support_1 and cache.current_price:
-                    reward = sanitize_float(cache.resistance_1) - sanitize_float(cache.current_price) # 潜在盈利
-                    risk = sanitize_float(cache.current_price) - sanitize_float(cache.support_1)     # 潜在损失
-                    if risk and risk > 0.01: 
-                        # 计算比例。如果价格已经超过了止盈位(reward为负)，则盈亏比标记为0
-                        new_rr = round(reward / risk, 2) if reward > 0 else 0.0
-                        cache.risk_reward_ratio = new_rr
-                    else:
-                        # 风险无穷大或已跌破，标记为 None，前端会显示为红色预警
-                        cache.risk_reward_ratio = None
-            else:
-                # 如果不是 AI 锁定策略，仅仅是常规行情，我们更新常规的阻力支撑位。
-                cache.resistance_1 = ind.get('resistance_1', cache.resistance_1)
-                cache.resistance_2 = ind.get('resistance_2', cache.resistance_2)
-                cache.support_1 = ind.get('support_1', cache.support_1)
-                cache.support_2 = ind.get('support_2', cache.support_2)
-                cache.risk_reward_ratio = None # 常规行情下不展示由机器乱算的盈亏比
+            
+            # 1. 优先级：如果已有阻力位/支撑位（无论是 AI 锁定的还是机器算的）
+            res = cache.resistance_1 or ind.get('resistance_1')
+            sup = cache.support_1 or ind.get('support_1')
+            curr_p = cache.current_price
 
-        cache.market_status = MarketStatus.OPEN
+            if res and sup and curr_p:
+                reward = sanitize_float(res) - sanitize_float(curr_p) # 潜在盈利
+                risk = sanitize_float(curr_p) - sanitize_float(sup)    # 潜在损失
+                
+                # 更新模型中的支撑/阻力位（如果不是 AI 锁定的）
+                if not cache.is_ai_strategy:
+                    cache.resistance_1 = sanitize_float(ind.get('resistance_1'), cache.resistance_1)
+                    cache.resistance_2 = sanitize_float(ind.get('resistance_2'), cache.resistance_2)
+                    cache.support_1 = sanitize_float(ind.get('support_1'), cache.support_1)
+                    cache.support_2 = sanitize_float(ind.get('support_2'), cache.support_2)
+
+                if risk and risk > 0.01:
+                    # 如果价格在区间内
+                    if reward > 0:
+                        cache.risk_reward_ratio = round(reward / risk, 2)
+                    else:
+                        # 价格已突破阻力位，置为 0 表示当前点位性价比低
+                        cache.risk_reward_ratio = 0.0
+                else:
+                    # 风险极小（接近支撑位）或已跌破支撑位
+                    cache.risk_reward_ratio = None
+            else:
+                cache.risk_reward_ratio = None
+
+        cache.market_status = data.quote.market_status or MarketStatus.OPEN.value
         cache.last_updated = now
 
         # 4. 新闻增量同步与去重

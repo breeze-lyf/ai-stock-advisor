@@ -145,14 +145,27 @@ export const analyzeStock = async (ticker: string, force: boolean = false): Prom
 };
 
 /** 获取该股票最新的 AI 分析缓存 */
-export const getLatestAnalysis = async (ticker: string): Promise<AnalysisResponse> => {
-    const response = await api.get(`/api/analysis/${ticker}`);
-    return response.data;
+export const getLatestAnalysis = async (ticker: string): Promise<AnalysisResponse | null> => {
+    try {
+        const response = await api.get(`/api/analysis/${ticker}`);
+        return response.data;
+    } catch (error: any) {
+        if (error.response?.status === 404) {
+            return null; // 404 表示尚未有分析记录，属于合法业务状态
+        }
+        throw error;
+    }
 };
 
 /** 发起全量持仓 AI 诊断 */
 export const analyzePortfolio = async (): Promise<PortfolioAnalysisResponse> => {
     const response = await api.post("/api/analysis/portfolio");
+    return response.data;
+};
+
+/** 批量重排自选股 */
+export const reorderPortfolio = async (orders: { ticker: string; sort_order: number }[]): Promise<{ message: string }> => {
+    const response = await api.patch("/api/portfolio/reorder", orders);
     return response.data;
 };
 

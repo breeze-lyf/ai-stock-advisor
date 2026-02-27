@@ -60,6 +60,7 @@ class PortfolioItem(BaseModel):
     risk_reward_ratio: Optional[float] = None
     
     change_percent: Optional[float] = 0.0
+    market_status: Optional[str] = None
 
 class PortfolioSummary(BaseModel):
     total_market_value: float

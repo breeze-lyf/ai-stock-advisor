@@ -245,9 +245,11 @@ function DashboardContent() {
               recovered = true;
               break;
             }
+          } else {
+            console.log(`Recovery attempt ${attempt}: No analysis report found yet, continuing polling...`);
           }
         } catch (retryError) {
-          console.error(`Recovery attempt ${attempt} failed:`, retryError);
+          console.error(`Recovery attempt ${attempt} encountered unexpected error:`, retryError);
         }
       }
 

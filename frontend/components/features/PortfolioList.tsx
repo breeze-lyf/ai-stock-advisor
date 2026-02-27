@@ -3,12 +3,12 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Pencil, Trash2, Filter, X, RefreshCw } from "lucide-react";
+import clsx from "clsx";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
-import clsx from "clsx";
 import { PortfolioItem } from "@/types";
-import { addPortfolioItem, deletePortfolioItem, refreshStock, refreshAllStocks } from "@/lib/api";
+import { addPortfolioItem, deletePortfolioItem, refreshStock, refreshAllStocks, reorderPortfolio } from "@/lib/api";
+import { ArrowUpToLine, Plus, Pencil, Trash2, Filter, X, RefreshCw } from "lucide-react";
 import {
     Tooltip,
     TooltipContent,
@@ -36,7 +36,7 @@ export function PortfolioList({
 }: PortfolioListProps) {
     const [editingTicker, setEditingTicker] = useState<string | null>(null);
     const [editForm, setEditForm] = useState({ quantity: "", cost: "" });
-    const [sortBy, setSortBy] = useState<"ticker" | "price" | "change">("ticker");
+    const [sortBy, setSortBy] = useState<"ticker" | "price" | "change" | "manual" | "risk_reward_ratio">("manual");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
     const [refreshingTicker, setRefreshingTicker] = useState<string | null>(null);
@@ -52,28 +52,54 @@ export function PortfolioList({
         .filter((item) => !onlyHoldings || item.quantity > 0)
         .sort((a, b) => {
             let valA, valB;
-            if (sortBy === "ticker") {
+            if (sortBy === "risk_reward_ratio") {
+                valA = a.risk_reward_ratio;
+                valB = b.risk_reward_ratio;
+            } else if (sortBy === "ticker") {
                 valA = a.ticker;
                 valB = b.ticker;
             } else if (sortBy === "price") {
                 valA = a.current_price;
                 valB = b.current_price;
+            } else if (sortBy === "change") {
+                valA = a.change_percent;
+                valB = b.change_percent;
             } else {
-                valA = a.pl_percent;
-                valB = b.pl_percent;
+                // 默认手动排序 (Manual sort based on sort_order)
+                return 0; // 由于后端已经排好序返回，且前端没有重排逻辑时，保持原序
             }
+
+            if (valA === null || valB === null || valA === undefined || valB === undefined) return 0;
 
             if (valA < valB) return sortOrder === "asc" ? -1 : 1;
             if (valA > valB) return sortOrder === "asc" ? 1 : -1;
             return 0;
         });
 
-    const handleSort = (key: "ticker" | "price" | "change") => {
+    const handleSort = (key: "ticker" | "price" | "change" | "manual" | "risk_reward_ratio") => {
         if (sortBy === key) {
             setSortOrder(sortOrder === "asc" ? "desc" : "asc");
         } else {
             setSortBy(key);
-            setSortOrder("asc");
+            // 盈亏比及涨幅默认从高到低排列
+            setSortOrder(key === "risk_reward_ratio" || key === "change" ? "desc" : "asc");
+        }
+    };
+
+    const handlePinToTop = async (ticker: string) => {
+        // 将选中的股票排到第一，其余顺延
+        const others = portfolio.filter(p => p.ticker !== ticker);
+        const newOrders = [
+            { ticker, sort_order: 0 },
+            ...others.map((p, idx) => ({ ticker: p.ticker, sort_order: idx + 1 }))
+        ];
+
+        try {
+            await reorderPortfolio(newOrders);
+            onRefresh();
+            setSortBy("manual"); // 强制切换回手动排序视图
+        } catch (err) {
+            alert("排序更新失败");
         }
     };
 
@@ -175,18 +201,25 @@ export function PortfolioList({
             </div>
 
             {/* Table Headers */}
-            <div className="grid grid-cols-3 px-4 py-1.5 border-b text-[10px] uppercase tracking-wider font-bold text-slate-400 bg-slate-50/50 dark:bg-slate-800/20">
+            <div className="grid grid-cols-4 px-4 py-1.5 border-b text-[10px] uppercase tracking-wider font-bold text-slate-400 bg-slate-50/50 dark:bg-slate-800/20">
                 <div
                     className="cursor-pointer hover:text-blue-500 transition-colors flex items-center gap-1"
-                    onClick={() => handleSort("ticker")}
+                    onClick={() => handleSort(sortBy === "manual" ? "ticker" : "manual")}
                 >
-                    代码 {sortBy === "ticker" && (sortOrder === "asc" ? "↑" : "↓")}
+                    {sortBy === "manual" ? "默认" : "代码"}{" "}
+                    {sortBy === "manual" ? "" : (sortBy === "ticker" ? (sortOrder === "asc" ? "↑" : "↓") : "")}
                 </div>
                 <div
                     className="cursor-pointer hover:text-blue-500 transition-colors flex items-center justify-center gap-1"
                     onClick={() => handleSort("price")}
                 >
                     价格 {sortBy === "price" && (sortOrder === "asc" ? "↑" : "↓")}
+                </div>
+                <div
+                    className="cursor-pointer hover:text-blue-500 transition-colors flex items-center justify-center gap-1"
+                    onClick={() => handleSort("risk_reward_ratio")}
+                >
+                    盈亏比 {sortBy === "risk_reward_ratio" && (sortOrder === "asc" ? "↑" : "↓")}
                 </div>
                 <div
                     className="cursor-pointer hover:text-blue-500 transition-colors flex items-center justify-end gap-1"
@@ -211,7 +244,7 @@ export function PortfolioList({
                             onClick={() => onSelectTicker(item.ticker)}
                             className="py-2.5 px-4 cursor-pointer relative group"
                         >
-                            <div className="grid grid-cols-3 items-center mb-1">
+                            <div className="grid grid-cols-4 items-center mb-1">
                                     <div className="flex items-center gap-1.5 min-w-0 flex-1">
                                         <div className="flex flex-col truncate">
                                             <span className="font-bold text-sm text-slate-900 dark:text-slate-100 leading-tight truncate">
@@ -225,71 +258,50 @@ export function PortfolioList({
                                         </div>
                                     </div>
                                     
-                                    <div className="flex items-center justify-center gap-1.5">
-                                        <span className="font-mono text-xs text-slate-600 dark:text-slate-400">
-                                            {getCurrencySymbol(item.ticker)}{item.current_price.toFixed(2)}
-                                        </span>
-                                        {item.risk_reward_ratio !== null && item.risk_reward_ratio !== undefined && (
-                                            <Tooltip>
-                                                <TooltipTrigger asChild>
-                                                    <div className={clsx(
-                                                        "shrink-0 w-7 h-4 flex items-center justify-center rounded-[4px] border cursor-help transition-colors",
-                                                        item.risk_reward_ratio >= 3.0 ? "bg-emerald-500/10 border-emerald-500/20 hover:bg-emerald-500/20" :
-                                                        item.risk_reward_ratio >= 1.5 ? "bg-blue-500/10 border-blue-500/20 hover:bg-blue-500/20" :
-                                                        "bg-rose-500/10 border-rose-500/20 hover:bg-rose-500/20"
-                                                    )}>
-                                                        <span className={clsx(
-                                                            "text-[8px] font-black tabular-nums leading-none",
-                                                            item.risk_reward_ratio >= 3.0 ? "text-emerald-600 dark:text-emerald-400" :
-                                                            item.risk_reward_ratio >= 1.5 ? "text-blue-600 dark:text-blue-400" :
-                                                            "text-rose-600 dark:text-rose-400"
-                                                        )}>
-                                                            {item.risk_reward_ratio.toFixed(1)}
-                                                        </span>
-                                                    </div>
-                                                </TooltipTrigger>
-                                                <TooltipContent className="bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 p-3 shadow-xl z-50">
-                                                    <div className="flex flex-col gap-1.5">
-                                                        <div className="flex items-center justify-between gap-4">
-                                                            <span className="text-[10px] font-black uppercase text-slate-400">盈亏比 (RRR)</span>
-                                                            <span className={clsx(
-                                                                "text-sm font-black italic",
-                                                                item.risk_reward_ratio >= 3.0 ? "text-emerald-500" :
-                                                                item.risk_reward_ratio >= 1.5 ? "text-blue-500" :
-                                                                "text-rose-500"
-                                                            )}>
-                                                                {item.risk_reward_ratio.toFixed(2)}
-                                                            </span>
-                                                        </div>
-                                                        <div className="h-px bg-slate-100 dark:bg-slate-800 my-0.5" />
-                                                        <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-                                                            <div className="flex flex-col">
-                                                                <span className="text-[8px] font-bold text-slate-400 uppercase">关键阻力 (R1/Target)</span>
-                                                                <span className="text-[11px] font-black tabular-nums">${item.resistance_1?.toFixed(2)}</span>
-                                                            </div>
-                                                            <div className="flex flex-col">
-                                                                <span className="text-[8px] font-bold text-slate-400 uppercase">关键支撑 (S1/Stop)</span>
-                                                                <span className="text-[11px] font-black tabular-nums">${item.support_1?.toFixed(2)}</span>
-                                                            </div>
-                                                        </div>
-                                                        <p className="text-[9px] text-slate-400 italic mt-1 leading-tight max-w-[150px]">
-                                                            {item.risk_reward_ratio >= 3.0 ? "高盈亏比机会" : 
-                                                             item.risk_reward_ratio >= 1.5 ? "稳健交易机会" : "低盈亏比/风险较高"}：潜在收益是风险的 {item.risk_reward_ratio.toFixed(1)} 倍
-                                                        </p>
-                                                    </div>
-                                                </TooltipContent>
-                                            </Tooltip>
+                                    <div className="flex flex-col items-center">
+                                        <div className="flex items-center justify-center gap-1">
+                                            <span className="font-mono text-xs text-slate-600 dark:text-slate-400">
+                                                {getCurrencySymbol(item.ticker)}{item.current_price.toFixed(2)}
+                                            </span>
+                                            {item.market_status === "PRE_MARKET" && (
+                                                <span className="text-[8px] px-1 rounded-sm bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 font-black border border-orange-200 dark:border-orange-500/20 leading-none py-0.5">
+                                                    PRE
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col items-center">
+                                        {item.risk_reward_ratio !== null && item.risk_reward_ratio !== undefined ? (
+                                            <div className={clsx(
+                                                "shrink-0 w-8 h-4 flex items-center justify-center rounded-[4px] border",
+                                                item.risk_reward_ratio >= 3.0 ? "bg-emerald-500/10 border-emerald-500/20" :
+                                                item.risk_reward_ratio >= 1.5 ? "bg-blue-500/10 border-blue-500/20" :
+                                                "bg-rose-500/10 border-rose-500/20"
+                                            )}>
+                                                <span className={clsx(
+                                                    "text-[9px] font-black tabular-nums leading-none",
+                                                    item.risk_reward_ratio >= 3.0 ? "text-emerald-600 dark:text-emerald-400" :
+                                                    item.risk_reward_ratio >= 1.5 ? "text-blue-600 dark:text-blue-400" :
+                                                    "text-rose-600 dark:text-rose-400"
+                                                )}>
+                                                    {item.risk_reward_ratio.toFixed(1)}
+                                                </span>
+                                            </div>
+                                        ) : (
+                                            <span className="text-[10px] text-slate-300">--</span>
                                         )}
                                     </div>
-                                <span
-                                    className={clsx(
-                                        "text-right text-xs font-bold",
-                                        (item.change_percent || 0) >= 0 ? "text-green-600" : "text-red-500"
-                                    )}
-                                >
-                                    {(item.change_percent || 0) >= 0 ? "+" : ""}
-                                    {(item.change_percent || 0).toFixed(2)}%
-                                </span>
+
+                                    <div className="flex flex-col items-end">
+                                        <span className={clsx(
+                                            "text-sm font-bold tabular-nums",
+                                            (item.change_percent || 0) >= 0 ? "text-emerald-600" : "text-rose-600"
+                                        )}>
+                                            {(item.change_percent || 0) >= 0 ? "+" : ""}
+                                            {(item.change_percent || 0).toFixed(2)}%
+                                        </span>
+                                    </div>
                             </div>
                             <div className="flex justify-between items-end mt-0.5">
                                 <div className="text-[10px] text-slate-400 font-mono flex items-center gap-2">
@@ -325,6 +337,18 @@ export function PortfolioList({
                                             : "opacity-0 group-hover:opacity-100"
                                     )}
                                 >
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-7 w-7 text-slate-300 hover:text-indigo-500 hover:bg-indigo-50"
+                                        title="置顶"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handlePinToTop(item.ticker);
+                                        }}
+                                    >
+                                        <ArrowUpToLine className="h-3.5 w-3.5" />
+                                    </Button>
                                     <Button
                                         variant="ghost"
                                         size="icon"

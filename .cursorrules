@@ -1,0 +1,14 @@
+# AI Development Context Rules
+
+# Mandatory reference for any AI-assisted development
+# Read docs/ai_guidelines/ before modifying core logic
+
+RULE_ARCH_BLUEPRINT: docs/ai_guidelines/architecture.md
+RULE_DATA_CONTRACT: docs/ai_guidelines/schema.md
+RULE_WORKFLOW_SOP: docs/ai_guidelines/workflow.md
+
+# Global Constraints
+- Backend logic must reside in services/, never in routers.
+- US Market quotes must use Sina Direct via AkShareProvider.
+- All financial floats must be sanitized via sanitize_float().
+- No placeholder code. All features must be fully implemented and documented.

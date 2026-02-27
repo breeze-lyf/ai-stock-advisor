@@ -4,6 +4,7 @@ export type PortfolioItem = components["schemas"]["PortfolioItem"] & {
     macd_cross?: string | null;
     macd_is_new_cross?: boolean;
     risk_reward_ratio?: number | null;
+    market_status?: string | null;
 };
 export type PortfolioCreate = components["schemas"]["PortfolioCreate"];
 export interface AnalysisResponse {

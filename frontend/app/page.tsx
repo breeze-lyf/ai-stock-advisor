@@ -155,6 +155,13 @@ function DashboardContent() {
       fetchData(false); // Refresh portfolio score
     } catch (error: any) {
       console.warn("Analysis failed, check logs", error);
+      // 将报错信息透传到界面上，而不是显示硬编码的“调用失败”
+      const errorMsg = error.response?.data?.detail || error.message || "未知错误";
+      setAiData({ 
+        technical_analysis: `请求失败: ${errorMsg}`, 
+        action_advice: "接口请求发生异常，请检查网络或重新登录。", 
+        summary_status: "调用失败" 
+      });
     } finally {
       setAnalyzing(false);
     }

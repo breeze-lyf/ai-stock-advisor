@@ -97,13 +97,21 @@ class AIService:
         
         try:
             # 3. 发送异步 HTTP 请求 (Async HTTP Request)
-            async with httpx.AsyncClient(timeout=120.0) as client:
+            # 对于国内服务 SiliconFlow，显式禁用系统代理 (trust_env=False)，确保直连稳定性。
+            async with httpx.AsyncClient(timeout=120.0, trust_env=False) as client:
                 response = await client.post(url, json=payload, headers=headers)
                 
                 # 4. 错误处理 (Error Handling)
                 if response.status_code != 200:
                     error_detail = response.text
-                    logger.error(f"SiliconFlow API Error: HTTP {response.status_code} - {error_detail}")
+                    logger.error(f"SiliconFlow API Error: Status {response.status_code} | Detail: {error_detail}")
+                    # 针对特定状态码给出更友好的提示
+                    if response.status_code == 401:
+                        return "**Error**: AI API Key 无效或已过期。"
+                    elif response.status_code == 402:
+                        return "**Error**: AI 服务账户余额不足。"
+                    elif response.status_code == 429:
+                        return "**Error**: AI 接口调用过于频繁，请稍后再试。"
                     return f"**Error**: AI 服务商报错 (HTTP {response.status_code})。"
                 
                 result = response.json()
@@ -120,7 +128,7 @@ class AIService:
 
 
     @staticmethod
-    async def generate_analysis(ticker: str, market_data: dict, portfolio_data: dict, news_data: list = None, fundamental_data: dict = None, previous_analysis: dict = None, model: str = "gemini-1.5-flash", api_key_gemini: str = None, api_key_siliconflow: str = None, db: AsyncSession = None) -> str:
+    async def generate_analysis(ticker: str, market_data: dict, portfolio_data: dict, news_data: list = None, macro_context: str = None, fundamental_data: dict = None, previous_analysis: dict = None, model: str = "gemini-1.5-flash", api_key_gemini: str = None, api_key_siliconflow: str = None, db: AsyncSession = None) -> str:
         """
         主方法：生成个股深度诊断。
         
@@ -159,10 +167,14 @@ class AIService:
         - 趋势强度 (ADX): {market_data.get('adx_14')} | ATR: {market_data.get('atr_14')}
         - 枢轴参考 (Pivots): 阻力位 R1: {market_data.get('resistance_1')} / R2: {market_data.get('resistance_2')} | 支撑位 S1: {market_data.get('support_1')} / S2: {market_data.get('support_2')}
         
-        **4. 最新消息面 (Recent News)**:
-        {news_data if news_data else "暂无重大相关新闻。"}
+        **4. 实时个股/行业消息面 (Recent Stock News)**:
+        {news_data if news_data else "暂无重大相关个股新闻。"}
         
-        **5. 历史分析上下文 (Historical Context - Previous AI Analysis)**:
+        **5. 全球宏观雷达与热点 (Global Macro Radar & Hotspots)**:
+        [CONTEXT]: 以下是当前对全球市场（地缘政治、大宗商品、宏观政策）影响最大的热点。请分析这些宏观偏见如何传导至该标的。
+        {macro_context if macro_context else "暂无显著全球宏观波动。"}
+        
+        **6. 历史分析上下文 (Historical Context - Previous AI Analysis)**:
         {f'''
         - 上次分析时间: {previous_analysis.get('time', '未知')}
         - 上次信心及风险: 信心(Confidence): {previous_analysis.get('confidence_level', '无')}/100 | 风险(Risk): {previous_analysis.get('risk_level', '无')}
@@ -224,7 +236,8 @@ class AIService:
 
 ### 3. 多维逻辑支撑
 * **技术面:** (核心技术指标信号)
-* **基本面/情绪面:** (支撑研判的非技术因素)
+* **基本面:** (支撑研判的财务因素)
+* **消息面/宏观面:** (地缘政治、全球热点或个股重大新闻的传导逻辑)
 "
         }}
         """

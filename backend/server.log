@@ -1,0 +1,235 @@
+INFO:     Will watch for changes in these directories: ['/Users/breeze/Dev/ai-stock-advisor/backend']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [93064] using StatReload
+2026-02-28 21:32:28,128 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+INFO:     Started server process [93115]
+INFO:     Waiting for application startup.
+2026-02-28 21:32:28,271 - api_logger - INFO - PHASE: Background scheduler task launched.
+2026-02-28 21:32:28,271 - app.services.scheduler - INFO - [Scheduler] 调度中心全面启动
+INFO:     Application startup complete.
+2026-02-28 21:32:31,377 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-02-28 21:32:34,058 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
+2026-02-28 21:32:34,299 - app.services.market_providers.yfinance - ERROR - yfinance get_news error for TEST_RRR: Failed to perform, curl: (7) Failed to connect to 127.0.0.1 port 9999 after 0 ms: Could not connect to server. See https://curl.se/libcurl/c/libcurl-errors.html first for more details.
+2026-02-28 21:32:34,300 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-02-28 21:32:34,462 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-02-28 21:32:34,462 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-02-28 21:32:34,617 - app.services.scheduler - INFO - [Scheduler] 开始同步财联社全球快讯...
+2026-02-28 21:32:34,618 - app.services.macro_service - INFO - Starting Cailianshe global news update (Thread Safe)...
+2026-02-28 21:32:39,429 - app.services.macro_service - INFO - Successfully persisted 2 new Cailianshe items.
+2026-02-28 21:32:39,430 - app.services.scheduler - INFO - [Scheduler] 财联社快讯同步完成。
+2026-02-28 21:32:39,430 - app.services.scheduler - INFO - [Scheduler] 开始例行更新全球宏观雷达...
+2026-02-28 21:32:39,431 - app.services.macro_service - INFO - Starting global macro radar update...
+2026-02-28 21:32:39,475 - app.services.macro_service - ERROR - Macro search failed for query 'top global macro economic events moving markets today': All connection attempts failed
+2026-02-28 21:32:39,489 - app.services.macro_service - ERROR - Macro search failed for query 'major geopolitical conflicts impacting stock market': All connection attempts failed
+2026-02-28 21:32:39,500 - app.services.macro_service - ERROR - Macro search failed for query 'Fed interest rate expectations and market impact news': All connection attempts failed
+2026-02-28 21:32:39,500 - app.services.macro_service - WARNING - Tavily returned 0 news results for all macro queries.
+2026-02-28 21:32:39,501 - app.services.scheduler - INFO - [Scheduler] 全球宏观雷达更新完成。
+2026-02-28 21:33:53,873 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1507.95ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772330567, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:52354 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-02-28 21:35:53,721 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1357.35ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772330567, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:52547 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-02-28 21:37:41,149 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-02-28 21:37:44,160 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for TEST_RRR: list index out of range
+2026-02-28 21:37:44,161 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-02-28 21:37:44,317 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-02-28 21:37:44,317 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-02-28 21:37:53,861 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1495.91ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772330567, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:52726 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52771 - "OPTIONS /api/stocks/META/history?period=1y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52773 - "OPTIONS /api/analysis/META HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52774 - "OPTIONS /api/stocks/META/history?period=1y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52775 - "OPTIONS /api/portfolio/META/news HTTP/1.1" 200 OK
+2026-02-28 21:38:23,598 - api_logger - INFO - rid=/api/stocks/META/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=398.63ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772330567, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772330567, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:52771 - "GET /api/stocks/META/history?period=1y HTTP/1.1" 200 OK
+2026-02-28 21:38:23,855 - api_logger - INFO - rid=/api/stocks/META/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=256.44ms
+INFO:     127.0.0.1:52774 - "GET /api/stocks/META/history?period=1y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52774 - "OPTIONS /api/stocks/WMT/history?period=1y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52771 - "OPTIONS /api/analysis/WMT HTTP/1.1" 200 OK
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772330567, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:52802 - "OPTIONS /api/stocks/WMT/history?period=1y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52803 - "OPTIONS /api/portfolio/WMT/news HTTP/1.1" 200 OK
+2026-02-28 21:38:24,476 - api_logger - INFO - rid=/api/portfolio/META/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1265.21ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772330567, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:52775 - "GET /api/portfolio/META/news HTTP/1.1" 200 OK
+2026-02-28 21:38:24,558 - api_logger - INFO - rid=/api/stocks/WMT/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=526.25ms
+INFO:     127.0.0.1:52774 - "GET /api/stocks/WMT/history?period=1y HTTP/1.1" 200 OK
+2026-02-28 21:38:24,836 - api_logger - INFO - rid=/api/stocks/WMT/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=276.99ms
+INFO:     127.0.0.1:52775 - "GET /api/stocks/WMT/history?period=1y HTTP/1.1" 200 OK
+2026-02-28 21:38:25,018 - api_logger - INFO - rid=/api/analysis/META method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1818.28ms
+INFO:     127.0.0.1:52773 - "GET /api/analysis/META HTTP/1.1" 200 OK
+2026-02-28 21:38:25,826 - api_logger - INFO - rid=/api/portfolio/WMT/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1781.67ms
+INFO:     127.0.0.1:52803 - "GET /api/portfolio/WMT/news HTTP/1.1" 200 OK
+2026-02-28 21:38:25,926 - api_logger - INFO - rid=/api/analysis/WMT method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1892.58ms
+INFO:     127.0.0.1:52771 - "GET /api/analysis/WMT HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:52771 - "OPTIONS /api/stocks/FRO/history?period=1y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52803 - "OPTIONS /api/analysis/FRO HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52773 - "OPTIONS /api/stocks/FRO/history?period=1y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52775 - "OPTIONS /api/portfolio/FRO/news HTTP/1.1" 200 OK
+2026-02-28 21:38:27,284 - api_logger - INFO - rid=/api/stocks/FRO/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=412.85ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772330567, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772330567, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:52771 - "GET /api/stocks/FRO/history?period=1y HTTP/1.1" 200 OK
+2026-02-28 21:38:27,555 - api_logger - INFO - rid=/api/stocks/FRO/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=268.80ms
+INFO:     127.0.0.1:52773 - "GET /api/stocks/FRO/history?period=1y HTTP/1.1" 200 OK
+2026-02-28 21:38:28,038 - api_logger - INFO - rid=/api/portfolio/FRO/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1160.31ms
+INFO:     127.0.0.1:52775 - "GET /api/portfolio/FRO/news HTTP/1.1" 200 OK
+2026-02-28 21:38:28,109 - api_logger - INFO - rid=/api/analysis/FRO method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1232.49ms
+INFO:     127.0.0.1:52803 - "GET /api/analysis/FRO HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52803 - "OPTIONS /api/analysis/FRO?force=true HTTP/1.1" 200 OK
+2026-02-28 21:38:33,482 - app.services.market_data - INFO - Skipping Tavily for FRO as news is recently updated within 4 hours.
+2026-02-28 21:38:34,105 - app.services.market_data - INFO - Syncing fundamental for FRO: market_cap=8448539000.0, PE=0.98
+2026-02-28 21:38:37,493 - app.api.v1.endpoints.analysis - INFO - Preparing AI analysis for FRO. Market Data keys present: ['current_price', 'change_percent', 'rsi_14', 'ma_20', 'ma_50', 'ma_200', 'macd_val', 'macd_hist', 'macd_hist_slope', 'bb_upper', 'bb_middle', 'bb_lower', 'k_line', 'd_line', 'j_line', 'atr_14', 'adx_14', 'resistance_1', 'resistance_2', 'support_1', 'support_2', 'market_status']
+2026-02-28 21:38:37,818 - app.api.v1.endpoints.analysis - INFO - Loaded historical analysis context for FRO from 14分钟前
+2026-02-28 21:38:37,822 - app.services.ai_service - INFO - --- AI ANALYSIS PROMPT FOR FRO ---
+
+        你是一位资深美股投资顾问和量化策略专家。请基于以下多维数据为代码 [FRO] 提供严谨的诊断。
+        
+        **1. 基础面概览 (Fundamental Context)**:
+        - 行业/板块: Energy / Oil & Gas Midstream
+        - 市值: 8448539000.0
+        - PE (TTM): 0.98 | Forward PE: 10.797284
+        - 52周波动范围: [11.98, 37.97]
+        - Beta: 0.049
+        
+        **2. 用户持仓背景 (Portfolio Context)**:
+        - 当前成本价: $27.32
+        - 持仓数量: 0.0
+        - 未实现盈亏: $0.0 (0%)
+        
+        **3. 实时技术面数据 (Technical Data)**:
+        - 当前价格: $37.95
+        - 今日涨跌: 1.8%
+        - RSI (14): 92.05882340305651 | KDJ (K): 96.62527294864317 / (D): 95.53306528266087 / (J): 98.80968828060779
+        - MACD: 2.875030251933115 (柱状图: 0.5392547474832736, 斜率: -0.005284097077667749)
+        - 布林带 (BB): 上轨: 38.710279280775026 | 均线: 31.853500000000004 | 下轨: 24.99672071922498
+        - MA 均线: [20: 31.853500000000004, 50: 27.156599999999997, 200: 22.5257]
+        - 趋势强度 (ADX): None | ATR: 1.2642428571428572
+        - 枢轴参考 (Pivots): 阻力位 R1: 38.71 / R2: 30.81666628519694 | 支撑位 S1: 29.27 / S2: 28.836666742960613
+        
+        **4. 实时个股/行业消息面 (Recent Stock News)**:
+        [{'title': 'Private-credit ‘cockroaches’ and the AI ‘scare trade’ hammered stocks in February. Here’s what else has investors shaken up. - MarketWatch', 'publisher': 'www.marketwatch.com', 'time': '2026-02-28T10:01:35.685418'}, {'title': 'Fintech company Block lays off 4,000 of its 10,000 staff, citing gains from AI - Bozeman Daily Chronicle', 'publisher': 'www.bozemandailychronicle.com', 'time': '2026-02-28T10:01:35.685403'}, {'title': 'U.S. GoldMining Provides Preliminary 2025 Financial Information - TipRanks', 'publisher': 'www.tipranks.com', 'time': '2026-02-28T10:01:35.685337'}, {'title': 'Frontline Q4 Earnings Call Highlights', 'publisher': 'MarketBeat', 'time': '2026-02-28T08:20:53'}, {'title': 'Frontline’s ECO VLCC Renewal Reshapes Earnings Outlook And Risk Profile', 'publisher': 'Simply Wall St.', 'time': '2026-02-28T06:14:32'}]
+        
+        **5. 全球宏观雷达与热点 (Global Macro Radar & Hotspots)**:
+        [CONTEXT]: 以下是当前对全球市场（地缘政治、大宗商品、宏观政策）影响最大的热点。请分析这些宏观偏见如何传导至该标的。
+        ### 宏观热点雷达 (Macro Radar):
+- **中东局势升级：以色列对伊朗实施报复性打击** (热度: 98.0): 地缘政治风险急剧上升，市场担忧霍尔木兹海峡封锁，原油供应面临巨大威胁，油轮运费（BDTI/BCTI）预期大幅上涨。
+- **贸易政策不确定性升级与关税威胁** (热度: 90.0): 前总统特朗普表示将提高全球关税至15%，以替代被最高法院裁定非法的关税，引发市场对全球贸易紧张局势加剧的担忧。
+- **贸易政策不确定性加剧，关税威胁重创全球贸易预期** (热度: 90.0): 特朗普政府宣布将提高全球关税至15%，以替代被最高法院裁定无效的关税，引发市场对全球贸易紧张局势升级的担忧，导致股市波动，特别是依赖全球供应链的板块承压。
+
+### 实时全球快讯 (Real-time Global Flash):
+- [21:31:46] 【东航发布部分中东航线非自愿退改规定的通知】财联社2月28日电，东航发布通知称，为协助受近期中东安全形势影响的旅客妥善安排行程，做好相关旅客服务保障，东航特制定涉及迪拜、阿布扎比、利雅得、马斯喀特相关航线客票特殊处理规定。...
+- [21:25:56] 财联社2月28日电，伯克希尔·哈撒韦公司财报显示，截至2025年12月31日，其现金及现金等价物为3733亿美元；截至2025年12月31日，其持有的股票投资总公允价值中，约65%集中在五家公司。...
+- [21:28:57] 【国航发布涉及迪拜、阿布扎比、利雅得航线客票特殊处置方案的通知】财联社2月28日电，受相关地区局势影响，为协助旅客更好地安排出行，中国航空发布涉及迪拜、阿布扎比、利雅得航线进出港航班客票特殊处置方案。...
+- [21:25:56] 财联社2月28日电，伯克希尔·哈撒韦公司财报显示，截至2025年12月31日，其现金及现金等价物为3733亿美元。...
+- [21:24:53] 【伊朗称目前发射导弹只是清库存 即将投入一系列“从未面世的神秘武器”】财联社2月28日电，伊朗革命卫队高级指挥官贾巴里向美国总统特朗普发出了严厉警告。他公开表示，伊朗在今日反击行动中所动用的导弹仅仅是“仓库里的陈旧库存”，意在暗示伊朗真正的战略底牌尚未打出。贾巴里进一步透露，伊朗即将在战场上展示并投...
+
+        
+        **6. 历史分析上下文 (Historical Context - Previous AI Analysis)**:
+        
+        - 上次分析时间: 2026-02-28 13:24 (14分钟前)
+        - 上次信心及风险: 信心(Confidence): None/100 | 风险(Risk): 未知
+        - 上次研判结论: 调用失败 (评分: 50)
+        - 上次策略建议: None (期限: None)
+        - 上次关键点位:
+            * 建仓区间: None - None
+            * 止盈目标: None
+            * 止损红线: None
+        - 上次核心观点: 由于 AI 接口调用失败，暂时无法生成详细诊断建议。请检查 API 配置或稍后重试。...
+        [Instruction]: 请参考上述历史观点，根据最新数据微调或不调整。如果市场形势发生重大改变，请明确指出改变原因。
+        
+        
+        **任务 (Core Task)**:
+        当前时间: 2026-02-28 21:38:37
+        请执行“逻辑严密”的投资诊断。
+        
+        **重要准则 (Strict Rules)**:
+        - **数据驱动**: 所有的止损位、加仓位和目标价**必须基于上述提供的技术指标或基础面数值**。例如，“止损设在 MA50 (27.156599999999997) 附近”或“参考布林线下轨 (24.99672071922498)”。
+        - **一致性准则 [CRITICAL]**: `immediate_action` 必须与你定义的 `entry_price` 区间严格逻辑一致。
+            * 如果 [当前价格] > `entry_price_high`，绝对不能建议“即时买入”或“直接建仓”，而应建议“持筹观望”或“等待回调”。
+            * 如果 [当前价格] 处于 [`entry_price_low`, `entry_price_high`] 之间，方可建议“分批买入”或“即刻进场”。
+            * 如果 [当前价格] > `target_price`，建议应侧重“分批止盈”或“警惕过热”。
+        - **严禁乱造**: 不要凭空编造 99.42 之类没有任何参考意义的数字。所有的价格锚点必须在数据中有迹可循。
+        - **持仓逻辑**: 如果用户当前持仓为 0，建议应侧重于建仓点位；如果已有持仓且浮盈/浮亏较大，应给出止盈/加码或减仓策略。
+        - **仓位管理**: 所有的仓位建议必须基于**总资金的百分比** (例如：5%, 10%)，严禁给出具体的股数 (如：100股)。单只个股总仓位通常不建议超过 20%。
+        
+        **返回格式要求**:
+        - 使用简洁、专业的中文。
+        - **必须在 `technical_analysis` 中明确引用以下数值**: 当前价格、RSI、MACD、MA50/200 或布林带位点。
+        - **严谨精度**: AI 建议中的所有价格数值、指标数值必须**四舍五入保留 2 位小数点**（例如：88.54 而不是 88.544834）。
+        - 必须返回严格的 JSON 格式。
+        
+        结果结构:
+        {
+            "sentiment_score": 0-100 (量化评分：0=极度看空, 50=中性, 100=极度看多), 
+            "summary_status": "4-6字定调",
+            "immediate_action": "针对当下的决策建议 (例如：逢低买入/趋势做多/持仓观望/分批减持)",
+            "entry_price_low": "[CRITICAL] 建议买入区间的下限 (Float, 例如：50.50)。必须基于技术支撑位（如布林下轨、MA50、关键支撑位等）。严禁直接使用当前实时价格。",
+            "entry_price_high": "[CRITICAL] 建议买入区间的上限 (Float, 例如：52.00)。必须基于技术参考位（如布林中轨、MA20、关键阻力位等）。**严禁等于当前实时价格**——建仓区间应反映技术面上的理想介入范围，而不是'现在就能买到的价格'。",
+            "target_price": "预期的止盈位 (Float)。必须基于技术阻力位或布林上轨等。",
+            "stop_loss_price": "[CRITICAL] 预期的止损位 (Float)。必须严格低于 entry_price_low (通常建议低 2%-5% 或设在更低一层的关键支撑位)，严禁与建仓下限重叠。",
+            "risk_level": "风险等级：低/中/高",
+            "investment_horizon": "建议持仓期限",
+            "confidence_level": 0-100 (AI 信心指数),
+            "technical_analysis": "核心技术位解读（必须分析 RSI, MACD, MA50 等数值）",
+            "fundamental_news": "基础面/消息面深度解读",
+            "action_advice": "[CRITICAL] 严格按照以下 Markdown 格式生成详细的操作建议，并对关键数值（价格、仓位、止损位）使用 **加粗**：
+            
+### 1. 建议操作与交易综述
+- **建议操作**: **[即时行动建议]**
+- **行情综述**: 当前股价 **$价格** 处于 **[阶段定义]**。整体研判为 **[策略定调]**。
+
+### 2. 结构化操作计划
+* **首批建仓:** **$建仓位1** (触发条件，建议仓位 **xx%**)
+* **次批加码:** **$建仓位2** (触发条件及建议仓位 **xx%**)
+* **止损方案:** **$止损价** (失效条件：明确说明什么情况下该策略失效)
+* **止盈目标:** **第一目标 $价格**，**第二目标 $价格**。
+
+### 3. 多维逻辑支撑
+* **技术面:** (核心技术指标信号)
+* **基本面:** (支撑研判的财务因素)
+* **消息面/宏观面:** (地缘政治、全球热点或个股重大新闻的传导逻辑)
+"
+        }
+        
+--------------------------------------
+2026-02-28 21:38:38,138 - app.services.ai_service - INFO - Calling SiliconFlow with Model ID: Pro/deepseek-ai/DeepSeek-R1 (Key: deepseek-r1)
+2026-02-28 21:38:47,567 - httpx - INFO - HTTP Request: POST https://api.siliconflow.cn/v1/chat/completions "HTTP/1.1 200 OK"
+2026-02-28 21:38:47,568 - app.api.v1.endpoints.analysis - INFO - AI Response for FRO: {
+    "sentiment_score": 85,
+    "summary_status": "地缘溢价驱动",
+    "immediate_action": "等待回调分批建仓",
+    "entry_price_low": 34.50,
+    "entry_price_high": 36.20,
+    "target_price": 41.80,
+    "stop_loss_price": 32.80,
+    "risk_level": "中高",
+    "investment_horizon": "3-6个月",
+    "confidence_level": 80,
+    "technical_analysis": "当前价格37.95远超MA50(27.16)和MA200(22.53)，呈现超买态势。RSI(92.06)严重超买，MACD柱状图(0.54)虽为正但斜率转负，暗示上涨动能减弱。布林带上轨(38.71)构成压力，20日均线(31.85)为关键支撑。",
+    "fundamental_news": "中东冲突升级推升油运需求，公司Q4财报及VLCC更新计划利好长期收益。但PE(TTM)0.98反映盈利异常波动，需警惕运费回归常态风险。",
+    "action_advice": "### 1. 建议操作与交易综述\n- **建议操作**: **等待回调分批建仓**\n- **行情综述**: 当前股价 **$37.95** 处于 **地缘风险溢价驱动的超买阶段**。整体研判为 **事件驱动型机会与技术面过热并存**。\n\n### 2. 结构化操作计划\n* **首批建仓:** **$36.20** (触及20日均线支撑，建议仓位 **5%**)\n* **次批加码:** **$34.50** (回踩布林中轨，建议仓位 **5%**)\n* **止损方案:** **$32.80** (跌破MA50且三日未收复)\n* **止盈目标:** **第一目标 $38.70**（布林上轨），**第二目标 $41.80**（前高阻力延伸）。\n\n### 3. 多维逻辑支撑\n* **技术面:** RSI超买需技术修正，但MA50/200呈多头排列；MACD动能减弱预示短期回调概率增大，布林带开口扩大支撑趋势延续。\n* **基本面:** 低估值(PE 0.98)与运费上涨预期形成错配，VLCC船队更新提升长期竞争力，但需验证盈利持续性。\n* **消息面/宏观面:** 霍尔木兹海峡封锁风险直接推升油轮溢价，中东冲突持续性与全球贸易政策变化为关键变量。"
+}
+2026-02-28 21:38:49,582 - app.api.v1.endpoints.analysis - INFO - ✅ Synced AI RRR (0.75) to MarketDataCache for FRO (Strategy Locked)
+2026-02-28 21:38:49,583 - api_logger - INFO - rid=/api/analysis/FRO method=POST status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=17997.38ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772330567, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:52803 - "POST /api/analysis/FRO?force=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52803 - "OPTIONS /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 200 OK
+2026-02-28 21:38:50,784 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1194.58ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772330567, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:52803 - "GET /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 200 OK

@@ -14,6 +14,7 @@ from app.models.user import User
 from app.core import security
 from app.core.security import sanitize_float
 from app.api.deps import get_current_user
+from app.services.macro_service import MacroService
 
 from app.schemas.analysis import AnalysisResponse, PortfolioAnalysisResponse
 from app.models.analysis import AnalysisReport, PortfolioAnalysisReport
@@ -346,6 +347,29 @@ async def analyze_stock(
             "pl_percent": pl_percent
         }
 
+    # 4.2 获取宏观 RAG 上下文 (Fetch Macro RAG Context)
+    macro_context = ""
+    try:
+        # 获取最近 3 条宏观热点
+        radar_topics = await MacroService.get_latest_radar(db)
+        if radar_topics:
+            macro_context += "### 宏观热点雷达 (Macro Radar):\n"
+            for t in radar_topics[:3]:
+                macro_context += f"- **{t.title}** (热度: {t.heat_score}): {t.summary}\n"
+        
+        # 获取最近 5 条财联社全球快讯 (作为实时补充)
+        global_news = await MacroService.get_latest_news(db, limit=5)
+        if global_news:
+            macro_context += "\n### 实时全球快讯 (Real-time Global Flash):\n"
+            for n in global_news:
+                macro_context += f"- [{n.published_at}] {n.content[:150]}...\n"
+                
+        if not macro_context:
+            macro_context = "当前无显著宏观热点波动。"
+    except Exception as macro_e:
+        logger.error(f"Failed to fetch macro context for RAG: {macro_e}")
+        macro_context = "宏观数据检索失败。"
+
     # 4.5 汇总基础面数据 (Fundamental Context)
     fundamental_data = {}
     if stock_obj:
@@ -467,6 +491,7 @@ async def analyze_stock(
         market_data, 
         portfolio_data,
         news_data,
+        macro_context=macro_context,
         fundamental_data=fundamental_data,
         previous_analysis=previous_analysis_context,
         model=preferred_model,

@@ -63,3 +63,22 @@ class AnalysisReport(Base):
     # Relationships
     stock = relationship("Stock", back_populates="analysis_reports")
     # user = relationship("User", back_populates="analysis_reports")
+
+class PortfolioAnalysisReport(Base):
+    """持仓全量诊断报告模型 (Portfolio Analysis Report)"""
+    __tablename__ = "portfolio_analysis_reports"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
+    
+    health_score = Column(Float, nullable=False)
+    risk_level = Column(String, nullable=False)
+    summary = Column(String, nullable=False)
+    diversification_analysis = Column(Text, nullable=True)
+    strategic_advice = Column(Text, nullable=True)
+    top_risks = Column(JSON, nullable=True) # List[str]
+    top_opportunities = Column(JSON, nullable=True) # List[str]
+    detailed_report = Column(Text, nullable=False)
+    
+    model_used = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)

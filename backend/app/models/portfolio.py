@@ -10,7 +10,7 @@ class Portfolio(Base):
     __tablename__ = "portfolios"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String, ForeignKey("users.id"), nullable=False)   # 关联用户
+    user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)   # 关联用户
     ticker = Column(String, ForeignKey("stocks.ticker"), nullable=False) # 关联股票代码
     
     # 投资详情

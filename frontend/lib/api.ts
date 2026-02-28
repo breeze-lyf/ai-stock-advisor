@@ -163,6 +163,19 @@ export const analyzePortfolio = async (): Promise<PortfolioAnalysisResponse> => 
     return response.data;
 };
 
+/** 获取最新的全量持仓诊断缓存 */
+export const getLatestPortfolioAnalysis = async (): Promise<PortfolioAnalysisResponse | null> => {
+    try {
+        const response = await api.get("/api/analysis/portfolio");
+        return response.data;
+    } catch (error: any) {
+        if (error.response?.status === 404) {
+            return null;
+        }
+        throw error;
+    }
+};
+
 /** 批量重排自选股 */
 export const reorderPortfolio = async (orders: { ticker: string; sort_order: number }[]): Promise<{ message: string }> => {
     const response = await api.patch("/api/portfolio/reorder", orders);
@@ -211,6 +224,18 @@ export const fetchStockHistory = async (ticker: string, period: string = "1y") =
 /** 强制刷新所有持仓股票数据 (支持 priceOnly) */
 export const refreshAllStocks = async (priceOnly: boolean = false): Promise<{ message: string, updated_count: number }> => {
     const response = await api.post(`/api/stocks/refresh_all?price_only=${priceOnly}`);
+    return response.data;
+};
+
+/** 全球宏观热点雷达接口 (Global Macro Radar) */
+export const getMacroRadar = async (refresh: boolean = false): Promise<any[]> => {
+    const response = await api.get(`/api/macro/radar?refresh=${refresh}`);
+    return response.data;
+};
+
+/** 获取财联社全球电报资讯 */
+export const getClsNews = async (refresh: boolean = false): Promise<any[]> => {
+    const response = await api.get(`/api/macro/cls_news?refresh=${refresh}`);
     return response.data;
 };
 

@@ -3,6 +3,7 @@ from app.core.database import engine, Base
 from app.models.user import User
 from app.models.portfolio import Portfolio
 from app.models.stock import Stock, MarketDataCache
+from app.models.analysis import AnalysisReport, PortfolioAnalysisReport
 
 async def init_db():
     print("🚀 Initializing database...")

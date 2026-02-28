@@ -40,14 +40,14 @@ class MarketDataService:
         # 则检查数据库近期是否已有新闻（缓存 4 小时）
         if not skip_news and force_refresh:
             from app.models.stock import StockNews
-            news_stmt = select(StockNews).where(StockNews.stock_ticker == ticker).order_by(StockNews.publish_time.desc()).limit(1)
-            news_res = await db.execute(news_stmt)
-            latest_news = news_res.scalar_one_or_none()
-            if latest_news and latest_news.publish_time:
-                p_time = latest_news.publish_time.replace(tzinfo=None)
-                if (now - p_time) < timedelta(hours=4):
-                    logger.info(f"Skipping Tavily for {ticker} as news is recently updated within 4 hours.")
-                    skip_news = True
+            # 检查最近 4 小时内是否有新闻更新
+            news_stmt = select(StockNews).where(StockNews.ticker == ticker).order_by(StockNews.publish_time.desc()).limit(1)
+            result = await db.execute(news_stmt)
+            latest_news = result.scalar_one_or_none()
+            
+            if latest_news and (datetime.utcnow() - latest_news.publish_time).total_seconds() < 4 * 3600:
+                skip_news = True
+                logger.info(f"Skipping Tavily for {ticker} as news is recently updated within 4 hours.")
 
         # 2. 第二步：执行真正的抓取
         data = await MarketDataService._fetch_from_providers(ticker, preferred_source, price_only=price_only, skip_news=skip_news)

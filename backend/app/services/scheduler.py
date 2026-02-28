@@ -119,16 +119,59 @@ async def refresh_all_stocks():
         except Exception as e:
             logger.error(f"[Scheduler] 轮询任务发生异常: {e}")
 
+from app.services.macro_service import MacroService
+
+# ... inside refresh_all_stocks or as a separate task ...
+
+async def refresh_macro_radar():
+    """定时更新全球宏观雷达 (每 4 小时)"""
+    try:
+        logger.info("[Scheduler] 开始例行更新全球宏观雷达...")
+        await MacroService.update_global_radar()
+        logger.info("[Scheduler] 全球宏观雷达更新完成。")
+    except Exception as e:
+        logger.error(f"[Scheduler] 宏观雷达更新失败: {e}")
+
+async def refresh_cls_news():
+    """定时更新财联社全球快讯 (每 10 分钟)"""
+    try:
+        logger.info("[Scheduler] 开始同步财联社全球快讯...")
+        await MacroService.update_cls_news()
+        logger.info("[Scheduler] 财联社快讯同步完成。")
+    except Exception as e:
+        logger.error(f"[Scheduler] 财联社快讯更新失败: {e}")
+
 async def start_scheduler():
     """
     启动常驻后台循环
     """
-    logger.info("[Scheduler] 行情自动调度器已启动 (间隔: 5分钟)")
+    logger.info("[Scheduler] 调度中心全面启动")
+    
+    # 记录各任务最后执行时间
+    last_macro_update = datetime.min
+    last_news_update = datetime.min
+    
     while True:
+        # 1. 股票行情刷新 (每 5 分钟尝试一次)
         try:
             await refresh_all_stocks()
         except Exception as e:
-            logger.error(f"[Scheduler] 循环处理报错: {e}")
+            logger.error(f"[Scheduler] 股票行情刷新异常: {e}")
+
+        # 2. 财联社全球快讯刷新 (每 10 分钟尝试一次)
+        if datetime.now() - last_news_update > timedelta(minutes=10):
+            try:
+                await refresh_cls_news()
+                last_news_update = datetime.now()
+            except Exception as e:
+                logger.error(f"[Scheduler] 财联社刷新异常: {e}")
+
+        # 3. 宏观热点刷新 (每 4 小时尝试一次)
+        if datetime.now() - last_macro_update > timedelta(hours=4):
+            try:
+                await refresh_macro_radar()
+                last_macro_update = datetime.now()
+            except Exception as e:
+                logger.error(f"[Scheduler] 宏观刷新异常: {e}")
         
-        # 每 5 分钟刷新一次，既保证实时性又不会对服务器造成太大压力
         await asyncio.sleep(300) 

@@ -86,9 +86,23 @@ class TavilyProvider(MarketDataProvider):
                     logger.error(f"Tavily get_news error for {ticker}: {e}")
                 return []
 
-    # Other methods are not primary for Tavily
-    async def get_quote(self, ticker: str): return None
-    async def get_fundamental_data(self, ticker: str): return None
-    async def get_historical_data(self, ticker: str, interval: str = "1d", period: str = "1mo"): return None
-    async def get_ohlcv(self, ticker: str, interval: str = "1d", period: str = "1y"): return []
-    async def get_full_data(self, ticker: str): return None
+    # Implement abstract methods to make the class non-abstract
+    async def get_quote(self, ticker: str):
+        """Tavily only provides news, return None for quote."""
+        return None
+
+    async def get_fundamental_data(self, ticker: str):
+        """Tavily only provides news, return None for fundamental."""
+        return None
+
+    async def get_historical_data(self, ticker: str, interval: str = "1d", period: str = "1mo"):
+        """Tavily only provides news, return None for historical data."""
+        return None
+
+    async def get_ohlcv(self, ticker: str, interval: str = "1d", period: str = "1y"):
+        """Tavily only provides news, return empty list for OHLCV."""
+        return []
+
+    async def get_full_data(self, ticker: str):
+        """Tavily only handles news components."""
+        return None

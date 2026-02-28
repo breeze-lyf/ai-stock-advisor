@@ -155,8 +155,15 @@ class AkShareProvider(MarketDataProvider):
             return await loop.run_in_executor(None, run_isolated)
 
     def _normalize_symbol(self, ticker: str) -> str:
-        # yfinance 风格代码转换: 002050.SZ -> 002050
-        return ticker.split('.')[0] if '.' in ticker else ticker
+        """
+        代码归一化: 002050.SZ -> 002050
+        注意: 对于美股 (如 BRK.B)，我们要保留点号，因为腾讯接口支持带点的原貌。
+        """
+        if not ticker: return ticker
+        # 如果是 6 位数字开头且带点，判定为 A 股后缀，进行切分
+        if ticker[:6].isdigit() and '.' in ticker:
+            return ticker.split('.')[0]
+        return ticker
 
     def _is_us_stock(self, ticker: str) -> bool:
         """判定是否为美股（非 6 位纯数字，或包含字母）"""
@@ -171,11 +178,34 @@ class AkShareProvider(MarketDataProvider):
         if symbol.startswith(('00', '30', '12')): return f"sz{symbol}"
         return symbol
 
+    def _map_us_sina_ticker(self, ticker: str) -> str:
+        """
+        美股特殊代码映射 (Sina 命名习惯):
+        BRK.B -> brkb
+        BF.B -> bfb
+        """
+        t = ticker.lower()
+        mapping = {
+            "brk.b": "brkb",
+            "brk-b": "brkb",
+            "bf.b": "bfb",
+            "bf-b": "bfb"
+        }
+        return mapping.get(t, t)
+
     async def _get_tencent_quote(self, ticker: str) -> Optional[ProviderQuote]:
-        """从腾讯行情接口获取实时报价 (极速、高可用)"""
+        """从腾讯行情接口获取实时报价 (极速、高可用 & 支持基本面提取)"""
         symbol = self._normalize_symbol(ticker)
-        # 腾讯格式: sh600519 或 sz000001
-        tencent_symbol = self._get_sina_symbol(symbol)
+        
+        # 腾讯格式路由
+        if self._is_us_stock(ticker):
+            # 美股格式: usAAPL 或 usBRK.B
+            # 腾讯对带点的代码支持很好
+            tencent_symbol = f"us{symbol}"
+        else:
+            # A 股格式: sh600519 或 sz000001
+            tencent_symbol = self._get_sina_symbol(symbol)
+            
         url = f"http://qt.gtimg.cn/q={tencent_symbol}"
         
         loop = asyncio.get_event_loop()
@@ -192,13 +222,33 @@ class AkShareProvider(MarketDataProvider):
                     # 格式: v_sz000001="51~平安银行~000001~10.90~10.87~..."
                     if '~' in text:
                         parts = text.split('~')
-                        if len(parts) > 32:
+                        if len(parts) > 45:
+                            # 提取基本面 (腾讯接口字段极其丰富)
+                            additional = {}
+                            if self._is_us_stock(ticker):
+                                # 美股索引 (基于测试结果):
+                                # 45: 总市值 (亿美元), 44: 市值 (可能是流通?), 47: 市盈率, 48: 52周最高, 49: 52周最低
+                                # 注意: 腾讯返回的是亿美元
+                                additional = {
+                                    "market_cap": float(parts[45]) * 1e8 if parts[45] and parts[45] != '--' else None,
+                                    "pe_ratio": float(parts[47]) if len(parts) > 47 and parts[47] and parts[47] != '--' else None,
+                                    "fifty_two_week_high": float(parts[48]) if len(parts) > 48 and parts[48] and parts[48] != '--' else None,
+                                    "fifty_two_week_low": float(parts[49]) if len(parts) > 49 and parts[49] and parts[49] != '--' else None,
+                                }
+                            else:
+                                # A 股索引 (39: PE, 45: 总市值)
+                                additional = {
+                                    "pe_ratio": float(parts[39]) if parts[39] and parts[39] != '--' else None,
+                                    "market_cap": float(parts[45]) * 1e8 if len(parts) > 45 and parts[45] and parts[45] != '--' else None,
+                                }
+
                             return ProviderQuote(
                                 ticker=ticker,
                                 price=float(parts[3]),
                                 change_percent=float(parts[32]),
                                 name=parts[1],
-                                last_updated=datetime.utcnow()
+                                last_updated=datetime.utcnow(),
+                                additional_data=additional
                             )
                 return None
             finally:
@@ -257,9 +307,10 @@ class AkShareProvider(MarketDataProvider):
         return await loop.run_in_executor(None, fetch)
 
     async def _get_sina_us_quote(self, ticker: str) -> Optional[ProviderQuote]:
-        """从新浪财经获取美股行情 (支持盘前/盘后感知)"""
-        # 新浪美股代码格式: gb_aapl (小写)
-        sina_ticker = f"gb_{ticker.lower()}"
+        """从新浪财经获取美股行情 (支持盘前/盘后感知 & 深度基本面提取)"""
+        # 新浪美股代码映射
+        sina_raw_ticker = self._map_us_sina_ticker(ticker)
+        sina_ticker = f"gb_{sina_raw_ticker}"
         url = f"http://hq.sinajs.cn/list={sina_ticker}"
         
         headers = {
@@ -316,7 +367,15 @@ class AkShareProvider(MarketDataProvider):
                                 change_percent=change_percent,
                                 name=name,
                                 last_updated=datetime.now(),
-                                market_status=status
+                                market_status=status,
+                                # 扩展字段：临时存储解析出的基本面，以便 get_fundamental_data 复用
+                                additional_data={
+                                    "market_cap": float(data[12]) if len(data) > 12 and data[12] and data[12] != '--' else None,
+                                    "pe_ratio": float(data[13]) if len(data) > 13 and data[13] and data[13] != '--' else None,
+                                    "fifty_two_week_high": float(data[28]) if len(data) > 28 and data[28] and data[28] != '--' else None,
+                                    "fifty_two_week_low": float(data[29]) if len(data) > 29 and data[29] and data[29] != '--' else None,
+                                    "eps": float(data[17]) if len(data) > 17 and data[17] and data[17] != '--' else None,
+                                }
                             )
                     return None
                 finally:
@@ -330,12 +389,19 @@ class AkShareProvider(MarketDataProvider):
 
     async def get_quote(self, ticker: str) -> Optional[ProviderQuote]:
         """获取行情，智能路由 A 股或美股"""
+        # 第一优先级：Tencent 实时行情 (直连性最好，支持美股基本面，极速响应)
+        try:
+            tencent_quote = await self._get_tencent_quote(ticker)
+            if tencent_quote:
+                return tencent_quote
+        except Exception as e:
+            logger.warning(f"Tencent quote fetch failed for {ticker}: {e}")
+
         if self._is_us_stock(ticker):
-            # 美股优先使用新浪财经适配器 (盘前感知)
+            # 美股回退：新浪财经 (国内直连)
             quote = await self._get_sina_us_quote(ticker)
             if quote: return quote
-            # 备选
-            return await self._get_tencent_quote(ticker)
+            return None
             
         symbol = self._normalize_symbol(ticker)
         
@@ -552,16 +618,65 @@ class AkShareProvider(MarketDataProvider):
             return None
 
     async def _get_us_fundamental(self, ticker: str) -> Optional[ProviderFundamental]:
-        """美股基础面增强"""
+        """美股基础面增强 (国内直连版)"""
         try:
+            # 1. 第一优先级：从腾讯行情中提取 (数据最新，且支持 BRK.B 等点号代码)
+            quote = await self._get_tencent_quote(ticker)
+            if quote and hasattr(quote, 'additional_data') and quote.additional_data:
+                ad = quote.additional_data
+                if ad.get("market_cap"): # 确保有核心数据
+                    return ProviderFundamental(
+                        name=quote.name,
+                        market_cap=ad.get("market_cap"),
+                        pe_ratio=ad.get("pe_ratio"),
+                        eps=ad.get("eps"),
+                        fifty_two_week_high=ad.get("fifty_two_week_high"),
+                        fifty_two_week_low=ad.get("fifty_two_week_low")
+                    )
+
+            # 2. 第二优先级：新浪财经 (HQ 包含基本面)
+            quote = await self._get_sina_us_quote(ticker)
+            if quote and hasattr(quote, 'additional_data') and quote.additional_data:
+                ad = quote.additional_data
+                if ad.get("market_cap"):
+                    return ProviderFundamental(
+                        name=quote.name,
+                        market_cap=ad.get("market_cap"),
+                        pe_ratio=ad.get("pe_ratio"),
+                        eps=ad.get("eps"),
+                        fifty_two_week_high=ad.get("fifty_two_week_high"),
+                        fifty_two_week_low=ad.get("fifty_two_week_low")
+                    )
+            
+            # 2. 兜底：从东财缓存拿
             name, pe, mc = ticker, None, None
+            high, low, eps = None, None, None
             if AkShareProvider._cached_us_spot_df is not None:
-                row = AkShareProvider._cached_us_spot_df[AkShareProvider._cached_us_spot_df['代码'] == ticker]
+                # 兼容性匹配 (东方财富美股代码可能带后缀)
+                df = AkShareProvider._cached_us_spot_df
+                row = df[df['代码'].str.contains(ticker, na=False)]
                 if not row.empty:
                     target = row.iloc[0]
-                    name, pe, mc = str(target.get('名称', ticker)), float(target.get('市盈率', 0)), float(target.get('总市值', 0))
-            return ProviderFundamental(name=name, market_cap=mc, pe_ratio=pe)
-        except: return None
+                    name = str(target.get('名称', ticker))
+                    pe = float(target.get('市盈率', 0))
+                    mc = float(target.get('总市值', 0))
+                    high = float(target.get('最高', 0))
+                    low = float(target.get('最低', 0))
+                    # 估算 EPS
+                    price = float(target.get('最新价', 0))
+                    if pe and pe > 0: eps = price / pe
+                    
+            return ProviderFundamental(
+                name=name, 
+                market_cap=mc, 
+                pe_ratio=pe, 
+                eps=eps,
+                fifty_two_week_high=high,
+                fifty_two_week_low=low
+            )
+        except Exception as e:
+            logger.error(f"AkShare _get_us_fundamental error: {e}")
+            return None
 
     async def get_historical_data(self, ticker: str, interval: str = "1d", period: str = "1mo") -> Optional[Dict[str, Any]]:
         try:

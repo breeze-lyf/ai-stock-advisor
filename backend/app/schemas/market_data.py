@@ -17,6 +17,7 @@ class ProviderQuote(BaseModel):
     name: Optional[str] = None
     market_status: MarketStatus = MarketStatus.OPEN
     last_updated: Optional[datetime] = None
+    additional_data: Dict[str, Any] = Field(default_factory=dict)
 
 class ProviderFundamental(BaseModel):
     sector: Optional[str] = None

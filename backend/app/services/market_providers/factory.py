@@ -24,10 +24,8 @@ class ProviderFactory:
         is_cn = (ticker.isdigit() and len(ticker) == 6) or \
                 any(suffix in ticker.upper() for suffix in ['.SS', '.SZ'])
         
-        if is_cn:
-            return cls._get_instance("AKSHARE")
-        
-        # 美股也引导至 AKSHARE (集成了新浪直连行情，适合国内服务器环境)
+        # 严格执行境内原则：一律回归 AKSHARE Provider
+        # 该 Provider 已增强了新浪/腾讯等国内直连接口的映射与深度解析
         return cls._get_instance("AKSHARE")
 
     @classmethod

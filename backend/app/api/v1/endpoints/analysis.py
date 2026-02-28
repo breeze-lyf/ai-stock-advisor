@@ -16,7 +16,7 @@ from app.core.security import sanitize_float
 from app.api.deps import get_current_user
 
 from app.schemas.analysis import AnalysisResponse, PortfolioAnalysisResponse
-from app.models.analysis import AnalysisReport
+from app.models.analysis import AnalysisReport, PortfolioAnalysisReport
 
 logger = logging.getLogger(__name__)
 
@@ -175,6 +175,28 @@ async def analyze_portfolio(
             "detailed_report": ai_raw_response # 确保内容不丢失
         }
 
+    # 5. 持久化存储 (Persistence)
+    try:
+        new_portfolio_report = PortfolioAnalysisReport(
+            user_id=current_user.id,
+            health_score=float(parsed_data.get("health_score", 50)),
+            risk_level=str(parsed_data.get("risk_level", "中")),
+            summary=str(parsed_data.get("summary", "投资组合概览")),
+            diversification_analysis=str(parsed_data.get("diversification_analysis", "分散度分析见详细报告")),
+            strategic_advice=str(parsed_data.get("strategic_advice", "保持关注")),
+            top_risks=parsed_data.get("top_risks", []),
+            top_opportunities=parsed_data.get("top_opportunities", []),
+            detailed_report=str(parsed_data.get("detailed_report", ai_raw_response)),
+            model_used=preferred_model
+        )
+        db.add(new_portfolio_report)
+        await db.commit()
+        await db.refresh(new_portfolio_report)
+        logger.info(f"Successfully persisted portfolio analysis report for user {current_user.id}")
+    except Exception as persist_e:
+        logger.error(f"Failed to persist portfolio analysis: {persist_e}")
+        await db.rollback()
+
     return PortfolioAnalysisResponse(
         health_score=int(parsed_data.get("health_score", 50)),
         risk_level=str(parsed_data.get("risk_level", "中")),
@@ -185,7 +207,7 @@ async def analyze_portfolio(
         top_opportunities=parsed_data.get("top_opportunities", []),
         detailed_report=str(parsed_data.get("detailed_report", ai_raw_response)),
         model_used=preferred_model,
-        created_at=datetime.utcnow()
+        created_at=new_portfolio_report.created_at if 'new_portfolio_report' in locals() else datetime.utcnow()
     )
 
 @router.get("/portfolio", response_model=PortfolioAnalysisResponse)
@@ -195,10 +217,29 @@ async def get_portfolio_analysis(
 ):
     """
     获取最近的一次全量持仓健康分析 (非实时生成)
-    由于目前没有独立的 Portfolio 分布式固化表，此接口暂时保留为 404
-    后续可以根据需要增加缓存逻辑
     """
-    raise HTTPException(status_code=404, detail="Portfolio cached reports not implemented yet. Please use POST to generate.")
+    stmt = select(PortfolioAnalysisReport).where(
+        PortfolioAnalysisReport.user_id == current_user.id
+    ).order_by(PortfolioAnalysisReport.created_at.desc()).limit(1)
+    
+    result = await db.execute(stmt)
+    report = result.scalar_one_or_none()
+    
+    if not report:
+        raise HTTPException(status_code=404, detail="No portfolio analysis found. Please generate one first.")
+        
+    return PortfolioAnalysisResponse(
+        health_score=int(report.health_score),
+        risk_level=report.risk_level,
+        summary=report.summary,
+        diversification_analysis=report.diversification_analysis or "",
+        strategic_advice=report.strategic_advice or "",
+        top_risks=report.top_risks or [],
+        top_opportunities=report.top_opportunities or [],
+        detailed_report=report.detailed_report,
+        model_used=report.model_used,
+        created_at=report.created_at
+    )
 
 @router.post("/{ticker}", response_model=AnalysisResponse)
 async def analyze_stock(
@@ -513,7 +554,7 @@ async def analyze_stock(
             entry_zone=to_str(parsed_data.get("entry_zone")),
             entry_price_low=to_float(parsed_data.get("entry_price_low")),
             entry_price_high=to_float(parsed_data.get("entry_price_high")),
-            rr_ratio=str(cache_to_sync.risk_reward_ratio) if (cache_to_sync and cache_to_sync.risk_reward_ratio is not None) else final_rr_str,
+            rr_ratio=final_rr_str,
             input_context_snapshot={
                 "market_data": market_data,
                 "portfolio_data": portfolio_data

@@ -3,7 +3,11 @@
 import { useState, useEffect } from "react";
 import clsx from "clsx";
 
-export function MarketStatusIndicator() {
+interface MarketStatusIndicatorProps {
+    className?: string;
+}
+
+export function MarketStatusIndicator({ className }: MarketStatusIndicatorProps) {
     const [marketStatus, setMarketStatus] = useState<{
         status: 'open' | 'closed',
         text: string,
@@ -64,7 +68,7 @@ export function MarketStatusIndicator() {
     }, []);
 
     return (
-        <div className="flex items-center gap-3 px-3 py-1.5 bg-slate-50 dark:bg-slate-800/50 rounded-full border border-slate-100 dark:border-slate-800">
+        <div className={clsx("flex items-center gap-3 px-3 py-1.5 bg-slate-50 dark:bg-slate-800/50 rounded-full border border-slate-100 dark:border-slate-800", className)}>
             <div className={clsx(
                 "h-2 w-2 rounded-full animate-pulse",
                 marketStatus.status === 'open' ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-red-500"

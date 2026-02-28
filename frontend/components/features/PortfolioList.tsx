@@ -23,6 +23,7 @@ interface PortfolioListProps {
     onOpenSearch: () => void;
     onlyHoldings: boolean;
     onToggleOnlyHoldings: (val: boolean) => void;
+    fullView?: boolean; // 新增：全屏模式开关
 }
 
 export function PortfolioList({
@@ -33,6 +34,7 @@ export function PortfolioList({
     onOpenSearch,
     onlyHoldings,
     onToggleOnlyHoldings,
+    fullView = false, // 默认为窄边栏模式
 }: PortfolioListProps) {
     const [editingTicker, setEditingTicker] = useState<string | null>(null);
     const [editForm, setEditForm] = useState({ quantity: "", cost: "" });

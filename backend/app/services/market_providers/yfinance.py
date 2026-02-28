@@ -26,6 +26,17 @@ class YFinanceProvider(MarketDataProvider):
             os.environ["HTTP_PROXY"] = settings.HTTP_PROXY
             os.environ["HTTPS_PROXY"] = settings.HTTP_PROXY
 
+    def _normalize_ticker(self, ticker: str) -> str:
+        """
+        美股代码格式转换: BRK.B -> BRK-B
+        yfinance 对带点的代码支持不佳，通常需要转换为连字符格式。
+        """
+        if not ticker: return ticker
+        # 排除 A 股 (6位数字)
+        if ticker.isdigit() and len(ticker) == 6:
+            return ticker
+        return ticker.replace('.', '-')
+
     async def _run_sync(self, func, *args, **kwargs):
         """
         内部辅助方法：将 yfinance 的同步网络调用封装在线程池中异步运行，避免阻塞事件循环。
@@ -35,8 +46,9 @@ class YFinanceProvider(MarketDataProvider):
 
     async def get_quote(self, ticker: str) -> Optional[ProviderQuote]:
         """抓取实时报价"""
+        normalized_ticker = self._normalize_ticker(ticker)
         try:
-            tick = yf.Ticker(ticker)
+            tick = yf.Ticker(normalized_ticker)
             info = await self._run_sync(getattr, tick, "info") # 线程池调用
             if info and ('currentPrice' in info or 'regularMarketPrice' in info):
                 price = info.get('currentPrice') or info.get('regularMarketPrice')
@@ -55,8 +67,9 @@ class YFinanceProvider(MarketDataProvider):
 
     async def get_fundamental_data(self, ticker: str) -> Optional[ProviderFundamental]:
         """抓取基础面财务数据"""
+        normalized_ticker = self._normalize_ticker(ticker)
         try:
-            tick = yf.Ticker(ticker)
+            tick = yf.Ticker(normalized_ticker)
             info = await self._run_sync(getattr, tick, "info")
             if not info:
                 logger.warning(f"yfinance info empty for {ticker}")
@@ -83,8 +96,9 @@ class YFinanceProvider(MarketDataProvider):
 
     async def get_historical_data(self, ticker: str, interval: str = "1d", period: str = "1mo") -> Optional[Dict[str, Any]]:
         """抓取历史 K 线并计算常用技术指标"""
+        normalized_ticker = self._normalize_ticker(ticker)
         try:
-            tick = yf.Ticker(ticker)
+            tick = yf.Ticker(normalized_ticker)
             hist = await self._run_sync(tick.history, period=period, interval=interval)
             if hist.empty:
                 return None
@@ -98,8 +112,9 @@ class YFinanceProvider(MarketDataProvider):
 
     async def get_news(self, ticker: str) -> List[ProviderNews]:
         """抓取 Yahoo Finance 的最新新闻"""
+        normalized_ticker = self._normalize_ticker(ticker)
         try:
-            tick = yf.Ticker(ticker)
+            tick = yf.Ticker(normalized_ticker)
             news = await self._run_sync(getattr, tick, "news")
             if not news:
                 return []
@@ -196,8 +211,9 @@ class YFinanceProvider(MarketDataProvider):
         """
         针对 YFinance 优化的“全量抓取”，减少 Ticker 对象的实例化开销
         """
+        normalized_ticker = self._normalize_ticker(ticker)
         try:
-            tick = yf.Ticker(ticker)
+            tick = yf.Ticker(normalized_ticker)
             
             # 由于 yfinance 内部请求不是并发的，我们通过 asyncio.gather 在应用侧实现一定的并发抓取
             info_task = self._run_sync(getattr, tick, "info")

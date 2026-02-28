@@ -72,3 +72,9 @@ export interface PortfolioAnalysisResponse {
     model_used?: string;
     created_at: string;
 }
+
+export interface GlobalNews {
+    time: string;
+    title: string;
+    content: string;
+}

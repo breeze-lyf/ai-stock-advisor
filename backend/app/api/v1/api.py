@@ -20,5 +20,9 @@ api_router.include_router(stock.router, prefix="/stocks", tags=["stocks"])
 # AI 分析模块：处理股票的技术面、基本面 AI 分析请求
 api_router.include_router(analysis.router, prefix="/analysis", tags=["analysis"])
 
+# 宏观热点模块：处理全球宏观雷达与热点分析
+from app.api.v1.endpoints import macro
+api_router.include_router(macro.router, prefix="/macro", tags=["macro"])
+
 # 用户与设置模块：处理用户信息及 API Key 等偏好设置
 api_router.include_router(user.router, prefix="/user", tags=["user"])

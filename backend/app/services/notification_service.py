@@ -246,3 +246,47 @@ class NotificationService:
             msg_type="PRICE_ALERT",
             ticker=ticker
         )
+
+    @staticmethod
+    async def send_hourly_summary(summary_text: str, count: int, sentiment: str = "中性", email: str = ""):
+        """
+        发送每小时财联社新闻精要总结
+        """
+        sentiment_icon = "📈" if "利好" in sentiment else "📉" if "利空" in sentiment else "⚖️"
+        
+        elements = [
+            {
+                "tag": "div",
+                "text": {
+                    "content": f"📊 **本小时快讯回顾**: 共计抓取 `{count}` 条实时资讯。\n市场情绪倾向: {sentiment_icon} **{sentiment}**",
+                    "tag": "lark_md"
+                }
+            },
+            {
+                "tag": "hr"
+            },
+            {
+                "tag": "div",
+                "text": {
+                    "content": f"**AI 核心研判**:\n{summary_text}",
+                    "tag": "lark_md"
+                }
+            },
+            {
+                "tag": "note",
+                "elements": [
+                    {
+                        "tag": "plain_text",
+                        "content": f"账号归属: {email}\n建议操作：请结合个股诊断功能进行深度分析。"
+                    }
+                ]
+            }
+        ]
+        
+        return await NotificationService.send_feishu_card(
+            title="⏰ 财联社每小时新闻精要",
+            content=summary_text,
+            elements=elements,
+            color="blue",
+            msg_type="HOURLY_NEWS_SUMMARY"
+        )

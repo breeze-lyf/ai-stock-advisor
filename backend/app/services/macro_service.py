@@ -13,6 +13,7 @@ from app.core.config import settings
 from app.services.market_providers.tavily import TavilyProvider
 from app.services.ai_service import AIService
 from app.models.macro import MacroTopic, GlobalNews
+from app.models.user import User
 from app.services.notification_service import NotificationService
 
 logger = logging.getLogger(__name__)
@@ -286,6 +287,84 @@ class MacroService:
             logger.error(f"Failed to update news: {e}")
             await db.rollback()
             return []
+
+    @staticmethod
+    async def generate_hourly_news_summary(db: AsyncSession, user_id: str) -> Dict[str, Any]:
+        """
+        汇总过去 1 小时内的全量财联社新闻标题，并由 AI 生成精要总结。
+        用于飞书每小时定点推送。
+        """
+        one_hour_ago = datetime.utcnow() - timedelta(hours=1)
+        # 查询过去一小时内创建的新闻
+        stmt = select(GlobalNews).where(GlobalNews.created_at >= one_hour_ago).order_by(GlobalNews.created_at.desc())
+        result = await db.execute(stmt)
+        news_items = result.scalars().all()
+        
+        if not news_items:
+            return {"summary": "", "count": 0}
+            
+        # 1. 获取特定用户的真实持仓上下文 (仅限数量 > 0 的标的)
+        from app.models.portfolio import Portfolio
+        portfolio_stmt = select(Portfolio.ticker).where(
+            Portfolio.user_id == user_id,
+            Portfolio.quantity > 0
+        )
+        portfolio_res = await db.execute(portfolio_stmt)
+        portfolio_tickers = list(set(portfolio_res.scalars().all()))
+            
+        portfolio_context = f"用户当前真实持仓列表: {', '.join(portfolio_tickers)}" if portfolio_tickers else "当前账户暂无任何持仓标的。"
+
+        # 2. 构造标题列表
+        titles = [f"- {n.title or n.content[:50]}" for n in news_items]
+        content_for_ai = "\n".join(titles)
+        
+        prompt = f"""
+        你是一位顶级对冲基金首席策略师。以下是过去一小时内发生的财联社新闻标题汇总：
+        
+        {content_for_ai}
+        
+        [持仓白名单] (仅限分析以下标的):
+        {portfolio_context}
+        
+        请执行“三维度”深度研判任务：
+        1. **【核心综述】**: 用 50 字内概括本小时最重要的 1-2 件核心驱动事件。
+        2. **【逐条解析】**: 挑选 3-5 条关键消息，说明其对相关赛道或宏观因子的具体传导影响。
+        3. **【持仓穿透】**: 针对[持仓白名单]中的标的，分别给出[利好/利空/震荡]判断及简短逻辑（必须显式列出标的代码）。
+        
+        [禁令]:
+        - 严禁使用 # 或 ### 等 Markdown 标题字符。请使用 **【维度名称】** 这种加粗形式。
+        - 严禁提及 [持仓白名单] 以外的任何具体股票代码。
+        - 严禁提供任何具体的买卖交易动作建议。
+        
+        请以标准 JSON 格式返回，确保 summary 内部使用 Markdown 格式实现上述三个维度的清晰排版：
+        {{
+          "summary": "**【核心综述】**\\n内容...\\n\\n**【逐条解析】**\\n内容...\\n\\n**【持仓穿透】**\\n标的代码: [结论] - 原因...",
+          "sentiment": "整体情绪定调"
+        }}
+        """
+        
+        try:
+            ai_response = await AIService.call_siliconflow(
+                prompt=prompt,
+                model="deepseek-v3",
+                api_key=settings.SILICONFLOW_API_KEY,
+                db=db
+            )
+            
+            # 解析 JSON
+            import re
+            json_match = re.search(r'(\{.*\})', ai_response, re.DOTALL)
+            if json_match:
+                data = json.loads(json_match.group(1))
+                return {
+                    "summary": data.get("summary", ""),
+                    "count": len(news_items),
+                    "sentiment": data.get("sentiment", "中性")
+                }
+            return {"summary": ai_response, "count": len(news_items)}
+        except Exception as e:
+            logger.error(f"Failed to generate hourly news summary: {e}")
+            return {"summary": "AI 总结生成失败，请查看原始快讯。", "count": len(news_items)}
 
     @staticmethod
     async def get_latest_news(db: AsyncSession, limit: int = 50) -> List[GlobalNews]:

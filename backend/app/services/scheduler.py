@@ -196,6 +196,33 @@ async def refresh_cls_news():
     except Exception as e:
         logger.error(f"[Scheduler] 财联社快讯更新失败: {e}")
 
+async def refresh_hourly_summary():
+    """生成并推送每小时新闻精要摘要"""
+    try:
+        logger.info("[Scheduler] 正在为活跃用户生成每小时新闻精要...")
+        async with SessionLocal() as db:
+            # 获取所有有持仓的用户及其 Email 进行个性化推送
+            from app.models.portfolio import Portfolio
+            from app.models.user import User
+            
+            # 使用 join 查询确保能拿到 email
+            stmt = select(User.id, User.email).join(Portfolio, User.id == Portfolio.user_id).distinct()
+            res = await db.execute(stmt)
+            active_users = res.all() # 包含 (id, email) 的元组列表
+            
+            for user_id, email in active_users:
+                summary_data = await MacroService.generate_hourly_news_summary(db, user_id)
+                if summary_data.get("summary"):
+                    await NotificationService.send_hourly_summary(
+                        summary_text=summary_data["summary"],
+                        count=summary_data["count"],
+                        sentiment=summary_data.get("sentiment", "中性"),
+                        email=email
+                    )
+        logger.info(f"[Scheduler] 已完成 {len(active_users)} 位用户的摘要生成与推送。")
+    except Exception as e:
+        logger.error(f"[Scheduler] 每小时新闻精要生成失败: {e}")
+
 async def send_daily_portfolio_report():
     """生成并发送每日持仓健康报告 (Feishu Card)"""
     try:
@@ -263,6 +290,7 @@ async def start_scheduler():
     last_macro_update = datetime.min
     last_news_update = datetime.min
     last_headline_update = datetime.min
+    last_hourly_summary_update = datetime.min
     last_daily_report_day = "" # 记录日期，防止一天多次触发
     
     while True:
@@ -279,6 +307,14 @@ async def start_scheduler():
                 last_news_update = datetime.now()
             except Exception as e:
                 logger.error(f"[Scheduler] 财联社刷新异常: {e}")
+
+        # 2.5 每小时新闻摘要推送 (每小时定点)
+        if datetime.now() - last_hourly_summary_update > timedelta(hours=1):
+            try:
+                await refresh_hourly_summary()
+                last_hourly_summary_update = datetime.now()
+            except Exception as e:
+                logger.error(f"[Scheduler] 每小时摘要刷新异常: {e}")
 
         # 3. 宏观热点刷新 (每 5 小时尝试一次)
         if datetime.now() - last_macro_update > timedelta(hours=5):

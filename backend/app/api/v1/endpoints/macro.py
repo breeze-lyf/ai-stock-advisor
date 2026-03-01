@@ -28,7 +28,7 @@ async def get_macro_radar(
         should_auto_update = True
     else:
         last_updated = topics[0].updated_at
-        if datetime.utcnow() - last_updated > timedelta(hours=4):
+        if datetime.utcnow() - last_updated > timedelta(hours=5):
             should_auto_update = True
             
     if refresh or should_auto_update:

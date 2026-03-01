@@ -1,6 +1,6 @@
 "use client";
 
-import { TrendingUp, PieChart, Globe } from "lucide-react";
+import { TrendingUp, PieChart, Globe, Bell } from "lucide-react";
 import { MarketStatusIndicator } from "@/components/features/MarketStatusIndicator";
 import { UserMenu } from "@/components/features/UserMenu";
 import { UserProfile } from "@/types";
@@ -65,6 +65,12 @@ export function DashboardHeader({ user, activeTab, setActiveTab }: DashboardHead
           onClick={() => setActiveTab("radar")}
           label="全球热点"
           icon={<Globe className="w-4 h-4" />}
+        />
+        <TabButton 
+          active={activeTab === "alerts"} 
+          onClick={() => setActiveTab("alerts")}
+          label="智能提醒"
+          icon={<Bell className="w-4 h-4" />}
         />
       </nav>
 

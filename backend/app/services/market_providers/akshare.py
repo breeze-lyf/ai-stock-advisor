@@ -679,6 +679,11 @@ class AkShareProvider(MarketDataProvider):
             return None
 
     async def get_historical_data(self, ticker: str, interval: str = "1d", period: str = "1mo") -> Optional[Dict[str, Any]]:
+        # 严格过滤测试标的，避免请求外部接口
+        if ticker.upper().startswith("TEST_"):
+            logger.info(f"Skipping historical data fetch for test ticker: {ticker}")
+            return None
+            
         try:
             if self._is_us_stock(ticker):
                 df = await self._run_sync(ak.stock_us_daily, symbol=ticker)
@@ -696,11 +701,18 @@ class AkShareProvider(MarketDataProvider):
                     symbol = self._normalize_symbol(ticker)
                     df = await self._run_sync(ak.stock_zh_a_hist, symbol=symbol, period="daily", adjust="qfq")
                     if df is not None and not df.empty:
-                        df = df.rename(columns={'日期': 'Date', '开盘': 'Open', '最高': 'High', '最低': 'Low', '收盘': 'Close', '成交量': 'Volume'})
-                        df['Date'] = pd.to_datetime(df['Date'])
-                        df.set_index('Date', inplace=True)
+                        # 严格检查列是否存在，防止重命名报错
+                        if '日期' in df.columns:
+                            df = df.rename(columns={'日期': 'Date', '开盘': 'Open', '最高': 'High', '最低': 'Low', '收盘': 'Close', '成交量': 'Volume'})
+                            df['Date'] = pd.to_datetime(df['Date'])
+                            df.set_index('Date', inplace=True)
+                        else:
+                            return None
             
-            if df is None or df.empty: return None
+            # 最终检查 DataFrame 是否有效且包含足够数据点
+            if df is None or df.empty or len(df) < 2: 
+                return None
+                
             return TechnicalIndicators.calculate_all(df)
         except Exception as e:
             logger.error(f"AkShare get_historical_data error for {ticker}: {e}")

@@ -13,6 +13,7 @@ from app.core.config import settings
 from app.services.market_providers.tavily import TavilyProvider
 from app.services.ai_service import AIService
 from app.models.macro import MacroTopic, GlobalNews
+from app.services.notification_service import NotificationService
 
 logger = logging.getLogger(__name__)
 
@@ -131,28 +132,77 @@ class MacroService:
             data = json.loads(json_match.group(1))
             topics_data = data.get("topics", [])
             
-            # 3. 持久化到数据库
+            # 3. 持久化到数据库 (实现 Upsert 逻辑)
             new_topics = []
             for t_data in topics_data:
-                topic = MacroTopic(
-                    title=t_data.get("title"),
-                    summary=t_data.get("summary"),
-                    heat_score=t_data.get("heat_score", 50.0),
-                    impact_analysis={
+                title = t_data.get("title")
+                # 检查是否已存在同名主题（防止重复沉积）
+                stmt = select(MacroTopic).where(MacroTopic.title == title)
+                res = await db.execute(stmt)
+                existing_topic = res.scalar_one_or_none()
+                
+                if existing_topic:
+                    # 更新旧主题的内容与时间戳，使其“保鲜”
+                    existing_topic.summary = t_data.get("summary")
+                    existing_topic.heat_score = t_data.get("heat_score", 50.0)
+                    existing_topic.impact_analysis = {
                         "logic": t_data.get("logic"),
                         "beneficiaries": t_data.get("beneficiaries", []),
                         "detriments": t_data.get("detriments", [])
-                    },
-                    source_links=t_data.get("sources", [])
-                )
-                db.add(topic)
-                new_topics.append(topic)
-            
-            # 清理旧热点（可选，保留最近 24 小时的即可）
-            # ...
+                    }
+                    existing_topic.source_links = t_data.get("sources", [])
+                    existing_topic.updated_at = datetime.utcnow()
+                    new_topics.append(existing_topic)
+                    logger.info(f"Updated existing macro topic: {title}")
+                else:
+                    # 插入全新的主题
+                    topic = MacroTopic(
+                        title=title,
+                        summary=t_data.get("summary"),
+                        heat_score=t_data.get("heat_score", 50.0),
+                        impact_analysis={
+                            "logic": t_data.get("logic"),
+                            "beneficiaries": t_data.get("beneficiaries", []),
+                            "detriments": t_data.get("detriments", [])
+                        },
+                        source_links=t_data.get("sources", [])
+                    )
+                    db.add(topic)
+                    new_topics.append(topic)
+                    logger.info(f"Inserted new macro topic: {title}")
             
             await db.commit()
-            logger.info(f"Successfully updated {len(new_topics)} macro topics.")
+            # 必须刷新对象以获取最新的 updated_at
+            for nt in new_topics:
+                try:
+                    await db.refresh(nt)
+                except:
+                    pass
+            logger.info(f"Successfully processed {len(new_topics)} macro topics (Upsert).")
+            
+            # --- 异步触发飞书预警 (Async Feishu Notification) ---
+            if new_topics:
+                # 1. 对高热度主题发送独立深度预警
+                for topic in new_topics:
+                    if topic.heat_score >= 90:
+                        try:
+                            asyncio.create_task(NotificationService.send_macro_alert(
+                                title=topic.title,
+                                summary=topic.summary,
+                                heat_score=topic.heat_score
+                            ))
+                        except Exception as notify_e:
+                            logger.error(f"Failed to trigger individual macro alert: {notify_e}")
+                
+                # 2. 发送本轮扫描汇总简报
+                try:
+                    asyncio.create_task(NotificationService.send_macro_summary(
+                        topics_count=len(new_topics),
+                        topics_list=new_topics
+                    ))
+                except Exception as summary_e:
+                    logger.error(f"Failed to trigger macro summary notification: {summary_e}")
+
             return new_topics
 
         except Exception as e:
@@ -162,16 +212,25 @@ class MacroService:
 
     @staticmethod
     async def get_latest_radar(db: AsyncSession) -> List[MacroTopic]:
-        """获取最新的宏观雷达数据 (按热度优先 + 时间辅助)"""
-        stmt = select(MacroTopic).order_by(MacroTopic.heat_score.desc(), MacroTopic.updated_at.desc()).limit(10)
+        """获取最新的宏观雷达数据 (按时间倒序优先，确保新鲜度)"""
+        stmt = select(MacroTopic).order_by(MacroTopic.updated_at.desc(), MacroTopic.heat_score.desc()).limit(10)
         result = await db.execute(stmt)
-        return list(result.scalars().all())
+        topics = list(result.scalars().all())
+        
+        # 数据填充：强制补全 impact_analysis 中的空字段，防止前端崩溃
+        for t in topics:
+            if not t.impact_analysis:
+                t.impact_analysis = {
+                    "logic": "逻辑正在实时推演中...",
+                    "beneficiaries": [],
+                    "detriments": []
+                }
+        return topics
 
     @staticmethod
     async def update_cls_news(db: AsyncSession = None) -> List[GlobalNews]:
         """抓取并持久化财联社全球快讯 (支持后台安全模式)"""
         if db is None:
-            # 如果没传 db，说明是作为 BackgroundTasks 运行，需自己启 Session
             from app.core.database import SessionLocal
             async with SessionLocal() as new_db:
                 return await MacroService._update_cls_news_internal(new_db)
@@ -180,9 +239,8 @@ class MacroService:
     @staticmethod
     async def _update_cls_news_internal(db: AsyncSession) -> List[GlobalNews]:
         """抓取并持久化财联社全球快讯的内部实现"""
-        logger.info("Starting Cailianshe global news update (Thread Safe)...")
+        logger.info("Starting Cailianshe global news update (Standard Version)...")
         try:
-            # 1. 使用 to_thread 异步化同步库调用，防止阻塞 FastAPI 事件循环
             def fetch_from_akshare():
                 import akshare as ak
                 return ak.stock_info_global_cls()
@@ -190,7 +248,6 @@ class MacroService:
             news_df = await asyncio.to_thread(fetch_from_akshare)
             
             if news_df is None or news_df.empty:
-                logger.warning("Cailianshe update returned empty data.")
                 return []
                 
             recent_news = news_df.head(50)
@@ -206,7 +263,6 @@ class MacroService:
                 # 生成唯一指纹排重
                 fingerprint = hashlib.md5(f"{published_at}{content}".encode()).hexdigest()
                 
-                # 检查是否已存在
                 stmt = select(GlobalNews).where(GlobalNews.fingerprint == fingerprint)
                 existing = await db.execute(stmt)
                 if existing.scalar_one_or_none():
@@ -223,17 +279,17 @@ class MacroService:
                 
             if new_items:
                 await db.commit()
-                logger.info(f"Successfully persisted {len(new_items)} new Cailianshe items.")
+                logger.info(f"Successfully persisted {len(new_items)} news items.")
             
             return new_items
         except Exception as e:
-            logger.error(f"Failed to update Cailianshe news: {e}")
+            logger.error(f"Failed to update news: {e}")
             await db.rollback()
             return []
 
     @staticmethod
     async def get_latest_news(db: AsyncSession, limit: int = 50) -> List[GlobalNews]:
-        """从数据库获取最新的全球快讯"""
+        """从数据库获取最新的全球快讯 (标准排序)"""
         stmt = select(GlobalNews).order_by(GlobalNews.created_at.desc()).limit(limit)
         result = await db.execute(stmt)
         return list(result.scalars().all())

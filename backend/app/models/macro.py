@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, Float, JSON, Text
+from sqlalchemy import Column, String, DateTime, Float, JSON, Text, Boolean
 from datetime import datetime
 import uuid
 from app.core.database import Base
@@ -30,6 +30,9 @@ class GlobalNews(Base):
     
     # 用于排重的唯一指纹 (通常是 content + published_at 的 MD5)
     fingerprint = Column(String, unique=True, index=True)
+    
+    # 是否为头条/深度报道
+    is_headline = Column(Boolean, default=False)
     
     created_at = Column(DateTime, default=datetime.utcnow)
 

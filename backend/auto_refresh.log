@@ -1,15 +1,274 @@
-Traceback (most recent call last):
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/scripts/auto_refresh_market_data.py", line 11, in <module>
-    from app.services.market_data import MarketDataService
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/scripts/../app/services/market_data.py", line 10, in <module>
-    from app.models.stock import Stock, MarketDataCache, MarketStatus, StockNews
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/scripts/../app/models/__init__.py", line 3, in <module>
-    from app.models.portfolio import Portfolio
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/scripts/../app/models/portfolio.py", line 9, in <module>
-    class Portfolio(Base):
-    ...<24 lines>...
-        user = relationship("User", back_populates="portfolio_items")
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/scripts/../app/models/portfolio.py", line 22, in Portfolio
-    sort_order = Column(Integer, default=0, nullable=False) # 排序权重，数值越小越靠前
-                        ^^^^^^^
-NameError: name 'Integer' is not defined
+2026-02-28 23:09:13,762 - __main__ - INFO - 🚀 Starting auto-refresh background job...
+2026-02-28 23:09:16,998 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, ^GSPC, CRCL, FCX, BRK.B, GOOGL, ABBV, RKLB, CRM, ABT...
+2026-02-28 23:09:17,681 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-02-28 23:09:18,677 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:09:18,942 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-02-28 23:09:18,942 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 110.95715966991067
+2026-02-28 23:09:21,713 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-02-28 23:09:22,093 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:09:22,237 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-02-28 23:09:22,237 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6878.88
+2026-02-28 23:09:25,501 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:09:26,070 - app.services.market_data - INFO - Syncing fundamental for CRCL: market_cap=19648083000.0, PE=-0.54
+2026-02-28 23:09:28,166 - __main__ - INFO - ✅ Successfully refreshed CRCL. New Price: 83.44
+2026-02-28 23:09:31,875 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:09:32,206 - app.services.market_data - INFO - Syncing fundamental for FCX: market_cap=97844685000.0, PE=1.52
+2026-02-28 23:09:34,145 - __main__ - INFO - ✅ Successfully refreshed FCX. New Price: 68.08
+2026-02-28 23:09:36,565 - app.services.market_data - INFO - Skipping Tavily for BRK.B as news is recently updated within 4 hours.
+2026-02-28 23:09:37,447 - app.services.market_data - INFO - Syncing fundamental for BRK.B: market_cap=1089346179999.9999, PE=31.27
+2026-02-28 23:09:39,176 - __main__ - INFO - ✅ Successfully refreshed BRK.B. New Price: 504.95
+2026-02-28 23:09:42,783 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:09:43,223 - app.services.market_data - INFO - Syncing fundamental for GOOGL: market_cap=3771360720000.0, PE=10.81
+2026-02-28 23:09:44,947 - __main__ - INFO - ✅ Successfully refreshed GOOGL. New Price: 311.76
+2026-02-28 23:09:48,527 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:09:49,021 - app.services.market_data - INFO - Syncing fundamental for ABBV: market_cap=410356664000.0, PE=2.37
+2026-02-28 23:09:50,556 - __main__ - INFO - ✅ Successfully refreshed ABBV. New Price: 232.08
+2026-02-28 23:09:54,105 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:09:54,437 - app.services.market_data - INFO - Syncing fundamental for RKLB: market_cap=39210481000.0, PE=-0.38
+2026-02-28 23:09:56,163 - __main__ - INFO - ✅ Successfully refreshed RKLB. New Price: 69.1
+2026-02-28 23:09:59,898 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:10:00,358 - app.services.market_data - INFO - Syncing fundamental for CRM: market_cap=182518230000.0, PE=7.81
+2026-02-28 23:10:02,088 - __main__ - INFO - ✅ Successfully refreshed CRM. New Price: 194.79
+2026-02-28 23:10:05,893 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:10:06,322 - app.services.market_data - INFO - Syncing fundamental for ABT: market_cap=202317751000.0, PE=3.72
+2026-02-28 23:10:07,858 - __main__ - INFO - ✅ Successfully refreshed ABT. New Price: 116.35
+2026-02-28 23:10:10,013 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-02-28 23:15:11,790 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, ^GSPC, CVX, NBIS, WMT, IAU, INTC, JPM, MRK, SNDK...
+2026-02-28 23:15:12,475 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-02-28 23:15:13,363 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:15:13,398 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-02-28 23:15:13,399 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 110.95715966991067
+2026-02-28 23:15:16,065 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-02-28 23:15:16,771 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:15:17,041 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-02-28 23:15:17,041 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6878.88
+2026-02-28 23:15:19,442 - app.services.market_data - INFO - Skipping Tavily for CVX as news is recently updated within 4 hours.
+2026-02-28 23:15:20,182 - app.services.market_data - INFO - Syncing fundamental for CVX: market_cap=369784800000.0, PE=6.63
+2026-02-28 23:15:22,276 - __main__ - INFO - ✅ Successfully refreshed CVX. New Price: 186.76
+2026-02-28 23:15:24,688 - app.services.market_data - INFO - Skipping Tavily for NBIS as news is recently updated within 4 hours.
+2026-02-28 23:15:25,427 - app.services.market_data - INFO - Syncing fundamental for NBIS: market_cap=23072618000.0, PE=0.4
+2026-02-28 23:15:26,997 - __main__ - INFO - ✅ Successfully refreshed NBIS. New Price: 91.19
+2026-02-28 23:15:29,414 - app.services.market_data - INFO - Skipping Tavily for WMT as news is recently updated within 4 hours.
+2026-02-28 23:15:30,142 - app.services.market_data - INFO - Syncing fundamental for WMT: market_cap=1019782863000.0, PE=2.73
+2026-02-28 23:15:31,714 - __main__ - INFO - ✅ Successfully refreshed WMT. New Price: 127.95
+2026-02-28 23:15:35,448 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:15:35,909 - app.services.market_data - INFO - Syncing fundamental for IAU: market_cap=84075756000.0, PE=4.62
+2026-02-28 23:15:37,801 - __main__ - INFO - ✅ Successfully refreshed IAU. New Price: 99.07
+2026-02-28 23:15:40,263 - app.services.market_data - INFO - Skipping Tavily for INTC as news is recently updated within 4 hours.
+2026-02-28 23:15:41,307 - app.services.market_data - INFO - Syncing fundamental for INTC: market_cap=227830092000.0, PE=-0.06
+2026-02-28 23:15:42,886 - __main__ - INFO - ✅ Successfully refreshed INTC. New Price: 45.61
+2026-02-28 23:15:46,236 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:15:46,558 - app.services.market_data - INFO - Syncing fundamental for JPM: market_cap=809918822000.0, PE=20.02
+2026-02-28 23:15:48,653 - __main__ - INFO - ✅ Successfully refreshed JPM. New Price: 300.3
+2026-02-28 23:15:52,200 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:15:53,211 - app.services.market_data - INFO - Syncing fundamental for MRK: market_cap=306131578000.0, PE=7.28
+2026-02-28 23:15:54,943 - __main__ - INFO - ✅ Successfully refreshed MRK. New Price: 123.82
+2026-02-28 23:15:57,403 - app.services.market_data - INFO - Skipping Tavily for SNDK as news is recently updated within 4 hours.
+2026-02-28 23:15:57,928 - app.services.market_data - INFO - Syncing fundamental for SNDK: market_cap=93758327000.0, PE=-7.47
+2026-02-28 23:15:59,500 - __main__ - INFO - ✅ Successfully refreshed SNDK. New Price: 635.36
+2026-02-28 23:16:01,750 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-02-28 23:21:03,608 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, ^GSPC, NDX, CRCL, FCX, BRK.B, GOOGL, ABBV, RKLB, TEM...
+2026-02-28 23:21:04,300 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-02-28 23:21:05,183 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:21:05,218 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-02-28 23:21:05,218 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 110.95715966991067
+2026-02-28 23:21:07,916 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-02-28 23:21:08,591 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:21:08,857 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-02-28 23:21:08,858 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6878.88
+2026-02-28 23:21:11,511 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
+2026-02-28 23:21:12,001 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:21:12,525 - app.services.market_data - INFO - Syncing fundamental for NDX: market_cap=None, PE=None
+2026-02-28 23:21:14,618 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 24960.04
+2026-02-28 23:21:17,778 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:21:18,109 - app.services.market_data - INFO - Syncing fundamental for CRCL: market_cap=19648083000.0, PE=-0.54
+2026-02-28 23:21:19,862 - __main__ - INFO - ✅ Successfully refreshed CRCL. New Price: 83.44
+2026-02-28 23:21:23,020 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:21:23,347 - app.services.market_data - INFO - Syncing fundamental for FCX: market_cap=97844685000.0, PE=1.52
+2026-02-28 23:21:25,102 - __main__ - INFO - ✅ Successfully refreshed FCX. New Price: 68.08
+2026-02-28 23:21:27,509 - app.services.market_data - INFO - Skipping Tavily for BRK.B as news is recently updated within 4 hours.
+2026-02-28 23:21:28,441 - app.services.market_data - INFO - Syncing fundamental for BRK.B: market_cap=1089346179999.9999, PE=31.27
+2026-02-28 23:21:30,132 - __main__ - INFO - ✅ Successfully refreshed BRK.B. New Price: 504.95
+2026-02-28 23:21:32,446 - app.services.market_data - INFO - Skipping Tavily for GOOGL as news is recently updated within 4 hours.
+2026-02-28 23:21:33,159 - app.services.market_data - INFO - Syncing fundamental for GOOGL: market_cap=3771360720000.0, PE=10.81
+2026-02-28 23:21:34,699 - __main__ - INFO - ✅ Successfully refreshed GOOGL. New Price: 311.76
+2026-02-28 23:21:37,957 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:21:38,375 - app.services.market_data - INFO - Syncing fundamental for ABBV: market_cap=410356664000.0, PE=2.37
+2026-02-28 23:21:39,941 - __main__ - INFO - ✅ Successfully refreshed ABBV. New Price: 232.08
+2026-02-28 23:21:42,255 - app.services.market_data - INFO - Skipping Tavily for RKLB as news is recently updated within 4 hours.
+2026-02-28 23:21:42,930 - app.services.market_data - INFO - Syncing fundamental for RKLB: market_cap=39210481000.0, PE=-0.38
+2026-02-28 23:21:44,504 - __main__ - INFO - ✅ Successfully refreshed RKLB. New Price: 69.1
+2026-02-28 23:21:48,254 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:21:48,698 - app.services.market_data - INFO - Syncing fundamental for TEM: market_cap=9519699000.0, PE=-1.41
+2026-02-28 23:21:50,269 - __main__ - INFO - ✅ Successfully refreshed TEM. New Price: 53.25
+2026-02-28 23:21:52,524 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-02-28 23:26:54,364 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, ^GSPC, ORCL, META, MCD, ASTS, TMO, NFLX, GLD, UNH...
+2026-02-28 23:26:55,056 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-02-28 23:26:55,936 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:26:56,107 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-02-28 23:26:56,107 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 110.95715966991067
+2026-02-28 23:26:58,732 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-02-28 23:26:59,351 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:26:59,612 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-02-28 23:26:59,612 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6878.88
+2026-02-28 23:27:03,508 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:27:03,963 - app.services.market_data - INFO - Syncing fundamental for ORCL: market_cap=417892831000.0, PE=5.32
+2026-02-28 23:27:06,062 - __main__ - INFO - ✅ Successfully refreshed ORCL. New Price: 145.4
+2026-02-28 23:27:08,518 - app.services.market_data - INFO - Skipping Tavily for META as news is recently updated within 4 hours.
+2026-02-28 23:27:09,567 - app.services.market_data - INFO - Syncing fundamental for META: market_cap=1639607261000.0, PE=23.49
+2026-02-28 23:27:11,460 - __main__ - INFO - ✅ Successfully refreshed META. New Price: 648.18
+2026-02-28 23:27:15,016 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:27:15,490 - app.services.market_data - INFO - Syncing fundamental for MCD: market_cap=242887363000.0, PE=11.95
+2026-02-28 23:27:17,221 - __main__ - INFO - ✅ Successfully refreshed MCD. New Price: 341.06
+2026-02-28 23:27:20,777 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:27:21,107 - app.services.market_data - INFO - Syncing fundamental for ASTS: market_cap=22518961000.0, PE=-1.14
+2026-02-28 23:27:22,832 - __main__ - INFO - ✅ Successfully refreshed ASTS. New Price: 79.19
+2026-02-28 23:27:26,440 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:27:26,868 - app.services.market_data - INFO - Syncing fundamental for TMO: market_cap=195785227000.0, PE=17.74
+2026-02-28 23:27:28,607 - __main__ - INFO - ✅ Successfully refreshed TMO. New Price: 521.11
+2026-02-28 23:27:31,061 - app.services.market_data - INFO - Skipping Tavily for NFLX as news is recently updated within 4 hours.
+2026-02-28 23:27:31,740 - app.services.market_data - INFO - Syncing fundamental for NFLX: market_cap=406340885000.0, PE=2.53
+2026-02-28 23:27:33,481 - __main__ - INFO - ✅ Successfully refreshed NFLX. New Price: 96.24
+2026-02-28 23:27:37,135 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:27:37,538 - app.services.market_data - INFO - Syncing fundamental for GLD: market_cap=None, PE=None
+2026-02-28 23:27:39,454 - __main__ - INFO - ✅ Successfully refreshed GLD. New Price: 483.75
+2026-02-28 23:27:43,290 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:27:43,645 - app.services.market_data - INFO - Syncing fundamental for UNH: market_cap=265655292000.0, PE=13.23
+2026-02-28 23:27:45,377 - __main__ - INFO - ✅ Successfully refreshed UNH. New Price: 293.27
+2026-02-28 23:27:47,540 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-02-28 23:32:49,310 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, ^GSPC, 601138, IBM, DIS, IREN, V, NBIS, IAU, RKLB...
+2026-02-28 23:32:49,992 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-02-28 23:32:50,722 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:32:50,893 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-02-28 23:32:50,893 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 110.95715966991067
+2026-02-28 23:32:53,608 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-02-28 23:32:54,287 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:32:54,559 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-02-28 23:32:54,559 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6878.88
+2026-02-28 23:32:58,032 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:33:02,045 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-28 23:33:02,572 - app.services.market_data - INFO - Syncing fundamental for 601138: market_cap=None, PE=None
+2026-02-28 23:33:04,675 - __main__ - INFO - ✅ Successfully refreshed 601138. New Price: 55.7
+2026-02-28 23:33:07,138 - app.services.market_data - INFO - Skipping Tavily for IBM as news is recently updated within 4 hours.
+2026-02-28 23:33:07,865 - app.services.market_data - INFO - Syncing fundamental for IBM: market_cap=224532744000.0, PE=11.17
+2026-02-28 23:33:09,554 - __main__ - INFO - ✅ Successfully refreshed IBM. New Price: 240.21
+2026-02-28 23:33:12,380 - app.services.market_data - INFO - Skipping Tavily for DIS as news is recently updated within 4 hours.
+2026-02-28 23:33:13,103 - app.services.market_data - INFO - Syncing fundamental for DIS: market_cap=187851965000.0, PE=6.79
+2026-02-28 23:33:14,637 - __main__ - INFO - ✅ Successfully refreshed DIS. New Price: 106.04
+2026-02-28 23:33:17,097 - app.services.market_data - INFO - Skipping Tavily for IREN as news is recently updated within 4 hours.
+2026-02-28 23:33:17,622 - app.services.market_data - INFO - Syncing fundamental for IREN: market_cap=13585538000.0, PE=1.44
+2026-02-28 23:33:19,193 - __main__ - INFO - ✅ Successfully refreshed IREN. New Price: 40.95
+2026-02-28 23:33:21,605 - app.services.market_data - INFO - Skipping Tavily for V as news is recently updated within 4 hours.
+2026-02-28 23:33:22,342 - app.services.market_data - INFO - Syncing fundamental for V: market_cap=615700705000.0, PE=10.65
+2026-02-28 23:33:23,912 - __main__ - INFO - ✅ Successfully refreshed V. New Price: 320.14
+2026-02-28 23:33:26,323 - app.services.market_data - INFO - Skipping Tavily for NBIS as news is recently updated within 4 hours.
+2026-02-28 23:33:26,861 - app.services.market_data - INFO - Syncing fundamental for NBIS: market_cap=23072618000.0, PE=0.4
+2026-02-28 23:33:28,422 - __main__ - INFO - ✅ Successfully refreshed NBIS. New Price: 91.19
+2026-02-28 23:33:31,777 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:33:31,971 - app.services.market_data - INFO - Syncing fundamental for IAU: market_cap=84075756000.0, PE=4.62
+2026-02-28 23:33:33,663 - __main__ - INFO - ✅ Successfully refreshed IAU. New Price: 99.07
+2026-02-28 23:33:36,126 - app.services.market_data - INFO - Skipping Tavily for RKLB as news is recently updated within 4 hours.
+2026-02-28 23:33:36,683 - app.services.market_data - INFO - Syncing fundamental for RKLB: market_cap=39210481000.0, PE=-0.38
+2026-02-28 23:33:38,229 - __main__ - INFO - ✅ Successfully refreshed RKLB. New Price: 69.1
+2026-02-28 23:33:40,401 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-02-28 23:38:42,157 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, ^GSPC, BAC, DJIA, ASTS, TMO, 002050, 002970, 601138, IBM...
+2026-02-28 23:38:42,832 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-02-28 23:38:43,577 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:38:43,734 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-02-28 23:38:43,734 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 110.95715966991067
+2026-02-28 23:38:46,380 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-02-28 23:38:47,108 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:38:47,521 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-02-28 23:38:47,521 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6878.88
+2026-02-28 23:38:50,852 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:38:51,385 - app.services.market_data - INFO - Syncing fundamental for BAC: market_cap=359397098000.0, PE=3.81
+2026-02-28 23:38:53,478 - __main__ - INFO - ✅ Successfully refreshed BAC. New Price: 49.83
+2026-02-28 23:38:56,684 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:38:57,019 - app.services.market_data - INFO - Syncing fundamental for DJIA: market_cap=None, PE=None
+2026-02-28 23:38:58,717 - __main__ - INFO - ✅ Successfully refreshed DJIA. New Price: 22.33
+2026-02-28 23:39:02,079 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:39:02,265 - app.services.market_data - INFO - Syncing fundamental for ASTS: market_cap=22518961000.0, PE=-1.14
+2026-02-28 23:39:03,956 - __main__ - INFO - ✅ Successfully refreshed ASTS. New Price: 79.19
+2026-02-28 23:39:06,289 - app.services.market_data - INFO - Skipping Tavily for TMO as news is recently updated within 4 hours.
+2026-02-28 23:39:06,799 - app.services.market_data - INFO - Syncing fundamental for TMO: market_cap=195785227000.0, PE=17.74
+2026-02-28 23:39:08,521 - __main__ - INFO - ✅ Successfully refreshed TMO. New Price: 521.11
+2026-02-28 23:39:12,189 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:39:16,286 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-28 23:39:16,507 - app.services.market_data - INFO - Syncing fundamental for 002050: market_cap=None, PE=None
+2026-02-28 23:39:18,116 - __main__ - INFO - ✅ Successfully refreshed 002050. New Price: 51.21
+2026-02-28 23:39:21,502 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:39:25,467 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-28 23:39:25,828 - app.services.market_data - INFO - Syncing fundamental for 002970: market_cap=None, PE=None
+2026-02-28 23:39:27,401 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 82.04
+2026-02-28 23:39:31,027 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:39:35,632 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-28 23:39:35,850 - app.services.market_data - INFO - Syncing fundamental for 601138: market_cap=None, PE=None
+2026-02-28 23:39:37,516 - __main__ - INFO - ✅ Successfully refreshed 601138. New Price: 55.7
+2026-02-28 23:39:39,827 - app.services.market_data - INFO - Skipping Tavily for IBM as news is recently updated within 4 hours.
+2026-02-28 23:39:40,544 - app.services.market_data - INFO - Syncing fundamental for IBM: market_cap=224532744000.0, PE=11.17
+2026-02-28 23:39:42,232 - __main__ - INFO - ✅ Successfully refreshed IBM. New Price: 240.21
+2026-02-28 23:39:44,385 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-02-28 23:44:46,174 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, ^GSPC, BA, AAPL, NFLX, UNH, HD, PEP, XOM, AMD...
+2026-02-28 23:44:46,864 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-02-28 23:44:47,860 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:44:48,115 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-02-28 23:44:48,115 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 110.95715966991067
+2026-02-28 23:44:50,831 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-02-28 23:44:51,532 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:44:51,783 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-02-28 23:44:51,784 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6878.88
+2026-02-28 23:44:54,199 - app.services.market_data - INFO - Skipping Tavily for BA as news is recently updated within 4 hours.
+2026-02-28 23:44:55,085 - app.services.market_data - INFO - Syncing fundamental for BA: market_cap=178690025000.0, PE=2.48
+2026-02-28 23:44:57,550 - __main__ - INFO - ✅ Successfully refreshed BA. New Price: 227.53
+2026-02-28 23:44:59,971 - app.services.market_data - INFO - Skipping Tavily for AAPL as news is recently updated within 4 hours.
+2026-02-28 23:45:00,887 - app.services.market_data - INFO - Syncing fundamental for AAPL: market_cap=3878463564999.9995, PE=7.9
+2026-02-28 23:45:02,426 - __main__ - INFO - ✅ Successfully refreshed AAPL. New Price: 264.18
+2026-02-28 23:45:04,889 - app.services.market_data - INFO - Skipping Tavily for NFLX as news is recently updated within 4 hours.
+2026-02-28 23:45:05,566 - app.services.market_data - INFO - Syncing fundamental for NFLX: market_cap=406340885000.0, PE=2.53
+2026-02-28 23:45:07,142 - __main__ - INFO - ✅ Successfully refreshed NFLX. New Price: 96.24
+2026-02-28 23:45:09,610 - app.services.market_data - INFO - Skipping Tavily for UNH as news is recently updated within 4 hours.
+2026-02-28 23:45:10,332 - app.services.market_data - INFO - Syncing fundamental for UNH: market_cap=265655292000.0, PE=13.23
+2026-02-28 23:45:12,040 - __main__ - INFO - ✅ Successfully refreshed UNH. New Price: 293.27
+2026-02-28 23:45:14,492 - app.services.market_data - INFO - Skipping Tavily for HD as news is recently updated within 4 hours.
+2026-02-28 23:45:15,376 - app.services.market_data - INFO - Syncing fundamental for HD: market_cap=379011133000.0, PE=14.23
+2026-02-28 23:45:16,950 - __main__ - INFO - ✅ Successfully refreshed HD. New Price: 380.72
+2026-02-28 23:45:20,700 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:45:21,145 - app.services.market_data - INFO - Syncing fundamental for PEP: market_cap=231975010000.00003, PE=6.0
+2026-02-28 23:45:22,714 - __main__ - INFO - ✅ Successfully refreshed PEP. New Price: 169.74
+2026-02-28 23:45:25,131 - app.services.market_data - INFO - Skipping Tavily for XOM as news is recently updated within 4 hours.
+2026-02-28 23:45:26,591 - app.services.market_data - INFO - Syncing fundamental for XOM: market_cap=635431427000.0, PE=6.7
+2026-02-28 23:45:28,483 - __main__ - INFO - ✅ Successfully refreshed XOM. New Price: 152.5
+2026-02-28 23:45:30,896 - app.services.market_data - INFO - Skipping Tavily for AMD as news is recently updated within 4 hours.
+2026-02-28 23:45:31,627 - app.services.market_data - INFO - Syncing fundamental for AMD: market_cap=326424555000.0, PE=2.65
+2026-02-28 23:45:33,363 - __main__ - INFO - ✅ Successfully refreshed AMD. New Price: 200.21
+2026-02-28 23:45:35,521 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-02-28 23:50:38,040 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, ^GSPC, 002050, 002970, 601138, IBM, VZ, MU, INTU, KO...
+2026-02-28 23:50:38,859 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-02-28 23:50:39,908 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:50:40,074 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-02-28 23:50:40,075 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 110.95715966991067
+2026-02-28 23:50:42,690 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-02-28 23:50:43,416 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:50:43,583 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-02-28 23:50:43,584 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6878.88
+2026-02-28 23:50:47,084 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:50:52,132 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-28 23:50:52,647 - app.services.market_data - INFO - Syncing fundamental for 002050: market_cap=None, PE=None
+2026-02-28 23:50:54,742 - __main__ - INFO - ✅ Successfully refreshed 002050. New Price: 51.21
+2026-02-28 23:50:58,000 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:51:02,800 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-28 23:51:03,285 - app.services.market_data - INFO - Syncing fundamental for 002970: market_cap=None, PE=None
+9
+2026-02-28 23:50:25,953 - app.services.market_data - INFO - Skipping Tavily for TMO as news is recently updated within 4 hours.
+2026-02-28 23:50:30,814 - app.services.market_data - INFO - Syncing fundamental for TMO: market_cap=195785227000.0, PE=17.74
+2026-02-28 23:50:34,139 - __main__ - INFO - ✅ Successfully refreshed TMO. New Price: 521.11
+2026-02-28 23:50:37,845 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:50:43,204 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-28 23:50:43,576 - app.services.market_data - INFO - Syncing fundamental for 002050: market_cap=None, PE=None
+2026-02-28 23:50:45,150 - __main__ - INFO - ✅ Successfully refreshed 002050. New Price: 51.21
+2026-02-28 23:50:48,565 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:50:53,093 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-02-28 23:50:53,539 - app.services.market_data - INFO - Syncing fundamental for 002970: market_cap=None, PE=None
+2026-02-28 23:50:55,267 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 82.04
+2026-02-28 23:50:58,525 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-02-28 23:51:03,776 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))

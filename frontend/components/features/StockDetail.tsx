@@ -44,6 +44,7 @@ interface StockDetailProps {
         model_used?: string;
     } | null;
     news?: any[];
+    refreshTimestamp?: number;
 }
 export function StockDetail({
     selectedItem,
@@ -52,7 +53,8 @@ export function StockDetail({
     onBack,
     analyzing,
     aiData,
-    news = []
+    news = [],
+    refreshTimestamp
 }: StockDetailProps) {
     // --- 辅助工具 (Helper Utilities) ---
     const sanitizePrice = (val: number | null | undefined): string => {
@@ -112,7 +114,7 @@ export function StockDetail({
             }
         };
         loadHistory();
-    }, [selectedItem?.ticker]);
+    }, [selectedItem?.ticker, refreshTimestamp]);
 
     const [hoverPrice, setHoverPrice] = useState<{ price: number; x: number } | null>(null);
     const [hoveredZone, setHoveredZone] = useState<string | null>(null);

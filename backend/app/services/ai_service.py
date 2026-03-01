@@ -171,7 +171,7 @@ class AIService:
         {news_data if news_data else "暂无重大相关个股新闻。"}
         
         **5. 全球宏观雷达与热点 (Global Macro Radar & Hotspots)**:
-        [CONTEXT]: 以下是当前对全球市场（地缘政治、大宗商品、宏观政策）影响最大的热点。请分析这些宏观偏见如何传导至该标的。
+        [CONTEXT]: 以下是当前对全球市场影响最大的热点（已按时间鲜度排序，越靠上越新鲜）。请分析这些最新宏观偏见如何传导至该标的。
         {macro_context if macro_context else "暂无显著全球宏观波动。"}
         
         **6. 历史分析上下文 (Historical Context - Previous AI Analysis)**:
@@ -273,7 +273,7 @@ class AIService:
             key = settings.SILICONFLOW_API_KEY or api_key_siliconflow
             return await AIService.call_siliconflow(prompt, model, key, db)
     @staticmethod
-    async def generate_portfolio_analysis(portfolio_items: list, market_news: str = None, model: str = "gemini-1.5-flash", api_key_gemini: str = None, api_key_siliconflow: str = None, db: AsyncSession = None) -> str:
+    async def generate_portfolio_analysis(portfolio_items: list, market_news: str = None, macro_context: str = None, model: str = "gemini-1.5-flash", api_key_gemini: str = None, api_key_siliconflow: str = None, db: AsyncSession = None) -> str:
         """
         生成全量持仓健康诊断报告 (Generate Portfolio Health Check)
         """
@@ -294,14 +294,18 @@ class AIService:
         **1. 持仓明细 (Portfolio Breakdown)**:
         {holdings_context}
         
-        **2. 实时市场与新闻背景 (Real-time Market Context)**:
+        **2. 宏观环境与外部背景 (Global Macro & Market Context)**:
+        {macro_context if macro_context else "当前无显著宏观热点波动。"}
+        
+        **3. 补充市场新闻 (Additional News)**:
         {market_news if market_news else "暂无外部实时新闻，请基于已有持仓数据进行存量分析。"}
         
-        **3. 分析指令 (Strict Directives)**:
-        1. **深度风险透视**: 不仅要指出行业分布，还要识别“隐性关联”。指出哪个标的对组合的整体风险贡献最大。
-        2. **盈亏属性分析**: 分别针对“浮盈巨大”和“严重套牢”的标的给出具体的处理建议。
-        3. **调仓战略建议**: 给出未来一周的动作指南。
-        4. **禁止空话**: 必须根据数据给出倾向于具体行动的判断。
+        **4. 分析指令 (Strict Directives)**:
+        1. **宏观风险关联**: 必须结合当前的“全球热点”分析其对组合中具体标的的影响（如地缘冲突对能源股、算力脱钩对科技股）。
+        2. **深度风险透视**: 不仅要指出行业分布，还要识别“隐性关联”。指出哪个标的对组合的整体风险贡献最大。
+        3. **盈亏属性分析**: 分别针对“浮盈巨大”和“严重套牢”的标的给出具体的处理建议。
+        4. **调仓战略建议**: 给出未来一周的动作指南。
+        5. **禁止空话**: 必须根据数据给出倾向于具体行动的判断。
         
         **返回格式要求**:
         - 必须返回纯 JSON 对象。

@@ -121,11 +121,17 @@ app.include_router(api_router, prefix="/api")
 # 6. 后端后台任务启动 (Background Task Startup)
 @app.on_event("startup")
 async def startup_event():
+    # 自动创建缺失的数据库表 (包括 notification_logs)
+    from app.core.database import engine, Base
+    from app.models.notification import NotificationLog
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    
     from app.services.scheduler import start_scheduler
     import asyncio
     # 使用 create_task 将调度循环挂在后台，不阻塞 Uvicorn 主进程启动
     asyncio.create_task(start_scheduler())
-    logger.info("PHASE: Background scheduler task launched.")
+    logger.info("PHASE: Background scheduler task launched & DB synced.")
 
 @app.get("/health", tags=["System"])
 async def health_check():

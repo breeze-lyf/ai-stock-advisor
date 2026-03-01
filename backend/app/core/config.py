@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     ALPHA_VANTAGE_API_KEY: Optional[str] = None
     TAVILY_API_KEY: Optional[str] = None
     HTTP_PROXY: Optional[str] = None
+    FEISHU_WEBHOOK_URL: Optional[str] = None
+    FEISHU_SECRET: Optional[str] = None
 
     class Config:
         env_file = ".env"

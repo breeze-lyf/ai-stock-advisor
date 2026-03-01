@@ -6,7 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.core.database import SessionLocal
 from app.models.stock import MarketDataCache
+from app.models.analysis import AnalysisReport
 from app.services.market_data import MarketDataService
+from app.services.notification_service import NotificationService
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +106,12 @@ async def refresh_all_stocks():
                         # 使用独立的 session 防止冲突
                         async with SessionLocal() as local_db:
                             # 后台自动刷新强制跳过新闻抓取 (skip_news=True)，以节省终端/Tavily 额度
-                            await MarketDataService.get_real_time_data(t, local_db, force_refresh=True, skip_news=True)
+                            updated_data = await MarketDataService.get_real_time_data(t, local_db, force_refresh=True, skip_news=True)
+                            
+                            if updated_data:
+                                # --- 检查价格触达与指标异动 (Check price hits & indicator alerts) ---
+                                await check_and_notfy_alerts(t, updated_data, local_db)
+
                         logger.info(f"[Scheduler] 成功更新股票行情: {t}")
                     except Exception as e:
                         logger.error(f"[Scheduler] 刷新 {t} 失败: {e}")
@@ -119,6 +126,45 @@ async def refresh_all_stocks():
         except Exception as e:
             logger.error(f"[Scheduler] 轮询任务发生异常: {e}")
 
+async def check_and_notfy_alerts(ticker: str, current_data: MarketDataCache, db: AsyncSession):
+    """
+    检查价格与指标是否触发警报
+    """
+    try:
+        # 1. 获取该用户对该股票的最新 AI 分析建议 (狙击位)
+        # 注意：此处简单处理，获取该标的最后一份分析。
+        stmt = select(AnalysisReport).where(AnalysisReport.ticker == ticker).order_by(AnalysisReport.created_at.desc()).limit(1)
+        res = await db.execute(stmt)
+        report = res.scalar_one_or_none()
+        
+        curr_price = current_data.current_price
+        
+        if report and curr_price:
+            # 价格触达逻辑：如果价格涨过止盈位，或跌破止损位
+            if report.target_price and curr_price >= report.target_price:
+                await NotificationService.send_price_alert(ticker, ticker, curr_price, report.target_price, is_stop_loss=False)
+            elif report.stop_loss_price and curr_price <= report.stop_loss_price:
+                await NotificationService.send_price_alert(ticker, ticker, curr_price, report.stop_loss_price, is_stop_loss=True)
+        
+        # 2. 指标异动监控 (RSI 极端值)
+        if current_data.rsi_14:
+            if current_data.rsi_14 > 75:
+                # 超买预警
+                await NotificationService.send_feishu_card(
+                    title=f"⚠️ 指标超买警报: {ticker}",
+                    content=f"**{ticker}** RSI(14) 已飙升至 `{current_data.rsi_14:.2f}`，处于严重超买区间，风险正在积聚。",
+                    color="red"
+                )
+            elif current_data.rsi_14 < 25:
+                # 超卖预警
+                await NotificationService.send_feishu_card(
+                    title=f"🟢 指标超卖警报: {ticker}",
+                    content=f"**{ticker}** RSI(14) 已跌至 `{current_data.rsi_14:.2f}`，处于严重超卖状态，可能存在技术性反弹机会。",
+                    color="green"
+                )
+    except Exception as e:
+        logger.error(f"Failed to check alerts for {ticker}: {e}")
+
 from app.services.macro_service import MacroService
 
 # ... inside refresh_all_stocks or as a separate task ...
@@ -132,6 +178,15 @@ async def refresh_macro_radar():
     except Exception as e:
         logger.error(f"[Scheduler] 宏观雷达更新失败: {e}")
 
+async def refresh_cls_headlines():
+    """定时抓取财联社深度头条 (每 4 小时)"""
+    try:
+        logger.info("[Scheduler] 开始探测财联社深度头条...")
+        await MacroService.update_cls_headlines()
+        logger.info("[Scheduler] 财联社头条更新完成。")
+    except Exception as e:
+        logger.error(f"[Scheduler] 财联社头条抓取失败: {e}")
+
 async def refresh_cls_news():
     """定时更新财联社全球快讯 (每 10 分钟)"""
     try:
@@ -140,6 +195,63 @@ async def refresh_cls_news():
         logger.info("[Scheduler] 财联社快讯同步完成。")
     except Exception as e:
         logger.error(f"[Scheduler] 财联社快讯更新失败: {e}")
+
+async def send_daily_portfolio_report():
+    """生成并发送每日持仓健康报告 (Feishu Card)"""
+    try:
+        from app.models.stock import Portfolio
+        from app.models.analysis import PortfolioAnalysisReport
+        from app.services.ai_service import AIService
+        from app.services.macro_service import MacroService
+        
+        async with SessionLocal() as db:
+            # 1. 获取所有用户的持仓 (此处简化为获取全部活跃标的)
+            stmt = select(Portfolio)
+            res = await db.execute(stmt)
+            portfolios = res.scalars().all()
+            
+            if not portfolios:
+                return
+            
+            # 由于当前是单用户演示系统，我们直接统计全局持仓快照进行分析
+            # 实际多用户系统需按 user_id 分组
+            ticker_list = list(set([p.ticker for p in portfolios]))
+            
+            # 获取宏观背景
+            macro_data = await MacroService.get_latest_radar(db)
+            news_data = await MacroService.get_latest_news(db, limit=10)
+            
+            macro_context = ""
+            if macro_data:
+                macro_context += "\n### 全球异动雷达\n" + "\n".join([f"- {t.title}: {t.summary} (热度: {t.heat_score})" for t in macro_data])
+            if news_data:
+                macro_context += "\n### 实时快讯\n" + "\n".join([f"- {n.title}: {n.content[:100]}..." for n in news_data])
+
+            # 调用 AI 生成全量分析 (此处直接复用 AIService 逻辑)
+            # 注意：此处需要传入结构化的 portfolio 数据，此处略作简化
+            portfolio_info = [{"ticker": p.ticker, "shares": p.shares} for p in portfolios]
+            
+            logger.info(f"[Scheduler] 正在为 {len(portfolio_info)} 个持仓标的生成每日 AI 诊断周报...")
+            
+            # 模拟生成逻辑 (为了演示，直接调用分析服务的核心 Prompt 逻辑)
+            # 在实际生产中，应从 db 中查询最近一次分析，或重新触发 generate_portfolio_analysis
+            analysis = await AIService.generate_portfolio_analysis(
+                portfolio_data=portfolio_info,
+                macro_context=macro_context
+            )
+            
+            # 发送飞书消息
+            # 提取 AI 返回的摘要信息 (简单从 Markdown 中提取或由 AI 返回结构化数据)
+            # 此处演示通过富文本卡片展示
+            await NotificationService.send_feishu_card(
+                title="📅 每日持仓全景体检报告",
+                content=f"**当前持仓摘要**:\n{analysis[:500]}...",
+                color="blue"
+            )
+            logger.info("[Scheduler] 每日持仓报告推送成功。")
+            
+    except Exception as e:
+        logger.error(f"[Scheduler] 每天报告生成失败: {e}")
 
 async def start_scheduler():
     """
@@ -150,6 +262,8 @@ async def start_scheduler():
     # 记录各任务最后执行时间
     last_macro_update = datetime.min
     last_news_update = datetime.min
+    last_headline_update = datetime.min
+    last_daily_report_day = "" # 记录日期，防止一天多次触发
     
     while True:
         # 1. 股票行情刷新 (每 5 分钟尝试一次)
@@ -166,12 +280,24 @@ async def start_scheduler():
             except Exception as e:
                 logger.error(f"[Scheduler] 财联社刷新异常: {e}")
 
-        # 3. 宏观热点刷新 (每 4 小时尝试一次)
-        if datetime.now() - last_macro_update > timedelta(hours=4):
+        # 3. 宏观热点刷新 (每 5 小时尝试一次)
+        if datetime.now() - last_macro_update > timedelta(hours=5):
             try:
                 await refresh_macro_radar()
                 last_macro_update = datetime.now()
             except Exception as e:
                 logger.error(f"[Scheduler] 宏观刷新异常: {e}")
         
+        # 4. 每日报告 (北京时间 09:00 或 22:00 触发一次)
+        now_cn = datetime.now(CN_TZ)
+        today_str = now_cn.strftime("%Y-%m-%d")
+        if today_str != last_daily_report_day:
+            # 在 09:00 - 09:15 或 22:00 - 22:15 之间触发
+            if (now_cn.hour == 9 and now_cn.minute < 15) or (now_cn.hour == 22 and now_cn.minute < 15):
+                try:
+                    await send_daily_portfolio_report()
+                    last_daily_report_day = today_str
+                except Exception as e:
+                    logger.error(f"[Scheduler] 每日报告触发异常: {e}")
+
         await asyncio.sleep(300) 

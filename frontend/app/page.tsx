@@ -14,6 +14,7 @@ import { SearchDialog } from "@/components/features/SearchDialog";
 import { PortfolioDashboard } from "@/components/features/PortfolioDashboard";
 import { HotspotRadar } from "@/components/features/HotspotRadar";
 import { DashboardHeader } from "@/components/features/DashboardHeader";
+import AlertStream from "@/components/features/AlertStream";
 
 function DashboardContent() {
   const { isAuthenticated } = useAuth();
@@ -25,13 +26,14 @@ function DashboardContent() {
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedTicker, setSelectedTickerState] = useState<string | null>(searchParams.get("ticker"));
-  const [activeTab, setActiveTabState] = useState<"analysis" | "portfolio" | "radar">((searchParams.get("tab") as any) || "analysis");
+  const [activeTab, setActiveTabState] = useState<"analysis" | "portfolio" | "radar" | "alerts">((searchParams.get("tab") as any) || "analysis");
   const [onlyHoldings, setOnlyHoldings] = useState(false);
   const [news, setNews] = useState<any[]>([]);
   const [analyzing, setAnalyzing] = useState(false);
   const [aiData, setAiData] = useState<any>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [refreshTimestamp, setRefreshTimestamp] = useState<number>(Date.now());
 
   // --- URL Sync Logic ---
   const handleSelectTicker = (ticker: string | null) => {
@@ -50,7 +52,7 @@ function DashboardContent() {
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  const handleTabChange = (tab: "analysis" | "portfolio" | "radar") => {
+  const handleTabChange = (tab: "analysis" | "portfolio" | "radar" | "alerts") => {
     setActiveTabState(tab);
     const params = new URLSearchParams(searchParams.toString());
     params.set("tab", tab);
@@ -67,7 +69,7 @@ function DashboardContent() {
     const tab = searchParams.get("tab") as any;
     const ticker = searchParams.get("ticker");
 
-    if (tab && ["analysis", "portfolio", "radar"].includes(tab) && tab !== activeTab) {
+    if (tab && ["analysis", "portfolio", "radar", "alerts"].includes(tab) && tab !== activeTab) {
       setActiveTabState(tab);
     }
     if (ticker !== selectedTicker) {
@@ -127,7 +129,7 @@ function DashboardContent() {
       }
     };
     loadData();
-  }, [selectedTicker]);
+  }, [selectedTicker, refreshTimestamp]);
 
   const handleParseAnalysis = (result: any) => {
     if (result.technical_analysis) {
@@ -167,6 +169,11 @@ function DashboardContent() {
     }
   };
 
+  const handleRefreshData = async () => {
+    setRefreshTimestamp(Date.now());
+    await fetchData(false);
+  };
+
   const selectedItem = portfolio.find(p => p.ticker === selectedTicker);
 
   return (
@@ -202,11 +209,12 @@ function DashboardContent() {
                 key={selectedTicker || 'empty'}
                 selectedItem={selectedItem || null}
                 onAnalyze={handleAnalyze}
-                onRefresh={() => fetchData(false)}
+                onRefresh={handleRefreshData}
                 onBack={() => handleSelectTicker(null)}
                 analyzing={analyzing}
                 aiData={aiData}
                 news={news}
+                refreshTimestamp={refreshTimestamp}
               />
             </div>
           </div>
@@ -219,6 +227,12 @@ function DashboardContent() {
         {activeTab === "radar" && (
           <div className="absolute inset-0 flex flex-col">
             <HotspotRadar onSelectTicker={handleSelectTicker} />
+          </div>
+        )}
+
+        {activeTab === "alerts" && (
+          <div className="absolute inset-0 flex flex-col bg-white dark:bg-slate-950 overflow-y-auto">
+            <AlertStream />
           </div>
         )}
       </main>

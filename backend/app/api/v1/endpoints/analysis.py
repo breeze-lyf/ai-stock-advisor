@@ -128,10 +128,35 @@ async def analyze_portfolio(
     gemini_key = security.decrypt_api_key(current_user.api_key_gemini)
     siliconflow_key = security.decrypt_api_key(current_user.api_key_siliconflow)
     preferred_model = current_user.preferred_ai_model or "qwen-3-vl-thinking"
-    
+    # 3.2 获取宏观 RAG 上下文 (Fetch Macro RAG Context)
+    macro_context = ""
+    try:
+        from app.services.macro_service import MacroService
+        # 获取最近 3 条宏观热点
+        radar_topics = await MacroService.get_latest_radar(db)
+        if radar_topics:
+            macro_context += "### 宏观热点雷达 (Macro Radar):\n"
+            for t in radar_topics[:3]:
+                macro_context += f"- **{t.title}** (热度: {t.heat_score}): {t.summary}\n"
+        
+        # 获取最近 5 条财联社全球快讯
+        global_news = await MacroService.get_latest_news(db, limit=5)
+        if global_news:
+            macro_context += "\n### 实时全球快讯 (Real-time Global Flash):\n"
+            for n in global_news:
+                macro_context += f"- [{n.published_at}] {n.content[:150]}...\n"
+                
+        if not macro_context:
+            macro_context = "当前无显著宏观热点波动。"
+    except Exception as macro_e:
+        logger.error(f"Failed to fetch macro context for portfolio RAG: {macro_e}")
+        macro_context = "宏观数据检索失败。"
+
+    # 4. 调用 AI 服务 (Call AI Service)
     ai_raw_response = await AIService.generate_portfolio_analysis(
         portfolio_items=holdings_data,
         market_news=market_news_context,
+        macro_context=macro_context,
         model=preferred_model,
         api_key_gemini=gemini_key,
         api_key_siliconflow=siliconflow_key,
@@ -326,6 +351,7 @@ async def analyze_stock(
     news_stmt = select(StockNews).where(StockNews.ticker == ticker).order_by(StockNews.publish_time.desc()).limit(5)
     news_result = await db.execute(news_stmt)
     news_articles = news_result.scalars().all()
+    # 结合宏观头条新闻 (Combine with macro headlines if available for this specific ticker)
     news_data = [{"title": n.title, "publisher": n.publisher, "time": n.publish_time.isoformat()} for n in news_articles]
 
     # 4. 获取用户持仓 (个性化上下文)

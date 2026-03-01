@@ -1,8 +1,7 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import auth, portfolio, analysis, user, stock
+from app.api.v1.endpoints import auth, portfolio, analysis, user, stock, notifications, macro
 
 # 创建 v1 版本的总路由对象
-# 在 RESTful 架构中，版本化（v1/v2）是保证 API 向后兼容性的重要手段
 api_router = APIRouter()
 
 # 挂载各业务模块的子路由
@@ -21,8 +20,10 @@ api_router.include_router(stock.router, prefix="/stocks", tags=["stocks"])
 api_router.include_router(analysis.router, prefix="/analysis", tags=["analysis"])
 
 # 宏观热点模块：处理全球宏观雷达与热点分析
-from app.api.v1.endpoints import macro
 api_router.include_router(macro.router, prefix="/macro", tags=["macro"])
 
 # 用户与设置模块：处理用户信息及 API Key 等偏好设置
 api_router.include_router(user.router, prefix="/user", tags=["user"])
+
+# 通知历史模块：展示飞书推送流
+api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])

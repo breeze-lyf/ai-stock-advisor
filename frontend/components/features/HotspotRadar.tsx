@@ -124,9 +124,15 @@ export function HotspotRadar({ onSelectTicker }: HotspotRadarProps) {
                       </div>
                       <span className="text-[10px] text-slate-400 uppercase tracking-widest font-medium">
                         Updated: {
-                          new Date(topic.updated_at.endsWith('Z') ? topic.updated_at : topic.updated_at + 'Z').toLocaleTimeString("zh-CN", {
+                          new Date(topic.updated_at.endsWith('Z') ? topic.updated_at : topic.updated_at + 'Z').toLocaleString("zh-CN", {
                             timeZone: "Asia/Shanghai",
                             hour12: false,
+                            year: 'numeric',
+                            month: 'numeric',
+                            day: 'numeric',
+                            hour: 'numeric',
+                            minute: 'numeric',
+                            second: 'numeric'
                           })
                         }
                       </span>
@@ -138,7 +144,7 @@ export function HotspotRadar({ onSelectTicker }: HotspotRadarProps) {
                       <RefreshCw className="w-2.5 h-2.5" /> AI 逻辑传导链
                     </h4>
                     <p className="text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed">
-                      {topic.impact_analysis.logic}
+                      {topic.impact_analysis?.logic || "AI 正在分析传导逻辑..."}
                     </p>
                   </div>
 
@@ -149,7 +155,7 @@ export function HotspotRadar({ onSelectTicker }: HotspotRadarProps) {
                         <TrendingUp className="w-3 h-3" /> 利好板块/标的
                       </h4>
                       <div className="space-y-2">
-                        {topic.impact_analysis.beneficiaries.map((item, idx) => (
+                        {(topic.impact_analysis?.beneficiaries || []).map((item, idx) => (
                           <div key={idx} className="group p-3 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100/50 dark:border-emerald-900/30 rounded-xl flex items-center justify-between">
                             <div className="min-w-0">
                               <span 
@@ -174,7 +180,7 @@ export function HotspotRadar({ onSelectTicker }: HotspotRadarProps) {
                         <TrendingDown className="w-3 h-3" /> 利空板块/标的
                       </h4>
                       <div className="space-y-2">
-                        {topic.impact_analysis.detriments.map((item, idx) => (
+                        {(topic.impact_analysis?.detriments || []).map((item, idx) => (
                           <div key={idx} className="group p-3 bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100/50 dark:border-rose-900/30 rounded-xl flex items-center justify-between">
                             <div className="min-w-0">
                                <span 

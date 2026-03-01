@@ -566,9 +566,10 @@ export function StockDetail({
                                     const totalRange = axisMax - axisMin;
                                     const getPos = (val: number) => ((val - axisMin) / totalRange) * 100;
 
-                                    const targetPrice = aiData.target_price;
-                                    const entryHigh = aiData.entry_price_high || aiData.entry_price_low || aiData.stop_loss_price;
                                     const stopPrice = aiData.stop_loss_price;
+                                    const entryLow = aiData.entry_price_low || stopPrice;
+                                    const entryHigh = aiData.entry_price_high || entryLow;
+                                    const targetPrice = aiData.target_price;
 
                                     const isHolding = (selectedItem?.quantity || 0) > 0;
                                     const zones = [
@@ -580,7 +581,8 @@ export function StockDetail({
                                                 ? "bg-[#F0614D]" 
                                                 : "bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(240,97,77,0.5)_4px,rgba(240,97,77,0.5)_8px)] opacity-90 border-y border-[#F0614D]/40" 
                                         },
-                                        { name: "买入", start: stopPrice, end: entryHigh, color: "bg-[#3CC68A]" },
+                                        { name: "观察", start: stopPrice, end: entryLow, color: "bg-[#E8EAED] dark:bg-slate-600 opacity-30" }, // 止损与建仓之间的空白区
+                                        { name: "买入", start: entryLow, end: entryHigh, color: "bg-[#3CC68A]" },
                                         { name: "持有", start: entryHigh, end: targetPrice, color: "bg-[#E8EAED] dark:bg-slate-600" },
                                         { name: "止盈", start: targetPrice, end: axisMax, color: "bg-[#3B82F6]" }
                                     ];

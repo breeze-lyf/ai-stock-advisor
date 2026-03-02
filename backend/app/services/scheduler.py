@@ -131,8 +131,12 @@ async def check_and_notfy_alerts(ticker: str, current_data: MarketDataCache, db:
     检查价格与指标是否触发警报
     """
     try:
+        # 0. 获取股票名称 (确保通知中显示名称而非仅代码)
+        from app.models.stock import Stock
+        stock_res = await db.execute(select(Stock.name).where(Stock.ticker == ticker))
+        stock_name = stock_res.scalar_one_or_none() or ticker
+
         # 1. 获取该用户对该股票的最新 AI 分析建议 (狙击位)
-        # 注意：此处简单处理，获取该标的最后一份分析。
         stmt = select(AnalysisReport).where(AnalysisReport.ticker == ticker).order_by(AnalysisReport.created_at.desc()).limit(1)
         res = await db.execute(stmt)
         report = res.scalar_one_or_none()
@@ -142,24 +146,24 @@ async def check_and_notfy_alerts(ticker: str, current_data: MarketDataCache, db:
         if report and curr_price:
             # 价格触达逻辑：如果价格涨过止盈位，或跌破止损位
             if report.target_price and curr_price >= report.target_price:
-                await NotificationService.send_price_alert(ticker, ticker, curr_price, report.target_price, is_stop_loss=False)
+                await NotificationService.send_price_alert(ticker, stock_name, curr_price, report.target_price, is_stop_loss=False)
             elif report.stop_loss_price and curr_price <= report.stop_loss_price:
-                await NotificationService.send_price_alert(ticker, ticker, curr_price, report.stop_loss_price, is_stop_loss=True)
+                await NotificationService.send_price_alert(ticker, stock_name, curr_price, report.stop_loss_price, is_stop_loss=True)
         
         # 2. 指标异动监控 (RSI 极端值)
         if current_data.rsi_14:
             if current_data.rsi_14 > 75:
                 # 超买预警
                 await NotificationService.send_feishu_card(
-                    title=f"⚠️ 指标超买警报: {ticker}",
-                    content=f"**{ticker}** RSI(14) 已飙升至 `{current_data.rsi_14:.2f}`，处于严重超买区间，风险正在积聚。",
+                    title=f"⚠️ 指标超买警报: {stock_name}",
+                    content=f"**{stock_name} ({ticker})** RSI(14) 已飙升至 `{current_data.rsi_14:.2f}`，处于严重超买区间，风险正在积聚。",
                     color="red"
                 )
             elif current_data.rsi_14 < 25:
                 # 超卖预警
                 await NotificationService.send_feishu_card(
-                    title=f"🟢 指标超卖警报: {ticker}",
-                    content=f"**{ticker}** RSI(14) 已跌至 `{current_data.rsi_14:.2f}`，处于严重超卖状态，可能存在技术性反弹机会。",
+                    title=f"🟢 指标超卖警报: {stock_name}",
+                    content=f"**{stock_name} ({ticker})** RSI(14) 已跌至 `{current_data.rsi_14:.2f}`，处于严重超卖状态，可能存在技术性反弹机会。",
                     color="green"
                 )
     except Exception as e:
@@ -170,13 +174,13 @@ from app.services.macro_service import MacroService
 # ... inside refresh_all_stocks or as a separate task ...
 
 async def refresh_macro_radar():
-    """定时更新全球宏观雷达 (每 4 小时)"""
+    """定时更新全球宏观雷达 (每 5 小时)"""
     try:
-        logger.info("[Scheduler] 开始例行更新全球宏观雷达...")
+        logger.info("[Cron] 开始例行更新全球宏观雷达...")
         await MacroService.update_global_radar()
-        logger.info("[Scheduler] 全球宏观雷达更新完成。")
+        logger.info("[Cron] 全球宏观雷达更新完成。")
     except Exception as e:
-        logger.error(f"[Scheduler] 宏观雷达更新失败: {e}")
+        logger.error(f"[Cron] 宏观雷达更新失败: {e}")
 
 async def refresh_cls_headlines():
     """定时抓取财联社深度头条 (每 4 小时)"""
@@ -284,14 +288,14 @@ async def start_scheduler():
     """
     启动常驻后台循环
     """
-    logger.info("[Scheduler] 调度中心全面启动")
+    logger.info("[Scheduler] 调度中心全面启动，轮询精度：60s")
     
     # 记录各任务最后执行时间
-    last_macro_update = datetime.min
-    last_news_update = datetime.min
-    last_headline_update = datetime.min
-    last_hourly_summary_update = datetime.min
-    last_daily_report_day = "" # 记录日期，防止一天多次触发
+    last_macro_update = datetime.now() - timedelta(hours=4, minutes=50) 
+    last_news_update = datetime.now() - timedelta(minutes=5)
+    last_headline_update = datetime.now() - timedelta(hours=3)
+    last_triggered_summary_hour = -1 # 记录上一次成功触发推送到小时，防止分钟内重复执行
+    last_daily_report_day = "" 
     
     while True:
         # 1. 股票行情刷新 (每 5 分钟尝试一次)
@@ -308,13 +312,16 @@ async def start_scheduler():
             except Exception as e:
                 logger.error(f"[Scheduler] 财联社刷新异常: {e}")
 
-        # 2.5 每小时新闻摘要推送 (每小时定点)
-        if datetime.now() - last_hourly_summary_update > timedelta(hours=1):
+        # 2.5 每小时新闻摘要推送 (整点对齐 - 增加 5 分钟容错窗)
+        now = datetime.now()
+        if now.minute < 5 and now.hour != last_triggered_summary_hour:
             try:
+                logger.info(f"[Scheduler] 检测到整点窗口 ({now.strftime('%H:%M')})，准备触发每小时精要...")
                 await refresh_hourly_summary()
-                last_hourly_summary_update = datetime.now()
+                last_triggered_summary_hour = now.hour
+                logger.info(f"[Scheduler] 每小时精要触发成功 (Hour: {now.hour})")
             except Exception as e:
-                logger.error(f"[Scheduler] 每小时摘要刷新异常: {e}")
+                logger.error(f"[Scheduler] 每小时摘要整点触发异常: {e}")
 
         # 3. 宏观热点刷新 (每 5 小时尝试一次)
         if datetime.now() - last_macro_update > timedelta(hours=5):
@@ -328,7 +335,6 @@ async def start_scheduler():
         now_cn = datetime.now(CN_TZ)
         today_str = now_cn.strftime("%Y-%m-%d")
         if today_str != last_daily_report_day:
-            # 在 09:00 - 09:15 或 22:00 - 22:15 之间触发
             if (now_cn.hour == 9 and now_cn.minute < 15) or (now_cn.hour == 22 and now_cn.minute < 15):
                 try:
                     await send_daily_portfolio_report()
@@ -336,4 +342,4 @@ async def start_scheduler():
                 except Exception as e:
                     logger.error(f"[Scheduler] 每日报告触发异常: {e}")
 
-        await asyncio.sleep(300) 
+        await asyncio.sleep(60) # 将精度从 5 分钟提升至 1 分钟

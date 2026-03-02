@@ -3,926 +3,124 @@
 🔄 Starting Auto Refresh Script...
 💻 Starting Frontend (Next.js) on port 3000...
 INFO:     Will watch for changes in these directories: ['/Users/breeze/Dev/ai-stock-advisor/backend']
-INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [70723] using StatReload
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [46692] using StatReload
 ✅ Services are running!
    - Frontend: http://localhost:3000
    - Backend:  http://localhost:8000/docs
 Press CTRL+C to stop.
 
 > frontend@0.1.0 dev
-> next dev
+> next dev -p 3000
 
-2026-02-15 19:50:13,855 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
-INFO:     Started server process [70727]
+2026-03-02 11:27:49,990 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+INFO:     Started server process [46699]
 INFO:     Waiting for application startup.
-INFO:     Application startup complete.
 ▲ Next.js 16.1.2 (Turbopack)
 - Local:         http://localhost:3000
-- Network:       http://192.168.10.139:3000
+- Network:       http://10.10.11.229:3000
 
 ✓ Starting...
-✓ Ready in 467ms
- GET /?ticker=AAPL 200 in 452ms (compile: 319ms, render: 132ms)
-2026-02-15 19:50:19,421 - api_logger - INFO - rid=/api/analysis/AAPL method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=39.10ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:52407 - "GET /api/analysis/AAPL HTTP/1.1" 200 OK
-2026-02-15 19:50:19,424 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=36.57ms
-INFO:     127.0.0.1:52408 - "GET /api/portfolio/?refresh=false HTTP/1.1" 200 OK
-2026-02-15 19:50:19,427 - api_logger - INFO - rid=/api/portfolio/AAPL/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=36.39ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:52410 - "GET /api/portfolio/AAPL/news HTTP/1.1" 200 OK
-2026-02-15 19:50:19,428 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=2.25ms
-INFO:     127.0.0.1:52408 - "GET /api/user/me HTTP/1.1" 200 OK
-2026-02-15 19:50:21,140 - api_logger - INFO - rid=/api/stocks/AAPL/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1662.86ms
-INFO:     127.0.0.1:52408 - "GET /api/stocks/AAPL/history?period=1y HTTP/1.1" 200 OK
- GET /sw.js 404 in 70ms (compile: 43ms, render: 27ms)
- GET /settings 200 in 143ms (compile: 128ms, render: 15ms)
-INFO:     127.0.0.1:56917 - "OPTIONS /api/user/me HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56918 - "OPTIONS /api/user/me HTTP/1.1" 200 OK
-2026-02-15 20:52:43,713 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=13.24ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:56918 - "GET /api/user/me HTTP/1.1" 200 OK
-2026-02-15 20:52:43,716 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=2.41ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:56917 - "GET /api/user/me HTTP/1.1" 200 OK
-INFO:     127.0.0.1:56943 - "OPTIONS /api/user/settings HTTP/1.1" 200 OK
-2026-02-15 20:52:47,496 - api_logger - INFO - rid=/api/user/settings method=PUT status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=10.54ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:56943 - "PUT /api/user/settings HTTP/1.1" 200 OK
-2026-02-15 20:52:47,500 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1.14ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:56943 - "GET /api/user/me HTTP/1.1" 200 OK
- GET / 200 in 34ms (compile: 15ms, render: 20ms)
-INFO:     127.0.0.1:59967 - "OPTIONS /api/portfolio/?refresh=false HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59968 - "OPTIONS /api/portfolio/?refresh=false HTTP/1.1" 200 OK
-2026-02-15 21:15:33,123 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=11.38ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:59967 - "GET /api/portfolio/?refresh=false HTTP/1.1" 200 OK
-2026-02-15 21:15:33,130 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=5.60ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:59968 - "GET /api/portfolio/?refresh=false HTTP/1.1" 200 OK
- GET /?ticker=002050 200 in 9ms (compile: 2ms, render: 7ms)
-INFO:     127.0.0.1:59968 - "OPTIONS /api/stocks/002050/history?period=1y HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59967 - "OPTIONS /api/analysis/002050 HTTP/1.1" 200 OK
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:59972 - "OPTIONS /api/stocks/002050/history?period=1y HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59973 - "OPTIONS /api/user/me HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59974 - "OPTIONS /api/portfolio/002050/news HTTP/1.1" 200 OK
-2026-02-15 21:15:33,265 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=8.72ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:59972 - "GET /api/user/me HTTP/1.1" 200 OK
- GET /?ticker=002050 200 in 17ms (compile: 6ms, render: 11ms)
-2026-02-15 21:15:33,269 - api_logger - INFO - rid=/api/portfolio/002050/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=11.28ms
-INFO:     127.0.0.1:59976 - "GET /api/portfolio/002050/news HTTP/1.1" 200 OK
-2026-02-15 21:15:33,273 - api_logger - INFO - rid=/api/analysis/002050 method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=37.06ms
-INFO:     127.0.0.1:59967 - "GET /api/analysis/002050 HTTP/1.1" 404 Not Found
-2026-02-15 21:15:33,277 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=2.03ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:59967 - "GET /api/user/me HTTP/1.1" 200 OK
-2026-02-15 21:15:33,343 - api_logger - INFO - rid=/api/stocks/002050/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=108.86ms
-INFO:     127.0.0.1:59968 - "GET /api/stocks/002050/history?period=1y HTTP/1.1" 200 OK
-2026-02-15 21:15:33,420 - api_logger - INFO - rid=/api/stocks/002050/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=75.91ms
-INFO:     127.0.0.1:59967 - "GET /api/stocks/002050/history?period=1y HTTP/1.1" 200 OK
- GET /?ticker=AMAT 200 in 23ms (compile: 4ms, render: 19ms)
-INFO:     127.0.0.1:59967 - "OPTIONS /api/stocks/AMAT/history?period=1y HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59968 - "OPTIONS /api/analysis/AMAT HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59976 - "OPTIONS /api/stocks/AMAT/history?period=1y HTTP/1.1" 200 OK
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:60000 - "OPTIONS /api/portfolio/AMAT/news HTTP/1.1" 200 OK
-2026-02-15 21:15:35,158 - api_logger - INFO - rid=/api/portfolio/002050/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=32.18ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:59967 - "GET /api/portfolio/002050/news HTTP/1.1" 200 OK
-2026-02-15 21:15:35,163 - api_logger - INFO - rid=/api/analysis/AMAT method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=36.39ms
-INFO:     127.0.0.1:59976 - "GET /api/analysis/AMAT HTTP/1.1" 404 Not Found
-2026-02-15 21:15:35,164 - api_logger - INFO - rid=/api/analysis/002050 method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=29.14ms
-INFO:     127.0.0.1:59999 - "GET /api/analysis/002050 HTTP/1.1" 404 Not Found
-2026-02-15 21:15:35,166 - api_logger - INFO - rid=/api/portfolio/AMAT/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=13.80ms
-INFO:     127.0.0.1:60000 - "GET /api/portfolio/AMAT/news HTTP/1.1" 200 OK
-2026-02-15 21:15:35,177 - api_logger - INFO - rid=/api/portfolio/AMAT/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=3.97ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:59999 - "GET /api/portfolio/AMAT/news HTTP/1.1" 200 OK
-2026-02-15 21:15:35,181 - api_logger - INFO - rid=/api/analysis/AMAT method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=9.10ms
-INFO:     127.0.0.1:60000 - "GET /api/analysis/AMAT HTTP/1.1" 404 Not Found
-2026-02-15 21:15:35,222 - api_logger - INFO - rid=/api/stocks/002050/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=99.07ms
-INFO:     127.0.0.1:59972 - "GET /api/stocks/002050/history?period=1y HTTP/1.1" 200 OK
-2026-02-15 21:15:35,280 - api_logger - INFO - rid=/api/stocks/002050/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=56.79ms
-INFO:     127.0.0.1:60000 - "GET /api/stocks/002050/history?period=1y HTTP/1.1" 200 OK
-2026-02-15 21:15:35,850 - api_logger - INFO - rid=/api/stocks/AMAT/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=723.52ms
-INFO:     127.0.0.1:59968 - "GET /api/stocks/AMAT/history?period=1y HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59968 - "OPTIONS /api/portfolio/AMAT/refresh HTTP/1.1" 200 OK
-2026-02-15 21:15:36,578 - api_logger - INFO - rid=/api/stocks/AMAT/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=726.60ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:60000 - "GET /api/stocks/AMAT/history?period=1y HTTP/1.1" 200 OK
-2026-02-15 21:15:36,824 - api_logger - INFO - rid=/api/stocks/AMAT/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=243.33ms
-INFO:     127.0.0.1:59972 - "GET /api/stocks/AMAT/history?period=1y HTTP/1.1" 200 OK
-2026-02-15 21:15:37,067 - api_logger - INFO - rid=/api/stocks/AMAT/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=241.14ms
-INFO:     127.0.0.1:60033 - "GET /api/stocks/AMAT/history?period=1y HTTP/1.1" 200 OK
-2026-02-15 21:15:37,735 - api_logger - INFO - rid=/api/portfolio/AMAT/refresh method=POST status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1651.92ms
-INFO:     127.0.0.1:59968 - "POST /api/portfolio/AMAT/refresh HTTP/1.1" 200 OK
-2026-02-15 21:15:37,746 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=5.75ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:59968 - "GET /api/portfolio/?refresh=false HTTP/1.1" 200 OK
-INFO:     127.0.0.1:59968 - "OPTIONS /api/analysis/AMAT?force=true HTTP/1.1" 200 OK
-2026-02-15 21:15:41,234 - app.api.v1.endpoints.analysis - INFO - Preparing AI analysis for AMAT. Market Data keys present: ['current_price', 'change_percent', 'rsi_14', 'ma_20', 'ma_50', 'ma_200', 'macd_val', 'macd_hist', 'macd_hist_slope', 'bb_upper', 'bb_middle', 'bb_lower', 'k_line', 'd_line', 'j_line', 'atr_14', 'adx_14', 'resistance_1', 'resistance_2', 'support_1', 'support_2', 'market_status']
-2026-02-15 21:15:41,241 - app.services.ai_service - INFO - --- AI ANALYSIS PROMPT FOR AMAT ---
-
-        你是一位资深美股投资顾问和量化策略专家。请基于以下多维数据为代码 [AMAT] 提供严谨的诊断。
-        
-        **1. 基础面概览 (Fundamental Context)**:
-        - 行业/板块: Technology / Semiconductor Equipment & Materials
-        - 市值: 281699680256.0
-        - PE (TTM): 36.36 | Forward PE: 25.88
-        - 52周波动范围: [123.74, 376.32]
-        - Beta: 1.68
-        
-        **2. 用户持仓背景 (Portfolio Context)**:
-        - 当前成本价: $0.0
-        - 持仓数量: 0.0
-        - 未实现盈亏: $0.0 (0%)
-        
-        **3. 实时技术面数据 (Technical Data)**:
-        - 当前价格: $354.91
-        - 今日涨跌: 8.08%
-        - RSI (14): 61.0 | KDJ (K): 72.87 / (D): 66.37 / (J): 85.85
-        - MACD: 11.98 (柱状图: 0.39, 斜率: 1.58)
-        - 布林带 (BB): 上轨: 351.07 | 均线: 325.91 | 下轨: 300.75
-        - MA 均线: [20: 325.91, 50: 294.43, 200: 216.6]
-        - 趋势强度 (ADX): None | ATR: 19.86
-        - 枢轴参考 (Pivots): 阻力位 R1: 345.85 / R2: 351.82 | 支撑位 S1: 296.8 / S2: 324.92
-        
-        **4. 最新消息面 (Recent News)**:
-        [{'title': 'Samsung HBM4 Breakthrough And Applied Materials Alliance Test Valuation Story', 'publisher': 'Simply Wall St.', 'time': '2026-02-15T10:08:21'}, {'title': 'Applied Materials Clears US Probe As Samsung EPIC Partnership Refocuses Growth', 'publisher': 'Simply Wall St.', 'time': '2026-02-15T09:10:55'}, {'title': 'These ‘safer’ chip stocks have boomed this year. Is it too late to buy in?', 'publisher': 'MarketWatch', 'time': '2026-02-14T14:30:00'}, {'title': 'Applied Materials price target raised to $440 from $390 at Needham', 'publisher': 'TipRanks', 'time': '2026-02-14T14:06:29'}, {'title': 'Morning Movers: Tri Pointe surges after deal to be acquired', 'publisher': 'TipRanks', 'time': '2026-02-14T14:01:23'}]
-        
-        **任务 (Core Task)**:
-        请执行“逻辑严密”的投资诊断。
-        
-        **重要准则 (Strict Rules)**:
-        - **数据驱动**: 所有的止损位、加仓位和目标价**必须基于上述提供的技术指标或基础面数值**。例如，“止损设在 MA50 (294.43) 附近”或“参考布林线下轨 (300.75)”。
-        - **一致性准则 [CRITICAL]**: `immediate_action` 必须与你定义的 `entry_price` 区间严格逻辑一致。
-            * 如果 [当前价格] > `entry_price_high`，绝对不能建议“即时买入”或“直接建仓”，而应建议“持筹观望”或“等待回调”。
-            * 如果 [当前价格] 处于 [`entry_price_low`, `entry_price_high`] 之间，方可建议“分批买入”或“即刻进场”。
-            * 如果 [当前价格] > `target_price`，建议应侧重“分批止盈”或“警惕过热”。
-        - **严禁乱造**: 不要凭空编造 99.42 之类没有任何参考意义的数字。所有的价格锚点必须在数据中有迹可循。
-        - **持仓逻辑**: 如果用户当前持仓为 0，建议应侧重于建仓点位；如果已有持仓且浮盈/浮亏较大，应给出止盈/加码或减仓策略。
-        
-        **返回格式要求**:
-        - 使用简洁、专业的中文。
-        - **必须在 `technical_analysis` 中明确引用以下数值**: 当前价格、RSI、MACD、MA50/200 或布林带位点。
-        - **严谨精度**: AI 建议中的所有价格数值、指标数值必须**四舍五入保留 2 位小数点**（例如：88.54 而不是 88.544834）。
-        - 必须返回严格的 JSON 格式。
-        
-        结果结构:
-        {
-            "sentiment_score": 0-100 (量化评分：0=极度看空, 50=中性, 100=极度看多), 
-            "summary_status": "4-6字定调",
-            "immediate_action": "针对当下的决策建议 (例如：逢低买入/趋势做多/持仓观望/分批减持)",
-            "entry_price_low": "[CRITICAL] 建议买入区间的下限 (Float, 例如：50.50)。必须基于技术支撑位（如布林下轨、MA50、关键支撑位等）。严禁直接使用当前实时价格。",
-            "entry_price_high": "[CRITICAL] 建议买入区间的上限 (Float, 例如：52.00)。必须基于技术参考位（如布林中轨、MA20、关键阻力位等）。**严禁等于当前实时价格**——建仓区间应反映技术面上的理想介入范围，而不是'现在就能买到的价格'。",
-            "target_price": "预期的止盈位 (Float)。必须基于技术阻力位或布林上轨等。",
-            "stop_loss_price": "[CRITICAL] 预期的止损位 (Float)。必须严格低于 entry_price_low (通常建议低 2%-5% 或设在更低一层的关键支撑位)，严禁与建仓下限重叠。",
-            "risk_level": "风险等级：低/中/高",
-            "investment_horizon": "建议持仓期限",
-            "confidence_level": 0-100 (AI 信心指数),
-            "technical_analysis": "核心技术位解读（必须分析 RSI, MACD, MA50 等数值）",
-            "fundamental_news": "基础面/消息面深度解读",
-            "action_advice": "[CRITICAL] 严格按照以下 Markdown 格式生成详细的操作建议，并对关键数值（价格、仓位、止损位）使用 **加粗**：
-            
-### 1. 建议操作与交易综述 (Suggested Action & Executive Summary)
-- **建议操作**: **[即时行动建议]**
-- **行情综述**: 当前股价 **$价格** 处于 **[阶段定义]**。整体研判为 **[策略定调]**。
-
-### 2. 结构化操作计划 (Action Plan)
-* **首批建仓 (Position 1):** **$建仓位1** (交易触发条件 Trigger，建议仓位 **Position Size**)
-* **次批加码 (Position 2):** **$建仓位2** (触发条件及仓位)
-* **止损方案 (Stop Loss):** **$止损价** (失效条件 Invalidation：明确说明什么情况下该策略失效)
-* **止盈目标 (Target):** **第一目标 $价格**，**第二目标 $价格**。
-
-### 3. 多维逻辑支撑 (Rationale)
-* **技术面:** (核心技术指标信号)
-* **基本面/情绪面:** (支撑研判的非技术因素)
-"
-        }
-        
---------------------------------------
-2026-02-15 21:15:41,245 - app.services.ai_service - INFO - Calling SiliconFlow with Model ID: Pro/deepseek-ai/DeepSeek-R1 (Key: deepseek-r1)
-2026-02-15 21:15:52,825 - httpx - INFO - HTTP Request: POST https://api.siliconflow.cn/v1/chat/completions "HTTP/1.1 200 OK"
-2026-02-15 21:15:52,829 - app.api.v1.endpoints.analysis - INFO - AI Response for AMAT: {
-    "sentiment_score": 78,
-    "summary_status": "强势突破，回调布局",
-    "immediate_action": "等待回调分批买入",
-    "entry_price_low": 325.91,
-    "entry_price_high": 340.00,
-    "target_price": 376.32,
-    "stop_loss_price": 300.75,
-    "risk_level": "中",
-    "investment_horizon": "6-12个月",
-    "confidence_level": 85,
-    "technical_analysis": "当前价格 $354.91 突破布林带上轨 $351.07 并站上所有关键均线（MA20: $325.91，MA50: $294.43，MA200: $216.60），显示强势趋势。但 RSI 61.0 接近超买区，KDJ 中 J 值 85.85 已超买，MACD 柱状图斜率 1.58 显示动能减弱，短期需警惕回调风险。",
-    "fundamental_news": "公司近期获 Needham 目标价上调至 $440（+24%空间），并与三星达成 HBM4 技术合作，叠加美国监管调查结束利好。行业受 AI 芯片需求驱动，Forward PE 25.88 低于 TTM PE 36.36，反映盈利增长预期。但 Beta 1.68 显示波动高于大盘。",
-    "action_advice": "### 1. 建议操作与交易综述 (Suggested Action & Executive Summary)\n- **建议操作**: **等待回调分批买入**\n- **行情综述**: 当前股价 **$354.91** 处于 **历史高位突破阶段**。整体研判为 **技术超买但基本面强劲，需回调介入**。\n\n### 2. 结构化操作计划 (Action Plan)\n* **首批建仓 (Position 1):** **$340.00** (若回调至 MA20 支撑位，建议仓位 **40%**)\n* **次批加码 (Position 2):** **$325.91** (若测试 MA50 强支撑，建议仓位 **30%**)\n* **止损方案 (Stop Loss):** **$300.75** (布林带下轨，若收盘价连续两日跌破则策略失效)\n* **止盈目标 (Target):** **第一目标 $376.32**（52周高点），**第二目标 $440.00**（Needham目标价）。\n\n### 3. 多维逻辑支撑 (Rationale)\n* **技术面:** \n  - 突破布林带上轨后需回踩确认支撑，MA20 $325.91 与布林带中轨重合形成关键防线\n  - MACD 正柱缩量但整体多头排列未破坏，MA50/200 金叉提供长期支撑\n* **基本面/情绪面:** \n  - 半导体设备行业受 HBM/AI 芯片扩产驱动，公司技术合作利好落地\n  - 机构目标价 $440 隐含 24% 上行空间，Forward PE 25.88 低于行业均值"
-}
-2026-02-15 21:15:52,842 - app.api.v1.endpoints.analysis - INFO - ✅ Synced AI RRR (0.4) to MarketDataCache for AMAT (Strategy Locked)
-2026-02-15 21:15:52,843 - api_logger - INFO - rid=/api/analysis/AMAT method=POST status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=12318.15ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:59968 - "POST /api/analysis/AMAT?force=true HTTP/1.1" 200 OK
-2026-02-15 21:15:52,853 - api_logger - INFO - rid=/api/portfolio/AMAT/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=4.20ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:59968 - "GET /api/portfolio/AMAT/news HTTP/1.1" 200 OK
- GET /?ticker=AMD 200 in 42ms (compile: 16ms, render: 26ms)
-INFO:     127.0.0.1:60588 - "OPTIONS /api/stocks/AMD/history?period=1y HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60590 - "OPTIONS /api/analysis/AMD HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60592 - "OPTIONS /api/stocks/AMD/history?period=1y HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60597 - "OPTIONS /api/portfolio/AMD/news HTTP/1.1" 200 OK
-2026-02-15 21:20:32,231 - api_logger - INFO - rid=/api/analysis/AMAT method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=21.71ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:60595 - "GET /api/analysis/AMAT HTTP/1.1" 200 OK
-2026-02-15 21:20:32,233 - api_logger - INFO - rid=/api/portfolio/AMAT/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=8.45ms
-INFO:     127.0.0.1:60588 - "GET /api/portfolio/AMAT/news HTTP/1.1" 200 OK
-2026-02-15 21:20:32,234 - api_logger - INFO - rid=/api/portfolio/AMD/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=7.76ms
-INFO:     127.0.0.1:60597 - "GET /api/portfolio/AMD/news HTTP/1.1" 200 OK
-2026-02-15 21:20:32,235 - api_logger - INFO - rid=/api/analysis/AMD method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=9.98ms
-INFO:     127.0.0.1:60592 - "GET /api/analysis/AMD HTTP/1.1" 404 Not Found
-2026-02-15 21:20:32,241 - api_logger - INFO - rid=/api/portfolio/AMD/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=3.34ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:60597 - "GET /api/portfolio/AMD/news HTTP/1.1" 200 OK
-2026-02-15 21:20:32,242 - api_logger - INFO - rid=/api/analysis/AMD method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=5.17ms
-INFO:     127.0.0.1:60592 - "GET /api/analysis/AMD HTTP/1.1" 404 Not Found
-2026-02-15 21:20:32,574 - api_logger - INFO - rid=/api/stocks/AMD/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=348.93ms
-INFO:     127.0.0.1:60590 - "GET /api/stocks/AMD/history?period=1y HTTP/1.1" 200 OK
-2026-02-15 21:20:32,713 - api_logger - INFO - rid=/api/stocks/AMAT/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=505.54ms
-INFO:     127.0.0.1:60594 - "GET /api/stocks/AMAT/history?period=1y HTTP/1.1" 200 OK
-2026-02-15 21:20:33,043 - api_logger - INFO - rid=/api/stocks/AMD/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=467.86ms
-INFO:     127.0.0.1:60592 - "GET /api/stocks/AMD/history?period=1y HTTP/1.1" 200 OK
-2026-02-15 21:20:33,070 - api_logger - INFO - rid=/api/stocks/AMAT/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=355.51ms
-INFO:     127.0.0.1:60590 - "GET /api/stocks/AMAT/history?period=1y HTTP/1.1" 200 OK
-2026-02-15 21:20:33,164 - api_logger - INFO - rid=/api/stocks/AMD/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=119.09ms
-INFO:     127.0.0.1:60594 - "GET /api/stocks/AMD/history?period=1y HTTP/1.1" 200 OK
-2026-02-15 21:20:33,445 - api_logger - INFO - rid=/api/stocks/AMD/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=279.61ms
-INFO:     127.0.0.1:60590 - "GET /api/stocks/AMD/history?period=1y HTTP/1.1" 200 OK
-INFO:     127.0.0.1:60590 - "OPTIONS /api/analysis/AMD?force=true HTTP/1.1" 200 OK
-2026-02-15 21:20:37,612 - app.api.v1.endpoints.analysis - INFO - Preparing AI analysis for AMD. Market Data keys present: ['current_price', 'change_percent', 'rsi_14', 'ma_20', 'ma_50', 'ma_200', 'macd_val', 'macd_hist', 'macd_hist_slope', 'bb_upper', 'bb_middle', 'bb_lower', 'k_line', 'd_line', 'j_line', 'atr_14', 'adx_14', 'resistance_1', 'resistance_2', 'support_1', 'support_2', 'market_status']
-2026-02-15 21:20:37,613 - app.services.ai_service - INFO - --- AI ANALYSIS PROMPT FOR AMD ---
-
-        你是一位资深美股投资顾问和量化策略专家。请基于以下多维数据为代码 [AMD] 提供严谨的诊断。
-        
-        **1. 基础面概览 (Fundamental Context)**:
-        - 行业/板块: Technology / Semiconductors
-        - 市值: 338016796672.0
-        - PE (TTM): 79.43 | Forward PE: 19.46
-        - 52周波动范围: [76.48, 267.08]
-        - Beta: 1.95
-        
-        **2. 用户持仓背景 (Portfolio Context)**:
-        - 当前成本价: $205.15
-        - 持仓数量: 4.0
-        - 未实现盈亏: $8.67999999999995 (1.0577626127223922%)
-        
-        **3. 实时技术面数据 (Technical Data)**:
-        - 当前价格: $207.32
-        - 今日涨跌: 0.67%
-        - RSI (14): 30.99 | KDJ (K): 28.29 / (D): 29.23 / (J): 26.41
-        - MACD: -5.04 (柱状图: -3.78, 斜率: 0.34)
-        - 布林带 (BB): 上轨: 273.99 | 均线: 230.89 | 下轨: 187.8
-        - MA 均线: [20: 230.89, 50: 221.14, 200: 181.95]
-        - 趋势强度 (ADX): None | ATR: 14.66
-        - 枢轴参考 (Pivots): 阻力位 R1: 214.55 / R2: 223.17 | 支撑位 S1: 201.23 / S2: 196.53
-        
-        **4. 最新消息面 (Recent News)**:
-        [{'title': 'Oracle dividend growth signals new era for cloud titan', 'publisher': 'TheStreet', 'time': '2026-02-15T02:03:00'}, {'title': 'Is AMD Stock a Buy, Sell, or Hold in 2026?', 'publisher': 'Motley Fool', 'time': '2026-02-14T20:50:00'}, {'title': 'Three Problems Explain Why Intel Stock Dropped 7.5% This Week', 'publisher': '24/7 Wall St.', 'time': '2026-02-14T20:30:22'}, {'title': 'Nvidia’s Week: UBS Raises Target, Hyperscaler Spending Holds, AMD Stumbles', 'publisher': '24/7 Wall St.', 'time': '2026-02-14T12:50:49'}, {'title': 'Why Riot Platforms (RIOT) Is Up 5.3% After Landing AMD as Anchor Tenant in Tax‑Backed Texas Expansion', 'publisher': 'Simply Wall St.', 'time': '2026-02-14T07:10:36'}]
-        
-        **任务 (Core Task)**:
-        请执行“逻辑严密”的投资诊断。
-        
-        **重要准则 (Strict Rules)**:
-        - **数据驱动**: 所有的止损位、加仓位和目标价**必须基于上述提供的技术指标或基础面数值**。例如，“止损设在 MA50 (221.14) 附近”或“参考布林线下轨 (187.8)”。
-        - **一致性准则 [CRITICAL]**: `immediate_action` 必须与你定义的 `entry_price` 区间严格逻辑一致。
-            * 如果 [当前价格] > `entry_price_high`，绝对不能建议“即时买入”或“直接建仓”，而应建议“持筹观望”或“等待回调”。
-            * 如果 [当前价格] 处于 [`entry_price_low`, `entry_price_high`] 之间，方可建议“分批买入”或“即刻进场”。
-            * 如果 [当前价格] > `target_price`，建议应侧重“分批止盈”或“警惕过热”。
-        - **严禁乱造**: 不要凭空编造 99.42 之类没有任何参考意义的数字。所有的价格锚点必须在数据中有迹可循。
-        - **持仓逻辑**: 如果用户当前持仓为 0，建议应侧重于建仓点位；如果已有持仓且浮盈/浮亏较大，应给出止盈/加码或减仓策略。
-        
-        **返回格式要求**:
-        - 使用简洁、专业的中文。
-        - **必须在 `technical_analysis` 中明确引用以下数值**: 当前价格、RSI、MACD、MA50/200 或布林带位点。
-        - **严谨精度**: AI 建议中的所有价格数值、指标数值必须**四舍五入保留 2 位小数点**（例如：88.54 而不是 88.544834）。
-        - 必须返回严格的 JSON 格式。
-        
-        结果结构:
-        {
-            "sentiment_score": 0-100 (量化评分：0=极度看空, 50=中性, 100=极度看多), 
-            "summary_status": "4-6字定调",
-            "immediate_action": "针对当下的决策建议 (例如：逢低买入/趋势做多/持仓观望/分批减持)",
-            "entry_price_low": "[CRITICAL] 建议买入区间的下限 (Float, 例如：50.50)。必须基于技术支撑位（如布林下轨、MA50、关键支撑位等）。严禁直接使用当前实时价格。",
-            "entry_price_high": "[CRITICAL] 建议买入区间的上限 (Float, 例如：52.00)。必须基于技术参考位（如布林中轨、MA20、关键阻力位等）。**严禁等于当前实时价格**——建仓区间应反映技术面上的理想介入范围，而不是'现在就能买到的价格'。",
-            "target_price": "预期的止盈位 (Float)。必须基于技术阻力位或布林上轨等。",
-            "stop_loss_price": "[CRITICAL] 预期的止损位 (Float)。必须严格低于 entry_price_low (通常建议低 2%-5% 或设在更低一层的关键支撑位)，严禁与建仓下限重叠。",
-            "risk_level": "风险等级：低/中/高",
-            "investment_horizon": "建议持仓期限",
-            "confidence_level": 0-100 (AI 信心指数),
-            "technical_analysis": "核心技术位解读（必须分析 RSI, MACD, MA50 等数值）",
-            "fundamental_news": "基础面/消息面深度解读",
-            "action_advice": "[CRITICAL] 严格按照以下 Markdown 格式生成详细的操作建议，并对关键数值（价格、仓位、止损位）使用 **加粗**：
-            
-### 1. 建议操作与交易综述 (Suggested Action & Executive Summary)
-- **建议操作**: **[即时行动建议]**
-- **行情综述**: 当前股价 **$价格** 处于 **[阶段定义]**。整体研判为 **[策略定调]**。
-
-### 2. 结构化操作计划 (Action Plan)
-* **首批建仓 (Position 1):** **$建仓位1** (交易触发条件 Trigger，建议仓位 **Position Size**)
-* **次批加码 (Position 2):** **$建仓位2** (触发条件及仓位)
-* **止损方案 (Stop Loss):** **$止损价** (失效条件 Invalidation：明确说明什么情况下该策略失效)
-* **止盈目标 (Target):** **第一目标 $价格**，**第二目标 $价格**。
-
-### 3. 多维逻辑支撑 (Rationale)
-* **技术面:** (核心技术指标信号)
-* **基本面/情绪面:** (支撑研判的非技术因素)
-"
-        }
-        
---------------------------------------
-2026-02-15 21:20:37,613 - app.services.ai_service - INFO - Calling SiliconFlow with Model ID: Pro/deepseek-ai/DeepSeek-R1 (Key: deepseek-r1)
-2026-02-15 21:20:55,400 - httpx - INFO - HTTP Request: POST https://api.siliconflow.cn/v1/chat/completions "HTTP/1.1 200 OK"
-2026-02-15 21:20:55,406 - app.api.v1.endpoints.analysis - INFO - AI Response for AMD: {
-    "sentiment_score": 65,
-    "summary_status": "中性偏多",
-    "immediate_action": "持仓观望",
-    "entry_price_low": 196.53,
-    "entry_price_high": 201.23,
-    "target_price": 230.89,
-    "stop_loss_price": 187.80,
-    "risk_level": "中",
-    "investment_horizon": "3-6个月",
-    "confidence_level": 75,
-    "technical_analysis": "当前价格 $207.32 处于布林带下轨（$187.80）与中轨（$230.89）之间。RSI（14）为 30.99，接近超卖区域；MACD 柱状图为 -3.78，但斜率为正（0.34），显示下跌动能减弱。股价位于 MA50（$221.14）下方，但高于 MA200（$181.95），中期趋势承压但长期仍偏多。KDJ 三线均低于 30（J 值 26.41），暗示短期超卖。",
-    "fundamental_news": "AMD 近期获选为 Riot Platforms 德州数据中心扩建的锚定租户，或利好数据中心业务。但行业消息显示 AMD 在 AI 芯片领域落后于英伟达（Nvidia），且英特尔（Intel）因问题频出股价下跌，可能为 AMD 带来市场份额机会。Forward PE 19.46 显著低于 TTM PE 79.43，反映盈利增长预期强劲。",
-    "action_advice": "### 1. 建议操作与交易综述 (Suggested Action & Executive Summary)\n- **建议操作**: **持仓观望**\n- **行情综述**: 当前股价 **$207.32** 处于 **短期超卖修复阶段**。整体研判为 **中性偏多，等待技术确认**。\n\n### 2. 结构化操作计划 (Action Plan)\n* **首批建仓 (Position 1):** **$201.23** (若回调至支撑位 S1，建议仓位 **2.0 股**)\n* **次批加码 (Position 2):** **$196.53** (若触及支撑位 S2，建议仓位 **2.0 股**)\n* **止损方案 (Stop Loss):** **$187.80** (失效条件：若收盘价连续两日低于布林带下轨，则技术支撑失效)\n* **止盈目标 (Target):** **第一目标 $221.14**（MA50 阻力），**第二目标 $230.89**（布林中轨）。\n\n### 3. 多维逻辑支撑 (Rationale)\n* **技术面:** RSI 超卖（30.99）与 KDJ 低位金叉潜力形成短期反弹信号；MACD 负值但斜率转正预示下跌动能衰减；布林带下轨（$187.80）提供强支撑。\n* **基本面/情绪面:** Forward PE 19.46 反映市场认可盈利增长潜力；数据中心合作利好业务拓展；半导体行业竞争格局变化（英特尔疲软）或带来份额提升机会。"
-}
-2026-02-15 21:20:55,417 - app.api.v1.endpoints.analysis - INFO - ✅ Synced AI RRR (1.21) to MarketDataCache for AMD (Strategy Locked)
-2026-02-15 21:20:55,418 - api_logger - INFO - rid=/api/analysis/AMD method=POST status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=18785.66ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:60590 - "POST /api/analysis/AMD?force=true HTTP/1.1" 200 OK
-2026-02-15 21:20:55,431 - api_logger - INFO - rid=/api/portfolio/AMD/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=6.89ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:60590 - "GET /api/portfolio/AMD/news HTTP/1.1" 200 OK
-WARNING:  StatReload detected changes in 'app/services/ai_service.py'. Reloading...
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [70727]
-2026-02-15 21:25:19,478 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
-INFO:     Started server process [72019]
-INFO:     Waiting for application startup.
+✓ Ready in 733ms
+ GET /?tab=radar 200 in 863ms (compile: 422ms, render: 441ms)
+2026-03-02 11:27:55,036 - api_logger - INFO - PHASE: Background scheduler task launched & DB synced.
+2026-03-02 11:27:55,037 - app.services.scheduler - INFO - [Scheduler] 调度中心全面启动，轮询精度：60s
 INFO:     Application startup complete.
-WARNING:  StatReload detected changes in 'app/services/ai_service.py'. Reloading...
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [72019]
-2026-02-15 21:25:21,101 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
-INFO:     Started server process [72021]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-WARNING:  StatReload detected changes in 'app/services/ai_service.py'. Reloading...
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [72021]
-2026-02-15 21:32:46,091 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
-INFO:     Started server process [72108]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-WARNING:  StatReload detected changes in 'app/services/ai_service.py'. Reloading...
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [72108]
-2026-02-15 21:33:33,458 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
-Process SpawnProcess-5:
-Traceback (most recent call last):
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/process.py", line 320, in _bootstrap
-    self.run()
-    ~~~~~~~~^^
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/process.py", line 108, in run
-    self._target(*self._args, **self._kwargs)
-    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/_subprocess.py", line 80, in subprocess_started
-    target(sockets=sockets)
-    ~~~~~~^^^^^^^^^^^^^^^^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/server.py", line 67, in run
-    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 204, in run
-    return runner.run(main)
-           ~~~~~~~~~~^^^^^^
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 127, in run
-    return self._loop.run_until_complete(task)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
-    return future.result()
-           ~~~~~~~~~~~~~^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/server.py", line 71, in serve
-    await self._serve(sockets)
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/server.py", line 78, in _serve
-    config.load()
-    ~~~~~~~~~~~^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/config.py", line 439, in load
-    self.loaded_app = import_from_string(self.app)
-                      ~~~~~~~~~~~~~~~~~~^^^^^^^^^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/importer.py", line 19, in import_from_string
-    module = importlib.import_module(module_str)
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py", line 88, in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
-  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
-  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
-  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
-  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
-  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/main.py", line 114, in <module>
-    from app.api.v1.api import api_router
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/api/v1/api.py", line 2, in <module>
-    from app.api.v1.endpoints import auth, portfolio, analysis, user, stock
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/api/v1/endpoints/analysis.py", line 6, in <module>
-    from app.services.ai_service import AIService
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/services/ai_service.py", line 135
-    @staticmethod
-IndentationError: unexpected indent
-WARNING:  StatReload detected changes in 'app/api/v1/endpoints/analysis.py'. Reloading...
-2026-02-15 21:34:29,815 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
-Process SpawnProcess-6:
-Traceback (most recent call last):
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/process.py", line 320, in _bootstrap
-    self.run()
-    ~~~~~~~~^^
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/process.py", line 108, in run
-    self._target(*self._args, **self._kwargs)
-    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/_subprocess.py", line 80, in subprocess_started
-    target(sockets=sockets)
-    ~~~~~~^^^^^^^^^^^^^^^^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/server.py", line 67, in run
-    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 204, in run
-    return runner.run(main)
-           ~~~~~~~~~~^^^^^^
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 127, in run
-    return self._loop.run_until_complete(task)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
-    return future.result()
-           ~~~~~~~~~~~~~^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/server.py", line 71, in serve
-    await self._serve(sockets)
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/server.py", line 78, in _serve
-    config.load()
-    ~~~~~~~~~~~^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/config.py", line 439, in load
-    self.loaded_app = import_from_string(self.app)
-                      ~~~~~~~~~~~~~~~~~~^^^^^^^^^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/importer.py", line 19, in import_from_string
-    module = importlib.import_module(module_str)
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py", line 88, in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
-  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
-  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
-  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
-  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
-  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/main.py", line 114, in <module>
-    from app.api.v1.api import api_router
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/api/v1/api.py", line 2, in <module>
-    from app.api.v1.endpoints import auth, portfolio, analysis, user, stock
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/api/v1/endpoints/analysis.py", line 6, in <module>
-    from app.services.ai_service import AIService
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/services/ai_service.py", line 135
-    @staticmethod
-IndentationError: unexpected indent
-WARNING:  StatReload detected changes in 'app/api/v1/endpoints/analysis.py'. Reloading...
-2026-02-15 21:39:00,862 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
-Process SpawnProcess-7:
-Traceback (most recent call last):
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/process.py", line 320, in _bootstrap
-    self.run()
-    ~~~~~~~~^^
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/process.py", line 108, in run
-    self._target(*self._args, **self._kwargs)
-    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/_subprocess.py", line 80, in subprocess_started
-    target(sockets=sockets)
-    ~~~~~~^^^^^^^^^^^^^^^^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/server.py", line 67, in run
-    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 204, in run
-    return runner.run(main)
-           ~~~~~~~~~~^^^^^^
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 127, in run
-    return self._loop.run_until_complete(task)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
-    return future.result()
-           ~~~~~~~~~~~~~^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/server.py", line 71, in serve
-    await self._serve(sockets)
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/server.py", line 78, in _serve
-    config.load()
-    ~~~~~~~~~~~^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/config.py", line 439, in load
-    self.loaded_app = import_from_string(self.app)
-                      ~~~~~~~~~~~~~~~~~~^^^^^^^^^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/importer.py", line 19, in import_from_string
-    module = importlib.import_module(module_str)
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py", line 88, in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
-  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
-  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
-  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
-  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
-  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/main.py", line 114, in <module>
-    from app.api.v1.api import api_router
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/api/v1/api.py", line 2, in <module>
-    from app.api.v1.endpoints import auth, portfolio, analysis, user, stock
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/api/v1/endpoints/analysis.py", line 6, in <module>
-    from app.services.ai_service import AIService
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/services/ai_service.py", line 135
-    @staticmethod
-IndentationError: unexpected indent
-WARNING:  StatReload detected changes in 'app/services/ai_service.py'. Reloading...
-2026-02-15 21:39:55,325 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
-Process SpawnProcess-8:
-Traceback (most recent call last):
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/process.py", line 320, in _bootstrap
-    self.run()
-    ~~~~~~~~^^
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/process.py", line 108, in run
-    self._target(*self._args, **self._kwargs)
-    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/_subprocess.py", line 80, in subprocess_started
-    target(sockets=sockets)
-    ~~~~~~^^^^^^^^^^^^^^^^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/server.py", line 67, in run
-    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 204, in run
-    return runner.run(main)
-           ~~~~~~~~~~^^^^^^
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 127, in run
-    return self._loop.run_until_complete(task)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
-    return future.result()
-           ~~~~~~~~~~~~~^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/server.py", line 71, in serve
-    await self._serve(sockets)
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/server.py", line 78, in _serve
-    config.load()
-    ~~~~~~~~~~~^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/config.py", line 439, in load
-    self.loaded_app = import_from_string(self.app)
-                      ~~~~~~~~~~~~~~~~~~^^^^^^^^^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/importer.py", line 19, in import_from_string
-    module = importlib.import_module(module_str)
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py", line 88, in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
-  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
-  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
-  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
-  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
-  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/main.py", line 114, in <module>
-    from app.api.v1.api import api_router
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/api/v1/api.py", line 2, in <module>
-    from app.api.v1.endpoints import auth, portfolio, analysis, user, stock
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/api/v1/endpoints/analysis.py", line 6, in <module>
-    from app.services.ai_service import AIService
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/services/ai_service.py", line 135
-    @staticmethod
-IndentationError: unexpected indent
- GET /?ticker=AMD 200 in 53ms (compile: 13ms, render: 40ms)
- GET /?ticker=AMD 200 in 46ms (compile: 4ms, render: 42ms)
- GET /?ticker=AMD 200 in 44ms (compile: 6ms, render: 37ms)
- GET /?ticker=AMD 200 in 20ms (compile: 1040µs, render: 19ms)
- GET /?ticker=AMD 200 in 24ms (compile: 2ms, render: 22ms)
- GET /?ticker=AMD 200 in 21ms (compile: 1727µs, render: 19ms)
- GET /?ticker=AMD 200 in 23ms (compile: 1867µs, render: 21ms)
- GET /?ticker=AMD 200 in 14ms (compile: 1221µs, render: 13ms)
-WARNING:  StatReload detected changes in 'app/services/ai_service.py'. Reloading...
-2026-02-15 21:43:41,437 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
-Process SpawnProcess-9:
-Traceback (most recent call last):
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/process.py", line 320, in _bootstrap
-    self.run()
-    ~~~~~~~~^^
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/process.py", line 108, in run
-    self._target(*self._args, **self._kwargs)
-    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/_subprocess.py", line 80, in subprocess_started
-    target(sockets=sockets)
-    ~~~~~~^^^^^^^^^^^^^^^^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/server.py", line 67, in run
-    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 204, in run
-    return runner.run(main)
-           ~~~~~~~~~~^^^^^^
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 127, in run
-    return self._loop.run_until_complete(task)
-           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
-    return future.result()
-           ~~~~~~~~~~~~~^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/server.py", line 71, in serve
-    await self._serve(sockets)
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/server.py", line 78, in _serve
-    config.load()
-    ~~~~~~~~~~~^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/config.py", line 439, in load
-    self.loaded_app = import_from_string(self.app)
-                      ~~~~~~~~~~~~~~~~~~^^^^^^^^^^
-  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/importer.py", line 19, in import_from_string
-    module = importlib.import_module(module_str)
-  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py", line 88, in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "<frozen importlib._bootstrap>", line 1398, in _gcd_import
-  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
-  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
-  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
-  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
-  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/main.py", line 114, in <module>
-    from app.api.v1.api import api_router
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/api/v1/api.py", line 2, in <module>
-    from app.api.v1.endpoints import auth, portfolio, analysis, user, stock
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/api/v1/endpoints/analysis.py", line 6, in <module>
-    from app.services.ai_service import AIService
-  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/services/ai_service.py", line 135
-    @staticmethod
-IndentationError: unexpected indent
-WARNING:  StatReload detected changes in 'app/services/ai_service.py'. Reloading...
-2026-02-15 21:44:31,379 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
-INFO:     Started server process [72653]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     127.0.0.1:63314 - "OPTIONS /api/analysis/AMD HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63315 - "OPTIONS /api/portfolio/?refresh=false HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63316 - "OPTIONS /api/portfolio/AMD/news HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63321 - "OPTIONS /api/analysis/AMD HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63322 - "OPTIONS /api/portfolio/?refresh=false HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63323 - "OPTIONS /api/portfolio/AMD/news HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63314 - "OPTIONS /api/analysis/AMD HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63315 - "OPTIONS /api/portfolio/?refresh=false HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63316 - "OPTIONS /api/portfolio/AMD/news HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63321 - "OPTIONS /api/analysis/AMD HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63322 - "OPTIONS /api/portfolio/?refresh=false HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63323 - "OPTIONS /api/portfolio/AMD/news HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63314 - "OPTIONS /api/analysis/AMD HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63315 - "OPTIONS /api/portfolio/?refresh=false HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63316 - "OPTIONS /api/portfolio/AMD/news HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63321 - "OPTIONS /api/analysis/AMD HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63322 - "OPTIONS /api/portfolio/?refresh=false HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63323 - "OPTIONS /api/portfolio/AMD/news HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63314 - "OPTIONS /api/analysis/AMD HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63315 - "OPTIONS /api/portfolio/?refresh=false HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63316 - "OPTIONS /api/portfolio/AMD/news HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63321 - "OPTIONS /api/analysis/AMD HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63322 - "OPTIONS /api/portfolio/?refresh=false HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63323 - "OPTIONS /api/portfolio/AMD/news HTTP/1.1" 200 OK
-2026-02-15 21:44:31,542 - api_logger - INFO - rid=/api/analysis/AMD method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=27.46ms
+2026-03-02 11:27:56,288 - app.services.scheduler - INFO - [Scheduler] 发现 3 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 11:27:58,176 - api_logger - INFO - rid=/api/macro/radar method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1986.56ms
 DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
 DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
 DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:63323 - "GET /api/analysis/AMD HTTP/1.1" 200 OK
-2026-02-15 21:44:31,547 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=13.26ms
-INFO:     127.0.0.1:63322 - "GET /api/portfolio/?refresh=false HTTP/1.1" 200 OK
-2026-02-15 21:44:31,548 - api_logger - INFO - rid=/api/portfolio/AMD/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=13.85ms
-INFO:     127.0.0.1:63321 - "GET /api/portfolio/AMD/news HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63321 - "OPTIONS /api/user/me HTTP/1.1" 200 OK
-2026-02-15 21:44:31,554 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.95ms
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:58806 - "GET /api/macro/radar?refresh=false HTTP/1.1" 200 OK
+2026-03-02 11:27:58,188 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1998.51ms
+INFO:     127.0.0.1:58804 - "GET /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 200 OK
+2026-03-02 11:27:58,192 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=2005.99ms
+INFO:     127.0.0.1:58807 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 11:27:59,716 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1465.60ms
 DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:63321 - "GET /api/user/me HTTP/1.1" 200 OK
-INFO:     127.0.0.1:63321 - "OPTIONS /api/stocks/AMD/history?period=1y HTTP/1.1" 200 OK
-2026-02-15 21:44:32,538 - api_logger - INFO - rid=/api/stocks/AMD/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=864.79ms
-INFO:     127.0.0.1:63321 - "GET /api/stocks/AMD/history?period=1y HTTP/1.1" 200 OK
- GET /sw.js 404 in 43ms (compile: 14ms, render: 29ms)
- GET /?ticker=AMD 200 in 85ms (compile: 13ms, render: 72ms)
-2026-02-15 21:49:54,974 - api_logger - INFO - rid=/api/analysis/AMD method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=13.15ms
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:58807 - "GET /api/user/me HTTP/1.1" 200 OK
+ GET /sw.js 404 in 75ms (compile: 50ms, render: 26ms)
+2026-03-02 11:28:04,218 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-02 11:28:04,605 - app.services.market_data - INFO - Syncing fundamental for 002050: market_cap=None, PE=None
+2026-03-02 11:28:07,849 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: 002050
+  0%|          | 0/58 [00:00<?, ?it/s]2026-03-02 11:28:17,172 - app.services.market_data - WARNING - 601138 基本面数据抓取超时 (7s)，优先展现价格数据
+2026-03-02 11:28:20,664 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: 601138
+                                      2026-03-02 11:28:22,780 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 11:28:23,731 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 11:28:24,565 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 11:28:24,565 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 3 只标的。
+2026-03-02 11:29:25,952 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 11:29:27,751 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 11:29:28,123 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 11:29:28,604 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 11:29:35,100 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-02 11:29:35,410 - app.services.market_data - INFO - Syncing fundamental for 002970: market_cap=None, PE=None
+2026-03-02 11:29:38,351 - app.services.notification_service - INFO - Duplicate notification skipped: PRICE_ALERT for 002970
+2026-03-02 11:29:38,693 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: 002970
+2026-03-02 11:29:38,696 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+INFO:     127.0.0.1:59935 - "OPTIONS /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 11:29:54,364 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1510.31ms
 DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:59935 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 11:29:54,365 - app.services.macro_service - INFO - Starting Cailianshe global news update (Standard Version)...
+2026-03-02 11:29:59,172 - app.services.macro_service - INFO - Successfully persisted 3 news items.
+2026-03-02 11:30:40,046 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 11:30:41,863 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 11:30:42,099 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 11:30:42,583 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 11:30:42,583 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-03-02 11:31:43,800 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 11:31:45,613 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 11:31:45,981 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 11:31:46,773 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 11:31:46,774 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-03-02 11:31:54,257 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1403.91ms
 DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:60109 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 11:32:47,979 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 11:32:49,788 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 11:32:50,184 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 11:32:50,700 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 11:32:50,700 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-03-02 11:33:52,553 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 11:33:54,878 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=2028.93ms
 DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:64426 - "GET /api/analysis/AMD HTTP/1.1" 200 OK
-2026-02-15 21:49:54,976 - api_logger - INFO - rid=/api/portfolio/AMD/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=12.67ms
-INFO:     127.0.0.1:64429 - "GET /api/portfolio/AMD/news HTTP/1.1" 200 OK
-2026-02-15 21:49:54,978 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=14.79ms
-INFO:     127.0.0.1:64428 - "GET /api/portfolio/?refresh=false HTTP/1.1" 200 OK
-2026-02-15 21:49:54,981 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1.01ms
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:60313 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 11:33:55,164 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 11:33:55,517 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 11:33:56,301 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 11:33:56,301 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-03-02 11:33:56,460 - app.services.scheduler - INFO - [Scheduler] 开始同步财联社全球快讯...
+2026-03-02 11:33:56,461 - app.services.macro_service - INFO - Starting Cailianshe global news update (Standard Version)...
+2026-03-02 11:34:02,079 - app.services.macro_service - INFO - Successfully persisted 3 news items.
+2026-03-02 11:34:02,080 - app.services.scheduler - INFO - [Scheduler] 财联社快讯同步完成。
+2026-03-02 11:35:03,804 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 11:35:06,438 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 11:35:06,787 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 11:35:07,742 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 11:35:07,743 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-03-02 11:35:54,095 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1240.62ms
 DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:64428 - "GET /api/user/me HTTP/1.1" 200 OK
-2026-02-15 21:49:55,422 - api_logger - INFO - rid=/api/stocks/AMD/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=353.45ms
-INFO:     127.0.0.1:64428 - "GET /api/stocks/AMD/history?period=1y HTTP/1.1" 200 OK
- GET /sw.js 404 in 35ms (compile: 6ms, render: 29ms)
- GET /?ticker=SLV 200 in 19ms (compile: 4ms, render: 15ms)
-INFO:     127.0.0.1:64437 - "OPTIONS /api/stocks/SLV/history?period=1y HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64439 - "OPTIONS /api/analysis/SLV HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64441 - "OPTIONS /api/stocks/SLV/history?period=1y HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64446 - "OPTIONS /api/portfolio/SLV/news HTTP/1.1" 200 OK
-2026-02-15 21:50:03,553 - api_logger - INFO - rid=/api/portfolio/AMD/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=20.80ms
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:61328 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 11:36:09,308 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 11:36:11,471 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 11:36:11,869 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 11:36:12,677 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 11:36:12,677 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-03-02 11:37:14,094 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 11:37:16,046 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 11:37:16,382 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 11:37:16,863 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 11:37:16,864 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-03-02 11:37:54,800 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1947.13ms
 DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:64437 - "GET /api/portfolio/AMD/news HTTP/1.1" 200 OK
-2026-02-15 21:50:03,554 - api_logger - INFO - rid=/api/analysis/AMD method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=26.30ms
-INFO:     127.0.0.1:64444 - "GET /api/analysis/AMD HTTP/1.1" 200 OK
-2026-02-15 21:50:03,556 - api_logger - INFO - rid=/api/analysis/SLV method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=23.37ms
-INFO:     127.0.0.1:64441 - "GET /api/analysis/SLV HTTP/1.1" 404 Not Found
-2026-02-15 21:50:03,559 - api_logger - INFO - rid=/api/portfolio/SLV/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=22.02ms
-INFO:     127.0.0.1:64446 - "GET /api/portfolio/SLV/news HTTP/1.1" 200 OK
-2026-02-15 21:50:03,579 - api_logger - INFO - rid=/api/portfolio/SLV/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=8.34ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:64441 - "GET /api/portfolio/SLV/news HTTP/1.1" 200 OK
-2026-02-15 21:50:03,580 - api_logger - INFO - rid=/api/analysis/SLV method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=10.67ms
-INFO:     127.0.0.1:64446 - "GET /api/analysis/SLV HTTP/1.1" 404 Not Found
-2026-02-15 21:50:03,834 - api_logger - INFO - rid=/api/stocks/AMD/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=307.18ms
-INFO:     127.0.0.1:64443 - "GET /api/stocks/AMD/history?period=1y HTTP/1.1" 200 OK
-2026-02-15 21:50:03,879 - api_logger - INFO - rid=/api/stocks/SLV/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=346.10ms
-INFO:     127.0.0.1:64439 - "GET /api/stocks/SLV/history?period=1y HTTP/1.1" 200 OK
-2026-02-15 21:50:03,950 - api_logger - INFO - rid=/api/stocks/AMD/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=115.23ms
-INFO:     127.0.0.1:64446 - "GET /api/stocks/AMD/history?period=1y HTTP/1.1" 200 OK
-2026-02-15 21:50:03,993 - api_logger - INFO - rid=/api/stocks/SLV/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=113.40ms
-INFO:     127.0.0.1:64443 - "GET /api/stocks/SLV/history?period=1y HTTP/1.1" 200 OK
-2026-02-15 21:50:04,213 - api_logger - INFO - rid=/api/stocks/SLV/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=217.97ms
-INFO:     127.0.0.1:64446 - "GET /api/stocks/SLV/history?period=1y HTTP/1.1" 200 OK
-2026-02-15 21:50:04,341 - api_logger - INFO - rid=/api/stocks/SLV/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=126.22ms
-INFO:     127.0.0.1:64443 - "GET /api/stocks/SLV/history?period=1y HTTP/1.1" 200 OK
-INFO:     127.0.0.1:64459 - "OPTIONS /api/analysis/SLV?force=true HTTP/1.1" 200 OK
-2026-02-15 21:50:11,201 - app.api.v1.endpoints.analysis - INFO - Preparing AI analysis for SLV. Market Data keys present: ['current_price', 'change_percent', 'rsi_14', 'ma_20', 'ma_50', 'ma_200', 'macd_val', 'macd_hist', 'macd_hist_slope', 'bb_upper', 'bb_middle', 'bb_lower', 'k_line', 'd_line', 'j_line', 'atr_14', 'adx_14', 'resistance_1', 'resistance_2', 'support_1', 'support_2', 'market_status']
-2026-02-15 21:50:11,202 - api_logger - ERROR - Middleware caught unhandled error: UnboundLocalError: cannot access local variable 'datetime' where it is not associated with a value
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:64459 - "POST /api/analysis/SLV?force=true HTTP/1.1" 500 Internal Server Error
-2026-02-15 21:50:12,884 - app.api.v1.endpoints.analysis - INFO - Preparing AI analysis for SLV. Market Data keys present: ['current_price', 'change_percent', 'rsi_14', 'ma_20', 'ma_50', 'ma_200', 'macd_val', 'macd_hist', 'macd_hist_slope', 'bb_upper', 'bb_middle', 'bb_lower', 'k_line', 'd_line', 'j_line', 'atr_14', 'adx_14', 'resistance_1', 'resistance_2', 'support_1', 'support_2', 'market_status']
-2026-02-15 21:50:12,886 - api_logger - ERROR - Middleware caught unhandled error: UnboundLocalError: cannot access local variable 'datetime' where it is not associated with a value
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:64465 - "POST /api/analysis/SLV?force=true HTTP/1.1" 500 Internal Server Error
-WARNING:  StatReload detected changes in 'app/api/v1/endpoints/analysis.py'. Reloading...
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [72653]
-2026-02-15 21:50:14,713 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
-2026-02-15 21:50:14,812 - app.api.v1.endpoints.analysis - INFO - PHASE: Analysis router module importing...
-INFO:     Started server process [74367]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-2026-02-15 21:50:16,252 - app.api.v1.endpoints.analysis - INFO - Preparing AI analysis for SLV. Market Data keys present: ['current_price', 'change_percent', 'rsi_14', 'ma_20', 'ma_50', 'ma_200', 'macd_val', 'macd_hist', 'macd_hist_slope', 'bb_upper', 'bb_middle', 'bb_lower', 'k_line', 'd_line', 'j_line', 'atr_14', 'adx_14', 'resistance_1', 'resistance_2', 'support_1', 'support_2', 'market_status']
-2026-02-15 21:50:16,254 - api_logger - ERROR - Middleware caught unhandled error: UnboundLocalError: cannot access local variable 'datetime' where it is not associated with a value
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:64475 - "POST /api/analysis/SLV?force=true HTTP/1.1" 500 Internal Server Error
-2026-02-15 21:50:18,278 - api_logger - INFO - rid=/api/analysis/SLV method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=13.48ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:64492 - "GET /api/analysis/SLV HTTP/1.1" 404 Not Found
-2026-02-15 21:50:22,298 - api_logger - INFO - rid=/api/analysis/SLV method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=12.65ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:64495 - "GET /api/analysis/SLV HTTP/1.1" 404 Not Found
-2026-02-15 21:50:28,309 - api_logger - INFO - rid=/api/analysis/SLV method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=2.55ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:64505 - "GET /api/analysis/SLV HTTP/1.1" 404 Not Found
-2026-02-15 21:50:36,321 - api_logger - INFO - rid=/api/analysis/SLV method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=4.38ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:64509 - "GET /api/analysis/SLV HTTP/1.1" 404 Not Found
-2026-02-15 21:50:46,340 - api_logger - INFO - rid=/api/analysis/SLV method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=5.78ms
-DEBUG: Validating token: eyJhbGciOi...
-DEBUG: Token payload: {'exp': 1771242407, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
-INFO:     127.0.0.1:64517 - "GET /api/analysis/SLV HTTP/1.1" 404 Not Found
-WARNING:  StatReload detected changes in 'app/api/v1/endpoints/stock.py'. Reloading...
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [74367]
-2026-02-15 21:51:23,290 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
-2026-02-15 21:51:23,384 - app.api.v1.endpoints.analysis - INFO - PHASE: Analysis router module importing...
-2026-02-15 21:51:23,388 - app.api.v1.endpoints.stock - INFO - PHASE: Stock router module importing...
-INFO:     Started server process [74655]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-WARNING:  StatReload detected changes in 'app/main.py'. Reloading...
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [74655]
-2026-02-15 21:52:23,212 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
-2026-02-15 21:52:23,312 - app.api.v1.endpoints.analysis - INFO - PHASE: Analysis router module importing...
-2026-02-15 21:52:23,316 - app.api.v1.endpoints.stock - INFO - PHASE: Stock router module importing...
-2026-02-15 21:52:23,323 - api_logger - INFO - PHASE: API Router imported successfully.
-INFO:     Started server process [74935]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-2026-02-15 21:54:34,679 - api_logger - INFO - rid=/api/health method=GET status_code=404 user_id=anonymous time=0.68ms
-INFO:     127.0.0.1:51984 - "GET /api/health HTTP/1.1" 404 Not Found
-2026-02-15 21:54:57,226 - api_logger - INFO - rid=/health method=GET status_code=200 user_id=anonymous time=1.58ms
-INFO:     127.0.0.1:53033 - "GET /health HTTP/1.1" 200 OK
-WARNING:  StatReload detected changes in 'app/api/v1/endpoints/analysis.py'. Reloading...
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [74935]
-2026-02-15 21:55:22,661 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
-2026-02-15 21:55:22,764 - app.api.v1.endpoints.stock - INFO - PHASE: Stock router module importing...
-2026-02-15 21:55:22,772 - api_logger - INFO - PHASE: API Router imported successfully.
-INFO:     Started server process [75774]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-WARNING:  StatReload detected changes in 'app/api/v1/endpoints/stock.py'. Reloading...
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [75774]
-2026-02-15 21:55:34,197 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
-2026-02-15 21:55:34,304 - api_logger - INFO - PHASE: API Router imported successfully.
-INFO:     Started server process [75778]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-WARNING:  StatReload detected changes in 'app/main.py'. Reloading...
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [75778]
-2026-02-15 21:55:46,238 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
-INFO:     Started server process [75787]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [75787]
-INFO:     Stopping reloader process [70723]
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:61529 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK

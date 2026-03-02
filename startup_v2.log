@@ -1,0 +1,246 @@
+🚀 Starting AI Smart Investment Advisor...
+📈 Starting Backend (FastAPI) on port 8000...
+🔄 Starting Auto Refresh Script...
+💻 Starting Frontend (Next.js) on port 3000...
+INFO:     Will watch for changes in these directories: ['/Users/breeze/Dev/ai-stock-advisor/backend']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [49712] using StatReload
+✅ Services are running!
+   - Frontend: http://localhost:3000
+   - Backend:  http://localhost:8000/docs
+Press CTRL+C to stop.
+2026-03-02 13:13:52,733 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+
+> frontend@0.1.0 dev
+> next dev -p 3000
+
+INFO:     Started server process [49717]
+INFO:     Waiting for application startup.
+⨯ Failed to start server
+Error: listen EADDRINUSE: address already in use :::3000
+    at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+    at new Promise (<anonymous>) {
+  code: 'EADDRINUSE',
+  errno: -48,
+  syscall: 'listen',
+  address: '::',
+  port: 3000
+}
+[?25h
+2026-03-02 13:13:57,573 - api_logger - INFO - PHASE: Background scheduler task launched & DB synced.
+2026-03-02 13:13:57,573 - app.services.scheduler - INFO - [Scheduler] 调度中心全面启动，轮询精度：60s
+INFO:     Application startup complete.
+2026-03-02 13:13:58,943 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 13:14:01,351 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:14:02,443 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:14:03,230 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:14:03,230 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+INFO:     127.0.0.1:53775 - "OPTIONS /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 13:14:26,172 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1655.72ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:53775 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 13:15:04,412 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 13:15:06,248 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:15:06,770 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:15:07,242 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:15:07,242 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-03-02 13:16:08,721 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 13:16:10,675 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:16:10,893 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:16:11,686 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:16:11,687 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-03-02 13:16:25,964 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1460.84ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:53974 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 13:17:12,749 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 13:17:14,537 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:17:14,788 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:17:15,398 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:17:15,399 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-03-02 13:18:16,603 - app.services.scheduler - INFO - [Scheduler] 发现 3 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 13:18:24,663 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-02 13:18:25,146 - app.services.market_data - INFO - Syncing fundamental for 002050: market_cap=None, PE=None
+2026-03-02 13:18:26,363 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1857.40ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:54129 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 13:18:26,365 - app.services.macro_service - INFO - Starting Cailianshe global news update (Standard Version)...
+2026-03-02 13:18:27,359 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: 002050
+2026-03-02 13:18:31,777 - app.services.macro_service - INFO - Successfully persisted 7 news items.
+2026-03-02 13:18:33,881 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-02 13:18:34,215 - app.services.market_data - INFO - Syncing fundamental for 601138: market_cap=None, PE=None
+2026-03-02 13:18:36,993 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: 601138
+2026-03-02 13:18:39,108 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:18:39,487 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:18:40,281 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:18:40,281 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 3 只标的。
+2026-03-02 13:19:42,418 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 13:19:44,241 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:19:44,508 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:19:44,990 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:19:44,991 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-03-02 13:19:45,152 - app.services.scheduler - INFO - [Scheduler] 开始同步财联社全球快讯...
+2026-03-02 13:19:45,152 - app.services.macro_service - INFO - Starting Cailianshe global news update (Standard Version)...
+2026-03-02 13:19:50,338 - app.services.macro_service - INFO - Successfully persisted 1 news items.
+2026-03-02 13:19:50,339 - app.services.scheduler - INFO - [Scheduler] 财联社快讯同步完成。
+2026-03-02 13:20:26,592 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=2085.51ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:54792 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 13:20:51,625 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 13:20:53,848 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:20:54,256 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:20:55,049 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:20:55,049 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-03-02 13:21:56,264 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 13:21:58,439 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:21:58,777 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:21:59,573 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:21:59,573 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-03-02 13:22:25,857 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1342.55ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:54946 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 13:23:00,835 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 13:23:02,693 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:23:03,080 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:23:03,575 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:23:03,575 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-03-02 13:24:05,628 - app.services.scheduler - INFO - [Scheduler] 发现 4 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 13:24:13,289 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-02 13:24:13,766 - app.services.market_data - INFO - Syncing fundamental for 002050: market_cap=None, PE=None
+2026-03-02 13:24:16,248 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: 002050
+2026-03-02 13:24:23,918 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-02 13:24:24,663 - app.services.market_data - INFO - Syncing fundamental for 601138: market_cap=None, PE=None
+2026-03-02 13:24:25,903 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1392.93ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:55503 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 13:24:27,211 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: 601138
+2026-03-02 13:24:29,311 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:24:29,705 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:24:30,690 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:24:38,751 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-02 13:24:38,985 - app.services.market_data - INFO - Syncing fundamental for 002970: market_cap=None, PE=None
+2026-03-02 13:24:41,938 - app.services.notification_service - INFO - Duplicate notification skipped: PRICE_ALERT for 002970
+2026-03-02 13:24:42,255 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: 002970
+2026-03-02 13:24:42,255 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 4 只标的。
+2026-03-02 13:24:42,412 - app.services.scheduler - INFO - [Cron] 开始例行更新全球宏观雷达...
+2026-03-02 13:24:42,412 - app.services.macro_service - INFO - Starting global macro radar update...
+2026-03-02 13:24:43,993 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-03-02 13:24:45,646 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-03-02 13:24:47,188 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 200 OK"
+2026-03-02 13:24:47,445 - app.services.macro_service - INFO - Fetched 24 news items from Tavily. Proceeding to AI analyzer...
+2026-03-02 13:24:49,207 - app.services.ai_service - INFO - Calling SiliconFlow with Model ID: Pro/deepseek-ai/DeepSeek-V3.2 (Key: deepseek-v3)
+2026-03-02 13:25:14,818 - httpx - INFO - HTTP Request: POST https://api.siliconflow.cn/v1/chat/completions "HTTP/1.1 200 OK"
+2026-03-02 13:25:15,206 - app.services.macro_service - ERROR - Macro AI processing failed: Multiple rows were found when one or none was required
+2026-03-02 13:25:15,363 - app.services.scheduler - INFO - [Cron] 全球宏观雷达更新完成。
+2026-03-02 13:26:16,442 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 13:26:19,159 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:26:19,519 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:26:20,329 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:26:20,330 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+INFO:     127.0.0.1:56517 - "OPTIONS /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 13:26:26,106 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1586.75ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:56517 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 13:27:21,843 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 13:27:23,939 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:27:24,284 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:27:24,795 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:27:24,796 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-03-02 13:28:25,878 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 13:28:26,038 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1515.63ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:57283 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 13:28:27,820 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:28:28,338 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:28:28,834 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:28:28,835 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-03-02 13:29:29,913 - app.services.scheduler - INFO - [Scheduler] 发现 3 只股票需要更新（盘中或盘后补录），开始后台刷新...
+  0%|          | 0/58 [00:00<?, ?it/s]2026-03-02 13:29:39,767 - app.services.market_data - WARNING - 002050 基本面数据抓取超时 (7s)，优先展现价格数据
+2026-03-02 13:29:42,725 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: 002050
+                                      2026-03-02 13:29:50,570 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-02 13:29:51,247 - app.services.market_data - INFO - Syncing fundamental for 601138: market_cap=None, PE=None
+2026-03-02 13:29:54,232 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: 601138
+2026-03-02 13:29:56,125 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:29:56,595 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:29:57,150 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:29:57,151 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 3 只标的。
+2026-03-02 13:29:57,345 - app.services.scheduler - INFO - [Scheduler] 开始同步财联社全球快讯...
+2026-03-02 13:29:57,346 - app.services.macro_service - INFO - Starting Cailianshe global news update (Standard Version)...
+2026-03-02 13:30:02,925 - app.services.macro_service - INFO - Successfully persisted 7 news items.
+2026-03-02 13:30:02,926 - app.services.scheduler - INFO - [Scheduler] 财联社快讯同步完成。
+2026-03-02 13:30:26,081 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1572.45ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:57791 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 13:31:04,209 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 13:31:06,949 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:31:07,322 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:31:08,144 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:31:15,667 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-02 13:31:15,999 - app.services.market_data - INFO - Syncing fundamental for 002970: market_cap=None, PE=None
+2026-03-02 13:31:19,989 - app.services.notification_service - INFO - Duplicate notification skipped: PRICE_ALERT for 002970
+2026-03-02 13:31:20,565 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: 002970
+2026-03-02 13:31:20,565 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-02 13:32:21,809 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 13:32:23,627 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:32:23,983 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:32:24,471 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:32:24,471 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-03-02 13:32:25,653 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1131.99ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:58377 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 13:33:26,477 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 13:33:28,470 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:33:28,711 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:33:29,205 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:33:29,205 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-03-02 13:34:26,055 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1547.84ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:58585 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 13:34:30,492 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 13:34:32,298 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:34:32,678 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:34:33,175 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:34:33,175 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+2026-03-02 13:35:34,522 - app.services.scheduler - INFO - [Scheduler] 发现 3 只股票需要更新（盘中或盘后补录），开始后台刷新...
+  0%|          | 0/58 [00:00<?, ?it/s]2026-03-02 13:35:44,298 - app.services.market_data - WARNING - 002050 基本面数据抓取超时 (7s)，优先展现价格数据
+                                      2026-03-02 13:35:47,048 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: 002050
+2026-03-02 13:35:55,394 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-02 13:35:55,877 - app.services.market_data - INFO - Syncing fundamental for 601138: market_cap=None, PE=None
+2026-03-02 13:35:58,717 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: 601138
+2026-03-02 13:36:00,553 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:36:00,762 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:36:01,259 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:36:01,259 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 3 只标的。
+2026-03-02 13:36:26,057 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1554.93ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:58950 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 13:37:02,487 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 13:37:05,174 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:37:05,482 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:37:06,299 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:37:13,946 - app.services.market_providers.akshare - ERROR - Failed to update AkShare spot cache: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-02 13:37:14,319 - app.services.market_data - INFO - Syncing fundamental for 002970: market_cap=None, PE=None
+2026-03-02 13:37:17,868 - app.services.notification_service - INFO - Duplicate notification skipped: PRICE_ALERT for 002970
+2026-03-02 13:37:18,188 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: 002970
+2026-03-02 13:37:18,189 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-02 13:38:19,318 - app.services.scheduler - INFO - [Scheduler] 发现 1 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-02 13:38:21,125 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-02 13:38:21,478 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-02 13:38:21,967 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-02 13:38:21,968 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 1 只标的。
+INFO:     127.0.0.1:59452 - "OPTIONS /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-02 13:38:25,764 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1259.05ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772463492, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:59452 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK

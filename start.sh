@@ -34,7 +34,7 @@ fi
 
 cd backend
 $PIP_EXEC install -r requirements.txt > /dev/null 2>&1
-$PYTHON_EXEC -m uvicorn app.main:app --reload --port 8000 &
+$PYTHON_EXEC -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000 &
 BACKEND_PID=$!
 
 # Start Auto Refresh Script (Background Job)
@@ -47,8 +47,9 @@ cd ..
 # Start Frontend
 echo "💻 Starting Frontend (Next.js) on port 3000..."
 cd frontend
+rm -rf .next/dev/lock # 清理可能残留的锁文件
 npm install > /dev/null 2>&1
-npm run dev &
+npm run dev -- -p 3000 &
 FRONTEND_PID=$!
 cd ..
 

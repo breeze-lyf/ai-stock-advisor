@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { getProfile, updateSettings, UserProfile } from "@/lib/api";
 import Link from "next/link";
-import { ArrowLeft, Save, Key, Database, Cpu } from "lucide-react";
+import { ArrowLeft, Save, Key, Database, Cpu, Clock } from "lucide-react";
 
 export default function SettingsPage() {
     const { isAuthenticated } = useAuth();
@@ -71,6 +71,22 @@ export default function SettingsPage() {
             setMessage({ text: `Preferred content switched to ${model}`, type: "success" });
         } catch (error) {
             console.error("Failed to update model", error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleTimezoneUpdate = async (timezone: string) => {
+        setSaving(true);
+        try {
+            await updateSettings({
+                timezone: timezone
+            });
+            loadProfile();
+            setMessage({ text: `Timezone updated to ${timezone}`, type: "success" });
+        } catch (error) {
+            console.error("Failed to update timezone", error);
+            setMessage({ text: "Failed to update timezone.", type: "error" });
         } finally {
             setSaving(false);
         }
@@ -154,6 +170,7 @@ export default function SettingsPage() {
                                         value={profile?.preferred_ai_model || "gemini-1.5-flash"}
                                         onChange={(e) => handleModelUpdate(e.target.value)}
                                         disabled={saving}
+                                        title="Select AI Model"
                                     >
                                         <option value="gemini-1.5-flash">Gemini 1.5 Flash (Fast/Default)</option>
                                         <option value="deepseek-v3">DeepSeek V3 (Reasoning/SF)</option>
@@ -164,6 +181,39 @@ export default function SettingsPage() {
                                 </div>
                                 <p className="text-xs text-muted-foreground">
                                     Note: SiliconFlow models use the system-managed API Key. You only need to provide your own Gemini Key if you use Gemini models.
+                                </p>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Clock className="h-5 w-5" />
+                                    Timezone Configuration
+                                </CardTitle>
+                                <CardDescription>
+                                    Set your preferred timezone for all displays.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label>System Global Timezone</Label>
+                                    <select
+                                        className="w-full p-2 rounded-md border border-slate-200 dark:border-slate-800 bg-transparent text-sm"
+                                        value={profile?.timezone || "Asia/Shanghai"}
+                                        onChange={(e) => handleTimezoneUpdate(e.target.value)}
+                                        disabled={saving}
+                                    >
+                                        <option value="Asia/Shanghai">UTC+8 (Beijing / Shanghai)</option>
+                                        <option value="Asia/Tokyo">UTC+9 (Tokyo / Seoul)</option>
+                                        <option value="America/New_York">UTC-5 (New York / Washington)</option>
+                                        <option value="Europe/London">UTC+0 (London / GMT)</option>
+                                        <option value="UTC">UTC (Universal Coordinated Time)</option>
+                                        <option value="Europe/Paris">UTC+1 (Paris / Berlin)</option>
+                                    </select>
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                    This will affect Smart Alert Stream, Macro Radar, and all historical data charts.
                                 </p>
                             </CardContent>
                         </Card>

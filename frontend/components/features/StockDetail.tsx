@@ -572,36 +572,37 @@ export function StockDetail({
                                     const targetPrice = aiData.target_price;
 
                                     const isHolding = (selectedItem?.quantity || 0) > 0;
-                                    const zones = [
-                                        { 
-                                            name: isHolding ? "止损" : "预设止损", 
-                                            start: axisMin, 
-                                            end: stopPrice, 
-                                            color: isHolding 
-                                                ? "bg-[#F0614D]" 
-                                                : "bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(240,97,77,0.5)_4px,rgba(240,97,77,0.5)_8px)] opacity-90 border-y border-[#F0614D]/40" 
-                                        },
-                                        { name: "观察", start: stopPrice, end: entryLow, color: "bg-[#E8EAED] dark:bg-slate-600 opacity-30" }, // 止损与建仓之间的空白区
+                                    
+                                    // 核心：过滤掉重复或无效的区间
+                                    const rawZones = [
+                                        { name: isHolding ? "止损" : "预设止损", start: axisMin, end: stopPrice, color: isHolding ? "bg-[#F0614D]" : "bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(240,97,77,0.5)_4px,rgba(240,97,77,0.5)_8px)] opacity-90 border-y border-[#F0614D]/40" },
+                                        { name: "观察", start: stopPrice, end: entryLow, color: "bg-[#E8EAED] dark:bg-slate-600 opacity-30" },
                                         { name: "买入", start: entryLow, end: entryHigh, color: "bg-[#3CC68A]" },
                                         { name: "持有", start: entryHigh, end: targetPrice, color: "bg-[#E8EAED] dark:bg-slate-600" },
                                         { name: "止盈", start: targetPrice, end: axisMax, color: "bg-[#3B82F6]" }
                                     ];
 
-                                    // Generate 5 evenly spaced price ticks
-                                    const tickCount = 5;
-                                    const priceTicks = Array.from({ length: tickCount }, (_, i) => {
-                                        const pct = (i / (tickCount - 1)) * 100;
-                                        const price = axisMin + ((axisMax - axisMin) * (pct / 100));
-                                        return { pct, price };
-                                    });
+                                    const visibleZones = rawZones.filter(z => z.end > z.start);
+
+                                    // 生成关键价位刻度 (Key Price Ticks)
+                                    // 逻辑：不再等分，而是直接显示 止损、建仓下限、建仓上限、目标价
+                                    const keyPrices = [
+                                        { val: stopPrice, label: "止损" },
+                                        { val: entryLow, label: "建仓" },
+                                        { val: entryHigh, label: "加码" },
+                                        { val: targetPrice, label: "目标" }
+                                    ].filter((item, index, self) => 
+                                        // 过滤掉极其接近的重复价位
+                                        index === self.findIndex((t) => Math.abs(t.val - item.val) < 0.01)
+                                    ).sort((a, b) => a.val - b.val);
 
                                      return (
-                                        <div className="relative pt-10 pb-2">
+                                        <div className="relative pt-12 pb-2">
                                             <div className="relative">
                                                 {/* Main Bar Container */}
                                                 <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0">
                                                     <div className="h-full w-full flex overflow-hidden">
-                                                        {zones.map((zone, idx) => (
+                                                        {visibleZones.map((zone, idx) => (
                                                             <div
                                                                 key={idx}
                                                                 className={clsx("h-full", zone.color)}
@@ -614,10 +615,10 @@ export function StockDetail({
                                                 {/* Tooltip & Marker Dot Group */}
                                                 <div 
                                                     className="absolute top-1/2 -translate-y-1/2 z-20 flex flex-col items-center"
-                                                    style={{ left: `${getPos(current)}%` }}
+                                                    style={{ left: `${getPos(current)}%`, transition: 'left 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }}
                                                 >
-                                                    {/* Tooltip - Floating directly above */}
-                                                    <div className="absolute bottom-full mb-2 flex flex-col items-center group">
+                                                    {/* Tooltip */}
+                                                    <div className="absolute bottom-full mb-2 flex flex-col items-center">
                                                         <div className="bg-slate-900 dark:bg-black text-white text-[10px] font-black px-2.5 py-1 rounded-lg shadow-2xl border border-white/10 whitespace-nowrap">
                                                             ${sanitizePrice(current)}
                                                         </div>
@@ -625,16 +626,23 @@ export function StockDetail({
                                                     </div>
 
                                                     {/* Marker Dot */}
-                                                    <div className="w-3.5 h-3.5 bg-blue-500 rounded-full border-[3px] border-white dark:border-slate-950 shadow-lg ring-4 ring-blue-500/10" />
+                                                    <div className="w-4 h-4 bg-blue-500 rounded-full border-[3px] border-white dark:border-slate-950 shadow-lg ring-4 ring-blue-500/10" />
                                                 </div>
                                             </div>
 
-                                            {/* Scale Ruler */}
-                                            <div className="flex justify-between text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-4">
-                                                {priceTicks.map((tick, i) => (
-                                                    <span key={i} className="tabular-nums">
-                                                        {tick.price.toFixed(2)}
-                                                    </span>
+                                            {/* Key Price Labels (Positioned exactly below the bar) */}
+                                            <div className="relative h-6 mt-4">
+                                                {keyPrices.map((tick, i) => (
+                                                    <div 
+                                                        key={i} 
+                                                        className="absolute flex flex-col items-center -translate-x-1/2"
+                                                        style={{ left: `${getPos(tick.val)}%` }}
+                                                    >
+                                                        <div className="w-px h-1.5 bg-slate-200 dark:bg-slate-700 mb-1" />
+                                                        <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 tabular-nums">
+                                                            {tick.val.toFixed(2)}
+                                                        </span>
+                                                    </div>
                                                 ))}
                                             </div>
                                         </div>

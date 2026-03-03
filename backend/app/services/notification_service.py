@@ -37,24 +37,37 @@ class NotificationService:
         """
         发送飞书富文本卡片消息，包含 24 小时去重逻辑
         """
-        # --- 1. 24 小时去重检查 ---
+        # --- 1. 24 小时去重检查 (带异常保护) ---
         from app.core.database import SessionLocal
         from app.models.notification import NotificationLog
         from sqlalchemy.future import select
         from datetime import datetime, timedelta
 
-        async with SessionLocal() as db:
-            one_day_ago = datetime.utcnow() - timedelta(hours=24)
-            stmt = select(NotificationLog).where(
-                NotificationLog.type == msg_type,
-                NotificationLog.ticker == ticker,
-                NotificationLog.status == "SUCCESS",
-                NotificationLog.created_at >= one_day_ago
-            )
-            res = await db.execute(stmt)
-            if res.scalars().first():
-                logger.info(f"Duplicate notification skipped: {msg_type} for {ticker or 'GLOBAL'}")
-                return True
+        try:
+            async with SessionLocal() as db:
+                # 定义需要跳过 24 小时严格去重的主动推送类型 (如每小时摘要、雷达汇总)
+                # 这些类型应仅在 1 分钟内去重，防止并发冲突
+                SKIP_24H_DEDUPE = ["MACRO_SUMMARY", "HOURLY_NEWS_SUMMARY"]
+                
+                one_day_ago = datetime.utcnow() - timedelta(hours=24 if msg_type not in SKIP_24H_DEDUPE else 0)
+                # 对于跳过 24h 的类型，仍需 1 分钟防重
+                one_min_ago = datetime.utcnow() - timedelta(minutes=1)
+                
+                check_threshold = one_day_ago if msg_type not in SKIP_24H_DEDUPE else one_min_ago
+
+                stmt = select(NotificationLog).where(
+                    NotificationLog.type == msg_type,
+                    NotificationLog.ticker == ticker,
+                    NotificationLog.status == "SUCCESS",
+                    NotificationLog.created_at >= check_threshold
+                )
+                res = await db.execute(stmt)
+                if res.scalars().first():
+                    logger.info(f"Notification deduplication hit: {msg_type} (Threshold: {msg_type not in SKIP_24H_DEDUPE})")
+                    return True
+        except Exception as db_e:
+            # 数据库故障时不应阻塞推送，仅记录日志并继续
+            logger.warning(f"Notification deduplication check failed (DB Error): {db_e}. Proceeding anyway.")
 
         # --- 2. 构建并发送 ---
         url = webhook_url or settings.FEISHU_WEBHOOK_URL

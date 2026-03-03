@@ -236,11 +236,18 @@ class AkShareProvider(MarketDataProvider):
                                     "fifty_two_week_low": float(parts[49]) if len(parts) > 49 and parts[49] and parts[49] != '--' else None,
                                 }
                             else:
-                                # A 股索引 (39: PE, 45: 总市值)
+                                # A 股索引 (Tencent A-Share Specific):
+                                # 39: 市净率 (PB), 44: 总市值 (亿), 45: 流通市值 (亿)
+                                # 33: 52周最高, 34: 52周最低
                                 additional = {
-                                    "pe_ratio": float(parts[39]) if parts[39] and parts[39] != '--' else None,
-                                    "market_cap": float(parts[45]) * 1e8 if len(parts) > 45 and parts[45] and parts[45] != '--' else None,
+                                    "pb_ratio": float(parts[39]) if len(parts) > 39 and parts[39] and parts[39] != '--' else None,
+                                    "market_cap": float(parts[44]) * 1e8 if len(parts) > 44 and parts[44] and parts[44] != '--' else None,
+                                    "fifty_two_week_high": float(parts[33]) if len(parts) > 33 and parts[33] and parts[33] != '--' else None,
+                                    "fifty_two_week_low": float(parts[34]) if len(parts) > 34 and parts[34] and parts[34] != '--' else None,
                                 }
+                                # A 股 PE 在腾讯接口中位置不固定，通常建议从 EM 补充，
+                                # 如果非要从这里拿，parts[45] 往后可能有 PE 动态，但我们先保住市值。
+                                additional["pe_ratio"] = float(parts[39]) if "pe" in str(parts[38]).lower() else None
 
                             return ProviderQuote(
                                 ticker=ticker,
@@ -591,18 +598,26 @@ class AkShareProvider(MarketDataProvider):
         symbol = self._normalize_symbol(ticker)
         try:
             name, sector, mc, pe, eps = None, None, None, None, None
-            # 优先从缓存拿 PE/市值
-            await self._update_spot_cache()
-            if AkShareProvider._cached_spot_df is not None:
-                df = AkShareProvider._cached_spot_df
-                row = df[df['代码'] == symbol]
-                if not row.empty:
-                    target = row.iloc[0]
-                    name, pe, mc = str(target.get('名称')), float(target.get('市盈率-动态', 0)), float(target.get('总市值', 0))
-                    price = float(target.get('最新价', 0))
-                    if pe > 0: eps = price / pe
+            high, low = None, None
+            
+            # --- 优先级 1: 腾讯行情源 (包含 PE, 市值, 52周高低) ---
+            # 腾讯接口在服务器直连环境下极其稳定
+            try:
+                t_quote = await self._get_tencent_quote(ticker)
+                if t_quote and t_quote.additional_data:
+                    ad = t_quote.additional_data
+                    name = t_quote.name
+                    pe = ad.get("pe_ratio")
+                    mc = ad.get("market_cap")
+                    high = ad.get("fifty_two_week_high")
+                    low = ad.get("fifty_two_week_low")
+                    if pe and pe > 0:
+                        eps = t_quote.price / pe
+            except Exception as te:
+                logger.warning(f"Tencent fundamental fetch failed for {ticker}: {te}")
 
-            # info 补全行业
+            # --- 优先级 2: 东方财富个股信息 (补充行业/板块) ---
+            # 包裹 try-except 以应对连接中断
             try:
                 info_df = await self._run_sync(ak.stock_individual_info_em, symbol=symbol)
                 if info_df is not None and not info_df.empty:
@@ -610,9 +625,19 @@ class AkShareProvider(MarketDataProvider):
                     sector = data.get('行业')
                     if not mc: mc = float(data.get('总市值', 0))
                     if not name: name = data.get('股票简称')
-            except: pass
+            except Exception as e:
+                logger.warning(f"EM individual info failed for {ticker} (likely connection reset): {e}")
 
-            return ProviderFundamental(name=name, sector=sector, industry=sector, market_cap=mc, pe_ratio=pe, eps=eps)
+            return ProviderFundamental(
+                name=name, 
+                sector=sector, 
+                industry=sector, 
+                market_cap=mc, 
+                pe_ratio=pe, 
+                eps=eps,
+                fifty_two_week_high=high,
+                fifty_two_week_low=low
+            )
         except Exception as e:
             logger.error(f"AkShare get_fundamental_data error for {ticker}: {e}")
             return None

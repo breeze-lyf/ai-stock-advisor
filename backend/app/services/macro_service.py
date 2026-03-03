@@ -68,10 +68,21 @@ class MacroService:
                 logger.error(f"Macro search failed for query '{q}': {e}")
 
         if not all_news_raw:
-            logger.warning("Tavily returned 0 news results for all macro queries.")
-            return []
+            logger.warning("Tavily returned 0 results or Quota Exceeded. Falling back to local GlobalNews...")
+            # 降级方案：从数据库中提取过去 24 小时内的财联社全球快讯
+            one_day_ago = datetime.utcnow() - timedelta(hours=24)
+            stmt = select(GlobalNews).where(GlobalNews.created_at >= one_day_ago).order_by(GlobalNews.created_at.desc()).limit(30)
+            res = await db.execute(stmt)
+            fallback_news = res.scalars().all()
+            
+            if not fallback_news:
+                logger.error("No local news available for fallback. Macro radar update aborted.")
+                return []
+                
+            all_news_raw = [{"title": n.title, "content": n.content, "source": "Local-Fallback"} for n in fallback_news]
+            logger.info(f"Fallback successful: loaded {len(all_news_raw)} local news items for AI analysis.")
 
-        logger.info(f"Fetched {len(all_news_raw)} news items from Tavily. Proceeding to AI analyzer...")
+        logger.info(f"Data source ready. Proceeding to AI analyzer with {len(all_news_raw)} items...")
         
         # 2. 调用 AI 进行主题聚类与传导逻辑推演
         # 我们给 AI 一堆杂乱的新闻，让它提炼出 3 个最核心的主题

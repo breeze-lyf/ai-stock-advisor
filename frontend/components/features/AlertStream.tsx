@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Bell, Zap, TrendingUp, AlertTriangle, Calendar, Clock, ChevronRight } from 'lucide-react';
-import { format } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { useAuth } from '@/context/AuthContext';
+import { formatDateTime } from '@/lib/utils';
 
 function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -20,6 +20,7 @@ interface NotificationLog {
 }
 
 const AlertStream: React.FC = () => {
+    const { isAuthenticated, user } = useAuth();
     const [logs, setLogs] = useState<NotificationLog[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -115,7 +116,7 @@ const AlertStream: React.FC = () => {
                                             <span className="text-[10px] text-slate-300">•</span>
                                             <span className="text-xs text-slate-400 flex items-center gap-1">
                                                 <Clock className="w-3 h-3" />
-                                                {format(new Date(log.created_at), 'MM-dd HH:mm', { locale: zhCN })}
+                                                {formatDateTime(log.created_at, user?.timezone || "Asia/Shanghai")}
                                             </span>
                                         </div>
                                         <h3 className="text-lg font-bold text-slate-800 mt-0.5 leading-snug">

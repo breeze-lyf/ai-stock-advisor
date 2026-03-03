@@ -55,6 +55,7 @@ class User(Base):
     # 偏好设置：用户可以自定义使用哪里的行情，以及默认喜欢哪个分析师(AI模型)。
     preferred_data_source = Column(String, default=MarketDataSource.ALPHA_VANTAGE.value) 
     preferred_ai_model = Column(String, default=AIModel.QWEN_3_VL_THINKING.value)        
+    timezone = Column(String, default="Asia/Shanghai")
     
     created_at = Column(DateTime, default=datetime.utcnow) # 记录生日(注册时间)
     last_login = Column(DateTime, nullable=True)           # 活跃度追踪

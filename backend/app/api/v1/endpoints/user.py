@@ -19,7 +19,8 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
         "has_deepseek_key": bool(current_user.api_key_deepseek),
         "has_siliconflow_key": bool(current_user.api_key_siliconflow),
         "preferred_data_source": current_user.preferred_data_source or "ALPHA_VANTAGE",
-        "preferred_ai_model": current_user.preferred_ai_model or "gemini-1.5-flash"
+        "preferred_ai_model": current_user.preferred_ai_model or "gemini-1.5-flash",
+        "timezone": current_user.timezone or "Asia/Shanghai"
     }
 
 @router.put("/password")
@@ -58,6 +59,9 @@ async def update_user_settings(
 
     if settings.preferred_ai_model is not None:
         current_user.preferred_ai_model = settings.preferred_ai_model
+    
+    if settings.timezone is not None:
+        current_user.timezone = settings.timezone
         
     await db.commit()
     await db.refresh(current_user)
@@ -70,5 +74,6 @@ async def update_user_settings(
         "has_deepseek_key": bool(current_user.api_key_deepseek),
         "has_siliconflow_key": bool(current_user.api_key_siliconflow),
         "preferred_data_source": current_user.preferred_data_source or "ALPHA_VANTAGE",
-        "preferred_ai_model": current_user.preferred_ai_model or "gemini-1.5-flash"
+        "preferred_ai_model": current_user.preferred_ai_model or "gemini-1.5-flash",
+        "timezone": current_user.timezone or "Asia/Shanghai"
     }

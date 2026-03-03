@@ -6,6 +6,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { TrendingUp, TrendingDown, AlertCircle, RefreshCw, Globe, ArrowRight } from "lucide-react";
 import clsx from "clsx";
 import { getMacroRadar } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
+import { formatDateTime } from "@/lib/utils";
 
 import { GlobalNewsFeed } from "./GlobalNewsFeed";
 
@@ -28,6 +30,7 @@ interface HotspotRadarProps {
 }
 
 export function HotspotRadar({ onSelectTicker }: HotspotRadarProps) {
+  const { user } = useAuth();
   const [topics, setTopics] = useState<MacroTopic[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -123,18 +126,7 @@ export function HotspotRadar({ onSelectTicker }: HotspotRadarProps) {
                         </div>
                       </div>
                       <span className="text-[10px] text-slate-400 uppercase tracking-widest font-medium">
-                        Updated: {
-                          new Date(topic.updated_at.endsWith('Z') ? topic.updated_at : topic.updated_at + 'Z').toLocaleString("zh-CN", {
-                            timeZone: "Asia/Shanghai",
-                            hour12: false,
-                            year: 'numeric',
-                            month: 'numeric',
-                            day: 'numeric',
-                            hour: 'numeric',
-                            minute: 'numeric',
-                            second: 'numeric'
-                          })
-                        }
+                        Updated: {formatDateTime(topic.updated_at, user?.timezone || "Asia/Shanghai", "YYYY-MM-dd HH:mm")}
                       </span>
                     </div>
                 </CardHeader>

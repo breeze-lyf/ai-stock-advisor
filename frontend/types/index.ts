@@ -36,6 +36,7 @@ export interface UserProfile {
     has_siliconflow_key: boolean;
     preferred_data_source: string;
     preferred_ai_model: string;
+    timezone: string;
 }
 
 export interface UserSettingsUpdate {
@@ -44,6 +45,7 @@ export interface UserSettingsUpdate {
     api_key_siliconflow?: string;
     preferred_data_source?: string;
     preferred_ai_model?: string;
+    timezone?: string;
 }
 export interface SectorExposure {
     sector: string;

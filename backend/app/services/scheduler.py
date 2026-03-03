@@ -174,7 +174,7 @@ from app.services.macro_service import MacroService
 # ... inside refresh_all_stocks or as a separate task ...
 
 async def refresh_macro_radar():
-    """定时更新全球宏观雷达 (每 5 小时)"""
+    """定时更新全球宏观雷达 (每 1 小时)"""
     try:
         logger.info("[Cron] 开始例行更新全球宏观雷达...")
         await MacroService.update_global_radar()
@@ -291,7 +291,6 @@ async def start_scheduler():
     logger.info("[Scheduler] 调度中心全面启动，轮询精度：60s")
     
     # 记录各任务最后执行时间
-    last_macro_update = datetime.now() - timedelta(hours=4, minutes=50) 
     last_news_update = datetime.now() - timedelta(minutes=5)
     last_headline_update = datetime.now() - timedelta(hours=3)
     last_triggered_summary_hour = -1 # 记录上一次成功触发推送到小时，防止分钟内重复执行
@@ -312,24 +311,31 @@ async def start_scheduler():
             except Exception as e:
                 logger.error(f"[Scheduler] 财联社刷新异常: {e}")
 
-        # 2.5 每小时新闻摘要推送 (整点对齐 - 增加 5 分钟容错窗)
+        # 2.5 每小时综合推送 (整点对齐：宏观雷达 + 新闻精要)
         now = datetime.now()
-        if now.minute < 5 and now.hour != last_triggered_summary_hour:
+        # 拓宽触发窗口至 15 分钟，防止被行情刷新阻塞
+        if now.minute < 15 and now.hour != last_triggered_summary_hour:
             try:
-                logger.info(f"[Scheduler] 检测到整点窗口 ({now.strftime('%H:%M')})，准备触发每小时精要...")
-                await refresh_hourly_summary()
-                last_triggered_summary_hour = now.hour
-                logger.info(f"[Scheduler] 每小时精要触发成功 (Hour: {now.hour})")
-            except Exception as e:
-                logger.error(f"[Scheduler] 每小时摘要整点触发异常: {e}")
-
-        # 3. 宏观热点刷新 (每 5 小时尝试一次)
-        if datetime.now() - last_macro_update > timedelta(hours=5):
-            try:
+                logger.info(f"[Scheduler] 🔔 检测到整点窗口 ({now.strftime('%H:%M')})，执行每小时推送任务...")
+                
+                # A. 全球宏观雷达 (由于频率从 5h 改为 1h，直接放入整点)
                 await refresh_macro_radar()
-                last_macro_update = datetime.now()
+                
+                # B. 每小时新闻精要
+                await refresh_hourly_summary()
+                
+                last_triggered_summary_hour = now.hour
+                logger.info(f"[Scheduler] 整点推送任务已全部完成 (Hour: {now.hour})")
             except Exception as e:
-                logger.error(f"[Scheduler] 宏观刷新异常: {e}")
+                logger.error(f"[Scheduler] 整点推送触发异常: {e}")
+
+        # 3. 财联社深度头条 (每 4 小时一次)
+        if datetime.now() - last_headline_update > timedelta(hours=4):
+            try:
+                await refresh_cls_headlines()
+                last_headline_update = datetime.now()
+            except Exception as e:
+                logger.error(f"[Scheduler] 深度头条刷新异常: {e}")
         
         # 4. 每日报告 (北京时间 09:00 或 22:00 触发一次)
         now_cn = datetime.now(CN_TZ)

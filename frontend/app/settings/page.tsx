@@ -8,10 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { getProfile, updateSettings, UserProfile } from "@/lib/api";
 import Link from "next/link";
-import { ArrowLeft, Save, Key, Database, Cpu, Clock } from "lucide-react";
+import { ArrowLeft, Save, Key, Database, Cpu, Clock, Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
 
 export default function SettingsPage() {
     const { isAuthenticated } = useAuth();
+    const { theme: currentTheme, setTheme } = useTheme();
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [geminiKey, setGeminiKey] = useState("");
     const [loading, setLoading] = useState(true);
@@ -28,6 +30,10 @@ export default function SettingsPage() {
         try {
             const data = await getProfile();
             setProfile(data);
+            // Sync theme from backend if needed
+            if (data.theme && currentTheme !== data.theme) {
+                setTheme(data.theme);
+            }
         } catch (error) {
             console.error("Failed to load profile", error);
         } finally {
@@ -90,6 +96,21 @@ export default function SettingsPage() {
         } finally {
             setSaving(false);
         }
+    };    const handleThemeUpdate = async (theme: string) => {
+        setSaving(true);
+        setTheme(theme);
+        try {
+            await updateSettings({
+                theme: theme
+            });
+            loadProfile();
+            setMessage({ text: `Visual theme updated to ${theme}`, type: "success" });
+        } catch (error) {
+            console.error("Failed to update theme", error);
+            setMessage({ text: "Failed to update theme.", type: "error" });
+        } finally {
+            setSaving(false);
+        }
     };
 
 
@@ -115,6 +136,47 @@ export default function SettingsPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-6">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Moon className="h-5 w-5 text-slate-400 dark:text-slate-500" />
+                                    Visual Theme
+                                </CardTitle>
+                                <CardDescription>
+                                    Switch between light and dark modes.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="grid grid-cols-3 gap-2">
+                                <Button 
+                                    variant={currentTheme === 'light' ? 'default' : 'outline'} 
+                                    className="flex items-center gap-2 h-20 flex-col"
+                                    onClick={() => handleThemeUpdate('light')}
+                                    disabled={saving}
+                                >
+                                    <Sun className="h-5 w-5" />
+                                    <span className="text-xs">Light</span>
+                                </Button>
+                                <Button 
+                                    variant={currentTheme === 'dark' ? 'default' : 'outline'} 
+                                    className="flex items-center gap-2 h-20 flex-col"
+                                    onClick={() => handleThemeUpdate('dark')}
+                                    disabled={saving}
+                                >
+                                    <Moon className="h-5 w-5" />
+                                    <span className="text-xs">Dark</span>
+                                </Button>
+                                <Button 
+                                    variant={currentTheme === 'system' ? 'default' : 'outline'} 
+                                    className="flex items-center gap-2 h-20 flex-col"
+                                    onClick={() => handleThemeUpdate('system')}
+                                    disabled={saving}
+                                >
+                                    <Cpu className="h-5 w-5" />
+                                    <span className="text-xs">Auto</span>
+                                </Button>
+                            </CardContent>
+                        </Card>
+
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">

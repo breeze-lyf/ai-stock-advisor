@@ -152,8 +152,8 @@ export function PortfolioList({
     };
 
     return (
-        <div className="flex flex-col h-full w-full bg-white dark:bg-slate-900 overflow-hidden">
-            <div className="py-3 px-4 border-b font-medium text-sm text-slate-500 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/20">
+        <div className="flex flex-col h-full w-full bg-white dark:bg-zinc-950 overflow-hidden">
+            <div className="py-3 px-4 border-b border-slate-100 dark:border-zinc-800 font-medium text-sm text-slate-500 flex justify-between items-center bg-slate-50/50 dark:bg-zinc-900/50">
                 <div className="flex items-center gap-2">
                     <span className="font-bold text-slate-700 dark:text-slate-300">股票列表</span>
                     <Button
@@ -203,7 +203,7 @@ export function PortfolioList({
             </div>
 
             {/* Table Headers */}
-            <div className="grid grid-cols-4 px-4 py-1.5 border-b text-[10px] uppercase tracking-wider font-bold text-slate-400 bg-slate-50/50 dark:bg-slate-800/20">
+            <div className="grid grid-cols-4 px-4 py-1.5 border-b border-slate-100 dark:border-zinc-800 text-[10px] uppercase tracking-wider font-bold text-slate-400 bg-slate-50/50 dark:bg-zinc-900/50">
                 <div
                     className="cursor-pointer hover:text-blue-500 transition-colors flex items-center gap-1"
                     onClick={() => handleSort(sortBy === "manual" ? "ticker" : "manual")}
@@ -236,10 +236,10 @@ export function PortfolioList({
                     <div
                         key={item.ticker}
                         className={clsx(
-                            "border-b transition-all duration-200",
+                            "border-b border-slate-100 dark:border-zinc-800/80 transition-all duration-200",
                             selectedTicker === item.ticker
                                 ? "bg-blue-50/50 dark:bg-blue-900/10 border-l-4 border-l-blue-500"
-                                : "hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                                : "hover:bg-slate-50 dark:hover:bg-zinc-800/30"
                         )}
                     >
                         <div

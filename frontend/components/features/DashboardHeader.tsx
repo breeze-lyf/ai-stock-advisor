@@ -39,15 +39,20 @@ interface DashboardHeaderProps {
 export function DashboardHeader({ user, activeTab, setActiveTab }: DashboardHeaderProps) {
   return (
     <header className="flex h-16 items-center px-4 border-b bg-white dark:bg-slate-900 shrink-0 gap-4 z-50 relative">
-      <div className="flex items-center gap-2">
-        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-          <span className="text-white font-black text-xl">A</span>
+      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+            <span className="text-white font-black text-xl">A</span>
+          </div>
+          <h1 className="font-bold text-lg hidden sm:block">AI Stock Advisor</h1>
         </div>
-        <h1 className="font-bold text-lg hidden sm:block">AI Stock Advisor</h1>
+        
+        {/* Market Status back to Left side */}
+        <MarketStatusIndicator className="hidden md:flex" />
       </div>
       
-      {/* Navigation Tabs */}
-      <nav className="flex items-center gap-1 ml-4 h-10 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+      {/* Navigation Tabs - Centered */}
+      <nav className="absolute left-1/2 -translate-x-1/2 hidden lg:flex items-center gap-1 h-10 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
         <TabButton 
           active={activeTab === "analysis"} 
           onClick={() => setActiveTab("analysis")}
@@ -74,8 +79,15 @@ export function DashboardHeader({ user, activeTab, setActiveTab }: DashboardHead
         />
       </nav>
 
+      {/* Mobile Nav Fallback (relative when absolute tab is hidden) */}
+      <nav className="lg:hidden flex items-center gap-1 h-10 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl ml-2 overflow-x-auto min-w-0">
+         <button onClick={() => setActiveTab("analysis")} className={clsx("p-2 rounded-lg", activeTab === "analysis" ? "text-blue-600 bg-white" : "text-slate-500")} title="诊断"><TrendingUp className="w-4 h-4" /></button>
+         <button onClick={() => setActiveTab("portfolio")} className={clsx("p-2 rounded-lg", activeTab === "portfolio" ? "text-blue-600 bg-white" : "text-slate-500")} title="持仓"><PieChart className="w-4 h-4" /></button>
+         <button onClick={() => setActiveTab("radar")} className={clsx("p-2 rounded-lg", activeTab === "radar" ? "text-blue-600 bg-white" : "text-slate-500")} title="热点"><Globe className="w-4 h-4" /></button>
+         <button onClick={() => setActiveTab("alerts")} className={clsx("p-2 rounded-lg", activeTab === "alerts" ? "text-blue-600 bg-white" : "text-slate-500")} title="提醒"><Bell className="w-4 h-4" /></button>
+      </nav>
+
       <div className="ml-auto flex items-center gap-4">
-        <MarketStatusIndicator className="hidden md:flex" />
         {user && <UserMenu user={user} />}
       </div>
     </header>

@@ -8,6 +8,7 @@ class UserSettingsUpdate(BaseModel):
     preferred_data_source: Optional[str] = None
     preferred_ai_model: Optional[str] = None
     timezone: Optional[str] = None
+    theme: Optional[str] = None
 
 class UserProfile(BaseModel):
     id: str
@@ -19,6 +20,7 @@ class UserProfile(BaseModel):
     preferred_data_source: str
     preferred_ai_model: str
     timezone: str
+    theme: str
 
 class PasswordChange(BaseModel):
     old_password: str

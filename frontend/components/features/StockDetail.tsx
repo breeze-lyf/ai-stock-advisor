@@ -121,8 +121,8 @@ export function StockDetail({
 
     if (!selectedItem) {
         return (
-            <div className="flex-1 bg-white dark:bg-slate-950 p-6 flex flex-col items-center justify-center h-full text-slate-300 gap-4">
-                <div className="p-8 rounded-full bg-slate-50 dark:bg-slate-900 shadow-inner">
+            <div className="flex-1 bg-white dark:bg-zinc-950 p-6 flex flex-col items-center justify-center h-full text-slate-300 gap-4">
+                <div className="p-8 rounded-full bg-slate-50 dark:bg-zinc-900 shadow-inner">
                     <Zap className="h-16 w-16 opacity-5 animate-pulse" />
                 </div>
                 <div className="text-center">
@@ -155,11 +155,11 @@ export function StockDetail({
     return (
         <div 
             ref={containerRef}
-            className="flex-1 bg-white dark:bg-slate-950 px-4 md:px-8 pb-12 flex flex-col gap-6 md:gap-8 overflow-y-auto h-full custom-scrollbar w-full max-w-[1400px] mx-auto relative"
+            className="flex-1 bg-white dark:bg-zinc-950 px-4 md:px-8 pb-12 flex flex-col gap-6 md:gap-8 overflow-y-auto h-full custom-scrollbar w-full max-w-[1400px] mx-auto relative"
         >
             {/* --- Sticky Bar (Visible only when scrolled) --- */}
             <div className={clsx(
-                "sticky top-0 z-50 -mx-6 md:-mx-8 px-6 md:px-8 py-2 bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800 transition-all duration-300",
+                "sticky top-0 z-50 -mx-6 md:-mx-8 px-6 md:px-8 py-2 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border-b border-slate-100 dark:border-zinc-800 transition-all duration-300",
                 isScrolled ? "opacity-100 translate-y-0 pointer-events-auto shadow-sm" : "opacity-0 translate-y-[-100%] pointer-events-none"
             )} style={{ marginBottom: "-5.5rem" }}>
                 <div className="flex md:items-center justify-between gap-4 h-14">
@@ -409,7 +409,7 @@ export function StockDetail({
                     const effectiveRR = aiData.rr_ratio;
 
                     return (
-                        <div className="space-y-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none animate-in fade-in slide-in-from-bottom-2 duration-700">
+                        <div className="space-y-0 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none animate-in fade-in slide-in-from-bottom-2 duration-700">
 
                         {/* 1. Header & Sentiment Grid */}
                         <div className="p-6 md:p-8 bg-slate-50/50 dark:bg-white/5 border-b border-slate-100 dark:border-white/5">
@@ -698,257 +698,194 @@ export function StockDetail({
             </div>
 
             {/* --- Section 3: Technical Scan (Visual Hub) --- */}
-            <div className="space-y-8">
-                <div className="flex items-center gap-3">
-                    <div className="h-8 w-1.5 bg-emerald-500 rounded-full" />
-                    <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100 uppercase">技术面深度透视</h2>
+            <div className="space-y-8 relative">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="h-8 w-1.5 bg-emerald-500 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
+                        <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-zinc-100 uppercase">技术面深度透视</h2>
+                    </div>
                 </div>
 
-                {/* Optimized Layout based on Sketch: 2x2 Visuals + 5-Metric Strip + Full-Width AI */}
-                <div className="space-y-12 pt-4">
-                    {/* Part 1: Main Visual Matrix (2x2) */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
-                        {/* [0,0] RSI & KDJ Matrix */}
-                        <div className="space-y-6">
-                            <div className="flex justify-between items-center px-1">
-                                <span className="text-[10px] font-bold uppercase text-slate-500 tracking-[0.2em] flex items-center gap-2">
+                {/* Dashboard Background & Grid Overlay */}
+                <div className="absolute inset-0 -z-10 bg-slate-50/50 dark:bg-zinc-900/20 rounded-[40px] pointer-events-none overflow-hidden border border-slate-100 dark:border-zinc-800/50">
+                    <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" 
+                         style={{ backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+                    <div className="absolute top-0 left-1/4 w-1/2 h-1/2 bg-blue-500/5 dark:bg-blue-400/5 blur-[120px] rounded-full" />
+                    <div className="absolute bottom-0 right-1/4 w-1/2 h-1/2 bg-emerald-500/5 dark:bg-emerald-400/5 blur-[120px] rounded-full" />
+                </div>
+
+                <div className="px-4 md:px-8 py-8 space-y-10">
+                    {/* Part 1: AI Technical Conclusion (Full Width Top) */}
+                    <div className="relative group">
+                        <div className="absolute -inset-px bg-gradient-to-r from-blue-500/20 to-emerald-500/20 rounded-3xl blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                        <div className="relative bg-white/80 dark:bg-zinc-900/50 backdrop-blur-xl border border-slate-200/60 dark:border-zinc-800/80 p-6 md:p-8 rounded-3xl shadow-sm space-y-4">
+                            <div className="flex items-center gap-3 text-[10px] font-black uppercase text-blue-600 dark:text-blue-400 tracking-[0.3em] opacity-80">
+                                <Zap className="h-4 w-4 fill-current animate-pulse" /> AI Technical Intelligence
+                            </div>
+                            {aiData ? (
+                                <div className="prose dark:prose-invert max-w-none">
+                                    <div className="text-base font-bold text-slate-700 dark:text-zinc-300 leading-relaxed italic border-l-4 border-blue-500/30 pl-4 py-1">
+                                        <ReactMarkdown>{aiData.technical_analysis}</ReactMarkdown>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center py-6 text-slate-300 opacity-50">
+                                    <BarChart3 className="h-8 w-8 mb-3 opacity-20 animate-bounce" />
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em]">Synthesizing technical signals...</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Part 2: Dynamic Indicator Matrix (2 Columns) */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        {/* RSI & KDJ Card */}
+                        <div className="bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border border-slate-100 dark:border-zinc-800/50 p-6 rounded-3xl space-y-6 hover:border-blue-500/30 transition-colors group">
+                            <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-bold uppercase text-slate-400 tracking-[0.2em] flex items-center gap-2">
                                     <TrendingUp className="h-4 w-4 text-blue-500" /> RSI (14) & KDJ
                                 </span>
-                                <div className="flex gap-4">
-                                    <div className="flex items-center gap-1">
-                                        <span className="text-[8px] font-bold text-slate-400">RSI:</span>
-                                         <span className="text-xs font-black tabular-nums text-blue-500">{selectedItem?.rsi_14?.toFixed(2)}</span>
-                                     </div>
-                                     <div className="flex items-center gap-2 border-l border-slate-100 dark:border-slate-800 pl-3">
-                                         <span className="text-[8px] font-bold text-slate-400">KDJ:</span>
-                                         <div className="flex items-center gap-1.5">
-                                             <span className="text-[10px] font-black tabular-nums text-blue-500">{selectedItem?.k_line?.toFixed(1) || "--"}</span>
-                                             <span className="text-[8px] font-bold text-slate-300">/</span>
-                                             <span className="text-[10px] font-black tabular-nums text-amber-500">{selectedItem?.d_line?.toFixed(1) || "--"}</span>
-                                             <span className="text-[8px] font-bold text-slate-300">/</span>
-                                             <span className={clsx(
-                                                 "text-[10px] font-black tabular-nums",
-                                                 (selectedItem?.j_line || 0) > 80 ? "text-rose-500" : (selectedItem?.j_line || 0) < 20 ? "text-emerald-500" : "text-slate-600"
-                                             )}>{selectedItem?.j_line?.toFixed(1) || "--"}</span>
-                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                             <div className="relative h-1.5 w-full bg-slate-100 dark:bg-slate-800/50 rounded-full overflow-hidden mx-1">
-                                 <div className="absolute left-[20%] top-0 h-full w-[1px] bg-slate-300 dark:bg-slate-700 z-10" />
-                                 <div className="absolute left-[80%] top-0 h-full w-[1px] bg-slate-300 dark:bg-slate-700 z-10" />
-                                 <div
-                                     className={clsx("h-full rounded-full transition-all duration-1000", getRSIColor(selectedItem?.rsi_14 || 50))}
-                                     style={{ width: `${selectedItem?.rsi_14 || 0}%` }}
-                                 />
-                             </div>
-                            <div className="flex justify-between text-[8px] font-bold text-slate-400 uppercase tracking-widest px-1 opacity-80">
-                                <span>超卖水位</span>
-                                <span className="text-slate-300 font-normal">中性</span>
-                                <span>超买水位</span>
-                            </div>
-                        </div>
-
-                        {/* [0,1] MACD Dynamic Matrix */}
-                        <div className="space-y-6">
-                            <div className="flex justify-between items-center px-1">
-                                 <span className="text-[10px] font-bold uppercase text-slate-500 tracking-[0.2em] flex items-center gap-2">
-                                    <Activity className="h-4 w-4 text-indigo-500" /> MACD 趋势与动能 (日线)
-                                </span>
-                                 <div className="flex gap-2">
-                                     {selectedItem?.macd_cross === "GOLDEN" && (
-                                         <span className={clsx(
-                                             "text-[9px] font-black px-2 py-0.5 rounded-full uppercase bg-emerald-500 text-white shadow-sm",
-                                             selectedItem?.macd_is_new_cross && "animate-pulse"
-                                         )}>
-                                             金叉趋势
-                                         </span>
-                                     )}
-                                     {selectedItem?.macd_cross === "DEATH" && (
-                                         <span className={clsx(
-                                             "text-[9px] font-black px-2 py-0.5 rounded-full uppercase bg-rose-500 text-white shadow-sm",
-                                             selectedItem?.macd_is_new_cross && "animate-pulse"
-                                         )}>
-                                             死叉趋势
-                                         </span>
-                                     )}
-                                     <span className={clsx(
-                                         "text-[9px] font-black px-2 py-0.5 rounded-full uppercase border tabular-nums",
-                                         (selectedItem?.macd_hist || 0) >= 0 ? "bg-emerald-50/50 text-emerald-600 border-emerald-100" : "bg-rose-50/50 text-rose-600 border-rose-100"
-                                     )}>
-                                         {(selectedItem?.macd_hist || 0) >= 0 ? "多头" : "空头"}
-                                     </span>
-                                     {selectedItem?.macd_hist_slope !== undefined && (
-                                         <span className={clsx(
-                                             "text-[9px] font-black px-2 py-0.5 rounded-full uppercase border tabular-nums",
-                                             (selectedItem?.macd_hist_slope || 0) >= 0 ? "bg-blue-50/50 text-blue-600 border-blue-100" : "bg-amber-50/50 text-amber-600 border-amber-100"
-                                         )}>
-                                             {(selectedItem?.macd_hist_slope || 0) >= 0 ? "动能增强" : "动能减弱"}
-                                         </span>
-                                     )}
-                                 </div>
-                            </div>
-                            <div className="grid grid-cols-4 gap-4 px-1">
-                                 {[
-                                     { label: "快线 DIF", value: selectedItem?.macd_val },
-                                     { label: "慢线 DEA", value: selectedItem?.macd_signal },
-                                     { label: "柱状 Hist", value: selectedItem?.macd_hist, color: true },
-                                     { label: "信号 Cross", value: selectedItem?.macd_cross, isStatus: true },
-                                 ].map((m) => (
-                                    <div key={m.label} className="flex flex-col gap-1">
-                                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tight">{m.label}</span>
-                                        <span className={clsx(
-                                            "text-md font-black tabular-nums tracking-tighter",
-                                            m.isStatus ? (m.value === "GOLDEN" ? "text-emerald-500" : m.value === "DEATH" ? "text-rose-500" : "text-slate-400") :
-                                            m.color ? ((typeof m.value === 'number' && m.value >= 0) ? "text-emerald-500" : "text-rose-500") : "text-slate-800 dark:text-slate-100"
-                                        )}>
-                                            {m.isStatus ? (m.value === "GOLDEN" ? "金叉格局" : m.value === "DEATH" ? "死叉格局" : "--") : (typeof m.value === 'number' ? m.value.toFixed(2) : "--")}
+                                <div className="flex gap-4 items-baseline">
+                                    <span className="text-2xl font-black tabular-nums text-blue-500">{selectedItem?.rsi_14?.toFixed(2)}</span>
+                                    <div className="flex items-center gap-1.5 border-l border-slate-100 dark:border-zinc-800/80 pl-3">
+                                        <span className="text-xs font-bold text-blue-400">{selectedItem?.k_line?.toFixed(0)}</span>
+                                        <span className="text-xs font-bold text-amber-400">{selectedItem?.d_line?.toFixed(0)}</span>
+                                        <span className={clsx("text-xs font-black", (selectedItem?.j_line || 0) > 80 ? "text-rose-400" : "text-emerald-400")}>
+                                            {selectedItem?.j_line?.toFixed(0)}
                                         </span>
                                     </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* [1,0] Bollinger Bands Matrix */}
-                        <div className="space-y-4 border-t border-slate-50 dark:border-slate-800 pt-6">
-                            <div className="flex justify-between items-center px-1">
-                                <span className="text-[10px] font-bold uppercase text-slate-500 tracking-[0.2em] flex items-center gap-2">
-                                    <Activity className="h-4 w-4 text-rose-500" /> 布林带 (Bollinger Bands)
-                                </span>
-                                 <span className={clsx(
-                                     "text-[9px] font-black px-2 py-0.5 rounded-full uppercase border tabular-nums",
-                                     (selectedItem?.current_price || 0) > (selectedItem?.bb_upper || 0) ? "bg-rose-50 text-rose-600 border-rose-100" :
-                                         (selectedItem?.current_price || 0) < (selectedItem?.bb_lower || 0) ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
-                                             "bg-slate-50 text-slate-500 border-slate-100"
-                                 )}>
-                                     {(selectedItem?.current_price || 0) > (selectedItem?.bb_upper || 0) ? "穿越上轨" :
-                                         (selectedItem?.current_price || 0) < (selectedItem?.bb_lower || 0) ? "跌破下轨" : "带宽内运行"}
-                                 </span>
-                            </div>
-                            <div className="grid grid-cols-3 gap-4 px-1">
-                                 {[
-                                     { label: "上轨 UP", value: selectedItem?.bb_upper },
-                                     { label: "中轨 MID", value: selectedItem?.bb_middle },
-                                     { label: "下轨 LOW", value: selectedItem?.bb_lower },
-                                 ].map((b) => {
-                                     const diffPercent = selectedItem?.current_price && b.value
-                                         ? ((selectedItem.current_price - b.value) / b.value) * 100
-                                         : null;
-
-                                    return (
-                                        <div key={b.label} className="flex flex-col gap-1">
-                                            <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tight px-0.5">{b.label}</span>
-                                            <div className="flex items-baseline gap-2">
-                                                <span className="text-md font-black tabular-nums text-slate-800 dark:text-slate-100">
-                                                    {b.value?.toFixed(2) || "--"}
-                                                </span>
-                                                {diffPercent !== null && (
-                                                    <span className={clsx(
-                                                        "text-[9px] font-black tabular-nums italic",
-                                                        diffPercent >= 0 ? "text-emerald-500" : "text-rose-500"
-                                                    )}>
-                                                        {diffPercent >= 0 ? "+" : ""}{diffPercent.toFixed(1)}%
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-
-                        {/* [1,1] Moving Averages Matrix */}
-                        <div className="space-y-4 border-t border-slate-50 dark:border-slate-800 pt-6">
-                            <div className="flex justify-between items-center px-1">
-                                <span className="text-[10px] font-bold uppercase text-slate-500 tracking-[0.2em] flex items-center gap-2">
-                                    <Target className="h-4 w-4 text-emerald-500" /> 移动平均线 (MA)
-                                </span>
-                                <div className="flex gap-2">
-                                    {((selectedItem?.ma_20 || 0) > (selectedItem?.ma_50 || 0) && (selectedItem?.ma_50 || 0) > (selectedItem?.ma_200 || 0)) ? (
-                                        <span className="text-[8px] font-black px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase">多头排列</span>
-                                    ) : (
-                                        <span className="text-[8px] font-black px-2 py-0.5 rounded-full bg-slate-50 text-slate-400 border border-slate-100 uppercase">交织运行</span>
-                                    )}
                                 </div>
                             </div>
-                            <div className="grid grid-cols-3 gap-4 px-1">
+                            
+                            <div className="relative h-2 w-full bg-slate-100 dark:bg-zinc-800/80 rounded-full overflow-hidden">
+                                <div className="absolute left-[20%] top-0 h-full w-px bg-slate-300 dark:bg-zinc-700 z-10" />
+                                <div className="absolute left-[80%] top-0 h-full w-px bg-slate-300 dark:bg-zinc-700 z-10" />
+                                <div
+                                    className={clsx("h-full rounded-full transition-all duration-1000", getRSIColor(selectedItem?.rsi_14 || 50))}
+                                    style={{ width: `${selectedItem?.rsi_14 || 0}%` }}
+                                />
+                            </div>
+                            <div className="flex justify-between text-[8px] font-bold text-slate-400 uppercase tracking-widest px-1">
+                                <span>Oversold</span>
+                                <span className="text-slate-300 dark:text-zinc-600">Neutral Zone</span>
+                                <span>Overbought</span>
+                            </div>
+                        </div>
+
+                        {/* MACD Card */}
+                        <div className="bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border border-slate-100 dark:border-zinc-800/50 p-6 rounded-3xl space-y-6 hover:border-indigo-500/30 transition-colors">
+                            <div className="flex justify-between items-start">
+                                <span className="text-[10px] font-bold uppercase text-slate-400 tracking-[0.2em] flex items-center gap-2">
+                                    <Activity className="h-4 w-4 text-indigo-500" /> MACD Momentum
+                                </span>
+                                <div className="flex flex-col items-end gap-1">
+                                    <span className={clsx(
+                                        "text-[10px] font-black px-3 py-1 rounded-full uppercase shadow-sm",
+                                        selectedItem?.macd_cross === "GOLDEN" ? "bg-emerald-500 text-white" : "bg-rose-500 text-white"
+                                    )}>
+                                        {selectedItem?.macd_cross === "GOLDEN" ? "Golden Cross" : "Death Cross"}
+                                    </span>
+                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest italic">Signal Persistence</span>
+                                </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-4 gap-2">
                                 {[
-                                    { label: "MA 20 (短)", value: selectedItem?.ma_20 },
-                                    { label: "MA 50 (中)", value: selectedItem?.ma_50 },
-                                    { label: "MA 200 (长)", value: selectedItem?.ma_200 },
+                                    { label: "DIF", val: selectedItem?.macd_val },
+                                    { label: "DEA", val: selectedItem?.macd_signal },
+                                    { label: "HIST", val: selectedItem?.macd_hist, special: true },
+                                    { label: "SLOPE", val: selectedItem?.macd_hist_slope, special: true }
                                 ].map((m) => (
-                                    <div key={m.label} className="flex flex-col gap-1">
-                                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tight">{m.label}</span>
-                                        <span className="text-md font-black tabular-nums text-slate-800 dark:text-slate-100">
-                                            {m.value?.toFixed(2) || "--"}
-                                        </span>
+                                    <div key={m.label} className="bg-slate-50/50 dark:bg-zinc-800/30 p-2.5 rounded-2xl border border-slate-100/50 dark:border-zinc-800/50">
+                                        <div className="text-[8px] font-bold text-slate-400 uppercase mb-1">{m.label}</div>
+                                        <div className={clsx(
+                                            "text-xs font-black tabular-nums",
+                                            m.special ? ((m.val || 0) >= 0 ? "text-emerald-500" : "text-rose-500") : "text-slate-700 dark:text-zinc-200"
+                                        )}>
+                                            {m.val?.toFixed(2) || "0.00"}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     </div>
 
-                    {/* Part 2: Middle Strip (Key Metric Cards) */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 pt-2">
-                         {/* Card 1: Volume Ratio */}
-                         <div className="bg-slate-50/50 dark:bg-slate-900/30 p-4 rounded-xl border border-slate-100 dark:border-slate-800/50 flex flex-col items-center justify-center gap-1 shadow-sm">
-                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">量比 (Volume Ratio)</span>
-                             <div className="flex items-baseline gap-1.5">
-                                 <span className="text-xl font-black text-slate-900 dark:text-slate-100 tabular-nums">
-                                     X{selectedItem?.volume_ratio?.toFixed(2) || "--"}
-                                 </span>
-                                 <span className={clsx(
-                                     "text-[8px] font-black px-1.5 py-0.5 rounded-md uppercase",
-                                     (selectedItem?.volume_ratio || 0) > 1.2 ? "bg-emerald-50 text-emerald-600" : "bg-slate-50 text-slate-400"
-                                 )}>
-                                     {(selectedItem?.volume_ratio || 0) > 1.2 ? "放量" : "缩量"}
-                                 </span>
-                             </div>
-                         </div>
-
-                         {/* Card 2: ATR/Volatility (Moved to background or secondary if desired, but kept for balance) */}
-                         <div className="bg-slate-50/50 dark:bg-slate-900/30 p-4 rounded-xl border border-slate-100 dark:border-slate-800/50 flex flex-col items-center justify-center gap-1 shadow-sm">
-                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">波动波幅 (ATR 14)</span>
-                             <div className="flex items-baseline gap-1">
-                                 <span className="text-xl font-black text-slate-900 dark:text-slate-100 tabular-nums">
-                                     ${selectedItem?.atr_14?.toFixed(2) || "--"}
-                                 </span>
-                                 <span className="text-[8px] font-bold text-slate-300 uppercase italic opacity-80">Volatility</span>
-                             </div>
-                         </div>
-
-                         {/* Card 3: Merged Support/Resistance (Pivot Levels) */}
-                         <div className="bg-slate-50/50 dark:bg-slate-900/30 p-4 rounded-xl border border-slate-100 dark:border-slate-800/50 flex flex-col items-center justify-center gap-2 shadow-sm">
-                             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">枢轴支撑/阻力 (Pivots)</span>
-                             <div className="flex items-center gap-6">
-                                 <div className="flex flex-col items-center">
-                                     <span className="text-[8px] font-black text-rose-500 uppercase tracking-tighter">阻力 R1</span>
-                                     <span className="text-md font-black text-slate-800 dark:text-white tabular-nums">${selectedItem?.resistance_1?.toFixed(2) || "--"}</span>
-                                 </div>
-                                 <div className="h-6 w-px bg-slate-200 dark:bg-slate-700" />
-                                 <div className="flex flex-col items-center">
-                                     <span className="text-[8px] font-black text-emerald-500 uppercase tracking-tighter">支撑 S1</span>
-                                     <span className="text-md font-black text-slate-800 dark:text-white tabular-nums">${selectedItem?.support_1?.toFixed(2) || "--"}</span>
-                                 </div>
-                             </div>
-                         </div>
-                    </div>
-
-                    {/* Part 3: AI Analysis Insight (Full Width at Bottom) */}
-                    <div className="bg-slate-50/30 dark:bg-slate-900/20 p-8 rounded-3xl border-2 border-slate-100 dark:border-slate-800/50 space-y-6">
-                        <div className="flex items-center gap-3 text-[10px] font-black uppercase text-blue-600 dark:text-blue-400 tracking-[0.3em] opacity-80">
-                            <Zap className="h-4 w-4 fill-current animate-pulse" /> AI Technical Analysis Conclusion
+                    {/* Part 3: Support/Execution Strip (3 Columns) */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {/* Bollinger Bands */}
+                        <div className="bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border border-slate-100 dark:border-zinc-800/50 p-5 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 transition-all">
+                            <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                <Zap className="h-3.5 w-3.5 text-rose-400" /> Bollinger Bands
+                            </div>
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-baseline">
+                                    <span className="text-[10px] font-medium text-slate-400">UP Band</span>
+                                    <span className="text-sm font-black dark:text-zinc-200">${selectedItem?.bb_upper?.toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between items-baseline border-y border-slate-100 dark:border-zinc-800/50 py-2">
+                                    <span className="text-[10px] font-medium text-slate-400">Middle</span>
+                                    <span className="text-sm font-black text-blue-500">${selectedItem?.bb_middle?.toFixed(2)}</span>
+                                </div>
+                                <div className="flex justify-between items-baseline">
+                                    <span className="text-[10px] font-medium text-slate-400">LOW Band</span>
+                                    <span className="text-sm font-black dark:text-zinc-200">${selectedItem?.bb_lower?.toFixed(2)}</span>
+                                </div>
+                            </div>
                         </div>
-                        {aiData ? (
-                            <div className="prose dark:prose-invert max-w-none text-sm font-semibold leading-relaxed text-slate-600 dark:text-slate-400">
-                                <ReactMarkdown>{aiData.technical_analysis}</ReactMarkdown>
+
+                        {/* Moving Averages */}
+                        <div className="bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border border-slate-100 dark:border-zinc-800/50 p-5 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 transition-all">
+                            <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                <Activity className="h-3.5 w-3.5 text-emerald-400" /> Moving Averages
                             </div>
-                        ) : (
-                            <div className="flex flex-col items-center justify-center py-12 text-slate-300 opacity-50">
-                                <BarChart3 className="h-8 w-8 mb-3 opacity-20" />
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em]">Executing comprehensive technical diagnostics...</p>
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-4">
+                                    <div className="h-8 w-1 bg-blue-500 rounded-full" />
+                                    <div className="flex-1">
+                                        <div className="text-[8px] font-bold text-slate-400 uppercase">MA 20 (Short)</div>
+                                        <div className="text-sm font-black dark:text-zinc-100">${selectedItem?.ma_20?.toFixed(2)}</div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-4 opacity-70">
+                                    <div className="h-8 w-1 bg-amber-500 rounded-full" />
+                                    <div className="flex-1">
+                                        <div className="text-[8px] font-bold text-slate-400 uppercase">MA 50 (Med)</div>
+                                        <div className="text-sm font-black dark:text-zinc-100">${selectedItem?.ma_50?.toFixed(2)}</div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-4 opacity-40">
+                                    <div className="h-8 w-1 bg-slate-500 rounded-full" />
+                                    <div className="flex-1">
+                                        <div className="text-[8px] font-bold text-slate-400 uppercase">MA 200 (Long)</div>
+                                        <div className="text-sm font-black dark:text-zinc-100">${selectedItem?.ma_200?.toFixed(2)}</div>
+                                    </div>
+                                </div>
                             </div>
-                        )}
+                        </div>
+
+                        {/* Pivot Points & Volatility */}
+                        <div className="bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border border-slate-100 dark:border-zinc-800/50 p-5 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 transition-all">
+                             <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                <Target className="h-3.5 w-3.5 text-blue-400" /> Key Execution Levels
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-rose-500/5 p-3 rounded-2xl border border-rose-500/10">
+                                    <div className="text-[8px] font-bold text-rose-400 uppercase mb-1">Resistance R1</div>
+                                    <div className="text-sm font-black dark:text-rose-100 tabular-nums">${selectedItem?.resistance_1?.toFixed(2)}</div>
+                                </div>
+                                <div className="bg-emerald-500/5 p-3 rounded-2xl border border-emerald-500/10">
+                                    <div className="text-[8px] font-bold text-emerald-400 uppercase mb-1">Support S1</div>
+                                    <div className="text-sm font-black dark:text-emerald-100 tabular-nums">${selectedItem?.support_1?.toFixed(2)}</div>
+                                </div>
+                                <div className="col-span-2 bg-blue-500/5 p-3 rounded-2xl border border-blue-500/10 flex justify-between items-center">
+                                    <div>
+                                        <div className="text-[8px] font-bold text-blue-400 uppercase">Volatility (ATR 14)</div>
+                                        <div className="text-sm font-black dark:text-blue-100 tabular-nums">${selectedItem?.atr_14?.toFixed(2)}</div>
+                                    </div>
+                                    <div className="px-2 py-1 rounded bg-blue-500/20 text-[8px] font-black text-blue-400 uppercase">Moderate</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

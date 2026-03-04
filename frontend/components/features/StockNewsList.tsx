@@ -23,7 +23,7 @@ interface StockNewsListProps {
 export function StockNewsList({ news }: StockNewsListProps) {
     if (!news || news.length === 0) {
         return (
-            <div className="py-12 flex flex-col items-center justify-center text-slate-400 bg-slate-50/50 dark:bg-slate-900/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800">
+            <div className="py-12 flex flex-col items-center justify-center text-slate-400 bg-slate-50/50 dark:bg-zinc-900/50 rounded-2xl border border-dashed border-slate-200 dark:border-zinc-800">
                 <Newspaper className="h-10 w-10 mb-3 opacity-20" />
                 <p className="text-sm font-medium">暂无相关新闻动态</p>
             </div>
@@ -45,7 +45,7 @@ export function StockNewsList({ news }: StockNewsListProps) {
                             "group relative pl-6 border-l-2 transition-all duration-300",
                             isTavily 
                                 ? "border-blue-500 bg-blue-500/5 py-4 -ml-2 pl-[calc(1.5rem-8px)] rounded-r-2xl" 
-                                : "border-slate-100 dark:border-slate-800 hover:border-blue-500"
+                                : "border-slate-100 dark:border-zinc-800 hover:border-blue-500"
                         )}
                     >
                         <div className={clsx(
@@ -72,14 +72,14 @@ export function StockNewsList({ news }: StockNewsListProps) {
                                 href={item.link}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-lg font-black text-slate-800 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors leading-tight flex items-start gap-2"
+                                className="text-lg font-black text-slate-900 dark:text-zinc-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors leading-tight flex items-start gap-2"
                             >
                                 {item.title}
                                 <ExternalLink className="h-4 w-4 mt-1 opacity-0 group-hover:opacity-100 transition-opacity" />
                             </a>
 
                             {item.summary && (
-                                <div className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium line-clamp-3">
+                                <div className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed font-medium line-clamp-3">
                                     <ReactMarkdown>{item.summary}</ReactMarkdown>
                                 </div>
                             )}

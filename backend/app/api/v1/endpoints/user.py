@@ -20,7 +20,8 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
         "has_siliconflow_key": bool(current_user.api_key_siliconflow),
         "preferred_data_source": current_user.preferred_data_source or "ALPHA_VANTAGE",
         "preferred_ai_model": current_user.preferred_ai_model or "gemini-1.5-flash",
-        "timezone": current_user.timezone or "Asia/Shanghai"
+        "timezone": current_user.timezone or "Asia/Shanghai",
+        "theme": current_user.theme or "light"
     }
 
 @router.put("/password")
@@ -62,6 +63,9 @@ async def update_user_settings(
     
     if settings.timezone is not None:
         current_user.timezone = settings.timezone
+
+    if settings.theme is not None:
+        current_user.theme = settings.theme
         
     await db.commit()
     await db.refresh(current_user)
@@ -75,5 +79,6 @@ async def update_user_settings(
         "has_siliconflow_key": bool(current_user.api_key_siliconflow),
         "preferred_data_source": current_user.preferred_data_source or "ALPHA_VANTAGE",
         "preferred_ai_model": current_user.preferred_ai_model or "gemini-1.5-flash",
-        "timezone": current_user.timezone or "Asia/Shanghai"
+        "timezone": current_user.timezone or "Asia/Shanghai",
+        "theme": current_user.theme or "light"
     }

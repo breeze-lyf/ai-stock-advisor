@@ -37,6 +37,7 @@ export interface UserProfile {
     preferred_data_source: string;
     preferred_ai_model: string;
     timezone: string;
+    theme: string;
 }
 
 export interface UserSettingsUpdate {
@@ -46,6 +47,7 @@ export interface UserSettingsUpdate {
     preferred_data_source?: string;
     preferred_ai_model?: string;
     timezone?: string;
+    theme?: string;
 }
 export interface SectorExposure {
     sector: string;

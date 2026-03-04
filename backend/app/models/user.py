@@ -56,6 +56,7 @@ class User(Base):
     preferred_data_source = Column(String, default=MarketDataSource.ALPHA_VANTAGE.value) 
     preferred_ai_model = Column(String, default=AIModel.QWEN_3_VL_THINKING.value)        
     timezone = Column(String, default="Asia/Shanghai")
+    theme = Column(String, default="light")
     
     created_at = Column(DateTime, default=datetime.utcnow) # 记录生日(注册时间)
     last_login = Column(DateTime, nullable=True)           # 活跃度追踪

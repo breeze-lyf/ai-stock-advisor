@@ -743,6 +743,65 @@ class AkShareProvider(MarketDataProvider):
             logger.error(f"AkShare get_historical_data error for {ticker}: {e}")
             return None
 
+    async def get_valuation_percentiles(self, ticker: str) -> Dict[str, Any]:
+        """获取 A 股估值百分位 (PE/PB Percentiles)"""
+        if self._is_us_stock(ticker):
+            return {} # 美股暂不支持百分位抓取
+            
+        symbol = self._normalize_symbol(ticker)
+        try:
+            # 使用乐咕乐股数据源
+            def fetch_valuation():
+                _tls.bypass_proxy = True
+                try:
+                    df = ak.stock_a_lg_indicator(symbol=symbol)
+                    if df is not None and not df.empty:
+                        latest = df.iloc[-1]
+                        # 估算百分位 (简单实现：在最近 500 个交易日中的位置)
+                        # 注意：AkShare 有些版本直接提供 pe_low, pe_high
+                        pe_val = float(latest.get('pe', 0))
+                        pb_val = float(latest.get('pb', 0))
+                        
+                        # 计算最近一年的百分位
+                        recent_df = df.tail(250)
+                        pe_percentile = (recent_df['pe'] < pe_val).mean() * 100
+                        pb_percentile = (recent_df['pb'] < pb_val).mean() * 100
+                        
+                        return {
+                            "pe_percentile": round(pe_percentile, 2),
+                            "pb_percentile": round(pb_percentile, 2)
+                        }
+                    return {}
+                except: return {}
+            
+            return await asyncio.get_event_loop().run_in_executor(None, fetch_valuation)
+        except: return {}
+
+    async def get_capital_flow(self, ticker: str) -> Dict[str, Any]:
+        """获取个股资金流向 (主力净流入)"""
+        if self._is_us_stock(ticker):
+            return {}
+            
+        symbol = self._normalize_symbol(ticker)
+        try:
+            def fetch_flow():
+                _tls.bypass_proxy = True
+                try:
+                    # 获取个股资金流向排名 (东财源)
+                    df = ak.stock_individual_fund_flow_rank(indicator="今日")
+                    if df is not None and not df.empty:
+                        row = df[df['代码'] == symbol]
+                        if not row.empty:
+                            target = row.iloc[0]
+                            return {
+                                "net_inflow": float(target.get('今日主力净流入-净额', 0))
+                            }
+                    return {}
+                except: return {}
+                
+            return await asyncio.get_event_loop().run_in_executor(None, fetch_flow)
+        except: return {}
+
     async def get_news(self, ticker: str) -> List[ProviderNews]:
         if self._is_us_stock(ticker): return [] # 美股新闻建议由 TavilyProvider 处理 (RAG 更强)
         try:

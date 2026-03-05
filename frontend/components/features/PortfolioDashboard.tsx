@@ -39,29 +39,41 @@ interface PortfolioDashboardProps {
     onSelectTicker: (ticker: string) => void;
 }
 
+// Module-level cache to persist data across tab switches (preventing full screen loading)
+let globalSummaryCache: PortfolioSummary | null = null;
+let globalAnalysisCache: PortfolioAnalysisResponse | null = null;
+
 export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) {
-    const [summary, setSummary] = useState<PortfolioSummary | null>(null);
-    const [analysis, setAnalysis] = useState<PortfolioAnalysisResponse | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [summary, setSummary] = useState<PortfolioSummary | null>(globalSummaryCache);
+    const [analysis, setAnalysis] = useState<PortfolioAnalysisResponse | null>(globalAnalysisCache);
+    const [loading, setLoading] = useState(!globalSummaryCache); // Only show spinner if no cache
     const [analyzing, setAnalyzing] = useState(false);
-    const [loadingAnalysis, setLoadingAnalysis] = useState(false);
+    const [loadingAnalysis, setLoadingAnalysis] = useState(!globalAnalysisCache && !!globalSummaryCache);
     const [showReport, setShowReport] = useState(false);
 
     const fetchData = async () => {
-        // Step 1: Fetch and display summary immediately
-        setLoading(true);
+        // Step 1: Fetch and display summary
+        if (!globalSummaryCache) {
+            setLoading(true);
+        }
+        
         try {
             const summaryData = await getPortfolioSummary();
             setSummary(summaryData);
-            setLoading(false); // Show content as soon as summary is ready
+            globalSummaryCache = summaryData; // Update cache
+            setLoading(false); 
             
             // Step 2: Fetch latest analysis in background
-            setLoadingAnalysis(true);
+            if (!globalAnalysisCache) {
+                setLoadingAnalysis(true);
+            }
+            
             try {
                 const api = await import("@/lib/api");
                 const latestAnalysis = await api.getLatestPortfolioAnalysis();
                 if (latestAnalysis) {
                     setAnalysis(latestAnalysis);
+                    globalAnalysisCache = latestAnalysis; // Update cache
                 }
             } catch (err) {
                 console.error("Analysis background fetch failed:", err);
@@ -171,65 +183,99 @@ export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) 
                                 <thead>
                                     <tr className="bg-slate-50/50 dark:bg-slate-800/20 text-[10px] font-bold text-slate-400 uppercase tracking-tight">
                                         <th className="px-5 py-2.5">代码/名称</th>
-                                        <th className="px-3 py-2.5 text-right">持有数量</th>
-                                        <th className="px-3 py-2.5 text-right">平均成本</th>
-                                        <th className="px-3 py-2.5 text-right">当前价格</th>
-                                        <th className="px-3 py-2.5 text-right">总价值</th>
+                                        <th className="px-3 py-2.5 text-right">数量</th>
+                                        <th className="px-3 py-2.5 text-right">成本</th>
+                                        <th className="px-3 py-2.5 text-right">市价</th>
+                                        <th className="px-3 py-2.5 text-right">市值</th>
+                                        <th className="px-3 py-2.5 text-right">占比</th>
                                         <th className="px-3 py-2.5 text-right">盈亏</th>
-                                        <th className="px-3 py-2.5 text-right">RRR</th>
-                                        <th className="px-5 py-2.5"></th>
+                                        <th className="px-3 py-2.5 text-right">估值水位</th>
+                                        <th className="px-3 py-2.5 text-right">资金流向</th>
+                                        <th className="px-3 py-2.5 text-right">盈亏比</th>
+                                        <th className="px-5 py-2.5 text-right"></th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
-                                    {summary?.holdings.map((item) => (
-                                        <tr 
-                                            key={item.ticker} 
-                                            className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors group cursor-pointer"
-                                            onClick={() => onSelectTicker(item.ticker)}
-                                        >
-                                            <td className="px-5 py-3">
-                                                <div className="flex flex-col">
-                                                    <span className="font-bold text-slate-900 dark:text-white text-sm">{item.ticker}</span>
-                                                    <span className="text-[10px] text-slate-400 truncate max-w-[100px]">{item.name}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-3 py-3 text-right font-bold text-xs tabular-nums text-slate-600 dark:text-slate-400">{item.quantity}</td>
-                                            <td className="px-3 py-3 text-right font-bold text-xs tabular-nums text-slate-600 dark:text-slate-400">${item.avg_cost.toFixed(2)}</td>
-                                            <td className="px-3 py-3 text-right font-bold text-xs tabular-nums text-slate-900 dark:text-white">${item.current_price.toFixed(2)}</td>
-                                            <td className="px-3 py-3 text-right">
-                                                <span className="font-bold text-xs tabular-nums text-slate-900 dark:text-white">${item.market_value.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
-                                            </td>
-                                            <td className="px-3 py-3 text-right">
-                                                <div className="flex flex-col items-end">
+                                    {summary?.holdings.map((item) => {
+                                        const weight = (item.market_value / (summary?.total_market_value || 1)) * 100;
+                                        return (
+                                            <tr 
+                                                key={item.ticker} 
+                                                className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors group cursor-pointer"
+                                                onClick={() => onSelectTicker(item.ticker)}
+                                            >
+                                                <td className="px-5 py-3">
+                                                    <div className="flex flex-col">
+                                                        <span className="font-bold text-slate-900 dark:text-white text-sm">{item.ticker}</span>
+                                                        <span className="text-[10px] text-slate-400 truncate max-w-[100px]">{item.name}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-3 py-3 text-right font-medium text-xs tabular-nums text-slate-600 dark:text-slate-400">{item.quantity}</td>
+                                                <td className="px-3 py-3 text-right font-medium text-xs tabular-nums text-slate-600 dark:text-slate-400">${item.avg_cost.toFixed(2)}</td>
+                                                <td className="px-3 py-3 text-right font-medium text-xs tabular-nums text-slate-600 dark:text-slate-400">${item.current_price.toFixed(2)}</td>
+                                                <td className="px-3 py-3 text-right">
+                                                    <span className="font-bold text-xs tabular-nums text-slate-900 dark:text-white">${item.market_value.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                                </td>
+                                                <td className="px-3 py-3 text-right">
+                                                    <span className="font-bold text-xs tabular-nums text-blue-600 dark:text-blue-400">{weight.toFixed(1)}%</span>
+                                                </td>
+                                                <td className="px-3 py-3 text-right">
+                                                    <div className="flex flex-col items-end">
+                                                        <span className={clsx(
+                                                            "font-bold text-xs tabular-nums",
+                                                            item.unrealized_pl >= 0 ? "text-emerald-500" : "text-rose-500"
+                                                        )}>
+                                                            {item.unrealized_pl >= 0 ? "+" : ""}{item.unrealized_pl.toFixed(2)}
+                                                        </span>
+                                                        <span className={clsx(
+                                                            "text-[10px] font-bold",
+                                                            item.pl_percent >= 0 ? "text-emerald-500/70" : "text-rose-500/70"
+                                                        )}>
+                                                            {item.pl_percent.toFixed(2)}%
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-3 py-3 text-right">
+                                                    <div className="flex flex-col items-end">
+                                                        <span className={clsx(
+                                                            "text-[10px] font-bold tabular-nums",
+                                                            (item.pe_percentile || 0) > 80 ? "text-rose-500" : 
+                                                            (item.pe_percentile || 0) < 20 ? "text-emerald-500" :
+                                                            "text-slate-500"
+                                                        )}>
+                                                            PE {item.pe_percentile ? `${item.pe_percentile.toFixed(1)}%` : "--"}
+                                                        </span>
+                                                        <span className="text-[8px] text-slate-400 font-medium">
+                                                            PB {item.pb_percentile ? `${item.pb_percentile.toFixed(1)}%` : "--"}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-3 py-3 text-right">
                                                     <span className={clsx(
-                                                        "font-bold text-xs tabular-nums",
-                                                        item.unrealized_pl >= 0 ? "text-emerald-500" : "text-rose-500"
+                                                        "text-[10px] font-bold tabular-nums",
+                                                        (item.net_inflow || 0) > 0 ? "text-emerald-500" : 
+                                                        (item.net_inflow || 0) < 0 ? "text-rose-500" :
+                                                        "text-slate-500"
                                                     )}>
-                                                        {item.unrealized_pl >= 0 ? "+" : ""}{item.unrealized_pl.toFixed(2)}
+                                                        {item.net_inflow ? `${(item.net_inflow / 10000).toFixed(1)}万` : "--"}
                                                     </span>
+                                                </td>
+                                                <td className="px-3 py-3 text-right">
                                                     <span className={clsx(
-                                                        "text-[10px] font-bold",
-                                                        item.pl_percent >= 0 ? "text-emerald-500/70" : "text-rose-500/70"
+                                                        "text-[10px] font-bold tabular-nums",
+                                                        (item.risk_reward_ratio || 0) >= 2.0 ? "text-emerald-500" : 
+                                                        (item.risk_reward_ratio || 0) >= 1.5 ? "text-blue-500" :
+                                                        "text-rose-500"
                                                     )}>
-                                                        {item.pl_percent.toFixed(2)}%
+                                                        {item.risk_reward_ratio ? item.risk_reward_ratio.toFixed(2) : "--"}
                                                     </span>
-                                                </div>
-                                            </td>
-                                            <td className="px-3 py-3 text-right">
-                                                <span className={clsx(
-                                                    "text-[10px] font-bold px-1.5 py-0.5 rounded border",
-                                                    (item.risk_reward_ratio || 0) > 2 ? "bg-emerald-50 text-emerald-600 border-emerald-200" : 
-                                                    (item.risk_reward_ratio || 0) > 1 ? "bg-blue-50 text-blue-600 border-blue-200" :
-                                                    "bg-slate-50 text-slate-500 border-slate-200"
-                                                )}>
-                                                    {item.risk_reward_ratio ? item.risk_reward_ratio.toFixed(2) : "--"}
-                                                </span>
-                                            </td>
-                                            <td className="px-5 py-3 text-right opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <ChevronRight className="h-3 w-3 text-slate-400" />
-                                            </td>
-                                        </tr>
-                                    ))}
+                                                </td>
+                                                <td className="px-5 py-3 text-right opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <ChevronRight className="h-3 w-3 text-slate-400" />
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>

@@ -248,6 +248,10 @@ async def get_portfolio(
             beta=s.beta if s else None,
             fifty_two_week_high=s.fifty_two_week_high if s else None,
             fifty_two_week_low=s.fifty_two_week_low if s else None,
+            # 专业量化维度
+            pe_percentile=m.pe_percentile if m else None,
+            pb_percentile=m.pb_percentile if m else None,
+            net_inflow=m.net_inflow if m else None,
             # 技术指标维度映射 (Technical indicators)
             rsi_14=m.rsi_14 if m else None,
             ma_20=m.ma_20 if m else None,

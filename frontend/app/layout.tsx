@@ -20,6 +20,7 @@ export const metadata: Metadata = {
 import { AuthProvider } from "@/context/AuthContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { ComplianceBanner, FooterCompliance } from "@/components/features/ComplianceBanner";
 
 export default function RootLayout({
   children,
@@ -27,9 +28,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="zh-CN" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
         <ThemeProvider
             attribute="class"
@@ -39,7 +40,11 @@ export default function RootLayout({
         >
           <AuthProvider>
             <TooltipProvider>
-              {children}
+              <ComplianceBanner />
+              <main className="flex-1 flex flex-col">
+                {children}
+              </main>
+              <FooterCompliance />
             </TooltipProvider>
           </AuthProvider>
         </ThemeProvider>

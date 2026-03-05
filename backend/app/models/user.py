@@ -57,6 +57,13 @@ class User(Base):
     preferred_ai_model = Column(String, default=AIModel.QWEN_3_VL_THINKING.value)        
     timezone = Column(String, default="Asia/Shanghai")
     theme = Column(String, default="light")
+    feishu_webhook_url = Column(String, nullable=True) 
+    
+    # --- 通知精细化控制开关 (Notification Switches) ---
+    enable_price_alerts = Column(Boolean, default=True)   # 价格/风险预警 (Price/Risk Alerts)
+    enable_hourly_summary = Column(Boolean, default=True) # 持仓整点摘要 (Hourly AI Summary)
+    enable_daily_report = Column(Boolean, default=True)   # 每日持仓报告 (Daily Deep Report)
+    enable_macro_alerts = Column(Boolean, default=True)   # 全球宏观变动 (Macro Radar Alerts)
     
     created_at = Column(DateTime, default=datetime.utcnow) # 记录生日(注册时间)
     last_login = Column(DateTime, nullable=True)           # 活跃度追踪

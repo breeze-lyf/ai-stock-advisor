@@ -30,6 +30,11 @@ class PortfolioItem(BaseModel):
     fifty_two_week_high: Optional[float] = None
     fifty_two_week_low: Optional[float] = None
     
+    # Professional Quant Extensions
+    pe_percentile: Optional[float] = None
+    pb_percentile: Optional[float] = None
+    net_inflow: Optional[float] = None
+    
     # Technical indicator fields
     rsi_14: Optional[float] = None
     ma_20: Optional[float] = None

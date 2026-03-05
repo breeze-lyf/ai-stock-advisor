@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, DateTime, JSON, Text
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from app.core.database import Base
 
 class NotificationLog(Base):
@@ -11,6 +11,7 @@ class NotificationLog(Base):
     __tablename__ = "notification_logs"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String, index=True, nullable=True) # 归属用户 ID
     ticker = Column(String, index=True, nullable=True) # 关联的股票代码 (用于去重)
     type = Column(String, index=True) # 提醒类型: MACRO_ALERT, PRICE_ALERT, DAILY_REPORT, INDICATOR_ALERT
     title = Column(String, nullable=False)
@@ -18,4 +19,4 @@ class NotificationLog(Base):
     card_payload = Column(JSON, nullable=True) # 完整的飞书卡片 JSON 载体
     status = Column(String, default="SUCCESS") # 发送状态
     
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), index=True)

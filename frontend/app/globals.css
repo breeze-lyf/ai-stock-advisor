@@ -46,18 +46,7 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 
-  /* Remap slate to neutral zinc to avoid blue tint */
-  --color-slate-50: var(--color-zinc-50);
-  --color-slate-100: var(--color-zinc-100);
-  --color-slate-200: var(--color-zinc-200);
-  --color-slate-300: var(--color-zinc-300);
-  --color-slate-400: var(--color-zinc-400);
-  --color-slate-500: var(--color-zinc-500);
-  --color-slate-600: var(--color-zinc-600);
-  --color-slate-700: var(--color-zinc-700);
-  --color-slate-800: var(--color-zinc-800);
-  --color-slate-900: var(--color-zinc-900);
-  --color-slate-950: var(--color-zinc-950);
+  /* Use natural Slate colors for professional financial feel */
 }
 
 :root {
@@ -96,37 +85,37 @@
 }
 
 .dark {
-  --background: oklch(0.2 0 0); /* 极致柔化：深灰中性底，消除视觉断层 */
-  --foreground: oklch(0.72 0 0); /* 重点：大幅压低正文明度，实现极低对比度的高级感 */
-  --card: oklch(0.24 0 0); /* 核心：卡片明度略高于底色，形成温润的浮现 */
-  --card-foreground: oklch(0.72 0 0);
-  --popover: oklch(0.24 0 0);
-  --popover-foreground: oklch(0.72 0 0);
-  --primary: oklch(0.8 0 0);
-  --primary-foreground: oklch(0.2 0 0);
-  --secondary: oklch(0.3 0 0);
-  --secondary-foreground: oklch(0.72 0 0);
-  --muted: oklch(0.3 0 0);
-  --muted-foreground: oklch(0.5 0 0);
-  --accent: oklch(0.32 0 0);
-  --accent-foreground: oklch(0.8 0 0);
-  --destructive: oklch(0.5 0.1 25); /* 降低饱和度与亮度 */
-  --border: oklch(0.32 0 0); /* 增强边框作为唯一的视觉分割 */
-  --input: oklch(0.32 0 0);
-  --ring: oklch(0.4 0 0);
+  --background: oklch(0.18 0.015 250); /* 深海板岩：微弱蓝色相消除纯黑死板感 */
+  --foreground: oklch(0.85 0.01 250);  /* 雾银色：降低正文对比度，长效用眼不疲劳 */
+  --card: oklch(0.22 0.015 250);       /* 卡片浮现层：略高于背景，形成立体感 */
+  --card-foreground: oklch(0.85 0.01 250);
+  --popover: oklch(0.22 0.015 250);
+  --popover-foreground: oklch(0.85 0.01 250);
+  --primary: oklch(0.5 0.08 250);      /* 主色调：克制的情绪蓝 */
+  --primary-foreground: oklch(0.98 0.01 250);
+  --secondary: oklch(0.28 0.02 250);
+  --secondary-foreground: oklch(0.8 0.01 250);
+  --muted: oklch(0.28 0.02 250);
+  --muted-foreground: oklch(0.55 0.01 250);
+  --accent: oklch(0.32 0.03 250);      /* 悬停强调态 */
+  --accent-foreground: oklch(0.9 0.01 250);
+  --destructive: oklch(0.5 0.1 25); 
+  --border: oklch(0.28 0.02 250);      /* 物理分割：利用微弱色偏界定区域 */
+  --input: oklch(0.28 0.02 250);
+  --ring: oklch(0.4 0.05 250);
   --chart-1: oklch(0.6 0.1 250); 
   --chart-2: oklch(0.6 0.1 160); 
   --chart-3: oklch(0.65 0.1 70);
   --chart-4: oklch(0.55 0.1 300);
   --chart-5: oklch(0.55 0.1 20);
-  --sidebar: oklch(0.18 0 0); /* 侧边栏保持深邃，对比明确 */
-  --sidebar-foreground: oklch(0.7 0 0);
-  --sidebar-primary: oklch(0.5 0.1 250);
-  --sidebar-primary-foreground: oklch(0.18 0 0);
-  --sidebar-accent: oklch(0.25 0 0);
-  --sidebar-accent-foreground: oklch(0.75 0 0);
-  --sidebar-border: oklch(0.28 0 0);
-  --sidebar-ring: oklch(0.35 0 0);
+  --sidebar: oklch(0.16 0.02 250);     /* 侧边栏：极致深邃 */
+  --sidebar-foreground: oklch(0.75 0.01 250);
+  --sidebar-primary: oklch(0.5 0.08 250);
+  --sidebar-primary-foreground: oklch(0.98 0.01 250);
+  --sidebar-accent: oklch(0.24 0.02 250);
+  --sidebar-accent-foreground: oklch(0.85 0.01 250);
+  --sidebar-border: oklch(0.26 0.02 250);
+  --sidebar-ring: oklch(0.35 0.05 250);
 }
 
 @layer base {

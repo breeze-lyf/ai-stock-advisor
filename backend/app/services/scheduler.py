@@ -128,46 +128,76 @@ async def refresh_all_stocks():
 
 async def check_and_notfy_alerts(ticker: str, current_data: MarketDataCache, db: AsyncSession):
     """
-    检查价格与指标是否触发警报
+    检查价格与指标是否触发警报 (多用户版本)
     """
     try:
-        # 0. 获取股票名称 (确保通知中显示名称而非仅代码)
         from app.models.stock import Stock
+        from app.models.portfolio import Portfolio
+        from app.models.user import User
+
+        # 1. 查找所有持有该股票的用户
+        stmt = select(User).join(Portfolio, User.id == Portfolio.user_id).where(Portfolio.ticker == ticker)
+        res = await db.execute(stmt)
+        users = res.scalars().all()
+
+        if not users:
+            return
+
+        # 获取股票名称
         stock_res = await db.execute(select(Stock.name).where(Stock.ticker == ticker))
         stock_name = stock_res.scalar_one_or_none() or ticker
 
-        # 1. 获取该用户对该股票的最新 AI 分析建议 (狙击位)
-        stmt = select(AnalysisReport).where(AnalysisReport.ticker == ticker).order_by(AnalysisReport.created_at.desc()).limit(1)
-        res = await db.execute(stmt)
-        report = res.scalar_one_or_none()
-        
-        curr_price = current_data.current_price
-        
-        if report and curr_price:
-            # 价格触达逻辑：如果价格涨过止盈位，或跌破止损位
-            if report.target_price and curr_price >= report.target_price:
-                await NotificationService.send_price_alert(ticker, stock_name, curr_price, report.target_price, is_stop_loss=False)
-            elif report.stop_loss_price and curr_price <= report.stop_loss_price:
-                await NotificationService.send_price_alert(ticker, stock_name, curr_price, report.stop_loss_price, is_stop_loss=True)
-        
-        # 2. 指标异动监控 (RSI 极端值)
-        if current_data.rsi_14:
-            if current_data.rsi_14 > 75:
-                # 超买预警
-                await NotificationService.send_feishu_card(
-                    title=f"⚠️ 指标超买警报: {stock_name}",
-                    content=f"**{stock_name} ({ticker})** RSI(14) 已飙升至 `{current_data.rsi_14:.2f}`，处于严重超买区间，风险正在积聚。",
-                    color="red"
-                )
-            elif current_data.rsi_14 < 25:
-                # 超卖预警
-                await NotificationService.send_feishu_card(
-                    title=f"🟢 指标超卖警报: {stock_name}",
-                    content=f"**{stock_name} ({ticker})** RSI(14) 已跌至 `{current_data.rsi_14:.2f}`，处于严重超卖状态，可能存在技术性反弹机会。",
-                    color="green"
-                )
+        for user in users:
+            # 熔断：如果没有配置飞书 Webhook，跳过该用户的分析与推送
+            if not user.feishu_webhook_url or not user.enable_price_alerts:
+                continue
+
+            # 2. 获取该用户对该股票的最新 AI 分析建议 (狙击位)
+            report_stmt = select(AnalysisReport).where(
+                AnalysisReport.ticker == ticker,
+                AnalysisReport.user_id == user.id
+            ).order_by(AnalysisReport.created_at.desc()).limit(1)
+            
+            report_res = await db.execute(report_stmt)
+            report = report_res.scalar_one_or_none()
+            
+            curr_price = current_data.current_price
+            
+            if report and curr_price:
+                # 价格触达逻辑
+                if report.target_price and curr_price >= report.target_price:
+                    await NotificationService.send_price_alert(
+                        ticker, stock_name, curr_price, report.target_price, 
+                        is_stop_loss=False, user_id=user.id, webhook_url=user.feishu_webhook_url
+                    )
+                elif report.stop_loss_price and curr_price <= report.stop_loss_price:
+                    await NotificationService.send_price_alert(
+                        ticker, stock_name, curr_price, report.stop_loss_price, 
+                        is_stop_loss=True, user_id=user.id, webhook_url=user.feishu_webhook_url
+                    )
+            
+            # 3. 指标异动监控 (RSI 极端值)
+            if current_data.rsi_14:
+                if current_data.rsi_14 > 75:
+                    await NotificationService.send_feishu_card(
+                        title=f"⚠️ 指标超买警报: {stock_name}",
+                        content=f"**{stock_name} ({ticker})** RSI(14) 已飙升至 `{current_data.rsi_14:.2f}`，处于严重超买区间。",
+                        color="red",
+                        msg_type="INDICATOR_ALERT",
+                        user_id=user.id,
+                        webhook_url=user.feishu_webhook_url
+                    )
+                elif current_data.rsi_14 < 25:
+                    await NotificationService.send_feishu_card(
+                        title=f"🟢 指标超卖警报: {stock_name}",
+                        content=f"**{stock_name} ({ticker})** RSI(14) 已跌至 `{current_data.rsi_14:.2f}`，处于严重超卖状态。",
+                        color="green",
+                        msg_type="INDICATOR_ALERT",
+                        user_id=user.id,
+                        webhook_url=user.feishu_webhook_url
+                    )
     except Exception as e:
-        logger.error(f"Failed to check alerts for {ticker}: {e}")
+        logger.error(f"Failed to check multi-user alerts for {ticker}: {e}")
 
 from app.services.macro_service import MacroService
 
@@ -209,19 +239,28 @@ async def refresh_hourly_summary():
             from app.models.portfolio import Portfolio
             from app.models.user import User
             
-            # 使用 join 查询确保能拿到 email
-            stmt = select(User.id, User.email).join(Portfolio, User.id == Portfolio.user_id).distinct()
+            # 使用 join 查询确保能拿到 email 和 feishu_webhook_url
+            stmt = select(User).join(Portfolio, User.id == Portfolio.user_id).distinct()
             res = await db.execute(stmt)
-            active_users = res.all() # 包含 (id, email) 的元组列表
+            active_users = res.scalars().all()
             
-            for user_id, email in active_users:
-                summary_data = await MacroService.generate_hourly_news_summary(db, user_id)
+            # 1. 先生成本小时全局共性分析报告 (单次 AI 调用，后续用户共享)
+            await MacroService.generate_global_hourly_report(db)
+
+            for user in active_users:
+                # 熔断：如果没有配置飞书 Webhook，跳过该用户的 AI 分析任务
+                if not user.feishu_webhook_url or not user.enable_hourly_summary:
+                    continue
+
+                summary_data = await MacroService.generate_hourly_news_summary(db, user.id)
                 if summary_data.get("summary"):
                     await NotificationService.send_hourly_summary(
                         summary_text=summary_data["summary"],
                         count=summary_data["count"],
                         sentiment=summary_data.get("sentiment", "中性"),
-                        email=email
+                        email=user.email,
+                        user_id=user.id,
+                        webhook_url=user.feishu_webhook_url
                     )
         logger.info(f"[Scheduler] 已完成 {len(active_users)} 位用户的摘要生成与推送。")
     except Exception as e:
@@ -236,19 +275,22 @@ async def send_daily_portfolio_report():
         from app.services.macro_service import MacroService
         
         async with SessionLocal() as db:
-            # 1. 获取所有用户的持仓 (此处简化为获取全部活跃标的)
-            stmt = select(Portfolio)
-            res = await db.execute(stmt)
-            portfolios = res.scalars().all()
+            # 按用户分发持仓报告
+            from app.models.user import User
+            from app.models.portfolio import Portfolio
             
-            if not portfolios:
+            # 获取所有有持仓且有飞书配置且开启了每日报告的用户
+            stmt = select(User).join(Portfolio).where(
+                User.feishu_webhook_url != None,
+                User.enable_daily_report == True
+            ).distinct()
+            res = await db.execute(stmt)
+            users = res.scalars().all()
+            
+            if not users:
                 return
             
-            # 由于当前是单用户演示系统，我们直接统计全局持仓快照进行分析
-            # 实际多用户系统需按 user_id 分组
-            ticker_list = list(set([p.ticker for p in portfolios]))
-            
-            # 获取宏观背景
+            # 获取公共宏观背景
             macro_data = await MacroService.get_latest_radar(db)
             news_data = await MacroService.get_latest_news(db, limit=10)
             
@@ -258,29 +300,34 @@ async def send_daily_portfolio_report():
             if news_data:
                 macro_context += "\n### 实时快讯\n" + "\n".join([f"- {n.title}: {n.content[:100]}..." for n in news_data])
 
-            # 调用 AI 生成全量分析 (此处直接复用 AIService 逻辑)
-            # 注意：此处需要传入结构化的 portfolio 数据，此处略作简化
-            portfolio_info = [{"ticker": p.ticker, "shares": p.shares} for p in portfolios]
+            for user in users:
+                # 获取该用户的具体持仓
+                p_stmt = select(Portfolio).where(Portfolio.user_id == user.id)
+                p_res = await db.execute(p_stmt)
+                user_portfolios = p_res.scalars().all()
+                
+                if not user_portfolios:
+                    continue
+                
+                portfolio_info = [{"ticker": p.ticker, "shares": p.shares} for p in user_portfolios]
+                
+                logger.info(f"[Scheduler] 正在为用户 {user.email} 生成持仓体检报告...")
+                
+                analysis = await AIService.generate_portfolio_analysis(
+                    portfolio_data=portfolio_info,
+                    macro_context=macro_context
+                )
+                
+                await NotificationService.send_feishu_card(
+                    title="📅 每日持仓全景体检报告",
+                    content=f"**当前持仓摘要**:\n{analysis[:800]}...",
+                    color="blue",
+                    msg_type="DAILY_REPORT",
+                    user_id=user.id,
+                    webhook_url=user.feishu_webhook_url
+                )
             
-            logger.info(f"[Scheduler] 正在为 {len(portfolio_info)} 个持仓标的生成每日 AI 诊断周报...")
-            
-            # 模拟生成逻辑 (为了演示，直接调用分析服务的核心 Prompt 逻辑)
-            # 在实际生产中，应从 db 中查询最近一次分析，或重新触发 generate_portfolio_analysis
-            analysis = await AIService.generate_portfolio_analysis(
-                portfolio_data=portfolio_info,
-                macro_context=macro_context
-            )
-            
-            # 发送飞书消息
-            # 提取 AI 返回的摘要信息 (简单从 Markdown 中提取或由 AI 返回结构化数据)
-            # 此处演示通过富文本卡片展示
-            await NotificationService.send_feishu_card(
-                title="📅 每日持仓全景体检报告",
-                content=f"**当前持仓摘要**:\n{analysis[:500]}...",
-                color="blue"
-            )
-            logger.info("[Scheduler] 每日持仓报告推送成功。")
-            
+            logger.info(f"[Scheduler] 已完成 {len(users)} 位用户的持仓报告推送。")
     except Exception as e:
         logger.error(f"[Scheduler] 每天报告生成失败: {e}")
 

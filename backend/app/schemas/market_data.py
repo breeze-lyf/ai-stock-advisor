@@ -30,6 +30,11 @@ class ProviderFundamental(BaseModel):
     beta: Optional[float] = None
     fifty_two_week_high: Optional[float] = None
     fifty_two_week_low: Optional[float] = None
+    
+    # 专业量化维度 (Professional Quant Extensions)
+    pe_percentile: Optional[float] = None
+    pb_percentile: Optional[float] = None
+    net_inflow: Optional[float] = None
 
 class ProviderNews(BaseModel):
     id: Optional[str] = None

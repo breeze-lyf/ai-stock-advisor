@@ -5,6 +5,9 @@ export type PortfolioItem = components["schemas"]["PortfolioItem"] & {
     macd_is_new_cross?: boolean;
     risk_reward_ratio?: number | null;
     market_status?: string | null;
+    pe_percentile?: number | null;
+    pb_percentile?: number | null;
+    net_inflow?: number | null;
 };
 export type PortfolioCreate = components["schemas"]["PortfolioCreate"];
 export interface AnalysisResponse {
@@ -38,6 +41,11 @@ export interface UserProfile {
     preferred_ai_model: string;
     timezone: string;
     theme: string;
+    feishu_webhook_url?: string;
+    enable_price_alerts: boolean;
+    enable_hourly_summary: boolean;
+    enable_daily_report: boolean;
+    enable_macro_alerts: boolean;
 }
 
 export interface UserSettingsUpdate {
@@ -48,6 +56,11 @@ export interface UserSettingsUpdate {
     preferred_ai_model?: string;
     timezone?: string;
     theme?: string;
+    feishu_webhook_url?: string;
+    enable_price_alerts?: boolean;
+    enable_hourly_summary?: boolean;
+    enable_daily_report?: boolean;
+    enable_macro_alerts?: boolean;
 }
 export interface SectorExposure {
     sector: string;

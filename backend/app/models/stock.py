@@ -92,6 +92,12 @@ class MarketDataCache(Base):
     support_1 = Column(Float, nullable=True)      # 第一支撑位
     support_2 = Column(Float, nullable=True)      # 第二支撑位
     risk_reward_ratio = Column(Float, nullable=True) # 盈亏比 (Reward/Risk)，本项目核心逻辑
+    
+    # --- 专业持仓分析新增字段 (Professional Quant Dimensions) ---
+    pe_percentile = Column(Float, nullable=True)    # 估值百分位 (PE%) - 0-100，衡量在历史中处于什么水平
+    pb_percentile = Column(Float, nullable=True)    # 估值百分位 (PB%)
+    net_inflow = Column(Float, nullable=True)       # 资金净流入 (单位: 元)，正数为流入，负数为流出
+    
     is_ai_strategy = Column(Boolean, default=False)  # TRUE 代表这是由 AI 锁定的点位，防止被机器算法覆盖
     
     market_status = Column(String, default=MarketStatus.CLOSED.value) # 市场当前状态

@@ -92,7 +92,11 @@ async def analyze_portfolio(
             "market_value": sanitize_float(h.market_value, 0.0),
             "pl_percent": sanitize_float(h.pl_percent, 0.0),
             "sector": h.sector,
-            "rrr": sanitize_float(h.risk_reward_ratio)
+            "rrr": sanitize_float(h.risk_reward_ratio),
+            # 引入专业量化指标 (Professional Quant Metrics)
+            "pe_percentile": getattr(h, 'pe_percentile', None),
+            "pb_percentile": getattr(h, 'pb_percentile', None),
+            "net_inflow": getattr(h, 'net_inflow', None)
         })
     
     # 3. 增强型 RAG：抓取宏观市场及重点持仓实时新闻 (Enhanced RAG: Fetch Macro & Top Holdings News)
@@ -409,7 +413,11 @@ async def analyze_stock(
             "dividend_yield": sanitize_float(stock_obj.dividend_yield),
             "beta": sanitize_float(stock_obj.beta),
             "fifty_two_week_high": sanitize_float(stock_obj.fifty_two_week_high),
-            "fifty_two_week_low": sanitize_float(stock_obj.fifty_two_week_low)
+            "fifty_two_week_low": sanitize_float(stock_obj.fifty_two_week_low),
+            # 引入专业量化指标
+            "pe_percentile": sanitize_float(market_data_obj.pe_percentile) if market_data_obj else None,
+            "pb_percentile": sanitize_float(market_data_obj.pb_percentile) if market_data_obj else None,
+            "net_inflow": sanitize_float(market_data_obj.net_inflow) if market_data_obj else None
         }
 
     # 5. 检查持久化缓存 (Persistence Cache)

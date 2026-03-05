@@ -9,9 +9,7 @@ from datetime import datetime
 
 router = APIRouter()
 
-async def get_db():
-    async with SessionLocal() as db:
-        yield db
+from app.core.database import get_db
 
 class NotificationHistorySchema(BaseModel):
     id: str

@@ -132,18 +132,30 @@ class MarketDataService:
                 logger.warning(f"{ticker} 核心报价/指标抓取超时 (15s)")
                 quote, indicators = None, None
 
-            # 基本面数据获取
+            # 基本面数据获取 (增强版：包含百分位与资金流)
             fundamental = None
             if fundamental_task:
                 try:
-                    fundamental = await asyncio.wait_for(fundamental_task, timeout=7.0)
-                    if isinstance(fundamental, Exception):
-                        logger.warning(f"{ticker} 基本面数据抓取遇到错误: {fundamental}")
+                    # 并行获取基础面、估值百分位、资金流
+                    # 由于百分位和资金流也是由 provider 提供，我们通过 asyncio.gather 进一步加速
+                    valuation_task = asyncio.create_task(provider.get_valuation_percentiles(ticker))
+                    flow_task = asyncio.create_task(provider.get_capital_flow(ticker))
+                    
+                    fundamental, val_data, flow_data = await asyncio.gather(
+                        fundamental_task, valuation_task, flow_task, return_exceptions=True
+                    )
+                    
+                    if not isinstance(fundamental, Exception) and fundamental:
+                        if not isinstance(val_data, Exception):
+                            fundamental.pe_percentile = val_data.get("pe_percentile")
+                            fundamental.pb_percentile = val_data.get("pb_percentile")
+                        if not isinstance(flow_data, Exception):
+                            fundamental.net_inflow = flow_data.get("net_inflow")
+                    else:
                         fundamental = None
-                except asyncio.TimeoutError:
-                    logger.warning(f"{ticker} 基本面数据抓取超时 (7s)，优先展现价格数据")
                 except Exception as e:
-                    logger.error(f"{ticker} 基本面异常: {e}")
+                    logger.error(f"{ticker} 增强基本面异常: {e}")
+                    fundamental = None
 
             # 新闻数据并行获取，极短超时 (最高 1.5 秒) 防止拖累响应
             news_gather = asyncio.gather(*news_tasks, return_exceptions=True)
@@ -235,6 +247,15 @@ class MarketDataService:
                 val = getattr(fundamental, field, None)
                 if val is not None:
                     setattr(stock, field, val)
+                    
+            # 3. 同步至 MarketDataCache 的专业量化字段
+            if not cache:
+                cache = MarketDataCache(ticker=ticker)
+                db.add(cache)
+            
+            cache.pe_percentile = sanitize_float(fundamental.pe_percentile, cache.pe_percentile)
+            cache.pb_percentile = sanitize_float(fundamental.pb_percentile, cache.pb_percentile)
+            cache.net_inflow = sanitize_float(fundamental.net_inflow, cache.net_inflow)
 
         # 3. 同步实时缓存信息 (价格、RSI、MACD 等)
         if not cache:

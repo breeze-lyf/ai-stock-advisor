@@ -16,6 +16,7 @@ export default function SettingsPage() {
     const { theme: currentTheme, setTheme } = useTheme();
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [geminiKey, setGeminiKey] = useState("");
+    const [feishuUrl, setFeishuUrl] = useState("");
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
@@ -30,6 +31,7 @@ export default function SettingsPage() {
         try {
             const data = await getProfile();
             setProfile(data);
+            if (data.feishu_webhook_url) setFeishuUrl(data.feishu_webhook_url);
             // Sync theme from backend if needed
             if (data.theme && currentTheme !== data.theme) {
                 setTheme(data.theme);
@@ -49,6 +51,7 @@ export default function SettingsPage() {
         try {
             const payload: any = {};
             if (geminiKey) payload.api_key_gemini = geminiKey;
+            if (feishuUrl !== profile?.feishu_webhook_url) payload.feishu_webhook_url = feishuUrl;
 
             if (Object.keys(payload).length === 0) {
                 setSaving(false);
@@ -108,6 +111,22 @@ export default function SettingsPage() {
         } catch (error) {
             console.error("Failed to update theme", error);
             setMessage({ text: "Failed to update theme.", type: "error" });
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleToggleSwitch = async (key: keyof UserProfile, value: boolean) => {
+        setSaving(true);
+        try {
+            await updateSettings({
+                [key]: value
+            });
+            loadProfile();
+            setMessage({ text: "Notification preference updated.", type: "success" });
+        } catch (error) {
+            console.error("Failed to update notification setting", error);
+            setMessage({ text: "Failed to update notification setting.", type: "error" });
         } finally {
             setSaving(false);
         }
@@ -202,14 +221,66 @@ export default function SettingsPage() {
                                             <span>Status: {profile?.has_gemini_key ? "✅ Set" : "⚠️ Not Set"}</span>
                                         </div>
                                     </div>
+
+                                    <div className="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                        <Label htmlFor="feishu" className="flex items-center gap-2">
+                                            飞书机器人 Webhook (私人)
+                                        </Label>
+                                        <Input
+                                            id="feishu"
+                                            type="text"
+                                            placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/..."
+                                            value={feishuUrl}
+                                            onChange={(e) => setFeishuUrl(e.target.value)}
+                                        />
+                                        <CardDescription className="text-[10px]">
+                                            不配飞书地址的用户将不会启动 AI 自动化分析与汇总，以节省 API 额度。
+                                        </CardDescription>
+                                    </div>
                                 </CardContent>
                                 <CardFooter>
-                                    <Button type="submit" className="w-full" disabled={saving || !geminiKey}>
-                                        {saving ? "Saving..." : "Save Keys"}
+                                    <Button type="submit" className="w-full" disabled={saving || (!geminiKey && feishuUrl === profile?.feishu_webhook_url)}>
+                                        {saving ? "Saving..." : "Save Settings"}
                                         <Save className="ml-2 h-4 w-4" />
                                     </Button>
                                 </CardFooter>
                             </form>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">
+                                    <Clock className="h-5 w-5" />
+                                    推送偏好设置
+                                </CardTitle>
+                                <CardDescription>
+                                    精细化控制飞书机器人的推送频率与类别。
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {[
+                                    { id: 'enable_price_alerts', label: '价格/风险预警', desc: '触达止盈止损或指标极端值时推送', key: 'enable_price_alerts' as const },
+                                    { id: 'enable_hourly_summary', label: '持仓整点摘要', desc: '每小时针对持仓标的进行全网新闻精要汇总', key: 'enable_hourly_summary' as const },
+                                    { id: 'enable_daily_report', label: '每日持仓报告', desc: '北京时间 09:00/22:00 生成深度持仓体检报告', key: 'enable_daily_report' as const },
+                                    { id: 'enable_macro_alerts', label: '全球宏观变动', desc: '实时监控并推送影响全球市场的宏观大事件', key: 'enable_macro_alerts' as const },
+                                ].map((item) => (
+                                    <div key={item.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+                                        <div className="space-y-0.5">
+                                            <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
+                                            <p className="text-[10px] text-muted-foreground">{item.desc}</p>
+                                        </div>
+                                        <button
+                                            id={item.id}
+                                            onClick={() => handleToggleSwitch(item.key, !profile?.[item.key])}
+                                            disabled={saving}
+                                            title={`Toggle ${item.label}`}
+                                            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${profile?.[item.key] ? 'bg-emerald-500' : 'bg-slate-200 dark:bg-slate-700'}`}
+                                        >
+                                            <span className={`pointer-events-none block h-4 w-4 rounded-full bg-white shadow-lg ring-0 transition-transform ${profile?.[item.key] ? 'translate-x-4' : 'translate-x-0.5'}`} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </CardContent>
                         </Card>
                     </div>
 
@@ -266,12 +337,32 @@ export default function SettingsPage() {
                                         onChange={(e) => handleTimezoneUpdate(e.target.value)}
                                         disabled={saving}
                                     >
-                                        <option value="Asia/Shanghai">UTC+8 (Beijing / Shanghai)</option>
-                                        <option value="Asia/Tokyo">UTC+9 (Tokyo / Seoul)</option>
-                                        <option value="America/New_York">UTC-5 (New York / Washington)</option>
-                                        <option value="Europe/London">UTC+0 (London / GMT)</option>
-                                        <option value="UTC">UTC (Universal Coordinated Time)</option>
-                                        <option value="Europe/Paris">UTC+1 (Paris / Berlin)</option>
+                                        <optgroup label="亚洲 (Asia)">
+                                            <option value="Asia/Shanghai">北京 / 上海 (UTC+8)</option>
+                                            <option value="Asia/Hong_Kong">香港 / 台北 (UTC+8)</option>
+                                            <option value="Asia/Tokyo">东京 / 首尔 (UTC+9)</option>
+                                            <option value="Asia/Singapore">新加坡 (UTC+8)</option>
+                                            <option value="Asia/Dubai">迪拜 (UTC+4)</option>
+                                        </optgroup>
+                                        <optgroup label="美洲 (Americas)">
+                                            <option value="America/New_York">纽约 / 华盛顿 (EST/EDT)</option>
+                                            <option value="America/Chicago">芝加哥 (CST/CDT)</option>
+                                            <option value="America/Los_Angeles">洛杉矶 / 旧金山 (PST/PDT)</option>
+                                            <option value="America/Toronto">多伦多 (EST/EDT)</option>
+                                        </optgroup>
+                                        <optgroup label="欧洲 (Europe)">
+                                            <option value="Europe/London">伦敦 / GMT (UTC+0/+1)</option>
+                                            <option value="Europe/Paris">巴黎 / 柏林 / 罗马 (UTC+1/+2)</option>
+                                            <option value="Europe/Zurich">苏黎世 (UTC+1/+2)</option>
+                                            <option value="Europe/Moscow">莫斯科 (UTC+3)</option>
+                                        </optgroup>
+                                        <optgroup label="大洋洲 (Oceania)">
+                                            <option value="Australia/Sydney">悉尼 / 墨尔本 (UTC+10/+11)</option>
+                                            <option value="Pacific/Auckland">奥克兰 (UTC+12/+13)</option>
+                                        </optgroup>
+                                        <optgroup label="标准 (Standard)">
+                                            <option value="UTC">UTC (Universal Coordinated Time)</option>
+                                        </optgroup>
                                     </select>
                                 </div>
                                 <p className="text-xs text-muted-foreground">

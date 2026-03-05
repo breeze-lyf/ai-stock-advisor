@@ -38,3 +38,23 @@ class GlobalNews(Base):
 
     def __repr__(self):
         return f"<GlobalNews(time='{self.published_at}', title='{self.title[:20]}...')>"
+
+class GlobalHourlyReport(Base):
+    __tablename__ = "global_hourly_reports"
+
+    # 使用时间指纹作为主键，格式如 "2024-03-05-15"
+    hour_key = Column(String, primary_key=True)
+    
+    core_summary = Column(Text, nullable=False)    # 全局宏观综述
+    
+    # 影响力映射 JSON: { "AAPL": "利好理由", "TSLA": "利空理由", ... }
+    # 以及受影响的 Ticker 列表
+    impact_map = Column(JSON)
+    
+    sentiment = Column(String)                     # 整体情绪定调
+    news_count = Column(Float)                     # 本小时汇总的消息数量
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<GlobalHourlyReport(hour='{self.hour_key}', news={self.news_count})>"

@@ -12,7 +12,7 @@ from sqlalchemy.future import select
 from app.core.config import settings
 from app.services.market_providers.tavily import TavilyProvider
 from app.services.ai_service import AIService
-from app.models.macro import MacroTopic, GlobalNews
+from app.models.macro import MacroTopic, GlobalNews, GlobalHourlyReport
 from app.models.user import User
 from app.services.notification_service import NotificationService
 
@@ -194,26 +194,39 @@ class MacroService:
             
             # --- 异步触发飞书预警 (Async Feishu Notification) ---
             if new_topics:
-                # 1. 对高热度主题发送独立深度预警
-                for topic in new_topics:
-                    if topic.heat_score >= 90:
-                        try:
-                            asyncio.create_task(NotificationService.send_macro_alert(
-                                title=topic.title,
-                                summary=topic.summary,
-                                heat_score=topic.heat_score
-                            ))
-                        except Exception as notify_e:
-                            logger.error(f"Failed to trigger individual macro alert: {notify_e}")
-                
-                # 2. 发送本轮扫描汇总简报
-                try:
-                    asyncio.create_task(NotificationService.send_macro_summary(
-                        topics_count=len(new_topics),
-                        topics_list=new_topics
-                    ))
-                except Exception as summary_e:
-                    logger.error(f"Failed to trigger macro summary notification: {summary_e}")
+                # 获取所有配置了飞书且开启了宏观雷达通知的用户
+                user_stmt = select(User).where(
+                    User.feishu_webhook_url != None,
+                    User.enable_macro_alerts == True
+                )
+                user_res = await db.execute(user_stmt)
+                notifiable_users = user_res.scalars().all()
+
+                for user in notifiable_users:
+                    # 1. 对高热度主题发送独立深度预警
+                    for topic in new_topics:
+                        if topic.heat_score >= 90:
+                            try:
+                                asyncio.create_task(NotificationService.send_macro_alert(
+                                    title=topic.title,
+                                    summary=topic.summary,
+                                    heat_score=topic.heat_score,
+                                    user_id=user.id,
+                                    webhook_url=user.feishu_webhook_url
+                                ))
+                            except Exception as notify_e:
+                                logger.error(f"Failed to trigger macro alert for user {user.email}: {notify_e}")
+                    
+                    # 2. 发送本轮扫描汇总简报
+                    try:
+                        asyncio.create_task(NotificationService.send_macro_summary(
+                            topics_count=len(new_topics),
+                            topics_list=new_topics,
+                            user_id=user.id,
+                            webhook_url=user.feishu_webhook_url
+                        ))
+                    except Exception as summary_e:
+                        logger.error(f"Failed to trigger macro summary for user {user.email}: {summary_e}")
 
             return new_topics
 
@@ -312,45 +325,42 @@ class MacroService:
         news_items = result.scalars().all()
         
         if not news_items:
-            return {"summary": "", "count": 0}
+            return None
             
-        # 1. 获取特定用户的真实持仓上下文 (仅限数量 > 0 的标的)
-        from app.models.portfolio import Portfolio
-        portfolio_stmt = select(Portfolio.ticker).where(
-            Portfolio.user_id == user_id,
-            Portfolio.quantity > 0
-        )
-        portfolio_res = await db.execute(portfolio_stmt)
-        portfolio_tickers = list(set(portfolio_res.scalars().all()))
-            
-        portfolio_context = f"用户当前真实持仓列表: {', '.join(portfolio_tickers)}" if portfolio_tickers else "当前账户暂无任何持仓标的。"
+        # 1. 构造时间指纹
+        now = datetime.utcnow()
+        hour_key = now.strftime("%Y-%m-%d-%H")
+        
+        # 检查是否已有全局分析结果
+        stmt = select(GlobalHourlyReport).where(GlobalHourlyReport.hour_key == hour_key)
+        res = await db.execute(stmt)
+        existing_report = res.scalar_one_or_none()
+        
+        if existing_report:
+            logger.info(f"Global hourly report for {hour_key} already exists. Skipping AI call.")
+            return existing_report
 
-        # 2. 构造标题列表
+        # 2. 调用 AI 进行全局分析
         titles = [f"- {n.title or n.content[:50]}" for n in news_items]
         content_for_ai = "\n".join(titles)
         
         prompt = f"""
-        你是一位顶级对冲基金首席策略师。以下是过去一小时内发生的财联社新闻标题汇总：
+        你是一位全球对冲基金首席策略师。以下是过去一小时内发生的财联社新闻汇总：
         
         {content_for_ai}
         
-        [持仓白名单] (仅限分析以下标的):
-        {portfolio_context}
+        请执行以下深度分析任务：
+        1. **【全局综述】**: 用 50-100 字概括本小时最重要的 1-3 件核心驱动事件及整体市场情绪。
+        2. **【影响图谱 (Impact Map)】**: 识别这些新闻受影响最直接的 5-10 个标的代码 (Tickers)，并说明其利好/利空逻辑。
         
-        请执行“三维度”深度研判任务：
-        1. **【核心综述】**: 用 50 字内概括本小时最重要的 1-2 件核心驱动事件。
-        2. **【逐条解析】**: 挑选 3-5 条关键消息，说明其对相关赛道或宏观因子的具体传导影响。
-        3. **【持仓穿透】**: 针对[持仓白名单]中的标的，分别给出[利好/利空/震荡]判断及简短逻辑（必须显式列出标的代码）。
-        
-        [禁令]:
-        - 严禁使用 # 或 ### 等 Markdown 标题字符。请使用 **【维度名称】** 这种加粗形式。
-        - 严禁提及 [持仓白名单] 以外的任何具体股票代码。
-        - 严禁提供任何具体的买卖交易动作建议。
-        
-        请以标准 JSON 格式返回，确保 summary 内部使用 Markdown 格式实现上述三个维度的清晰排版：
+        请严格返回以下 JSON 格式：
         {{
-          "summary": "**【核心综述】**\\n内容...\\n\\n**【逐条解析】**\\n内容...\\n\\n**【持仓穿透】**\\n标的代码: [结论] - 原因...",
-          "sentiment": "整体情绪定调"
+          "core_summary": "**【核心综述】**\\n具体内容...",
+          "sentiment": "看多/看空/中性",
+          "impact_map": {{
+            "AAPL": "利好理由...",
+            "TSLA": "利空理由..."
+          }}
         }}
         """
         
@@ -363,19 +373,65 @@ class MacroService:
             )
             
             # 解析 JSON
-            import re
             json_match = re.search(r'(\{.*\})', ai_response, re.DOTALL)
             if json_match:
                 data = json.loads(json_match.group(1))
-                return {
-                    "summary": data.get("summary", ""),
-                    "count": len(news_items),
-                    "sentiment": data.get("sentiment", "中性")
-                }
-            return {"summary": ai_response, "count": len(news_items)}
+                new_report = GlobalHourlyReport(
+                    hour_key=hour_key,
+                    core_summary=data.get("core_summary", ""),
+                    sentiment=data.get("sentiment", "中性"),
+                    impact_map=data.get("impact_map", {}),
+                    news_count=len(news_items)
+                )
+                db.add(new_report)
+                await db.commit()
+                logger.info(f"Successfully generated global hourly report for {hour_key}")
+                return new_report
+            return None
         except Exception as e:
-            logger.error(f"Failed to generate hourly news summary: {e}")
-            return {"summary": "AI 总结生成失败，请查看原始快讯。", "count": len(news_items)}
+            logger.error(f"Failed to generate global hourly report: {e}")
+            await db.rollback()
+            return None
+
+    @staticmethod
+    async def generate_hourly_news_summary(db: AsyncSession, user_id: str) -> Dict[str, Any]:
+        """
+        重构版本：利用全局整点报告结合用户持仓进行分发。
+        """
+        # 1. 获取全局报告
+        global_report = await MacroService.generate_global_hourly_report(db)
+        if not global_report:
+            return {"summary": "本小时暂无关键新闻或 AI 分析正在生成中。", "count": 0}
+            
+        # 2. 获取用户持仓
+        from app.models.portfolio import Portfolio
+        portfolio_stmt = select(Portfolio.ticker).where(
+            Portfolio.user_id == user_id,
+            Portfolio.quantity > 0
+        )
+        portfolio_res = await db.execute(portfolio_stmt)
+        user_tickers = set(portfolio_res.scalars().all())
+
+        # 3. 逻辑分发：匹配 Impact Map
+        personalized_impact = []
+        impact_map = global_report.impact_map or {}
+        
+        for ticker, reason in impact_map.items():
+            if ticker in user_tickers:
+                personalized_impact.append(f"**{ticker}**: {reason}")
+
+        # 4. 拼装总结
+        summary = global_report.core_summary
+        if personalized_impact:
+            summary += "\n\n**【持仓穿透】**\n" + "\n".join(personalized_impact)
+        else:
+            summary += "\n\n**【持仓穿透】**\n当前持仓未受本小时核心事件显著影响。"
+
+        return {
+            "summary": summary,
+            "count": int(global_report.news_count),
+            "sentiment": global_report.sentiment
+        }
 
     @staticmethod
     async def get_latest_news(db: AsyncSession, limit: int = 50) -> List[GlobalNews]:

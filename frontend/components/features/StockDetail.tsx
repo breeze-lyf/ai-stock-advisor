@@ -7,7 +7,9 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Zap, RefreshCw, Activity, Newspaper, TrendingUp, BarChart3, Clock, AlertCircle, Target, ShieldAlert, ShieldCheck, Settings2, ChevronLeft } from "lucide-react";
+import { Zap, RefreshCw, Activity, Newspaper, TrendingUp, BarChart3, Clock, AlertCircle, Target, ShieldAlert, ShieldCheck, Settings2, ChevronLeft,
+    PieChart
+} from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import clsx from "clsx";
@@ -184,6 +186,16 @@ export function StockDetail({
                             <span className="text-lg font-black text-slate-800 dark:text-slate-100 tabular-nums leading-none">
                                 {currency}{sanitizePrice(selectedItem.current_price)}
                             </span>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 rounded-full text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300"
+                                onClick={handleRefresh}
+                                disabled={refreshing}
+                                title="刷新行情"
+                            >
+                                <RefreshCw className={clsx("h-3.5 w-3.5", refreshing && "animate-spin")} />
+                            </Button>
                             {selectedItem.quantity > 0 && (
                                 <div className={clsx(
                                     "flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black italic",
@@ -681,12 +693,24 @@ export function StockDetail({
                                 </ReactMarkdown>
                             </div>
                             {aiData.created_at && (
-                                <div className="flex items-center justify-end">
-                                    <span className="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase italic tracking-widest opacity-60">
-                                        REPORT PROTOCOL V2.5 • {formatDistanceToNow(new Date(aiData.created_at + (aiData.created_at.includes('Z') ? '' : 'Z')), { addSuffix: true, locale: zhCN })}
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 border-t border-slate-100 dark:border-white/5 bg-slate-50/20 dark:bg-white/5 px-6">
+                                    <div className="flex items-center gap-2">
+                                        <ShieldCheck className="h-3.5 w-3.5 text-blue-500 opacity-60" />
+                                        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                                            AI 辅助决策支持系统 • 算法版本 V4.0
+                                        </span>
+                                    </div>
+                                    <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase italic tracking-widest opacity-60">
+                                        REPORT GENERATED VIA DEEPSEEK ENGINE • {formatDistanceToNow(new Date(aiData.created_at + (aiData.created_at.includes('Z') ? '' : 'Z')), { addSuffix: true, locale: zhCN })}
                                     </span>
                                 </div>
                             )}
+                            <div className="px-6 py-4 bg-orange-50/30 dark:bg-orange-900/5 border-t border-orange-100/50 dark:border-orange-950/30">
+                                <p className="text-[10px] leading-relaxed text-slate-500 dark:text-slate-400 font-medium">
+                                    <span className="font-bold text-orange-600 dark:text-orange-500/80 mr-1 italic">DISCLAIMER:</span>
+                                    本报告基于机器学习算法对公开市场数据进行自动化模拟与推演，不代表任何金融机构立场，亦不构成证券买卖建议。报告中的价格目标、止损位及交易区仅供模型测试使用，不对实际盈亏负责。阁下依据本报告进行的任何投资操作，风险须自行承担。
+                                </p>
+                            </div>
                         </div>
                     </div>
                 )})()) : (
@@ -737,8 +761,61 @@ export function StockDetail({
                         </div>
                     </div>
 
-                    {/* Part 2: Dynamic Indicator Matrix (2 Columns) */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Part 2: Dynamic Indicator Matrix (3 Columns) */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        {/* Valuation & Capital Card */}
+                        <div className="bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border border-slate-100 dark:border-zinc-800/50 p-6 rounded-3xl space-y-6 hover:border-emerald-500/30 transition-colors group">
+                            <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-bold uppercase text-slate-400 tracking-[0.2em] flex items-center gap-2">
+                                    <PieChart className="h-4 w-4 text-emerald-500" /> Valuation & Flow
+                                </span>
+                                <div className="flex flex-col items-end">
+                                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Net Inflow</span>
+                                    <span className={clsx(
+                                        "text-lg font-black tabular-nums",
+                                        (selectedItem?.net_inflow || 0) > 0 ? "text-emerald-500" : "text-rose-500"
+                                    )}>
+                                        {selectedItem?.net_inflow ? `${(selectedItem.net_inflow / 10000).toFixed(1)}万` : "--"}
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div className="space-y-4 pt-2">
+                                <div className="space-y-1.5">
+                                    <div className="flex justify-between text-[9px] font-bold text-slate-500 uppercase">
+                                        <span>PE Percentile</span>
+                                        <span className="text-slate-900 dark:text-white font-black">{selectedItem?.pe_percentile?.toFixed(1)}%</span>
+                                    </div>
+                                    <div className="h-1.5 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                        <div 
+                                            className={clsx(
+                                                "h-full rounded-full transition-all duration-1000",
+                                                (selectedItem?.pe_percentile || 0) > 80 ? "bg-rose-500" : 
+                                                (selectedItem?.pe_percentile || 0) < 20 ? "bg-emerald-500" : "bg-blue-500"
+                                            )}
+                                            style={{ width: `${selectedItem?.pe_percentile || 0}%` }}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <div className="flex justify-between text-[9px] font-bold text-slate-500 uppercase">
+                                        <span>PB Percentile</span>
+                                        <span className="text-slate-900 dark:text-white font-black">{selectedItem?.pb_percentile?.toFixed(1)}%</span>
+                                    </div>
+                                    <div className="h-1.5 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                        <div 
+                                            className={clsx(
+                                                "h-full rounded-full transition-all duration-1000",
+                                                (selectedItem?.pb_percentile || 0) > 80 ? "bg-rose-500" : 
+                                                (selectedItem?.pb_percentile || 0) < 20 ? "bg-emerald-500" : "bg-blue-500"
+                                            )}
+                                            style={{ width: `${selectedItem?.pb_percentile || 0}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* RSI & KDJ Card */}
                         <div className="bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border border-slate-100 dark:border-zinc-800/50 p-6 rounded-3xl space-y-6 hover:border-blue-500/30 transition-colors group">
                             <div className="flex justify-between items-center">

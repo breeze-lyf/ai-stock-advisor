@@ -108,7 +108,7 @@ export function HotspotRadar({ onSelectTicker }: HotspotRadarProps) {
 
             {topics.map((topic) => (
               <Card key={topic.id} className="overflow-hidden border-none shadow-sm hover:shadow-md transition-shadow bg-white dark:bg-slate-900 rounded-2xl">
-                <CardHeader className="pb-2 border-b border-slate-50 dark:border-slate-800/50">
+                <CardHeader className="py-3 px-4 border-b border-slate-50 dark:border-slate-800/50">
                     <div className="flex items-start justify-between">
                       <div className="space-y-1">
                         <CardTitle className="text-lg font-bold flex items-center gap-2">
@@ -130,17 +130,17 @@ export function HotspotRadar({ onSelectTicker }: HotspotRadarProps) {
                       </span>
                     </div>
                 </CardHeader>
-                <CardContent className="p-4 space-y-3">
-                  <div className="p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800/50">
+                <CardContent className="p-4 pt-3 space-y-3">
+                  <div className="p-2 px-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800/50">
                     <h4 className="text-[10px] font-bold text-slate-400 mb-1 flex items-center gap-1 uppercase tracking-tight">
                       <RefreshCw className="w-2.5 h-2.5" /> AI 逻辑传导链
                     </h4>
-                    <p className="text-[13px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                    <p className="text-[13px] text-slate-600 dark:text-slate-300 leading-normal">
                       {topic.impact_analysis?.logic || "AI 正在分析传导逻辑..."}
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {/* Beneficiaries */}
                     <div className="space-y-3">
                       <h4 className="text-xs font-bold text-emerald-600 flex items-center gap-1 px-1">

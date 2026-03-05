@@ -32,7 +32,8 @@ class NotificationService:
         color: str = "blue",
         webhook_url: Optional[str] = None,
         msg_type: str = "GENERAL",
-        ticker: Optional[str] = None
+        ticker: Optional[str] = None,
+        user_id: Optional[str] = None
     ) -> bool:
         """
         发送飞书富文本卡片消息，包含 24 小时去重逻辑
@@ -56,6 +57,7 @@ class NotificationService:
                 check_threshold = one_day_ago if msg_type not in SKIP_24H_DEDUPE else one_min_ago
 
                 stmt = select(NotificationLog).where(
+                    NotificationLog.user_id == user_id,
                     NotificationLog.type == msg_type,
                     NotificationLog.ticker == ticker,
                     NotificationLog.status == "SUCCESS",
@@ -63,7 +65,7 @@ class NotificationService:
                 )
                 res = await db.execute(stmt)
                 if res.scalars().first():
-                    logger.info(f"Notification deduplication hit: {msg_type} (Threshold: {msg_type not in SKIP_24H_DEDUPE})")
+                    logger.info(f"Notification deduplication hit for user {user_id}: {msg_type} (Threshold: {msg_type not in SKIP_24H_DEDUPE})")
                     return True
         except Exception as db_e:
             # 数据库故障时不应阻塞推送，仅记录日志并继续
@@ -105,6 +107,7 @@ class NotificationService:
                     # 记录成功日志
                     async with SessionLocal() as db:
                         log = NotificationLog(
+                            user_id=user_id,
                             type=msg_type,
                             ticker=ticker,
                             title=title,
@@ -123,7 +126,7 @@ class NotificationService:
             return False
 
     @staticmethod
-    async def send_macro_alert(title: str, summary: str, heat_score: float):
+    async def send_macro_alert(title: str, summary: str, heat_score: float, user_id: Optional[str] = None, webhook_url: Optional[str] = None):
         """
         发送宏观雷达预警
         """
@@ -152,11 +155,13 @@ class NotificationService:
             content=summary,
             elements=elements,
             color="red" if heat_score > 90 else "orange",
-            msg_type="MACRO_ALERT"
+            msg_type="MACRO_ALERT",
+            user_id=user_id,
+            webhook_url=webhook_url
         )
 
     @staticmethod
-    async def send_macro_summary(topics_count: int, topics_list: List[Any]):
+    async def send_macro_summary(topics_count: int, topics_list: List[Any], user_id: Optional[str] = None, webhook_url: Optional[str] = None):
         """
         发送宏观热点扫描汇总简报
         """
@@ -188,11 +193,13 @@ class NotificationService:
             content="每日宏观动态汇总",
             elements=elements,
             color="blue",
-            msg_type="MACRO_SUMMARY"
+            msg_type="MACRO_SUMMARY",
+            user_id=user_id,
+            webhook_url=webhook_url
         )
 
     @staticmethod
-    async def send_price_alert(ticker: str, name: str, current_price: float, target_price: float, is_stop_loss: bool = False):
+    async def send_price_alert(ticker: str, name: str, current_price: float, target_price: float, is_stop_loss: bool = False, user_id: Optional[str] = None, webhook_url: Optional[str] = None):
         """
         发送价格触达预警：明确区分 🚀 止盈达成 或 ⚠️ 止损警戒
         支持根据 Ticker 自动识别币种 (USD/CNY)
@@ -257,11 +264,13 @@ class NotificationService:
             elements=elements,
             color=color,
             msg_type="PRICE_ALERT",
-            ticker=ticker
+            ticker=ticker,
+            user_id=user_id,
+            webhook_url=webhook_url
         )
 
     @staticmethod
-    async def send_hourly_summary(summary_text: str, count: int, sentiment: str = "中性", email: str = ""):
+    async def send_hourly_summary(summary_text: str, count: int, sentiment: str = "中性", email: str = "", user_id: Optional[str] = None, webhook_url: Optional[str] = None):
         """
         发送每小时财联社新闻精要总结
         """
@@ -301,5 +310,7 @@ class NotificationService:
             content=summary_text,
             elements=elements,
             color="blue",
-            msg_type="HOURLY_NEWS_SUMMARY"
+            msg_type="HOURLY_NEWS_SUMMARY",
+            user_id=user_id,
+            webhook_url=webhook_url
         )

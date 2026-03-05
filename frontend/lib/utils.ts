@@ -20,7 +20,20 @@ export const formatDateTime = (
 ): string => {
   if (!date) return "--";
   
-  const dateObj = typeof date === "string" ? new Date(date) : date;
+  let dateObj: Date;
+  if (typeof date === "string") {
+    // 鲁棒性处理：如果后端返回的是无 Z 标志的 UTC 字符串 (如 "2026-03-04 06:02:00")
+    // 浏览器会将其解释为本地时间。我们需要强制将其视为 UTC。
+    let dateStr = date;
+    if (!dateStr.includes("Z") && !dateStr.includes("+") && !dateStr.includes("T")) {
+        dateStr = dateStr.replace(" ", "T") + "Z";
+    } else if (dateStr.includes("T") && !dateStr.includes("Z") && !dateStr.includes("+")) {
+        dateStr += "Z";
+    }
+    dateObj = new Date(dateStr);
+  } else {
+    dateObj = date;
+  }
   
   try {
     // 使用 Intl.DateTimeFormat 进行时区转换

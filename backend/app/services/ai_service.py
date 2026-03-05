@@ -4,6 +4,7 @@ from app.core.config import settings
 import logging
 import httpx
 import json
+import asyncio
 
 # 配置日志
 logger = logging.getLogger(__name__)
@@ -96,35 +97,61 @@ class AIService:
         }
         
         try:
-            # 3. 发送异步 HTTP 请求 (Async HTTP Request)
+            # 3. 发送异步 HTTP 请求 (Async HTTP Request) - 增加重试机制对抗 API 抖动
             # 对于国内服务 SiliconFlow，显式禁用系统代理 (trust_env=False)，确保直连稳定性。
-            async with httpx.AsyncClient(timeout=120.0, trust_env=False) as client:
-                response = await client.post(url, json=payload, headers=headers)
-                
-                # 4. 错误处理 (Error Handling)
-                if response.status_code != 200:
-                    error_detail = response.text
-                    logger.error(f"SiliconFlow API Error: Status {response.status_code} | Detail: {error_detail}")
-                    # 针对特定状态码给出更友好的提示
-                    if response.status_code == 401:
-                        return "**Error**: AI API Key 无效或已过期。"
-                    elif response.status_code == 402:
-                        return "**Error**: AI 服务账户余额不足。"
-                    elif response.status_code == 429:
-                        return "**Error**: AI 接口调用过于频繁，请稍后再试。"
-                    return f"**Error**: AI 服务商报错 (HTTP {response.status_code})。"
-                
-                result = response.json()
-                # 提取核心内容
-                if "choices" not in result or not result["choices"]:
-                    logger.error(f"SiliconFlow Unexpected Response: {result}")
-                    return f"**Error**: AI 返回数据格式异常。"
-                    
-                return result["choices"][0]["message"]["content"]
+            max_retries = 3
+            last_exception = None
+            
+            for attempt in range(max_retries):
+                try:
+                    # 针对推理模型 (如 R1/V3)，将超时上限延长至 300s，给模型充足的“思考”时间。
+                    async with httpx.AsyncClient(timeout=300.0, trust_env=False) as client:
+                        response = await client.post(url, json=payload, headers=headers)
+                        
+                        # 4. 错误处理 (Error Handling)
+                        if response.status_code != 200:
+                            error_detail = response.text
+                            logger.error(f"SiliconFlow API Error (Attempt {attempt+1}): Status {response.status_code} | Detail: {error_detail}")
+                            
+                            # 如果是 429 (频率限制) 或 5xx (服务器错误)，可以尝试重试
+                            if response.status_code in [429, 500, 502, 503, 504]:
+                                if attempt < max_retries - 1:
+                                    wait_time = (attempt + 1) * 2 # 指数退避: 2s, 4s...
+                                    logger.warning(f"Retrying SiliconFlow in {wait_time}s due to status {response.status_code}...")
+                                    await asyncio.sleep(wait_time)
+                                    continue
+                            
+                            if response.status_code == 401:
+                                return "**Error**: AI API Key 无效或已过期。"
+                            elif response.status_code == 402:
+                                return "**Error**: AI 服务账户余额不足。"
+                            return f"**Error**: AI 服务商报错 (HTTP {response.status_code})。"
+                        
+                        result = response.json()
+                        # 提取核心内容
+                        if "choices" not in result or not result["choices"]:
+                            logger.error(f"SiliconFlow Unexpected Response: {result}")
+                            return f"**Error**: AI 返回数据格式异常。"
+                            
+                        return result["choices"][0]["message"]["content"]
+                        
+                except (httpx.ReadTimeout, httpx.ConnectTimeout, httpx.NetworkError) as e:
+                    last_exception = e
+                    logger.warning(f"SiliconFlow Timeout/Network Error (Attempt {attempt+1}/{max_retries}): {str(e)}")
+                    if attempt < max_retries - 1:
+                        wait_time = (attempt + 1) * 3 # 网络错误多等一会儿: 3s, 6s...
+                        await asyncio.sleep(wait_time)
+                        continue
+                except Exception as e:
+                    import traceback
+                    logger.error(f"SiliconFlow Unexpected Exception: {str(e)}\n{traceback.format_exc()}")
+                    return f"**Error**: AI 服务调用崩溃。"
+
+            return f"**Error**: AI 服务连接超时 (已重试 {max_retries} 次)。"
         except Exception as e:
             import traceback
-            logger.error(f"SiliconFlow Exception: {str(e)}\n{traceback.format_exc()}")
-            return f"**Error**: AI 连接异常。"
+            logger.error(f"SiliconFlow Top-level Exception: {str(e)}\n{traceback.format_exc()}")
+            return f"**Error**: AI 服务调用系统级崩溃。"
 
 
     @staticmethod
@@ -142,8 +169,14 @@ class AIService:
         """
         # 构建庞大的 Context (背景板)
         # 告诉 AI 股票的财务情况、盘面情况、甚至用户是不是亏损的（这决定了止损建议的紧迫性）。
+        # 注入合规性免责声明 (Compliance Disclaimer)
+        compliance_prefix = (
+            "【风险提示】本分析由 AI 自动生成，仅供参考，不构成任何投资建议。股市有风险，投资需谨慎。\n"
+            "【数据说明】本分析基于历史公开数据及量化模型，不保证未来收益及数据的绝对准确性。\n\n"
+        )
+        
         prompt = f"""
-        你是一位资深美股投资顾问和量化策略专家。请基于以下多维数据为代码 [{ticker}] 提供严谨的诊断。
+        {compliance_prefix}你是一位资深美股投资顾问和量化策略专家。请基于以下多维数据为代码 [{ticker}] 提供严谨的诊断。
         
         **1. 基础面概览 (Fundamental Context)**:
         - 行业/板块: {fundamental_data.get('sector')} / {fundamental_data.get('industry')}
@@ -167,26 +200,22 @@ class AIService:
         - 趋势强度 (ADX): {market_data.get('adx_14')} | ATR: {market_data.get('atr_14')}
         - 枢轴参考 (Pivots): 阻力位 R1: {market_data.get('resistance_1')} / R2: {market_data.get('resistance_2')} | 支撑位 S1: {market_data.get('support_1')} / S2: {market_data.get('support_2')}
         
-        **4. 实时个股/行业消息面 (Recent Stock News)**:
-        {news_data if news_data else "暂无重大相关个股新闻。"}
+        **4. 实时个股消息面与资金流 (News & Capital Flow)**:
+        - 消息面: {news_data if news_data else "暂无重大个股新闻。"}
+        - 筹码动向: 今日主力净流入 **{fundamental_data.get('net_inflow', 'N/A')}** 元。
+        - 估值水位: 当前 PE 百分位为 **{fundamental_data.get('pe_percentile', 'N/A')}%**，PB 百分位为 **{fundamental_data.get('pb_percentile', 'N/A')}%**。
         
         **5. 全球宏观雷达与热点 (Global Macro Radar & Hotspots)**:
-        [CONTEXT]: 以下是当前对全球市场影响最大的热点（已按时间鲜度排序，越靠上越新鲜）。请分析这些最新宏观偏见如何传导至该标的。
+        [CONTEXT]: 以下是当前对全球市场影响最大的热点。请分析这些最新宏观偏见如何传导至该标的。
         {macro_context if macro_context else "暂无显著全球宏观波动。"}
         
         **6. 历史分析上下文 (Historical Context - Previous AI Analysis)**:
         {f'''
-        - 上次分析时间: {previous_analysis.get('time', '未知')}
-        - 上次信心及风险: 信心(Confidence): {previous_analysis.get('confidence_level', '无')}/100 | 风险(Risk): {previous_analysis.get('risk_level', '无')}
         - 上次研判结论: {previous_analysis.get('summary_status', '无')} (评分: {previous_analysis.get('sentiment_score', '无')})
-        - 上次策略建议: {previous_analysis.get('immediate_action', '无')} (期限: {previous_analysis.get('investment_horizon', '无')})
-        - 上次关键点位:
-            * 建仓区间: {previous_analysis.get('entry_price_low', '无')} - {previous_analysis.get('entry_price_high', '无')}
-            * 止盈目标: {previous_analysis.get('target_price', '无')}
-            * 止损红线: {previous_analysis.get('stop_loss_price', '无')}
-        - 上次核心观点: {previous_analysis.get('action_advice_short', '无')}...
-        [Instruction]: 请参考上述历史观点，根据最新数据微调或不调整。如果市场形势发生重大改变，请明确指出改变原因。
-        ''' if previous_analysis else "该股票首次进行 AI 分析，无历史参考数据。"}
+        - 上次策略建议: {previous_analysis.get('immediate_action', '无')}
+        - 上次关键点位: 目标位 {previous_analysis.get('target_price', '无')} | 止损位 {previous_analysis.get('stop_loss_price', '无')}
+        [Instruction]: 请针对多维数据变化，评估历史逻辑是否已“证伪”或需“增强”。
+        ''' if previous_analysis else "该股票首次进行 AI 分析。"}
         
         **任务 (Core Task)**:
         当前时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
@@ -300,18 +329,18 @@ class AIService:
         **3. 补充市场新闻 (Additional News)**:
         {market_news if market_news else "暂无外部实时新闻，请基于已有持仓数据进行存量分析。"}
         
-        **4. 分析指令 (Strict Directives)**:
-        1. **宏观风险关联**: 必须结合当前的“全球热点”分析其对组合中具体标的的影响（如地缘冲突对能源股、算力脱钩对科技股）。
-        2. **深度风险透视**: 不仅要指出行业分布，还要识别“隐性关联”。指出哪个标的对组合的整体风险贡献最大。
-        3. **盈亏属性分析**: 分别针对“浮盈巨大”和“严重套牢”的标的给出具体的处理建议。
-        4. **调仓战略建议**: 给出未来一周的动作指南。
-        5. **禁止空话**: 必须根据数据给出倾向于具体行动的判断。
+        **4. 分析指令 (Professional Analyst Directives)**:
+        1. **多维诊断矩阵**: 必须独立分析 **技术面、基本面（估值水位）、筹码面（资金动向）** 对全组合的综合影响。
+        2. **宏观一致性逻辑**: 建立“宏观背景 -> 行业趋势 -> 具体标的”的逻辑传导链。例如：如果宏观背景是“利率长期高位”，应指出其对组合中高成长股的压力。
+        3. **风险系数监测**: 分析组合的 Beta 暴露（波动同步性），指出是否存在行业过度拥挤。
+        4. **止盈/止损实战建议**: 对每个关键持仓标的，基于数据定性 [继续持有/分批获利/逻辑证伪止损]。
         
         **返回格式要求**:
         - 必须返回纯 JSON 对象。
-        - **详尽报告排版准则 (Layout Rules)**:
-            *   使用 `###` 作为一级标题，`####` 作为二级标题。
-            *   **必须使用 Markdown 表格**来对比核心数据。
+        - 详尽报告排版请包含：
+            *   **【专业诊断表】**：使用 Markdown 表格，列出：代码、盈亏%、RSI、PE分位、主力流向、专业定性建议。
+            *   **【核心宏观传导逻辑】**：解析宏观如何影响你的持仓。
+            *   **【调仓战略指南】**：给出具体加减仓比例建议。
         
         JSON 结构模版:
         {{

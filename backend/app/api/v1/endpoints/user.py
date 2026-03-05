@@ -21,7 +21,12 @@ async def read_users_me(current_user: User = Depends(get_current_user)):
         "preferred_data_source": current_user.preferred_data_source or "ALPHA_VANTAGE",
         "preferred_ai_model": current_user.preferred_ai_model or "gemini-1.5-flash",
         "timezone": current_user.timezone or "Asia/Shanghai",
-        "theme": current_user.theme or "light"
+        "theme": current_user.theme or "light",
+        "feishu_webhook_url": current_user.feishu_webhook_url,
+        "enable_price_alerts": current_user.enable_price_alerts,
+        "enable_hourly_summary": current_user.enable_hourly_summary,
+        "enable_daily_report": current_user.enable_daily_report,
+        "enable_macro_alerts": current_user.enable_macro_alerts
     }
 
 @router.put("/password")
@@ -66,6 +71,21 @@ async def update_user_settings(
 
     if settings.theme is not None:
         current_user.theme = settings.theme
+
+    if settings.feishu_webhook_url is not None:
+        current_user.feishu_webhook_url = settings.feishu_webhook_url
+    
+    if settings.enable_price_alerts is not None:
+        current_user.enable_price_alerts = settings.enable_price_alerts
+
+    if settings.enable_hourly_summary is not None:
+        current_user.enable_hourly_summary = settings.enable_hourly_summary
+
+    if settings.enable_daily_report is not None:
+        current_user.enable_daily_report = settings.enable_daily_report
+
+    if settings.enable_macro_alerts is not None:
+        current_user.enable_macro_alerts = settings.enable_macro_alerts
         
     await db.commit()
     await db.refresh(current_user)
@@ -80,5 +100,10 @@ async def update_user_settings(
         "preferred_data_source": current_user.preferred_data_source or "ALPHA_VANTAGE",
         "preferred_ai_model": current_user.preferred_ai_model or "gemini-1.5-flash",
         "timezone": current_user.timezone or "Asia/Shanghai",
-        "theme": current_user.theme or "light"
+        "theme": current_user.theme or "light",
+        "feishu_webhook_url": current_user.feishu_webhook_url,
+        "enable_price_alerts": current_user.enable_price_alerts,
+        "enable_hourly_summary": current_user.enable_hourly_summary,
+        "enable_daily_report": current_user.enable_daily_report,
+        "enable_macro_alerts": current_user.enable_macro_alerts
     }

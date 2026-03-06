@@ -1335,3 +1335,316 @@
 2026-03-06 23:33:11,198 - app.services.market_data - INFO - Syncing fundamental for TMO: market_cap=188275645000.0, PE=17.74
 2026-03-06 23:33:12,795 - __main__ - INFO - ✅ Successfully refreshed TMO. New Price: 506.82
 2026-03-06 23:33:14,962 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-06 23:38:34,025 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, ^GSPC, 600519, 600338, 603258, ORCL, AXP, QCOM, COST, ASTS...
+2026-03-06 23:38:34,741 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-06 23:38:35,904 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:38:35,905 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for TEST_RRR (432 Error).
+2026-03-06 23:38:35,906 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:38:35,906 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 110.95715966991067
+2026-03-06 23:38:38,410 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-06 23:38:39,036 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:38:39,037 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for ^GSPC (432 Error).
+2026-03-06 23:38:39,037 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:38:39,037 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6878.88
+2026-03-06 23:38:41,573 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600519 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-06 23:38:42,182 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:38:42,183 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 600519 (432 Error).
+2026-03-06 23:38:42,605 - app.services.market_data - INFO - Syncing fundamental for 600519: market_cap=1755683000000.0002, PE=None
+2026-03-06 23:38:44,713 - __main__ - INFO - ✅ Successfully refreshed 600519. New Price: 1402.0
+2026-03-06 23:38:47,375 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600338 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-06 23:38:48,372 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:38:48,373 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 600338 (432 Error).
+2026-03-06 23:38:48,531 - app.services.market_data - INFO - Syncing fundamental for 600338: market_cap=16246000000.0, PE=None
+2026-03-06 23:38:50,527 - __main__ - INFO - ✅ Successfully refreshed 600338. New Price: 17.77
+2026-03-06 23:38:52,979 - app.services.market_providers.akshare - WARNING - EM individual info failed for 603258 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-06 23:38:53,614 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:38:53,615 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 603258 (432 Error).
+2026-03-06 23:38:53,770 - app.services.market_data - INFO - Syncing fundamental for 603258: market_cap=4474000000.0, PE=None
+2026-03-06 23:38:55,165 - __main__ - INFO - ✅ Successfully refreshed 603258. New Price: 18.54
+2026-03-06 23:38:57,484 - app.services.market_data - INFO - Skipping Tavily for ORCL as news is recently updated within 4 hours.
+2026-03-06 23:38:58,033 - app.services.market_data - INFO - Syncing fundamental for ORCL: market_cap=454709937000.0, PE=5.32
+2026-03-06 23:38:59,881 - __main__ - INFO - ✅ Successfully refreshed ORCL. New Price: 158.21
+2026-03-06 23:39:02,191 - app.services.market_data - INFO - Skipping Tavily for AXP as news is recently updated within 4 hours.
+2026-03-06 23:39:02,651 - app.services.market_data - INFO - Syncing fundamental for AXP: market_cap=206804705000.0, PE=15.38
+2026-03-06 23:39:04,397 - __main__ - INFO - ✅ Successfully refreshed AXP. New Price: 301.2
+2026-03-06 23:39:06,718 - app.services.market_data - INFO - Skipping Tavily for QCOM as news is recently updated within 4 hours.
+2026-03-06 23:39:07,164 - app.services.market_data - INFO - Syncing fundamental for QCOM: market_cap=145538800000.0, PE=4.96
+2026-03-06 23:39:08,705 - __main__ - INFO - ✅ Successfully refreshed QCOM. New Price: 136.4
+2026-03-06 23:39:11,014 - app.services.market_data - INFO - Skipping Tavily for COST as news is recently updated within 4 hours.
+2026-03-06 23:39:11,500 - app.services.market_data - INFO - Syncing fundamental for COST: market_cap=441672257000.0, PE=18.67
+2026-03-06 23:39:13,063 - __main__ - INFO - ✅ Successfully refreshed COST. New Price: 995.05
+2026-03-06 23:39:16,170 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:39:16,171 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for ASTS (432 Error).
+2026-03-06 23:39:16,327 - app.services.market_data - INFO - Syncing fundamental for ASTS: market_cap=28675061000.0, PE=-1.33
+2026-03-06 23:39:17,877 - __main__ - INFO - ✅ Successfully refreshed ASTS. New Price: 98.64
+2026-03-06 23:39:20,034 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-06 23:44:21,744 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, ^GSPC, 002050, 601138, 603883, 002970, AMZN, UNH, ABT, PLTR...
+2026-03-06 23:44:22,418 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-06 23:44:23,206 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:44:23,207 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for TEST_RRR (432 Error).
+2026-03-06 23:44:23,208 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:44:23,208 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 110.95715966991067
+2026-03-06 23:44:25,652 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-06 23:44:26,282 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:44:26,283 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for ^GSPC (432 Error).
+2026-03-06 23:44:26,284 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:44:26,284 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6878.88
+2026-03-06 23:44:28,724 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002050 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-06 23:44:29,350 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:44:29,351 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 002050 (432 Error).
+2026-03-06 23:44:29,659 - app.services.market_data - INFO - Syncing fundamental for 002050: market_cap=175773000000.0, PE=None
+2026-03-06 23:44:31,778 - __main__ - INFO - ✅ Successfully refreshed 002050. New Price: 47.71
+2026-03-06 23:44:34,206 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601138 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-06 23:44:34,842 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:44:34,843 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 601138 (432 Error).
+2026-03-06 23:44:35,000 - app.services.market_data - INFO - Syncing fundamental for 601138: market_cap=1078895999999.9999, PE=None
+2026-03-06 23:44:36,697 - __main__ - INFO - ✅ Successfully refreshed 601138. New Price: 54.33
+2026-03-06 23:44:39,136 - app.services.market_providers.akshare - WARNING - EM individual info failed for 603883 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-06 23:44:40,095 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:44:40,096 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 603883 (432 Error).
+2026-03-06 23:44:40,248 - app.services.market_data - INFO - Syncing fundamental for 603883: market_cap=10837000000.0, PE=None
+2026-03-06 23:44:41,627 - __main__ - INFO - ✅ Successfully refreshed 603883. New Price: 14.28
+2026-03-06 23:44:44,072 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002970 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-06 23:44:44,716 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:44:44,719 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 002970 (432 Error).
+2026-03-06 23:44:44,885 - app.services.market_data - INFO - Syncing fundamental for 002970: market_cap=9605000000.0, PE=None
+2026-03-06 23:44:46,314 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 77.89
+2026-03-06 23:44:48,628 - app.services.market_data - INFO - Skipping Tavily for AMZN as news is recently updated within 4 hours.
+2026-03-06 23:44:49,207 - app.services.market_data - INFO - Syncing fundamental for AMZN: market_cap=2306129376000.0, PE=7.17
+2026-03-06 23:44:51,081 - __main__ - INFO - ✅ Successfully refreshed AMZN. New Price: 214.79
+2026-03-06 23:44:54,190 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:44:54,191 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for UNH (432 Error).
+2026-03-06 23:44:54,343 - app.services.market_data - INFO - Syncing fundamental for UNH: market_cap=259000762000.0, PE=13.23
+2026-03-06 23:44:56,052 - __main__ - INFO - ✅ Successfully refreshed UNH. New Price: 285.35
+2026-03-06 23:45:00,266 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:45:00,269 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for ABT (432 Error).
+2026-03-06 23:45:00,998 - app.services.market_data - INFO - Syncing fundamental for ABT: market_cap=190415291000.0, PE=3.72
+2026-03-06 23:45:03,008 - __main__ - INFO - ✅ Successfully refreshed ABT. New Price: 109.58
+2026-03-06 23:45:05,387 - app.services.market_data - INFO - Skipping Tavily for PLTR as news is recently updated within 4 hours.
+2026-03-06 23:45:06,354 - app.services.market_data - INFO - Syncing fundamental for PLTR: market_cap=370362942000.0, PE=0.63
+2026-03-06 23:45:08,955 - __main__ - INFO - ✅ Successfully refreshed PLTR. New Price: 154.88
+2026-03-06 23:45:11,147 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-06 23:50:13,519 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, ^GSPC, 600519, 600338, 603258, PFE, DJIA, BAC, NDX, VZ...
+2026-03-06 23:50:14,201 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-06 23:50:15,006 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:50:15,007 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for TEST_RRR (432 Error).
+2026-03-06 23:50:15,010 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:50:15,010 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 110.95715966991067
+2026-03-06 23:50:17,525 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-06 23:50:18,507 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:50:18,508 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for ^GSPC (432 Error).
+2026-03-06 23:50:18,510 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:50:18,510 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6878.88
+2026-03-06 23:50:20,987 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600519 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-06 23:50:21,613 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:50:21,616 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 600519 (432 Error).
+2026-03-06 23:50:21,930 - app.services.market_data - INFO - Syncing fundamental for 600519: market_cap=1755683000000.0002, PE=None
+2026-03-06 23:50:23,841 - __main__ - INFO - ✅ Successfully refreshed 600519. New Price: 1402.0
+2026-03-06 23:50:26,291 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600338 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-06 23:50:26,895 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:50:26,897 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 600338 (432 Error).
+2026-03-06 23:50:27,057 - app.services.market_data - INFO - Syncing fundamental for 600338: market_cap=16246000000.0, PE=None
+2026-03-06 23:50:28,487 - __main__ - INFO - ✅ Successfully refreshed 600338. New Price: 17.77
+2026-03-06 23:50:31,009 - app.services.market_providers.akshare - WARNING - EM individual info failed for 603258 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-06 23:50:31,607 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:50:31,609 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 603258 (432 Error).
+2026-03-06 23:50:31,777 - app.services.market_data - INFO - Syncing fundamental for 603258: market_cap=4474000000.0, PE=None
+2026-03-06 23:50:33,195 - __main__ - INFO - ✅ Successfully refreshed 603258. New Price: 18.54
+2026-03-06 23:50:36,269 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:50:36,272 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for PFE (432 Error).
+2026-03-06 23:50:36,426 - app.services.market_data - INFO - Syncing fundamental for PFE: market_cap=149747853000.0, PE=1.36
+2026-03-06 23:50:38,433 - __main__ - INFO - ✅ Successfully refreshed PFE. New Price: 26.34
+2026-03-06 23:50:41,729 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:50:41,733 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for DJIA (432 Error).
+2026-03-06 23:50:43,599 - __main__ - INFO - ✅ Successfully refreshed DJIA. New Price: 21.72
+2026-03-06 23:50:46,026 - app.services.market_data - INFO - Skipping Tavily for BAC as news is recently updated within 4 hours.
+2026-03-06 23:50:46,688 - app.services.market_data - INFO - Syncing fundamental for BAC: market_cap=344696045000.0, PE=3.81
+2026-03-06 23:50:48,356 - __main__ - INFO - ✅ Successfully refreshed BAC. New Price: 48.04
+2026-03-06 23:50:50,819 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
+2026-03-06 23:50:51,470 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:50:51,472 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for NDX (432 Error).
+2026-03-06 23:50:54,132 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 24749.94
+2026-03-06 23:50:56,458 - app.services.market_data - INFO - Skipping Tavily for VZ as news is recently updated within 4 hours.
+2026-03-06 23:50:57,034 - app.services.market_data - INFO - Syncing fundamental for VZ: market_cap=213372642000.0, PE=4.06
+2026-03-06 23:50:59,205 - __main__ - INFO - ✅ Successfully refreshed VZ. New Price: 50.59
+2026-03-06 23:51:01,368 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-06 23:56:03,525 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, ^GSPC, 002050, 601138, 603883, 002970, DHR, GOOGL, IREN, JPM...
+2026-03-06 23:56:04,179 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-06 23:56:05,023 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:56:05,024 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for TEST_RRR (432 Error).
+2026-03-06 23:56:05,367 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:56:05,368 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 110.95715966991067
+2026-03-06 23:56:07,852 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-06 23:56:08,481 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:56:08,483 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for ^GSPC (432 Error).
+2026-03-06 23:56:08,486 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:56:08,486 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6878.88
+2026-03-06 23:56:10,984 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002050 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-06 23:56:11,684 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:56:11,686 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 002050 (432 Error).
+2026-03-06 23:56:12,182 - app.services.market_data - INFO - Syncing fundamental for 002050: market_cap=175773000000.0, PE=None
+2026-03-06 23:56:14,098 - __main__ - INFO - ✅ Successfully refreshed 002050. New Price: 47.71
+2026-03-06 23:56:16,717 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601138 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-06 23:56:17,217 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:56:17,219 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 601138 (432 Error).
+2026-03-06 23:56:17,381 - app.services.market_data - INFO - Syncing fundamental for 601138: market_cap=1078895999999.9999, PE=None
+2026-03-06 23:56:19,193 - __main__ - INFO - ✅ Successfully refreshed 601138. New Price: 54.33
+2026-03-06 23:56:21,865 - app.services.market_providers.akshare - WARNING - EM individual info failed for 603883 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-06 23:56:22,486 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:56:22,488 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 603883 (432 Error).
+2026-03-06 23:56:22,816 - app.services.market_data - INFO - Syncing fundamental for 603883: market_cap=10837000000.0, PE=None
+2026-03-06 23:56:24,289 - __main__ - INFO - ✅ Successfully refreshed 603883. New Price: 14.28
+2026-03-06 23:56:26,806 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002970 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-06 23:56:27,632 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:56:27,634 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 002970 (432 Error).
+2026-03-06 23:56:27,793 - app.services.market_data - INFO - Syncing fundamental for 002970: market_cap=9605000000.0, PE=None
+2026-03-06 23:56:29,246 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 77.89
+2026-03-06 23:56:32,399 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:56:32,401 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for DHR (432 Error).
+2026-03-06 23:56:32,575 - app.services.market_data - INFO - Syncing fundamental for DHR: market_cap=139256953000.0, PE=5.05
+2026-03-06 23:56:34,516 - __main__ - INFO - ✅ Successfully refreshed DHR. New Price: 196.93
+2026-03-06 23:56:36,842 - app.services.market_data - INFO - Skipping Tavily for GOOGL as news is recently updated within 4 hours.
+2026-03-06 23:56:37,634 - app.services.market_data - INFO - Syncing fundamental for GOOGL: market_cap=3631208507000.0, PE=10.81
+2026-03-06 23:56:39,768 - __main__ - INFO - ✅ Successfully refreshed GOOGL. New Price: 300.17
+2026-03-06 23:56:43,064 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:56:43,065 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for IREN (432 Error).
+2026-03-06 23:56:43,225 - app.services.market_data - INFO - Syncing fundamental for IREN: market_cap=12855668000.0, PE=1.44
+2026-03-06 23:56:44,973 - __main__ - INFO - ✅ Successfully refreshed IREN. New Price: 38.78
+2026-03-06 23:56:48,175 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-06 23:56:48,176 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for JPM (432 Error).
+2026-03-06 23:56:48,333 - app.services.market_data - INFO - Syncing fundamental for JPM: market_cap=774210114000.0, PE=20.02
+2026-03-06 23:56:50,132 - __main__ - INFO - ✅ Successfully refreshed JPM. New Price: 287.1
+2026-03-06 23:56:52,302 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-07 00:47:42,884 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, ^GSPC, TXN, 600519, 600338, 603258, FRO, CSCO, CRCL, FCX...
+2026-03-07 00:47:43,817 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-07 00:47:44,692 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 00:47:44,693 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for TEST_RRR (432 Error).
+2026-03-07 00:47:44,696 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-07 00:47:44,696 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 110.95715966991067
+2026-03-07 00:47:47,730 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-07 00:47:48,266 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 00:47:48,270 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for ^GSPC (432 Error).
+2026-03-07 00:47:48,273 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-07 00:47:48,273 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6878.88
+2026-03-07 00:47:50,620 - app.services.market_data - INFO - Skipping Tavily for TXN as news is recently updated within 4 hours.
+2026-03-07 00:47:52,267 - app.services.market_data - INFO - Syncing fundamental for TXN: market_cap=176255436000.0, PE=5.45
+2026-03-07 00:47:54,859 - __main__ - INFO - ✅ Successfully refreshed TXN. New Price: 194.21
+2026-03-07 00:47:57,457 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600519 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-07 00:47:58,011 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 00:47:58,013 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 600519 (432 Error).
+2026-03-07 00:47:58,181 - app.services.market_data - INFO - Syncing fundamental for 600519: market_cap=1755683000000.0002, PE=None
+2026-03-07 00:48:00,678 - __main__ - INFO - ✅ Successfully refreshed 600519. New Price: 1402.0
+2026-03-07 00:48:03,788 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 00:48:03,789 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 600338 (432 Error).
+2026-03-07 00:48:08,132 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600338 (likely connection reset): HTTPSConnectionPool(host='push2.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/get?fltt=2&invt=2&fields=f120%2Cf121%2Cf122%2Cf174%2Cf175%2Cf59%2Cf163%2Cf43%2Cf57%2Cf58%2Cf169%2Cf170%2Cf46%2Cf44%2Cf51%2Cf168%2Cf47%2Cf164%2Cf116%2Cf60%2Cf45%2Cf52%2Cf50%2Cf48%2Cf167%2Cf117%2Cf71%2Cf161%2Cf49%2Cf530%2Cf135%2Cf136%2Cf137%2Cf138%2Cf139%2Cf141%2Cf142%2Cf144%2Cf145%2Cf147%2Cf148%2Cf140%2Cf143%2Cf146%2Cf149%2Cf55%2Cf62%2Cf162%2Cf92%2Cf173%2Cf104%2Cf105%2Cf84%2Cf85%2Cf183%2Cf184%2Cf185%2Cf186%2Cf187%2Cf188%2Cf189%2Cf190%2Cf191%2Cf192%2Cf107%2Cf111%2Cf86%2Cf177%2Cf78%2Cf110%2Cf262%2Cf263%2Cf264%2Cf267%2Cf268%2Cf255%2Cf256%2Cf257%2Cf258%2Cf127%2Cf199%2Cf128%2Cf198%2Cf259%2Cf260%2Cf261%2Cf171%2Cf277%2Cf278%2Cf279%2Cf288%2Cf152%2Cf250%2Cf251%2Cf252%2Cf253%2Cf254%2Cf269%2Cf270%2Cf271%2Cf272%2Cf273%2Cf274%2Cf275%2Cf276%2Cf265%2Cf266%2Cf289%2Cf290%2Cf286%2Cf285%2Cf292%2Cf293%2Cf294%2Cf295%2Cf43&secid=1.600338 (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)')))
+2026-03-07 00:48:08,679 - app.services.market_data - INFO - Syncing fundamental for 600338: market_cap=16246000000.0, PE=None
+2026-03-07 00:48:10,191 - __main__ - INFO - ✅ Successfully refreshed 600338. New Price: 17.77
+2026-03-07 00:48:13,324 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 00:48:13,326 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 603258 (432 Error).
+2026-03-07 00:48:17,061 - app.services.market_providers.akshare - WARNING - EM individual info failed for 603258 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-07 00:48:21,246 - app.services.market_data - INFO - Syncing fundamental for 603258: market_cap=4474000000.0, PE=None
+2026-03-07 00:48:23,085 - __main__ - INFO - ✅ Successfully refreshed 603258. New Price: 18.54
+2026-03-07 00:48:26,234 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 00:48:26,236 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for FRO (432 Error).
+2026-03-07 00:48:26,405 - app.services.market_data - INFO - Syncing fundamental for FRO: market_cap=7689372000.0, PE=1.7
+2026-03-07 00:48:28,699 - __main__ - INFO - ✅ Successfully refreshed FRO. New Price: 34.54
+2026-03-07 00:48:31,058 - app.services.market_data - INFO - Skipping Tavily for CSCO as news is recently updated within 4 hours.
+2026-03-07 00:48:31,615 - app.services.market_data - INFO - Syncing fundamental for CSCO: market_cap=311567563000.0, PE=2.78
+2026-03-07 00:48:33,453 - __main__ - INFO - ✅ Successfully refreshed CSCO. New Price: 78.89
+2026-03-07 00:48:36,589 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 00:48:36,591 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for CRCL (432 Error).
+2026-03-07 00:48:37,468 - app.services.market_data - INFO - Syncing fundamental for CRCL: market_cap=24258521000.0, PE=-0.44
+2026-03-07 00:48:39,866 - __main__ - INFO - ✅ Successfully refreshed CRCL. New Price: 102.21
+2026-03-07 00:48:43,001 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 00:48:43,004 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for FCX (432 Error).
+2026-03-07 00:48:43,182 - app.services.market_data - INFO - Syncing fundamental for FCX: market_cap=86505165000.0, PE=1.52
+2026-03-07 00:48:45,161 - __main__ - INFO - ✅ Successfully refreshed FCX. New Price: 60.19
+2026-03-07 00:48:47,331 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-07 00:53:49,674 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, ^GSPC, MA, MSFT, AMAT, AMZN, UNH, ABT, PLTR, TSLA...
+2026-03-07 00:53:50,363 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-07 00:53:51,188 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 00:53:51,190 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for TEST_RRR (432 Error).
+2026-03-07 00:53:51,191 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-07 00:53:51,191 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 110.95715966991067
+2026-03-07 00:53:53,732 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-07 00:53:54,563 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 00:53:54,565 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for ^GSPC (432 Error).
+2026-03-07 00:53:54,569 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-07 00:53:54,571 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6878.88
+2026-03-07 00:53:57,961 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 00:53:57,962 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for MA (432 Error).
+2026-03-07 00:53:58,349 - app.services.market_data - INFO - Syncing fundamental for MA: market_cap=460839553000.0, PE=16.52
+2026-03-07 00:54:00,964 - __main__ - INFO - ✅ Successfully refreshed MA. New Price: 516.75
+2026-03-07 00:54:03,341 - app.services.market_data - INFO - Skipping Tavily for MSFT as news is recently updated within 4 hours.
+2026-03-07 00:54:04,271 - app.services.market_data - INFO - Syncing fundamental for MSFT: market_cap=3063294763000.0, PE=15.98
+2026-03-07 00:54:06,397 - __main__ - INFO - ✅ Successfully refreshed MSFT. New Price: 412.53
+2026-03-07 00:54:08,863 - app.services.market_data - INFO - Skipping Tavily for AMAT as news is recently updated within 4 hours.
+2026-03-07 00:54:09,937 - app.services.market_data - INFO - Syncing fundamental for AMAT: market_cap=268144902000.0, PE=9.75
+2026-03-07 00:54:12,354 - __main__ - INFO - ✅ Successfully refreshed AMAT. New Price: 337.88
+2026-03-07 00:54:14,802 - app.services.market_data - INFO - Skipping Tavily for AMZN as news is recently updated within 4 hours.
+2026-03-07 00:54:15,638 - app.services.market_data - INFO - Syncing fundamental for AMZN: market_cap=2319387003000.0, PE=7.17
+2026-03-07 00:54:18,625 - __main__ - INFO - ✅ Successfully refreshed AMZN. New Price: 216.06
+2026-03-07 00:54:22,072 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 00:54:22,073 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for UNH (432 Error).
+2026-03-07 00:54:22,296 - app.services.market_data - INFO - Syncing fundamental for UNH: market_cap=259686058000.0, PE=13.23
+2026-03-07 00:54:24,080 - __main__ - INFO - ✅ Successfully refreshed UNH. New Price: 285.99
+2026-03-07 00:54:27,749 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 00:54:27,750 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for ABT (432 Error).
+2026-03-07 00:54:28,124 - app.services.market_data - INFO - Syncing fundamental for ABT: market_cap=189337927000.0, PE=3.72
+2026-03-07 00:54:31,473 - __main__ - INFO - ✅ Successfully refreshed ABT. New Price: 108.96
+2026-03-07 00:54:33,856 - app.services.market_data - INFO - Skipping Tavily for PLTR as news is recently updated within 4 hours.
+2026-03-07 00:54:35,646 - app.services.market_data - INFO - Syncing fundamental for PLTR: market_cap=372886160000.0, PE=0.63
+2026-03-07 00:54:37,658 - __main__ - INFO - ✅ Successfully refreshed PLTR. New Price: 155.93
+2026-03-07 00:54:40,997 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 00:54:40,999 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for TSLA (432 Error).
+2026-03-07 00:54:41,170 - app.services.market_data - INFO - Syncing fundamental for TSLA: market_cap=1501835853000.0, PE=1.08
+2026-03-07 00:54:43,307 - __main__ - INFO - ✅ Successfully refreshed TSLA. New Price: 400.23
+2026-03-07 00:54:45,547 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-07 01:08:58,585 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: TEST_RRR, ^GSPC, 002050, 601138, 603883, 002970, TXN, 600519, 600338, WMT...
+2026-03-07 01:08:59,277 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-07 01:09:01,121 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 01:09:01,124 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for TEST_RRR (432 Error).
+2026-03-07 01:09:01,127 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-07 01:09:01,127 - __main__ - INFO - ✅ Successfully refreshed TEST_RRR. New Price: 110.95715966991067
+2026-03-07 01:09:03,776 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-07 01:09:04,443 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 01:09:04,458 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for ^GSPC (432 Error).
+2026-03-07 01:09:04,461 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-07 01:09:04,461 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6878.88
+2026-03-07 01:09:07,007 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002050 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-07 01:09:08,426 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 01:09:08,427 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 002050 (432 Error).
+2026-03-07 01:09:08,955 - app.services.market_data - INFO - Syncing fundamental for 002050: market_cap=175773000000.0, PE=None
+2026-03-07 01:09:11,538 - __main__ - INFO - ✅ Successfully refreshed 002050. New Price: 47.71
+2026-03-07 01:09:14,722 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 01:09:14,725 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 601138 (432 Error).
+2026-03-07 01:09:15,061 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601138 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-07 01:09:15,562 - app.services.market_data - INFO - Syncing fundamental for 601138: market_cap=1078895999999.9999, PE=None
+2026-03-07 01:09:17,922 - __main__ - INFO - ✅ Successfully refreshed 601138. New Price: 54.33
+2026-03-07 01:09:20,599 - app.services.market_providers.akshare - WARNING - EM individual info failed for 603883 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-07 01:09:21,147 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 01:09:21,149 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 603883 (432 Error).
+2026-03-07 01:09:21,370 - app.services.market_data - INFO - Syncing fundamental for 603883: market_cap=10837000000.0, PE=None
+2026-03-07 01:09:24,706 - __main__ - INFO - ✅ Successfully refreshed 603883. New Price: 14.28
+2026-03-07 01:09:27,220 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002970 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-07 01:09:27,876 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 01:09:27,878 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 002970 (432 Error).
+2026-03-07 01:09:29,545 - app.services.market_data - INFO - Syncing fundamental for 002970: market_cap=9605000000.0, PE=None
+2026-03-07 01:09:31,221 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 77.89
+2026-03-07 01:09:33,570 - app.services.market_data - INFO - Skipping Tavily for TXN as news is recently updated within 4 hours.
+2026-03-07 01:09:34,194 - app.services.market_data - INFO - Syncing fundamental for TXN: market_cap=176151067000.0, PE=5.45
+2026-03-07 01:09:36,312 - __main__ - INFO - ✅ Successfully refreshed TXN. New Price: 194.1
+2026-03-07 01:09:38,803 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600519 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-07 01:09:39,650 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 01:09:39,655 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 600519 (432 Error).
+2026-03-07 01:09:39,816 - app.services.market_data - INFO - Syncing fundamental for 600519: market_cap=1755683000000.0002, PE=None
+2026-03-07 01:09:41,655 - __main__ - INFO - ✅ Successfully refreshed 600519. New Price: 1402.0
+2026-03-07 01:09:44,177 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600338 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-07 01:09:44,794 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-07 01:09:44,795 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded for 600338 (432 Error).
+2026-03-07 01:09:44,960 - app.services.market_data - INFO - Syncing fundamental for 600338: market_cap=16246000000.0, PE=None
+2026-03-07 01:09:46,591 - __main__ - INFO - ✅ Successfully refreshed 600338. New Price: 17.77
+2026-03-07 01:09:49,105 - app.services.market_data - INFO - Skipping Tavily for WMT as news is recently updated within 4 hours.
+2026-03-07 01:09:50,099 - app.services.market_data - INFO - Syncing fundamental for WMT: market_cap=983518603000.0001, PE=2.73
+2026-03-07 01:09:52,327 - __main__ - INFO - ✅ Successfully refreshed WMT. New Price: 123.4
+2026-03-07 01:09:54,483 - __main__ - INFO - 💤 Sleeping for 5 minutes...

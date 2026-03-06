@@ -314,3 +314,95 @@ class NotificationService:
             user_id=user_id,
             webhook_url=webhook_url
         )
+
+    @staticmethod
+    async def send_strategy_change_alert(
+        ticker: str,
+        name: str,
+        old_strategy: Dict[str, Any],
+        new_strategy: Dict[str, Any],
+        change_reason: str,
+        user_id: Optional[str] = None,
+        webhook_url: Optional[str] = None
+    ) -> bool:
+        """
+        发送策略重大调整预警 (盘后 AI 分析触发)
+        """
+        # 识别重要变更级别
+        level = 2
+        title_prefix = "🔔 策略动态更新"
+        color = "blue"
+
+        # Level 1: 方向性变更
+        if old_strategy.get("action") != new_strategy.get("action"):
+            level = 1
+            title_prefix = "🚨 核心策略转向"
+            color = "orange"
+        
+        # Level 1: 盈亏比评级大幅下滑
+        old_rr_grade = old_strategy.get("rr_grade", "中性")
+        new_rr_grade = new_strategy.get("rr_grade", "中性")
+        if old_rr_grade != new_rr_grade and "低性价比" in new_rr_grade:
+            level = 1
+            title_prefix = "⚠️ 风险收益比恶化"
+            color = "red"
+
+        elements = [
+            {
+                "tag": "div",
+                "text": {
+                    "content": f"**证券**: {name} ({ticker})\n**调整级别**: Level {level}",
+                    "tag": "lark_md"
+                }
+            },
+            {"tag": "hr"},
+            {
+                "tag": "div",
+                "fields": [
+                    {
+                        "is_short": True,
+                        "text": {
+                            "content": f"**原建议**: {old_strategy.get('action', '无')}\n**原目标**: {old_strategy.get('target', '无')}\n**原止损**: {old_strategy.get('stop_loss', '无')}",
+                            "tag": "lark_md"
+                        }
+                    },
+                    {
+                        "is_short": True,
+                        "text": {
+                            "content": f"**新建议**: **{new_strategy.get('action', '无')}**\n**新目标**: **{new_strategy.get('target', '无')}**\n**新止损**: **{new_strategy.get('stop_loss', '无')}**",
+                            "tag": "lark_md"
+                        }
+                    }
+                ]
+            },
+            {
+                "tag": "div",
+                "text": {
+                    "content": f"**变更原因**: {change_reason}",
+                    "tag": "lark_md"
+                }
+            },
+            {
+                "tag": "hr"
+            },
+            {
+                "tag": "note",
+                "elements": [
+                    {
+                        "tag": "plain_text",
+                        "content": "盘后 AI 深度复盘自动生成。交易有风险，请务必结合实际情况决策。"
+                    }
+                ]
+            }
+        ]
+
+        return await NotificationService.send_feishu_card(
+            title=f"{title_prefix}: {ticker}",
+            content=f"{name} 策略发生调整",
+            elements=elements,
+            color=color,
+            msg_type="STRATEGY_CHANGE",
+            ticker=ticker,
+            user_id=user_id,
+            webhook_url=webhook_url
+        )

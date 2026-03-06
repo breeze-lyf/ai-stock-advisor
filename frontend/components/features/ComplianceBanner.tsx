@@ -23,21 +23,22 @@ export function ComplianceBanner() {
 
 export function FooterCompliance() {
   return (
-    <footer className="mt-auto py-8 border-t border-slate-100 dark:border-zinc-800 flex flex-col items-center gap-4 text-slate-400">
-      <div className="flex items-center gap-6 text-[10px] font-bold uppercase tracking-widest">
+    <footer className="mt-auto py-6 flex flex-col items-center gap-3 text-slate-400/60 transition-opacity hover:opacity-100">
+      <div className="flex items-center gap-4 text-[10px] font-medium uppercase tracking-wider">
          <span>© 2025 AI Smart Advisor</span>
-         <span className="h-3 w-px bg-slate-200 dark:bg-zinc-800" />
-         <span>技术支持：硅基流动 DeepSeek-R1</span>
+         <span className="h-2.5 w-px bg-slate-200 dark:bg-zinc-800" />
+         <span>Powered by SiliconFlow DeepSeek-R1</span>
       </div>
       
-      <div className="flex items-center gap-4 opacity-70 grayscale hover:grayscale-0 transition-all cursor-default">
-        <div className="flex items-center gap-1.5 text-[10px] font-medium border border-slate-200 dark:border-zinc-800 px-2 py-1 rounded">
-          <Info className="h-3.5 w-3.5" />
-          <span>京ICP备XXXXXXXX号-1 (测试占位)</span>
+      <div className="flex items-center gap-3 text-[9px] font-normal tracking-tight">
+        <div className="flex items-center gap-1 opacity-80">
+          <Info className="h-3 w-3" />
+          <span>京ICP备XXXXXXXX号-1</span>
         </div>
-        <div className="flex items-center gap-1.5 text-[10px] font-medium border border-slate-200 dark:border-zinc-800 px-2 py-1 rounded">
-            <img src="https://www.beian.gov.cn/portal/download/beian_icon.png" alt="PSB" className="h-3.5 w-3.5" />
-            <span>京公网安备 XXXXXXXXXXXXXX号 (测试占位)</span>
+        <span className="text-slate-300 dark:text-zinc-800">|</span>
+        <div className="flex items-center gap-1 opacity-80">
+            <img src="https://www.beian.gov.cn/portal/download/beian_icon.png" alt="PSB" className="h-3 w-3 grayscale" />
+            <span>京公网安备 XXXXXXXXXXXXXX号</span>
         </div>
       </div>
     </footer>

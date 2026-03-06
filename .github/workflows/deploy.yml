@@ -25,7 +25,7 @@ jobs:
       - name: Build Frontend
         working-directory: frontend
         env:
-          NEXT_PUBLIC_API_URL: http://47.100.109.73:8000
+          NEXT_PUBLIC_API_URL: http://stock.yufeng.fun/api
         run: |
           npm install --registry=https://registry.npmmirror.com
           npm run build

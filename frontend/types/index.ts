@@ -1,6 +1,15 @@
 import { components } from "./schema";
 
 export type PortfolioItem = components["schemas"]["PortfolioItem"] & {
+    price?: number | null;
+    resistance_1?: number | null;
+    support_1?: number | null;
+    atr_14?: number | null;
+    bb_upper?: number | null;
+    bb_middle?: number | null;
+    bb_lower?: number | null;
+    ma_20?: number | null;
+    ma_50?: number | null;
     macd_cross?: string | null;
     macd_is_new_cross?: boolean;
     risk_reward_ratio?: number | null;

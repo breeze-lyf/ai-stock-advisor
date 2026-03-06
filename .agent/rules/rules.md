@@ -19,7 +19,7 @@ trigger: always_on
   - **包管理强制换源**: 终端命令遇到依赖安装时，必须默认带上国内镜像源（如 `pip install -i https://pypi.tuna.tsinghua.edu.cn/simple` 或 `npm --registry=https://registry.npmmirror.com`）。
 
 ## 2. 量化逻辑与数据准则 (Quant & Data Logic)
-- **国内数据源优先**: 实时行情和历史数据抓取，必须优先使用 `AKShare` 或其他国内合规/连通性好的 API。确保数据滞后不超过 1 分钟。
+- **国内数据源优先**: 实时行情 and 历史数据抓取，必须优先使用 `AKShare` 或其他国内合规/连通性好的 API。确保数据滞后不超过 1 分钟。
 - **计算 > 视觉**: 绝对禁止让 AI 多模态大模型直接通过“看 K 线截图”来猜具体价格。所有量化分析（如 RSI、MACD）必须基于后端精准计算并作为 JSON 传入 prompt。
 - **盈亏比强制校验 (Risk/Reward)**: 在生成交易研判和策略时，必须在代码逻辑中自动计算（目标盈利空间 / 潜在止损空间）。如果盈亏比低于 `1:1.5`，必须在返回的数据和 UI 中强标记为 **“低性价比机会”**。
 
@@ -36,3 +36,9 @@ trigger: always_on
 - **TypeScript (前端)**: 强制开启 Strict 模式，**严禁出现 `any`**。所有涉及股票数据的变量必须拥有明确的 `interface` 或 `type` 声明。
 - **Python (后端) & 注释**: 复杂的量化公式（如“空中加油”形态的数学定义、均线缠绕等）**必须在紧挨着的代码上方编写极度详尽的中文业务逻辑注释**。
 - **容错防御机制**: 所有的外部 API 调用（特别是硅基流动 AI 接口、金融数据接口）必须包裹严密的 `try-catch` (前端) 或 `try...except` (后端)，遇到跨国请求超时或被阻断时，必须有优雅的 fallback 逻辑和用户侧的中文友好的错误提示。
+
+## 5. 部署与生产安全 (Deployment & Production Safety)
+- **低配服务器意识**: 服务器资源（如 1.6G 内存）严禁在服务端直接运行 `next build` 等高能耗任务。必须在本地或 GitHub Actions 编译产物后同步。
+- **自动化流程优先**: 严禁在存在 GitHub Actions 自动推送机制的情况下，手动通过 `rsync` 大量同步目录（如 `.next`），避免资源竞争和系统 IO 卡死致使服务器失去响应。
+- **进程残留清理**: 在任何手动重启或修复服务前，必须先利用 `fuser -k` 检查并清理 3000 (Frontend) 和 8000 (Backend) 端口的残留进程，严防 502 Bad Gateway。
+- **配置持久化与解耦**: 服务器端的 `.env.production` 必须保持独立且与 GitHub 推送的代码隔离。务必确保其中的 `NEXT_PUBLIC_API_URL` 准确指向生产域名，而非本地测试 IP。

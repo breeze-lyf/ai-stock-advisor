@@ -351,7 +351,7 @@ export function StockDetail({
                         </div>
                     </div>
                     
-                    <div className="relative group">
+                    <div className="relative group px-4 md:px-10">
                         <StockChart 
                             data={historyData} 
                             ticker={selectedItem.ticker} 
@@ -379,7 +379,8 @@ export function StockDetail({
                     </Button>
                 </div>
 
-                {aiData ? (
+                <div className="px-4 md:px-10">
+                    {aiData ? (
                     (() => {
                     /**
                      * 交易轴算法逻辑 (Trade Axis Algorithm)
@@ -408,10 +409,10 @@ export function StockDetail({
                     const getPos = (val: number) => ((val - axisMin) / totalRange) * 100;
 
                     const zones = [
-                        { name: (selectedItem?.quantity || 0) > 0 ? "止损" : "预设止损", start: axisMin, end: stop, color: "bg-[#F0614D]", textColor: "text-rose-600" },
-                        { name: "建仓", start: stop, end: entryHigh, color: "bg-[#3CC68A]", textColor: "text-emerald-600" },
-                        { name: "观望/持有", start: entryHigh, end: target, color: "bg-[#E8EAED] dark:bg-slate-600", textColor: "text-slate-500" },
-                        { name: "止盈", start: target, end: axisMax, color: "bg-[#3B82F6]", textColor: "text-blue-600" }
+                        { name: (selectedItem?.quantity || 0) > 0 ? "止损" : "预设止损", start: axisMin, end: stop, color: "bg-[#F0614D]", darkColor: "bg-rose-500/80", textColor: "text-rose-600 dark:text-rose-400", bgColor: "bg-rose-50 dark:bg-rose-500/10", borderColor: "border-rose-200 dark:border-rose-500/20" },
+                        { name: "建仓", start: stop, end: entryHigh, color: "bg-[#3CC68A]", darkColor: "bg-emerald-500/80", textColor: "text-emerald-600 dark:text-emerald-400", bgColor: "bg-emerald-50 dark:bg-emerald-500/10", borderColor: "border-emerald-200 dark:border-emerald-500/20" },
+                        { name: "观望/持有", start: entryHigh, end: target, color: "bg-[#E8EAED] dark:bg-slate-600", darkColor: "bg-slate-600", textColor: "text-slate-500 dark:text-slate-400", bgColor: "bg-slate-50 dark:bg-slate-800/50", borderColor: "border-slate-200 dark:border-slate-700" },
+                        { name: "止盈", start: target, end: axisMax, color: "bg-[#3B82F6]", darkColor: "bg-blue-500/80", textColor: "text-blue-600 dark:text-blue-400", bgColor: "bg-blue-50 dark:bg-blue-500/10", borderColor: "border-blue-200 dark:border-blue-500/20" }
                     ];
 
                     const activeZone = zones.find(z => current >= z.start && current <= z.end) || 
@@ -438,10 +439,10 @@ export function StockDetail({
                                             {aiData.immediate_action || "观望"}
                                         </h3>
                                         <span className={clsx(
-                                            "text-[9px] font-black px-2 py-0.5 rounded-md border uppercase",
-                                            activeZone.textColor.replace("text-", "bg-").replace("600", "50") + "/50",
+                                            "text-[9px] font-black px-2 py-0.5 rounded-md border uppercase whitespace-nowrap",
+                                            activeZone.bgColor,
                                             activeZone.textColor,
-                                            activeZone.textColor.replace("text-", "border-").replace("600", "200")
+                                            activeZone.borderColor
                                         )}>
                                             {activeZone.name}
                                         </span>
@@ -587,11 +588,11 @@ export function StockDetail({
                                     
                                     // 核心：过滤掉重复或无效的区间
                                     const rawZones = [
-                                        { name: isHolding ? "止损" : "预设止损", start: axisMin, end: stopPrice, color: isHolding ? "bg-[#F0614D]" : "bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(240,97,77,0.5)_4px,rgba(240,97,77,0.5)_8px)] opacity-90 border-y border-[#F0614D]/40" },
-                                        { name: "观察", start: stopPrice, end: entryLow, color: "bg-[#E8EAED] dark:bg-slate-600 opacity-30" },
-                                        { name: "买入", start: entryLow, end: entryHigh, color: "bg-[#3CC68A]" },
-                                        { name: "持有", start: entryHigh, end: targetPrice, color: "bg-[#E8EAED] dark:bg-slate-600" },
-                                        { name: "止盈", start: targetPrice, end: axisMax, color: "bg-[#3B82F6]" }
+                                        { name: isHolding ? "止损" : "预设止损", start: axisMin, end: stopPrice, color: isHolding ? "bg-[#F0614D] dark:bg-rose-600/80" : "bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(240,97,77,0.5)_4px,rgba(240,97,77,0.5)_8px)] opacity-90 border-y border-[#F0614D]/40" },
+                                        { name: "观察", start: stopPrice, end: entryLow, color: "bg-[#E8EAED] dark:bg-white/5 opacity-30" },
+                                        { name: "买入", start: entryLow, end: entryHigh, color: "bg-[#3CC68A] dark:bg-emerald-500/80" },
+                                        { name: "持有", start: entryHigh, end: targetPrice, color: "bg-[#E8EAED] dark:bg-white/10" },
+                                        { name: "止盈", start: targetPrice, end: axisMax, color: "bg-[#3B82F6] dark:bg-blue-600/80" }
                                     ];
 
                                     const visibleZones = rawZones.filter(z => z.end > z.start);
@@ -692,23 +693,23 @@ export function StockDetail({
                                     {aiData.action_advice}
                                 </ReactMarkdown>
                             </div>
-                            {aiData.created_at && (
-                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 border-t border-slate-100 dark:border-white/5 bg-slate-50/20 dark:bg-white/5 px-6">
+                             {aiData.created_at && (
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-2 px-6 border-y border-slate-100 dark:border-white/5 bg-slate-50/20 dark:bg-white/5">
                                     <div className="flex items-center gap-2">
-                                        <ShieldCheck className="h-3.5 w-3.5 text-blue-500 opacity-60" />
-                                        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                                            AI 辅助决策支持系统 • 算法版本 V4.0
+                                        <ShieldCheck className="h-3 w-3 text-blue-500 opacity-60" />
+                                        <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest whitespace-nowrap">
+                                            AI 辅助决策系统 V4.0
                                         </span>
                                     </div>
-                                    <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase italic tracking-widest opacity-60">
-                                        REPORT GENERATED VIA DEEPSEEK ENGINE • {formatDistanceToNow(new Date(aiData.created_at + (aiData.created_at.includes('Z') ? '' : 'Z')), { addSuffix: true, locale: zhCN })}
+                                    <span className="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase italic tracking-wider opacity-60">
+                                        via DEEPSEEK • {formatDistanceToNow(new Date(aiData.created_at + (aiData.created_at.includes('Z') ? '' : 'Z')), { addSuffix: true, locale: zhCN })}
                                     </span>
                                 </div>
                             )}
-                            <div className="px-6 py-4 bg-orange-50/30 dark:bg-orange-900/5 border-t border-orange-100/50 dark:border-orange-950/30">
-                                <p className="text-[10px] leading-relaxed text-slate-500 dark:text-slate-400 font-medium">
-                                    <span className="font-bold text-orange-600 dark:text-orange-500/80 mr-1 italic">DISCLAIMER:</span>
-                                    本报告基于机器学习算法对公开市场数据进行自动化模拟与推演，不代表任何金融机构立场，亦不构成证券买卖建议。报告中的价格目标、止损位及交易区仅供模型测试使用，不对实际盈亏负责。阁下依据本报告进行的任何投资操作，风险须自行承担。
+                            <div className="px-6 py-2.5 bg-orange-50/20 dark:bg-orange-950/5">
+                                <p className="text-[9.5px] leading-relaxed text-slate-400 dark:text-slate-500 font-medium opacity-80">
+                                    <span className="font-black text-orange-600/80 dark:text-orange-500/60 mr-1 italic">DISCLAIMER:</span>
+                                    本报告基于机器学习算法自动化生成，不构成投资建议。价格建议仅供参考，不对盈亏负责。投资有风险，操作须谨慎。
                                 </p>
                             </div>
                         </div>
@@ -719,6 +720,7 @@ export function StockDetail({
                         <p className="text-[10px] font-bold uppercase tracking-[0.3em]">等待诊断报告生成...</p>
                     </div>
                 )}
+                </div>
             </div>
 
             {/* --- Section 3: Technical Scan (Visual Hub) --- */}
@@ -889,24 +891,91 @@ export function StockDetail({
 
                     {/* Part 3: Support/Execution Strip (3 Columns) */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {/* Bollinger Bands */}
-                        <div className="bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border border-slate-100 dark:border-zinc-800/50 p-5 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 transition-all">
+                        {/* Bollinger Bands Visual Indicator */}
+                        <div className="bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border border-slate-100 dark:border-zinc-800/50 p-5 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 transition-all flex flex-col">
                             <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                                 <Zap className="h-3.5 w-3.5 text-rose-400" /> Bollinger Bands
                             </div>
-                            <div className="space-y-3">
-                                <div className="flex justify-between items-baseline">
-                                    <span className="text-[10px] font-medium text-slate-400">UP Band</span>
-                                    <span className="text-sm font-black dark:text-zinc-200">${selectedItem?.bb_upper?.toFixed(2)}</span>
+                            
+                            <div className="flex-1 flex gap-4 items-center">
+                                {/* Vertical Axis */}
+                                <div className="relative h-24 w-1.5 bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden shrink-0">
+                                    {/* Middle line */}
+                                    <div className="absolute top-1/2 left-0 w-full h-0.5 bg-blue-500/30 -translate-y-1/2" />
+                                    {/* Position Indicator Dot */}
+                                    {(() => {
+                                        const upper = selectedItem?.bb_upper || 0;
+                                        const lower = selectedItem?.bb_lower || 0;
+                                        // 优先使用当前价 price，如果缺失则回退到数据库记录价
+                                        const current = selectedItem?.price || selectedItem?.current_price || 0;
+                                        const range = upper - lower;
+                                        
+                                        if (range <= 0 || current <= 0) return null;
+                                        
+                                        let pos = ((current - lower) / range) * 100;
+                                        // 允许指示点略微超出边界（如破位时），但限制在视野内
+                                        const clampedPos = Math.max(-5, Math.min(105, pos)); 
+                                        
+                                        return (
+                                            <div 
+                                                className={clsx(
+                                                    "absolute left-1/2 -translate-x-1/2 w-3 h-3 rounded-full border-2 border-white dark:border-zinc-900 shadow-sm z-10 transition-all duration-500",
+                                                    pos > 90 ? "bg-rose-500 shadow-rose-500/50" : 
+                                                    pos < 10 ? "bg-emerald-500 shadow-emerald-500/50" : "bg-blue-500 shadow-blue-500/20"
+                                                )}
+                                                style={{ bottom: `${clampedPos}%` }}
+                                            />
+                                        );
+                                    })()}
+                                    {/* Track highlighting */}
+                                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-emerald-500/20 via-blue-500/10 to-rose-500/20 w-full h-full" />
                                 </div>
-                                <div className="flex justify-between items-baseline border-y border-slate-100 dark:border-zinc-800/50 py-2">
-                                    <span className="text-[10px] font-medium text-slate-400">Middle</span>
-                                    <span className="text-sm font-black text-blue-500">${selectedItem?.bb_middle?.toFixed(2)}</span>
+
+                                {/* Data Labels */}
+                                <div className="flex-1 space-y-2.5">
+                                    <div className="flex justify-between items-center group">
+                                        <span className="text-[10px] font-medium text-slate-400 group-hover:text-rose-400 transition-colors">UPPER</span>
+                                        <span className="text-xs font-black dark:text-zinc-200">${selectedItem?.bb_upper?.toFixed(2) || "0.00"}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center py-1.5 border-y border-slate-50 dark:border-zinc-800/50 hover:bg-slate-50/50 dark:hover:bg-zinc-800/20 px-1 rounded transition-colors">
+                                        <span className="text-[10px] font-bold text-blue-500">MID</span>
+                                        <span className="text-xs font-black text-blue-500">${selectedItem?.bb_middle?.toFixed(2) || "0.00"}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center group">
+                                        <span className="text-[10px] font-medium text-slate-400 group-hover:text-emerald-400 transition-colors">LOWER</span>
+                                        <span className="text-xs font-black dark:text-zinc-200">${selectedItem?.bb_lower?.toFixed(2) || "0.00"}</span>
+                                    </div>
                                 </div>
-                                <div className="flex justify-between items-baseline">
-                                    <span className="text-[10px] font-medium text-slate-400">LOW Band</span>
-                                    <span className="text-sm font-black dark:text-zinc-200">${selectedItem?.bb_lower?.toFixed(2)}</span>
-                                </div>
+                            </div>
+                            
+                            {/* Relative Position Text */}
+                            <div className="mt-3 pt-3 border-t border-slate-50 dark:border-zinc-800/50 flex justify-between items-center">
+                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Relative Pos</span>
+                                {(() => {
+                                    const upper = selectedItem?.bb_upper || 0;
+                                    const lower = selectedItem?.bb_lower || 0;
+                                    const current = selectedItem?.price || selectedItem?.current_price || 0;
+                                    const range = upper - lower;
+                                    
+                                    if (range <= 0 || current <= 0) {
+                                        return <div className="text-[9px] text-slate-300 italic">等待数据渲染...</div>;
+                                    }
+
+                                    const pos = ((current - lower) / range) * 100;
+                                    let status = "中性";
+                                    let statusClass = "text-blue-500 bg-blue-50 dark:bg-blue-500/10";
+                                    
+                                    if (pos > 100) { status = "破上轨"; statusClass = "text-rose-600 bg-rose-50 dark:bg-rose-500/20"; }
+                                    else if (pos > 80) { status = "超买"; statusClass = "text-rose-500 bg-rose-50 dark:bg-rose-500/10"; }
+                                    else if (pos < 0) { status = "破下轨"; statusClass = "text-emerald-600 bg-emerald-50 dark:bg-emerald-500/20"; }
+                                    else if (pos < 20) { status = "超卖"; statusClass = "text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10"; }
+                                    
+                                    return (
+                                        <div className={clsx("px-2 py-0.5 rounded-full text-[9px] font-black", statusClass)}>
+                                            {status} {pos.toFixed(0)}%
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         </div>
 
@@ -974,7 +1043,8 @@ export function StockDetail({
                     <h2 className="text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100 uppercase">基本面资料卡</h2>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6 border-b border-slate-50 dark:border-slate-800 pb-10">
+                <div className="px-4 md:px-10">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6 border-b border-slate-50 dark:border-slate-800 pb-10">
                     {[
                         { label: "市值", value: selectedItem?.market_cap ? (selectedItem.market_cap / 1e9).toFixed(1) + "B" : "-", sub: "Market Cap" },
                         { label: "市盈率", value: selectedItem?.pe_ratio?.toFixed(2) || "-", sub: "Trailing PE" },
@@ -1003,6 +1073,7 @@ export function StockDetail({
                         </div>
                     )
                 }
+                </div>
             </div>
 
             {/* --- Section 5: News Pipeline (The "Bottom" Stream) --- */}
@@ -1017,11 +1088,13 @@ export function StockDetail({
                     </span>
                 </div>
 
-                <StockNewsList news={news} />
+                <div className="px-4 md:px-10">
+                    <StockNewsList news={news} />
+                </div>
             </div>
 
-            <div className="mt-20 py-10 border-t border-slate-100 dark:border-slate-800 text-center">
-                <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.5em] italic">End of Analysis Report</p>
+            <div className="mt-8 py-4 border-t border-slate-100 dark:border-slate-800 text-center opacity-30">
+                <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em]">AI Analysis Terminal V4.0</p>
             </div>
         </div>
     );

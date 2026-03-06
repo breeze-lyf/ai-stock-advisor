@@ -266,6 +266,150 @@ async def refresh_hourly_summary():
     except Exception as e:
         logger.error(f"[Scheduler] 每小时新闻精要生成失败: {e}")
 
+async def refresh_post_market_analysis():
+    """
+    盘后 AI 深度复盘：
+    1. 动态识别已收盘的市场 (A/港/美)
+    2. 对当前持有该市场标的的活跃用户，触发一次完整 AI 分析
+    3. 对比历史建议，如果发生重大偏差，推送 Feishu Alert
+    """
+    try:
+        from app.models.user import User
+        from app.models.portfolio import Portfolio
+        from app.models.stock import Stock
+        from app.services.ai_service import AIService
+        from app.services.macro_service import MacroService
+
+        now_utc = datetime.now(pytz.utc)
+        
+        # 定义各市场“适合复盘”的时间窗口 (收盘后 30 分钟内触发)
+        # 逻辑：如果是该市场的收盘窗口，则处理该市场的股票
+        markets_to_process = []
+        
+        # A股: 15:00 收盘，15:30 开始复盘
+        cn_now = now_utc.astimezone(CN_TZ)
+        if cn_now.hour == 15 and 30 <= cn_now.minute < 45:
+            markets_to_process.append("A")
+            
+        # 港股: 16:00 收盘，16:30 开始复盘
+        if cn_now.hour == 16 and 30 <= cn_now.minute < 45:
+            markets_to_process.append("HK")
+            
+        # 美股: 04:00/05:00 收盘 (冬/夏令时)，这里统一按 05:30 触发处理
+        if cn_now.hour == 5 and 30 <= cn_now.minute < 45:
+            markets_to_process.append("US")
+
+        if not markets_to_process:
+            return
+
+        logger.info(f"[Scheduler] 🚀 启动盘后深度复盘任务: {markets_to_process}")
+
+        async with SessionLocal() as db:
+            # 获取所有有持仓的用户
+            stmt = select(User).join(Portfolio, User.id == Portfolio.user_id).distinct()
+            res = await db.execute(stmt)
+            users = res.scalars().all()
+
+            # 获取全局宏观背景
+            macro_data = await MacroService.get_latest_radar(db)
+            news_data = await MacroService.get_latest_news(db, limit=20)
+            macro_context = ""
+            if macro_data:
+                macro_context += "\n### 全球异动雷达\n" + "\n".join([f"- {t.title}: {t.summary}" for t in macro_data])
+            if news_data:
+                macro_context += "\n### 实时快讯\n" + "\n".join([f"- {n.title}: {n.content[:100]}..." for n in news_data])
+
+            for user in users:
+                # 获取该用户在对应市场的持仓
+                p_stmt = select(Portfolio).where(Portfolio.user_id == user.id)
+                p_res = await db.execute(p_stmt)
+                user_portfolios = p_res.scalars().all()
+                
+                for p in user_portfolios:
+                    # 确定股票所属市场
+                    market = "US"
+                    if p.ticker.isdigit():
+                        market = "A" if len(p.ticker) == 6 else "HK"
+                    elif p.ticker.endswith(".HK"):
+                        market = "HK"
+                    
+                    if market not in markets_to_process:
+                        continue
+
+                    logger.info(f"[Scheduler] 正在复盘 {user.email} 的标标: {p.ticker}")
+                    
+                    # 1. 获取最后一次分析报告作为对比
+                    old_report_stmt = select(AnalysisReport).where(
+                        AnalysisReport.ticker == p.ticker,
+                        AnalysisReport.user_id == user.id
+                    ).order_by(AnalysisReport.created_at.desc()).limit(1)
+                    old_res = await db.execute(old_report_stmt)
+                    old_report = old_res.scalar_one_or_none()
+
+                    # 2. 触发新的深度分析 (盘后补录已确保获取到收盘价)
+                    # generate_analysis 会自动获取最新的 RealTimeData 和 News
+                    new_report = await AIService.generate_analysis(p.ticker, user.id, macro_context=macro_context)
+                    
+                    if not new_report:
+                        continue
+
+                    # 3. 比较逻辑与推送
+                    if old_report and user.feishu_webhook_url:
+                        # 构造核心策略包
+                        old_strat = {
+                            "action": old_report.immediate_action,
+                            "target": old_report.target_price,
+                            "stop_loss": old_report.stop_loss_price,
+                            "rr_grade": old_report.rr_ratio # 假设模型输出包含了分级
+                        }
+                        new_strat = {
+                            "action": new_report.immediate_action,
+                            "target": new_report.target_price,
+                            "stop_loss": new_report.stop_loss_price,
+                            "rr_grade": new_report.rr_ratio
+                        }
+
+                        # 判断是否需要发送策略变更通知
+                        # A. 建议动作改变 (重要)
+                        # B. 目标价偏移 > 3%
+                        # C. 止损价偏移 > 3%
+                        significant_change = False
+                        reason = ""
+
+                        if old_strat["action"] != new_strat["action"]:
+                            significant_change = True
+                            reason = f"建议操作由 [{old_strat['action']}] 调整为 [{new_strat['action']}]"
+                        
+                        elif old_strat["target"] and new_strat["target"]:
+                            diff = abs(new_strat["target"] - old_strat["target"]) / old_strat["target"]
+                            if diff > 0.03:
+                                significant_change = True
+                                reason = f"目标价发生显著修正 (偏差 {diff:.1%})"
+                                
+                        elif old_strat["stop_loss"] and new_strat["stop_loss"]:
+                            diff = abs(new_strat["stop_loss"] - old_strat["stop_loss"]) / old_strat["stop_loss"]
+                            if diff > 0.03:
+                                significant_change = True
+                                reason = f"止损位置需动态调整 (偏差 {diff:.1%})"
+
+                        if significant_change:
+                            stock_res = await db.execute(select(Stock.name).where(Stock.ticker == p.ticker))
+                            stock_name = stock_res.scalar_one_or_none() or p.ticker
+                            
+                            await NotificationService.send_strategy_change_alert(
+                                ticker=p.ticker,
+                                name=stock_name,
+                                old_strategy=old_strat,
+                                new_strategy=new_strat,
+                                change_reason=reason,
+                                user_id=user.id,
+                                webhook_url=user.feishu_webhook_url
+                            )
+
+        logger.info(f"[Scheduler] 盘后复盘任务处理完成: {markets_to_process}")
+    except Exception as e:
+        logger.error(f"[Scheduler] 盘后复盘任务失败: {e}")
+
 async def send_daily_portfolio_report():
     """生成并发送每日持仓健康报告 (Feishu Card)"""
     try:
@@ -394,5 +538,11 @@ async def start_scheduler():
                     last_daily_report_day = today_str
                 except Exception as e:
                     logger.error(f"[Scheduler] 每日报告触发异常: {e}")
+
+        # 5. 盘后 AI 深度复盘 (每 15 分钟检查一次，内部有时间窗口过滤)
+        try:
+            await refresh_post_market_analysis()
+        except Exception as e:
+            logger.error(f"[Scheduler] 盘后复盘触发异常: {e}")
 
         await asyncio.sleep(60) # 将精度从 5 分钟提升至 1 分钟

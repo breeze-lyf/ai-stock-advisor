@@ -131,63 +131,80 @@ class MarketDataService:
             except asyncio.TimeoutError:
                 logger.warning(f"{ticker} 核心报价/指标抓取超时 (15s)")
                 quote, indicators = None, None
+            except Exception as e:
+                logger.error(f"{ticker} 核心抓取异常: {e}")
+                quote, indicators = None, None
 
             # 基本面数据获取 (增强版：包含百分位与资金流)
+            # 逻辑修复：即使 fundamental_task 失败，只要 val_data 或 flow_data 有数据，也应返回
             fundamental = None
             if fundamental_task:
                 try:
                     # 并行获取基础面、估值百分位、资金流
-                    # 由于百分位和资金流也是由 provider 提供，我们通过 asyncio.gather 进一步加速
                     valuation_task = asyncio.create_task(provider.get_valuation_percentiles(ticker))
                     flow_task = asyncio.create_task(provider.get_capital_flow(ticker))
                     
-                    fundamental, val_data, flow_data = await asyncio.gather(
+                    f_res, val_data, flow_data = await asyncio.gather(
                         fundamental_task, valuation_task, flow_task, return_exceptions=True
                     )
                     
-                    if not isinstance(fundamental, Exception) and fundamental:
-                        if not isinstance(val_data, Exception):
-                            fundamental.pe_percentile = val_data.get("pe_percentile")
-                            fundamental.pb_percentile = val_data.get("pb_percentile")
-                        if not isinstance(flow_data, Exception):
-                            fundamental.net_inflow = flow_data.get("net_inflow")
+                    # 即使核心 fundamental 抓取异常或为空，我们也创建一个容器来存放百分位和资金流
+                    if isinstance(f_res, Exception) or not f_res:
+                        fundamental = ProviderFundamental()
+                        logger.info(f"{ticker} main fundamental task failed, creating empty container for quant metrics")
                     else:
+                        fundamental = f_res
+                    
+                    # 注入百分位数据
+                    if not isinstance(val_data, Exception) and val_data:
+                        fundamental.pe_percentile = val_data.get("pe_percentile")
+                        fundamental.pb_percentile = val_data.get("pb_percentile")
+                    
+                    # 注入资金流数据
+                    if not isinstance(flow_data, Exception) and flow_data:
+                        fundamental.net_inflow = flow_data.get("net_inflow")
+                        
+                    # 如果最后还是全空，则设为 None
+                    if all(getattr(fundamental, f) is None for f in fundamental.model_fields):
                         fundamental = None
+
                 except Exception as e:
                     logger.error(f"{ticker} 增强基本面异常: {e}")
                     fundamental = None
 
             # 新闻数据并行获取，极短超时 (最高 1.5 秒) 防止拖累响应
-            news_gather = asyncio.gather(*news_tasks, return_exceptions=True)
-            try:
-                # 扣除核心任务已耗费的时间，最多再等 2.0 秒
-                news_res = await asyncio.wait_for(news_gather, timeout=2.0) # Bumped timeout to 2s
-                news = []
-                # 合并并去重
-                seen_links = set()
-                for nr in news_res:
-                    if isinstance(nr, list):
-                        for item in nr:
-                            if item.link and item.link not in seen_links:
-                                news.append(item)
-                                seen_links.add(item.link)
-                    elif isinstance(nr, Exception) and "432" in str(nr): # Tavily 432 error handling
-                        logger.warning(f"Tavily news for {ticker} returned 432 error, likely rate limit or invalid query. Skipping.")
-                    elif isinstance(nr, Exception):
-                        logger.warning(f"News task for {ticker} failed with: {nr}")
-                
-                # 按照发布时间倒序排列
-                def get_sort_key(x):
-                    p_time = x.publish_time if x.publish_time else datetime.utcnow()
-                    # 统一转为 naive 格式，防止 offset-naive and offset-aware 比较报错
-                    if p_time.tzinfo is not None:
-                        p_time = p_time.replace(tzinfo=None)
-                    return p_time
+            news = []
+            if news_tasks:
+                news_gather = asyncio.gather(*news_tasks, return_exceptions=True)
+                try:
+                    # 扣除核心任务已耗费的时间，最多再等 2.0 秒
+                    news_res = await asyncio.wait_for(news_gather, timeout=2.0) # Bumped timeout to 2s
+                    # 合并并去重
+                    seen_links = set()
+                    for nr in news_res:
+                        if isinstance(nr, list):
+                            for item in nr:
+                                if item.link and item.link not in seen_links:
+                                    news.append(item)
+                                    seen_links.add(item.link)
+                        elif isinstance(nr, Exception) and "432" in str(nr): # Tavily 432 error handling
+                            logger.warning(f"Tavily news for {ticker} returned 432 error, likely rate limit or invalid query. Skipping.")
+                        elif isinstance(nr, Exception):
+                            logger.warning(f"News task for {ticker} failed with: {nr}")
+                    
+                    # 按照发布时间倒序排列
+                    def get_sort_key(x):
+                        p_time = x.publish_time if x.publish_time else datetime.utcnow()
+                        # 统一转为 naive 格式，防止 offset-naive and offset-aware 比较报错
+                        if p_time.tzinfo is not None:
+                            p_time = p_time.replace(tzinfo=None)
+                        return p_time
 
-                news.sort(key=get_sort_key, reverse=True)
-            except asyncio.TimeoutError:
-                logger.warning(f"{ticker} 新闻抓取超时 (1.5s)，已忽略")
-                news = []
+                    news.sort(key=get_sort_key, reverse=True)
+                except asyncio.TimeoutError:
+                    logger.warning(f"{ticker} 新闻抓取超时 (1.5s)，已忽略")
+                except Exception as e:
+                    logger.warning(f"{ticker} 新闻处理异常: {e}")
             
             # 将结果组装成统一的 FullMarketData 结构体
             if quote and not isinstance(quote, Exception):
@@ -195,7 +212,7 @@ class MarketDataService:
                     quote=quote,
                     fundamental=fundamental if not isinstance(fundamental, Exception) else None,
                     technical=ProviderTechnical(indicators=indicators) if not isinstance(indicators, Exception) and indicators else None,
-                    news=news if not isinstance(news, Exception) else []
+                    news=news
                 )
         except Exception as e:
             logger.error(f"从 {type(provider).__name__} 获取 {ticker} 数据时发生错误: {e}")
@@ -247,17 +264,19 @@ class MarketDataService:
                 val = getattr(fundamental, field, None)
                 if val is not None:
                     setattr(stock, field, val)
-                    
-            # 3. 同步至 MarketDataCache 的专业量化字段
-            if not cache:
-                cache = MarketDataCache(ticker=ticker)
-                db.add(cache)
-            
+
+        # 3. 同步至 MarketDataCache 的专业量化字段 (百分位、资金流等)
+        if not cache:
+            cache = MarketDataCache(ticker=ticker)
+            db.add(cache)
+        
+        # 逻辑修复：无论 fundamental 整体是否存在，只要其中的百分位/资金流字段有值，就同步到 Cache
+        if fundamental:
             cache.pe_percentile = sanitize_float(fundamental.pe_percentile, cache.pe_percentile)
             cache.pb_percentile = sanitize_float(fundamental.pb_percentile, cache.pb_percentile)
             cache.net_inflow = sanitize_float(fundamental.net_inflow, cache.net_inflow)
 
-        # 3. 同步实时缓存信息 (价格、RSI、MACD 等)
+        # 4. 同步实时缓存信息 (价格、RSI、MACD 等)
         if not cache:
             cache = MarketDataCache(ticker=ticker)
             db.add(cache)

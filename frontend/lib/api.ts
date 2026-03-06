@@ -15,8 +15,9 @@ import {
 } from "@/types";
 
 // 1. 基础配置 (Base Configuration)
+const baseURL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/api$/, "");
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
+    baseURL,
     timeout: 180000,
     headers: {
         "Content-Type": "application/json",

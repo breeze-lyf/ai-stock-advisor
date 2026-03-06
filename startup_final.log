@@ -2346,3 +2346,428 @@ INFO:     Application startup complete.
 2026-03-06 23:16:58,883 - app.services.market_data - INFO - Syncing fundamental for SIDU: market_cap=135368000.0, PE=-1.26
 2026-03-06 23:17:01,048 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: SIDU
 2026-03-06 23:17:03,314 - app.services.market_data - INFO - Syncing fundamental for META: market_cap=1625593523000.0, PE=23.49
+2026-03-06 23:17:05,321 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: META
+2026-03-06 23:17:07,697 - app.services.market_data - INFO - Syncing fundamental for COST: market_cap=439375233000.0, PE=18.67
+2026-03-06 23:17:09,557 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: COST
+2026-03-06 23:17:09,558 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 23 只标的。
+2026-03-06 23:18:10,862 - app.services.scheduler - INFO - [Scheduler] 发现 7 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-06 23:18:13,025 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-06 23:18:13,137 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:18:13,615 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-06 23:18:15,405 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-06 23:18:15,607 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:18:15,921 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-06 23:18:18,601 - app.services.market_data - INFO - Syncing fundamental for DHR: market_cap=139511524000.0, PE=5.05
+2026-03-06 23:18:20,715 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: DHR
+2026-03-06 23:18:23,137 - app.services.market_data - INFO - Syncing fundamental for PFE: market_cap=149747853000.0, PE=1.36
+2026-03-06 23:18:25,362 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PFE
+2026-03-06 23:18:29,212 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: DJIA
+2026-03-06 23:18:31,504 - app.services.market_data - INFO - Syncing fundamental for BAC: market_cap=345234296000.0, PE=3.81
+2026-03-06 23:18:33,435 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: BAC
+2026-03-06 23:18:35,917 - app.services.market_data - INFO - Syncing fundamental for TMO: market_cap=188245926000.0, PE=17.74
+2026-03-06 23:18:37,812 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TMO
+2026-03-06 23:18:37,813 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 7 只标的。
+ GET /?tab=analysis&ticker=NVDA 200 in 60ms (compile: 16ms, render: 44ms)
+INFO:     127.0.0.1:49929 - "OPTIONS /api/user/me HTTP/1.1" 200 OK
+2026-03-06 23:19:35,253 - api_logger - INFO - rid=/api/user/me method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=7.55ms
+INFO:     127.0.0.1:49929 - "GET /api/user/me HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49931 - "OPTIONS /api/analysis/NVDA HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49934 - "OPTIONS /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49935 - "OPTIONS /api/portfolio/NVDA/news HTTP/1.1" 200 OK
+2026-03-06 23:19:35,257 - api_logger - INFO - rid=/api/analysis/NVDA method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.73ms
+INFO:     127.0.0.1:49934 - "GET /api/analysis/NVDA HTTP/1.1" 404 Not Found
+2026-03-06 23:19:35,257 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.82ms
+INFO:     127.0.0.1:49931 - "GET /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 404 Not Found
+2026-03-06 23:19:35,258 - api_logger - INFO - rid=/api/portfolio/NVDA/news method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1.11ms
+INFO:     127.0.0.1:49935 - "GET /api/portfolio/NVDA/news HTTP/1.1" 404 Not Found
+ GET /sw.js 404 in 38ms (compile: 6ms, render: 31ms)
+2026-03-06 23:19:38,896 - app.services.scheduler - INFO - [Scheduler] 发现 15 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-06 23:19:40,866 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-06 23:19:41,005 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:19:41,315 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+ GET /?tab=analysis&ticker=NVDA 200 in 49ms (compile: 7ms, render: 43ms)
+2026-03-06 23:19:42,301 - api_logger - INFO - rid=/api/user/me method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.44ms
+INFO:     127.0.0.1:49975 - "GET /api/user/me HTTP/1.1" 404 Not Found
+2026-03-06 23:19:42,311 - api_logger - INFO - rid=/api/analysis/NVDA method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.35ms
+INFO:     127.0.0.1:49975 - "GET /api/analysis/NVDA HTTP/1.1" 404 Not Found
+2026-03-06 23:19:42,312 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.32ms
+INFO:     127.0.0.1:49978 - "GET /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 404 Not Found
+2026-03-06 23:19:42,312 - api_logger - INFO - rid=/api/portfolio/NVDA/news method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.36ms
+INFO:     127.0.0.1:49979 - "GET /api/portfolio/NVDA/news HTTP/1.1" 404 Not Found
+ GET /sw.js 404 in 31ms (compile: 3ms, render: 28ms)
+2026-03-06 23:19:45,693 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: GLD
+2026-03-06 23:19:48,085 - app.services.market_data - INFO - Syncing fundamental for IAU: market_cap=82242671000.0, PE=4.62
+2026-03-06 23:19:50,116 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: IAU
+2026-03-06 23:19:52,354 - app.services.market_data - INFO - Syncing fundamental for SNDK: market_cap=83257280000.0, PE=-7.47
+2026-03-06 23:19:54,380 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: SNDK
+2026-03-06 23:19:58,649 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: SLV
+2026-03-06 23:20:00,974 - app.services.market_data - INFO - Syncing fundamental for IBM: market_cap=238870460999.99997, PE=11.17
+2026-03-06 23:20:02,987 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: IBM
+2026-03-06 23:20:05,394 - app.services.market_data - INFO - Syncing fundamental for ABBV: market_cap=404256481000.0, PE=2.37
+2026-03-06 23:20:07,450 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ABBV
+2026-03-06 23:20:09,812 - app.services.market_data - INFO - Syncing fundamental for DIS: market_cap=177867502000.0, PE=6.79
+2026-03-06 23:20:11,830 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: DIS
+2026-03-06 23:20:13,709 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
+2026-03-06 23:20:16,036 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NDX
+2026-03-06 23:20:18,346 - app.services.market_data - INFO - Syncing fundamental for VZ: market_cap=213288288000.0, PE=4.06
+2026-03-06 23:20:20,205 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: VZ
+2026-03-06 23:20:22,402 - app.services.market_data - INFO - Syncing fundamental for NVDA: market_cap=4424789430000.0, PE=4.9
+2026-03-06 23:20:24,678 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NVDA
+2026-03-06 23:20:27,154 - app.services.market_data - INFO - Syncing fundamental for JNJ: market_cap=569941098000.0, PE=11.03
+2026-03-06 23:20:29,027 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: JNJ
+2026-03-06 23:20:30,809 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-06 23:20:31,025 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:20:31,337 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-06 23:20:34,583 - app.services.market_data - INFO - Syncing fundamental for NFLX: market_cap=412610796000.0, PE=2.53
+2026-03-06 23:20:37,292 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NFLX
+2026-03-06 23:20:39,725 - app.services.market_data - INFO - Syncing fundamental for LLY: market_cap=874246277000.0, PE=22.95
+2026-03-06 23:20:42,046 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: LLY
+2026-03-06 23:20:42,046 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 15 只标的。
+2026-03-06 23:20:42,204 - app.services.scheduler - INFO - [Scheduler] 开始同步财联社全球快讯...
+2026-03-06 23:20:42,205 - app.services.macro_service - INFO - Starting Cailianshe global news update (Standard Version)...
+2026-03-06 23:20:47,291 - app.services.macro_service - INFO - Successfully persisted 10 news items.
+2026-03-06 23:20:47,293 - app.services.scheduler - INFO - [Scheduler] 财联社快讯同步完成。
+2026-03-06 23:21:49,001 - app.services.scheduler - INFO - [Scheduler] 发现 21 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-06 23:21:51,222 - app.services.market_data - INFO - Syncing fundamental for TSM: market_cap=1798809563000.0, PE=10.54
+2026-03-06 23:21:53,450 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TSM
+2026-03-06 23:21:55,744 - app.services.market_data - INFO - Syncing fundamental for HD: market_cap=353675365000.0, PE=14.23
+2026-03-06 23:21:57,648 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: HD
+2026-03-06 23:21:59,991 - app.services.market_data - INFO - Syncing fundamental for RKLB: market_cap=42257663000.0, PE=-0.37
+2026-03-06 23:22:01,887 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: RKLB
+2026-03-06 23:22:04,233 - app.services.market_data - INFO - Syncing fundamental for INTU: market_cap=129052058000.00002, PE=15.37
+2026-03-06 23:22:06,313 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: INTU
+2026-03-06 23:22:08,687 - app.services.market_data - INFO - Syncing fundamental for LIN: market_cap=223469515000.0, PE=14.61
+2026-03-06 23:22:10,603 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: LIN
+2026-03-06 23:22:15,303 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: XLE
+2026-03-06 23:22:17,575 - app.services.market_data - INFO - Syncing fundamental for IREN: market_cap=13203982000.0, PE=1.44
+2026-03-06 23:22:19,646 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: IREN
+2026-03-06 23:22:21,524 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-06 23:22:21,897 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:22:22,221 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-06 23:22:24,595 - app.services.market_data - INFO - Syncing fundamental for JPM: market_cap=774371936000.0, PE=20.02
+ GET /?tab=analysis&ticker=NVDA 200 in 58ms (compile: 14ms, render: 44ms)
+2026-03-06 23:22:25,510 - api_logger - INFO - rid=/api/user/me method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.42ms
+INFO:     127.0.0.1:50837 - "GET /api/user/me HTTP/1.1" 404 Not Found
+2026-03-06 23:22:25,521 - api_logger - INFO - rid=/api/analysis/NVDA method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.57ms
+INFO:     127.0.0.1:50837 - "GET /api/analysis/NVDA HTTP/1.1" 404 Not Found
+2026-03-06 23:22:25,522 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.83ms
+INFO:     127.0.0.1:50839 - "GET /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 404 Not Found
+2026-03-06 23:22:25,523 - api_logger - INFO - rid=/api/portfolio/NVDA/news method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.86ms
+INFO:     127.0.0.1:50841 - "GET /api/portfolio/NVDA/news HTTP/1.1" 404 Not Found
+2026-03-06 23:22:26,504 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: JPM
+ GET /sw.js 404 in 32ms (compile: 6ms, render: 26ms)
+2026-03-06 23:22:28,832 - app.services.market_data - INFO - Syncing fundamental for KO: market_cap=330467561000.0, PE=3.04
+2026-03-06 23:22:30,904 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: KO
+ GET /?tab=analysis&ticker=NVDA 200 in 42ms (compile: 5ms, render: 37ms)
+2026-03-06 23:22:32,855 - api_logger - INFO - rid=/api/user/me method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=3.13ms
+INFO:     127.0.0.1:50903 - "GET /api/user/me HTTP/1.1" 404 Not Found
+2026-03-06 23:22:32,865 - api_logger - INFO - rid=/api/analysis/NVDA method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.37ms
+INFO:     127.0.0.1:50903 - "GET /api/analysis/NVDA HTTP/1.1" 404 Not Found
+2026-03-06 23:22:32,866 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.35ms
+INFO:     127.0.0.1:50906 - "GET /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 404 Not Found
+2026-03-06 23:22:32,866 - api_logger - INFO - rid=/api/portfolio/NVDA/news method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.39ms
+INFO:     127.0.0.1:50907 - "GET /api/portfolio/NVDA/news HTTP/1.1" 404 Not Found
+2026-03-06 23:22:33,236 - app.services.market_data - INFO - Syncing fundamental for CVX: market_cap=375153447000.0, PE=6.63
+ GET /sw.js 404 in 42ms (compile: 6ms, render: 36ms)
+2026-03-06 23:22:35,138 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CVX
+2026-03-06 23:22:37,403 - app.services.market_data - INFO - Syncing fundamental for OKLO: market_cap=9717006000.0, PE=-0.56
+2026-03-06 23:22:39,479 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: OKLO
+ GET /?tab=analysis&ticker=NVDA 200 in 36ms (compile: 1543µs, render: 34ms)
+2026-03-06 23:22:39,857 - api_logger - INFO - rid=/api/user/me method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.42ms
+INFO:     127.0.0.1:50948 - "GET /api/user/me HTTP/1.1" 404 Not Found
+2026-03-06 23:22:39,866 - api_logger - INFO - rid=/api/analysis/NVDA method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.33ms
+INFO:     127.0.0.1:50948 - "GET /api/analysis/NVDA HTTP/1.1" 404 Not Found
+2026-03-06 23:22:39,867 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.29ms
+INFO:     127.0.0.1:50951 - "GET /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 404 Not Found
+2026-03-06 23:22:39,868 - api_logger - INFO - rid=/api/portfolio/NVDA/news method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.36ms
+INFO:     127.0.0.1:50952 - "GET /api/portfolio/NVDA/news HTTP/1.1" 404 Not Found
+ GET /?tab=analysis&ticker=NVDA 200 in 40ms (compile: 3ms, render: 37ms)
+2026-03-06 23:22:40,185 - api_logger - INFO - rid=/api/user/me method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.42ms
+INFO:     127.0.0.1:50952 - "GET /api/user/me HTTP/1.1" 404 Not Found
+2026-03-06 23:22:40,194 - api_logger - INFO - rid=/api/analysis/NVDA method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.55ms
+INFO:     127.0.0.1:50952 - "GET /api/analysis/NVDA HTTP/1.1" 404 Not Found
+2026-03-06 23:22:40,195 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.47ms
+INFO:     127.0.0.1:50951 - "GET /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 404 Not Found
+2026-03-06 23:22:40,195 - api_logger - INFO - rid=/api/portfolio/NVDA/news method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.78ms
+INFO:     127.0.0.1:50948 - "GET /api/portfolio/NVDA/news HTTP/1.1" 404 Not Found
+ GET /?tab=analysis&ticker=NVDA 200 in 23ms (compile: 1079µs, render: 22ms)
+2026-03-06 23:22:40,376 - api_logger - INFO - rid=/api/user/me method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.43ms
+INFO:     127.0.0.1:50948 - "GET /api/user/me HTTP/1.1" 404 Not Found
+2026-03-06 23:22:40,389 - api_logger - INFO - rid=/api/analysis/NVDA method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.60ms
+INFO:     127.0.0.1:50948 - "GET /api/analysis/NVDA HTTP/1.1" 404 Not Found
+2026-03-06 23:22:40,389 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.50ms
+INFO:     127.0.0.1:50951 - "GET /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 404 Not Found
+2026-03-06 23:22:40,389 - api_logger - INFO - rid=/api/portfolio/NVDA/news method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.78ms
+INFO:     127.0.0.1:50952 - "GET /api/portfolio/NVDA/news HTTP/1.1" 404 Not Found
+ GET /sw.js 404 in 22ms (compile: 2ms, render: 20ms)
+2026-03-06 23:22:41,975 - app.services.market_data - INFO - Syncing fundamental for PG: market_cap=354840045000.0, PE=6.75
+2026-03-06 23:22:43,890 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PG
+2026-03-06 23:22:46,169 - app.services.market_data - INFO - Syncing fundamental for TEM: market_cap=9385619000.0, PE=-1.41
+ GET /?tab=analysis&ticker=NVDA 200 in 30ms (compile: 3ms, render: 26ms)
+INFO:     127.0.0.1:51017 - "OPTIONS /api/user/me HTTP/1.1" 200 OK
+2026-03-06 23:22:46,355 - api_logger - INFO - rid=/api/user/me method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.30ms
+INFO:     127.0.0.1:51017 - "GET /api/user/me HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51017 - "OPTIONS /api/analysis/NVDA HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51020 - "OPTIONS /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51021 - "OPTIONS /api/portfolio/NVDA/news HTTP/1.1" 200 OK
+2026-03-06 23:22:46,363 - api_logger - INFO - rid=/api/analysis/NVDA method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.55ms
+INFO:     127.0.0.1:51017 - "GET /api/analysis/NVDA HTTP/1.1" 404 Not Found
+2026-03-06 23:22:46,364 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.70ms
+INFO:     127.0.0.1:51021 - "GET /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 404 Not Found
+2026-03-06 23:22:46,364 - api_logger - INFO - rid=/api/portfolio/NVDA/news method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.95ms
+INFO:     127.0.0.1:51020 - "GET /api/portfolio/NVDA/news HTTP/1.1" 404 Not Found
+ GET /?tab=analysis&ticker=NVDA 200 in 38ms (compile: 4ms, render: 34ms)
+INFO:     127.0.0.1:51020 - "OPTIONS /api/user/me HTTP/1.1" 200 OK
+2026-03-06 23:22:46,991 - api_logger - INFO - rid=/api/user/me method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.58ms
+INFO:     127.0.0.1:51020 - "GET /api/user/me HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51020 - "OPTIONS /api/analysis/NVDA HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51021 - "OPTIONS /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51017 - "OPTIONS /api/portfolio/NVDA/news HTTP/1.1" 200 OK
+2026-03-06 23:22:46,995 - api_logger - INFO - rid=/api/analysis/NVDA method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.54ms
+INFO:     127.0.0.1:51020 - "GET /api/analysis/NVDA HTTP/1.1" 404 Not Found
+2026-03-06 23:22:46,996 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.97ms
+INFO:     127.0.0.1:51017 - "GET /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 404 Not Found
+2026-03-06 23:22:46,997 - api_logger - INFO - rid=/api/portfolio/NVDA/news method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1.34ms
+INFO:     127.0.0.1:51021 - "GET /api/portfolio/NVDA/news HTTP/1.1" 404 Not Found
+ GET /?tab=analysis&ticker=NVDA 200 in 34ms (compile: 2ms, render: 31ms)
+INFO:     127.0.0.1:51021 - "OPTIONS /api/user/me HTTP/1.1" 200 OK
+2026-03-06 23:22:47,340 - api_logger - INFO - rid=/api/user/me method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.35ms
+INFO:     127.0.0.1:51021 - "GET /api/user/me HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51021 - "OPTIONS /api/analysis/NVDA HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51017 - "OPTIONS /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51020 - "OPTIONS /api/portfolio/NVDA/news HTTP/1.1" 200 OK
+2026-03-06 23:22:47,348 - api_logger - INFO - rid=/api/analysis/NVDA method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.61ms
+INFO:     127.0.0.1:51017 - "GET /api/analysis/NVDA HTTP/1.1" 404 Not Found
+2026-03-06 23:22:47,349 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.72ms
+INFO:     127.0.0.1:51020 - "GET /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 404 Not Found
+2026-03-06 23:22:47,349 - api_logger - INFO - rid=/api/portfolio/NVDA/news method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1.02ms
+INFO:     127.0.0.1:51021 - "GET /api/portfolio/NVDA/news HTTP/1.1" 404 Not Found
+ GET /?tab=analysis&ticker=NVDA 200 in 33ms (compile: 4ms, render: 29ms)
+INFO:     127.0.0.1:51021 - "OPTIONS /api/user/me HTTP/1.1" 200 OK
+2026-03-06 23:22:47,646 - api_logger - INFO - rid=/api/user/me method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.30ms
+INFO:     127.0.0.1:51021 - "GET /api/user/me HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51021 - "OPTIONS /api/analysis/NVDA HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51020 - "OPTIONS /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51017 - "OPTIONS /api/portfolio/NVDA/news HTTP/1.1" 200 OK
+2026-03-06 23:22:47,657 - api_logger - INFO - rid=/api/analysis/NVDA method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.51ms
+INFO:     127.0.0.1:51021 - "GET /api/analysis/NVDA HTTP/1.1" 404 Not Found
+2026-03-06 23:22:47,658 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1.07ms
+INFO:     127.0.0.1:51017 - "GET /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 404 Not Found
+2026-03-06 23:22:47,658 - api_logger - INFO - rid=/api/portfolio/NVDA/news method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1.24ms
+INFO:     127.0.0.1:51020 - "GET /api/portfolio/NVDA/news HTTP/1.1" 404 Not Found
+ GET /?tab=analysis&ticker=NVDA 200 in 36ms (compile: 3ms, render: 33ms)
+INFO:     127.0.0.1:51020 - "OPTIONS /api/user/me HTTP/1.1" 200 OK
+2026-03-06 23:22:47,978 - api_logger - INFO - rid=/api/user/me method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.27ms
+INFO:     127.0.0.1:51020 - "GET /api/user/me HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51020 - "OPTIONS /api/analysis/NVDA HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51017 - "OPTIONS /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51021 - "OPTIONS /api/portfolio/NVDA/news HTTP/1.1" 200 OK
+2026-03-06 23:22:47,987 - api_logger - INFO - rid=/api/analysis/NVDA method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.59ms
+INFO:     127.0.0.1:51017 - "GET /api/analysis/NVDA HTTP/1.1" 404 Not Found
+2026-03-06 23:22:47,987 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.70ms
+INFO:     127.0.0.1:51021 - "GET /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 404 Not Found
+2026-03-06 23:22:47,987 - api_logger - INFO - rid=/api/portfolio/NVDA/news method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.77ms
+INFO:     127.0.0.1:51020 - "GET /api/portfolio/NVDA/news HTTP/1.1" 404 Not Found
+2026-03-06 23:22:48,412 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEM
+2026-03-06 23:22:50,209 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-06 23:22:50,426 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:22:50,743 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-06 23:22:53,090 - app.services.market_data - INFO - Syncing fundamental for FCX: market_cap=87698042000.0, PE=1.52
+2026-03-06 23:22:55,322 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: FCX
+2026-03-06 23:22:57,630 - app.services.market_data - INFO - Syncing fundamental for WMT: market_cap=980888448000.0001, PE=2.73
+2026-03-06 23:22:59,558 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: WMT
+2026-03-06 23:23:01,930 - app.services.market_data - INFO - Syncing fundamental for UNH: market_cap=257398714000.00003, PE=13.23
+2026-03-06 23:23:03,708 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: UNH
+2026-03-06 23:23:06,021 - app.services.market_data - INFO - Syncing fundamental for PLTR: market_cap=369537814000.0, PE=0.63
+2026-03-06 23:23:08,254 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PLTR
+2026-03-06 23:23:10,489 - app.services.market_data - INFO - Syncing fundamental for TSLA: market_cap=1491291519000.0, PE=1.08
+2026-03-06 23:23:12,734 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TSLA
+2026-03-06 23:23:15,031 - app.services.market_data - INFO - Syncing fundamental for INTC: market_cap=223128630000.00003, PE=-0.06
+2026-03-06 23:23:17,135 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: INTC
+2026-03-06 23:23:17,136 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 21 只标的。
+2026-03-06 23:24:18,393 - app.services.scheduler - INFO - [Scheduler] 发现 32 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-06 23:24:20,650 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-06 23:24:20,841 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:24:21,312 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-06 23:24:23,857 - app.services.market_data - INFO - Syncing fundamental for AVGO: market_cap=1600985924000.0, PE=5.12
+2026-03-06 23:24:25,914 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AVGO
+✓ Compiled in 461ms
+2026-03-06 23:24:28,256 - app.services.market_data - INFO - Syncing fundamental for CAT: market_cap=322988507000.0, PE=18.81
+2026-03-06 23:24:30,160 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CAT
+2026-03-06 23:24:32,545 - app.services.market_data - INFO - Syncing fundamental for NBIS: market_cap=23924526000.0, PE=0.4
+2026-03-06 23:24:34,756 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NBIS
+ GET /?tab=analysis&ticker=NVDA 200 in 61ms (compile: 41ms, render: 21ms)
+2026-03-06 23:24:37,057 - app.services.market_data - INFO - Syncing fundamental for V: market_cap=605065281000.0, PE=10.65
+2026-03-06 23:24:38,951 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: V
+2026-03-06 23:24:41,134 - app.services.market_data - INFO - Syncing fundamental for AMD: market_cap=323180037000.0, PE=2.65
+2026-03-06 23:24:43,188 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AMD
+2026-03-06 23:24:45,473 - app.services.market_data - INFO - Syncing fundamental for TXN: market_cap=176250898000.0, PE=5.45
+2026-03-06 23:24:47,666 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TXN
+2026-03-06 23:24:50,080 - app.services.market_data - INFO - Syncing fundamental for PEP: market_cap=214721066000.00003, PE=6.0
+2026-03-06 23:24:52,141 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PEP
+2026-03-06 23:24:54,361 - app.services.market_data - INFO - Syncing fundamental for TMUS: market_cap=241583406000.0, PE=9.72
+2026-03-06 23:24:56,416 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TMUS
+2026-03-06 23:24:59,673 - app.services.market_data - INFO - Syncing fundamental for MRK: market_cap=282841645000.0, PE=7.28
+2026-03-06 23:25:01,563 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MRK
+2026-03-06 23:25:03,964 - app.services.market_data - INFO - Syncing fundamental for CSCO: market_cap=313562259000.0, PE=2.78
+2026-03-06 23:25:05,856 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CSCO
+2026-03-06 23:25:08,261 - app.services.market_data - INFO - Syncing fundamental for MA: market_cap=462819376000.0, PE=16.52
+2026-03-06 23:25:10,147 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MA
+2026-03-06 23:25:11,939 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-06 23:25:12,157 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:25:12,473 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-06 23:25:14,941 - app.services.market_data - INFO - Syncing fundamental for MSFT: market_cap=3049705862000.0, PE=15.98
+2026-03-06 23:25:17,152 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MSFT
+2026-03-06 23:25:19,591 - app.services.market_data - INFO - Syncing fundamental for AMAT: market_cap=270341931000.00003, PE=9.75
+2026-03-06 23:25:21,917 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AMAT
+2026-03-06 23:25:24,201 - app.services.market_data - INFO - Syncing fundamental for SIDU: market_cap=138361000.0, PE=-1.26
+2026-03-06 23:25:26,267 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: SIDU
+2026-03-06 23:25:28,482 - app.services.market_data - INFO - Syncing fundamental for META: market_cap=1627364212000.0, PE=23.49
+2026-03-06 23:25:30,730 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: META
+2026-03-06 23:25:33,096 - app.services.market_data - INFO - Syncing fundamental for MCD: market_cap=229954640000.00003, PE=11.95
+2026-03-06 23:25:35,156 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MCD
+2026-03-06 23:25:37,426 - app.services.market_data - INFO - Syncing fundamental for NET: market_cap=68210262000.0, PE=-0.29
+2026-03-06 23:25:39,456 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NET
+2026-03-06 23:25:41,757 - app.services.market_data - INFO - Syncing fundamental for ACN: market_cap=131900063000.0, PE=12.1
+2026-03-06 23:25:43,803 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ACN
+2026-03-06 23:25:46,665 - app.services.market_data - INFO - Syncing fundamental for AMGN: market_cap=198328388000.0, PE=14.23
+2026-03-06 23:25:48,729 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AMGN
+2026-03-06 23:25:50,981 - app.services.market_data - INFO - Syncing fundamental for CRM: market_cap=184152345000.0, PE=7.8
+2026-03-06 23:25:53,060 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CRM
+2026-03-06 23:25:55,302 - app.services.market_data - INFO - Syncing fundamental for ORCL: market_cap=452498323999.99994, PE=5.32
+2026-03-06 23:25:57,519 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ORCL
+2026-03-06 23:25:59,859 - app.services.market_data - INFO - Syncing fundamental for AXP: market_cap=206025398000.0, PE=15.38
+2026-03-06 23:26:01,904 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AXP
+2026-03-06 23:26:04,284 - app.services.market_data - INFO - Syncing fundamental for QCOM: market_cap=144850585000.0, PE=4.96
+2026-03-06 23:26:06,342 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: QCOM
+2026-03-06 23:26:08,748 - app.services.market_data - INFO - Syncing fundamental for COST: market_cap=441252801000.0, PE=18.67
+2026-03-06 23:26:10,806 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: COST
+2026-03-06 23:26:13,164 - app.services.market_data - INFO - Syncing fundamental for ASTS: market_cap=28933788000.0, PE=-1.33
+2026-03-06 23:26:15,360 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ASTS
+2026-03-06 23:26:17,731 - app.services.market_data - INFO - Syncing fundamental for DHR: market_cap=139960557000.0, PE=5.05
+2026-03-06 23:26:19,780 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: DHR
+2026-03-06 23:26:22,067 - app.services.market_data - INFO - Syncing fundamental for PFE: market_cap=149662559000.0, PE=1.36
+2026-03-06 23:26:23,964 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PFE
+2026-03-06 23:26:28,012 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: DJIA
+2026-03-06 23:26:30,270 - app.services.market_data - INFO - Syncing fundamental for BAC: market_cap=345449596000.0, PE=3.81
+2026-03-06 23:26:32,159 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: BAC
+2026-03-06 23:26:34,530 - app.services.market_data - INFO - Syncing fundamental for TMO: market_cap=187948738000.0, PE=17.74
+2026-03-06 23:26:36,598 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TMO
+2026-03-06 23:26:36,599 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 32 只标的。
+2026-03-06 23:27:38,495 - app.services.scheduler - INFO - [Scheduler] 发现 24 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-06 23:27:41,925 - app.services.market_data - INFO - Syncing fundamental for INTU: market_cap=129848521000.0, PE=15.37
+2026-03-06 23:27:44,926 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: INTU
+2026-03-06 23:27:47,155 - app.services.market_data - INFO - Syncing fundamental for LIN: market_cap=223775355000.0, PE=14.61
+2026-03-06 23:27:49,029 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: LIN
+2026-03-06 23:27:53,592 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: XLE
+2026-03-06 23:27:55,479 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-06 23:27:55,812 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:27:56,121 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-06 23:27:58,363 - app.services.market_data - INFO - Syncing fundamental for IREN: market_cap=13114439999.999998, PE=1.44
+2026-03-06 23:28:00,259 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: IREN
+2026-03-06 23:28:02,650 - app.services.market_data - INFO - Syncing fundamental for JPM: market_cap=774088747000.0, PE=20.02
+2026-03-06 23:28:04,521 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: JPM
+2026-03-06 23:28:07,156 - app.services.market_data - INFO - Syncing fundamental for KO: market_cap=330166510000.0, PE=3.04
+2026-03-06 23:28:09,034 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: KO
+2026-03-06 23:28:11,399 - app.services.market_data - INFO - Syncing fundamental for CVX: market_cap=375411005000.0, PE=6.63
+2026-03-06 23:28:13,580 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CVX
+2026-03-06 23:28:15,848 - app.services.market_data - INFO - Syncing fundamental for OKLO: market_cap=9709193000.0, PE=-0.56
+2026-03-06 23:28:17,890 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: OKLO
+2026-03-06 23:28:20,157 - app.services.market_data - INFO - Syncing fundamental for ABBV: market_cap=405122884000.0, PE=2.37
+2026-03-06 23:28:22,468 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ABBV
+2026-03-06 23:28:24,763 - app.services.market_data - INFO - Syncing fundamental for DIS: market_cap=178409764000.0, PE=6.79
+2026-03-06 23:28:26,826 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: DIS
+2026-03-06 23:28:28,763 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
+2026-03-06 23:28:31,126 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NDX
+2026-03-06 23:28:33,499 - app.services.market_data - INFO - Syncing fundamental for VZ: market_cap=213745485000.0, PE=4.06
+2026-03-06 23:28:35,536 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: VZ
+2026-03-06 23:28:37,950 - app.services.market_data - INFO - Syncing fundamental for NVDA: market_cap=4417740000000.0, PE=4.9
+2026-03-06 23:28:40,186 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NVDA
+2026-03-06 23:28:42,707 - app.services.market_data - INFO - Syncing fundamental for JNJ: market_cap=569242228000.0, PE=11.03
+2026-03-06 23:28:44,782 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: JNJ
+2026-03-06 23:28:46,557 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-06 23:28:46,761 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:28:47,077 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-06 23:28:49,426 - app.services.market_data - INFO - Syncing fundamental for NFLX: market_cap=413645226000.0, PE=2.53
+2026-03-06 23:28:51,562 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NFLX
+2026-03-06 23:28:53,898 - app.services.market_data - INFO - Syncing fundamental for LLY: market_cap=871560601999.9999, PE=22.95
+2026-03-06 23:28:56,028 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: LLY
+2026-03-06 23:28:58,395 - app.services.market_data - INFO - Syncing fundamental for AAPL: market_cap=3764464512999.9995, PE=7.9
+2026-03-06 23:29:00,623 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AAPL
+2026-03-06 23:29:03,514 - app.services.market_data - INFO - Syncing fundamental for XOM: market_cap=631848427000.0, PE=6.7
+2026-03-06 23:29:05,590 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: XOM
+2026-03-06 23:29:08,077 - app.services.market_data - INFO - Syncing fundamental for CR: market_cap=11170358000.0, PE=6.26
+2026-03-06 23:29:10,059 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CR
+2026-03-06 23:29:12,548 - app.services.market_data - INFO - Syncing fundamental for WFC: market_cap=245678310000.0, PE=6.26
+2026-03-06 23:29:14,620 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: WFC
+2026-03-06 23:29:16,942 - app.services.market_data - INFO - Syncing fundamental for FRO: market_cap=7664906000.000001, PE=1.7
+2026-03-06 23:29:19,214 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: FRO
+2026-03-06 23:29:21,636 - app.services.market_data - INFO - Syncing fundamental for CRCL: market_cap=24517222000.0, PE=-0.44
+2026-03-06 23:29:23,730 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CRCL
+2026-03-06 23:29:23,730 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 24 只标的。
+2026-03-06 23:30:24,997 - app.services.scheduler - INFO - [Scheduler] 发现 14 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-06 23:30:27,446 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-06 23:30:27,452 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:30:27,924 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-06 23:30:30,344 - app.services.market_data - INFO - Syncing fundamental for NBIS: market_cap=23921743000.0, PE=0.4
+2026-03-06 23:30:33,044 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NBIS
+2026-03-06 23:30:35,570 - app.services.market_data - INFO - Syncing fundamental for V: market_cap=605546086000.0, PE=10.65
+2026-03-06 23:30:37,471 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: V
+2026-03-06 23:30:39,673 - app.services.market_data - INFO - Syncing fundamental for AMD: market_cap=323432751000.0, PE=2.65
+2026-03-06 23:30:41,896 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AMD
+2026-03-06 23:30:44,274 - app.services.market_data - INFO - Syncing fundamental for TXN: market_cap=176709120000.0, PE=5.45
+2026-03-06 23:30:46,206 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TXN
+2026-03-06 23:30:48,501 - app.services.market_data - INFO - Syncing fundamental for PEP: market_cap=214707399000.0, PE=6.0
+2026-03-06 23:30:50,632 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PEP
+2026-03-06 23:30:52,981 - app.services.market_data - INFO - Syncing fundamental for TMUS: market_cap=241980076000.0, PE=9.72
+2026-03-06 23:30:54,900 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TMUS
+2026-03-06 23:30:57,427 - app.services.market_data - INFO - Syncing fundamental for MRK: market_cap=282643854000.0, PE=7.28
+2026-03-06 23:30:59,352 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MRK
+2026-03-06 23:31:01,164 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-06 23:31:01,378 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:31:01,702 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-06 23:31:05,575 - app.services.market_data - INFO - Syncing fundamental for CSCO: market_cap=313384514000.0, PE=2.78
+2026-03-06 23:31:07,831 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CSCO
+2026-03-06 23:31:10,106 - app.services.market_data - INFO - Syncing fundamental for MA: market_cap=462850589000.00006, PE=16.52
+2026-03-06 23:31:12,035 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MA
+2026-03-06 23:31:14,509 - app.services.market_data - INFO - Syncing fundamental for AMAT: market_cap=270077342000.0, PE=9.75
+2026-03-06 23:31:16,583 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AMAT
+2026-03-06 23:31:18,868 - app.services.market_data - INFO - Syncing fundamental for MSFT: market_cap=3056908722000.0, PE=15.98
+2026-03-06 23:31:20,947 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MSFT
+2026-03-06 23:31:23,253 - app.services.market_data - INFO - Syncing fundamental for SIDU: market_cap=137031000.0, PE=-1.26
+2026-03-06 23:31:25,321 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: SIDU
+2026-03-06 23:31:25,321 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 14 只标的。
+2026-03-06 23:31:25,483 - app.services.scheduler - INFO - [Scheduler] 开始同步财联社全球快讯...
+2026-03-06 23:31:25,484 - app.services.macro_service - INFO - Starting Cailianshe global news update (Standard Version)...
+2026-03-06 23:31:30,207 - app.services.macro_service - INFO - Successfully persisted 1 news items.
+2026-03-06 23:31:30,208 - app.services.scheduler - INFO - [Scheduler] 财联社快讯同步完成。
+2026-03-06 23:32:31,137 - app.services.scheduler - INFO - [Scheduler] 发现 14 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-06 23:32:33,613 - app.services.market_data - INFO - Syncing fundamental for HD: market_cap=355193520000.0, PE=14.23
+2026-03-06 23:32:35,675 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: HD
+2026-03-06 23:32:37,875 - app.services.market_data - INFO - Syncing fundamental for RKLB: market_cap=42115801000.0, PE=-0.37
+2026-03-06 23:32:41,342 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: RKLB
+2026-03-06 23:32:43,870 - app.services.market_data - INFO - Syncing fundamental for MU: market_cap=438205775999.99994, PE=10.52
+2026-03-06 23:32:46,952 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MU
+2026-03-06 23:32:49,380 - app.services.market_data - INFO - Syncing fundamental for BA: market_cap=175878482000.0, PE=2.48
+2026-03-06 23:32:51,415 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: BA
+2026-03-06 23:32:53,706 - app.services.market_data - INFO - Syncing fundamental for TSM: market_cap=1803244025000.0, PE=10.54
+2026-03-06 23:32:55,928 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TSM
+2026-03-06 23:32:58,217 - app.services.market_data - INFO - Syncing fundamental for BRK.B: market_cap=1068161156999.9999, PE=31.04
+2026-03-06 23:33:00,285 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: BRK.B
+2026-03-06 23:33:02,212 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-06 23:33:02,317 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:33:02,635 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-06 23:33:06,904 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: GLD
+2026-03-06 23:33:09,241 - app.services.market_data - INFO - Syncing fundamental for IAU: market_cap=82425131000.0, PE=4.62
+2026-03-06 23:33:11,291 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: IAU
+2026-03-06 23:33:13,072 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-06 23:33:13,279 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:33:13,594 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-06 23:33:16,367 - app.services.market_data - INFO - Syncing fundamental for PFE: market_cap=149918441000.0, PE=1.36
+2026-03-06 23:33:18,268 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PFE
+2026-03-06 23:33:22,199 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: DJIA
+2026-03-06 23:33:24,453 - app.services.market_data - INFO - Syncing fundamental for BAC: market_cap=346310798000.0, PE=3.81
+2026-03-06 23:33:26,215 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: BAC
+2026-03-06 23:33:28,596 - app.services.market_data - INFO - Syncing fundamental for TMO: market_cap=188288646000.0, PE=17.74
+2026-03-06 23:33:30,488 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TMO
+2026-03-06 23:33:30,489 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 14 只标的。

@@ -116,7 +116,7 @@ app.add_middleware(
 from app.api.v1.api import api_router
 
 
-app.include_router(api_router, prefix="/api")
+app.include_router(api_router, prefix="")
 
 # 6. 后端后台任务启动 (Background Task Startup)
 @app.on_event("startup")

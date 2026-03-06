@@ -2132,3 +2132,217 @@ For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/St
 2026-03-06 23:07:17,745 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: FCX
 2026-03-06 23:07:20,199 - app.services.market_data - INFO - Syncing fundamental for WMT: market_cap=977979337000.0, PE=2.73
 2026-03-06 23:07:22,233 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: WMT
+2026-03-06 23:07:24,481 - app.services.market_data - INFO - Syncing fundamental for INTC: market_cap=224083707999.99997, PE=-0.06
+2026-03-06 23:07:26,367 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: INTC
+2026-03-06 23:07:29,025 - app.services.market_data - INFO - Syncing fundamental for UNH: market_cap=257330639000.00003, PE=13.23
+2026-03-06 23:07:30,896 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: UNH
+2026-03-06 23:07:35,299 - app.services.market_data - INFO - Syncing fundamental for PLTR: market_cap=366022051000.0, PE=0.63
+2026-03-06 23:07:39,301 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PLTR
+2026-03-06 23:07:41,937 - app.services.market_data - INFO - Syncing fundamental for TSLA: market_cap=1492267151000.0, PE=1.08
+2026-03-06 23:07:44,167 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TSLA
+2026-03-06 23:07:46,424 - app.services.market_data - INFO - Syncing fundamental for AMZN: market_cap=2309831850000.0, PE=7.17
+2026-03-06 23:07:48,736 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AMZN
+2026-03-06 23:07:51,354 - app.services.market_data - INFO - Syncing fundamental for ABT: market_cap=189119327000.0, PE=3.72
+2026-03-06 23:07:53,451 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ABT
+2026-03-06 23:07:56,078 - app.services.market_data - INFO - Syncing fundamental for SIDU: market_cap=134037999.99999999, PE=-1.26
+2026-03-06 23:07:58,332 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: SIDU
+2026-03-06 23:08:00,792 - app.services.market_data - INFO - Syncing fundamental for META: market_cap=1625112908000.0, PE=23.49
+2026-03-06 23:08:03,203 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: META
+2026-03-06 23:08:05,718 - app.services.market_data - INFO - Syncing fundamental for COST: market_cap=438289973000.0, PE=18.67
+2026-03-06 23:08:07,768 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: COST
+2026-03-06 23:08:07,768 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 36 只标的。
+2026-03-06 23:09:09,165 - app.services.scheduler - INFO - [Scheduler] 发现 40 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-06 23:09:11,518 - app.services.market_data - INFO - Syncing fundamental for MU: market_cap=433782524000.0, PE=10.52
+2026-03-06 23:09:13,565 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MU
+2026-03-06 23:09:15,936 - app.services.market_data - INFO - Syncing fundamental for BA: market_cap=174676901000.0, PE=2.48
+2026-03-06 23:09:19,132 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: BA
+2026-03-06 23:09:21,529 - app.services.market_data - INFO - Syncing fundamental for BRK.B: market_cap=1064213235000.0, PE=31.04
+2026-03-06 23:09:24,962 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: BRK.B
+2026-03-06 23:09:27,724 - app.services.market_data - INFO - Syncing fundamental for TSM: market_cap=1794219505999.9998, PE=10.54
+2026-03-06 23:09:30,233 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TSM
+2026-03-06 23:09:32,700 - app.services.market_data - INFO - Syncing fundamental for HD: market_cap=352948642000.0, PE=14.23
+2026-03-06 23:09:34,568 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: HD
+2026-03-06 23:09:37,095 - app.services.market_data - INFO - Syncing fundamental for RKLB: market_cap=40856072000.0, PE=-0.37
+2026-03-06 23:09:39,616 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: RKLB
+2026-03-06 23:09:42,118 - app.services.market_data - INFO - Syncing fundamental for LIN: market_cap=223075630000.0, PE=14.61
+2026-03-06 23:09:44,622 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: LIN
+2026-03-06 23:09:48,834 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: XLE
+2026-03-06 23:09:51,246 - app.services.market_data - INFO - Syncing fundamental for INTU: market_cap=128443647000.00002, PE=15.37
+2026-03-06 23:09:53,118 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: INTU
+2026-03-06 23:09:55,027 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-06 23:09:55,167 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:09:55,479 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-06 23:09:57,885 - app.services.market_data - INFO - Syncing fundamental for IREN: market_cap=12905431999.999998, PE=1.44
+2026-03-06 23:09:59,759 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: IREN
+2026-03-06 23:10:02,344 - app.services.market_data - INFO - Syncing fundamental for JPM: market_cap=771620962000.0, PE=20.02
+2026-03-06 23:10:04,244 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: JPM
+2026-03-06 23:10:06,756 - app.services.market_data - INFO - Syncing fundamental for KO: market_cap=329757941000.0, PE=3.04
+2026-03-06 23:10:08,640 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: KO
+2026-03-06 23:10:11,134 - app.services.market_data - INFO - Syncing fundamental for CVX: market_cap=373925092000.0, PE=6.63
+2026-03-06 23:10:13,026 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CVX
+2026-03-06 23:10:16,437 - app.services.market_data - INFO - Syncing fundamental for OKLO: market_cap=9685756000.0, PE=-0.56
+2026-03-06 23:10:19,824 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: OKLO
+2026-03-06 23:10:23,116 - app.services.market_data - INFO - Syncing fundamental for PG: market_cap=353922064000.0, PE=6.75
+2026-03-06 23:10:25,140 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PG
+2026-03-06 23:10:27,490 - app.services.market_data - INFO - Syncing fundamental for TEM: market_cap=9319472000.0, PE=-1.41
+2026-03-06 23:10:29,688 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEM
+2026-03-06 23:10:32,133 - app.services.market_data - INFO - Syncing fundamental for AVGO: market_cap=1587046579000.0, PE=5.12
+2026-03-06 23:10:34,333 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AVGO
+2026-03-06 23:10:36,814 - app.services.market_data - INFO - Syncing fundamental for GOOGL: market_cap=3605516898000.0, PE=10.81
+2026-03-06 23:10:39,781 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: GOOGL
+2026-03-06 23:10:42,283 - app.services.market_data - INFO - Syncing fundamental for V: market_cap=602430465000.0, PE=10.65
+2026-03-06 23:10:44,325 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: V
+2026-03-06 23:10:47,602 - app.services.market_data - INFO - Syncing fundamental for AMD: market_cap=321435498000.0, PE=2.65
+2026-03-06 23:10:50,418 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AMD
+2026-03-06 23:10:52,194 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-06 23:10:52,410 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:10:52,721 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-06 23:10:55,041 - app.services.market_data - INFO - Syncing fundamental for CSCO: market_cap=310975079000.0, PE=2.78
+2026-03-06 23:10:56,955 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CSCO
+2026-03-06 23:10:59,244 - app.services.market_data - INFO - Syncing fundamental for MA: market_cap=460407024000.0, PE=16.52
+2026-03-06 23:11:01,122 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MA
+2026-03-06 23:11:03,623 - app.services.market_data - INFO - Syncing fundamental for MSFT: market_cap=3045213356000.0, PE=15.98
+2026-03-06 23:11:05,697 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MSFT
+2026-03-06 23:11:08,106 - app.services.market_data - INFO - Syncing fundamental for AMAT: market_cap=266948852000.0, PE=9.75
+2026-03-06 23:11:10,439 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AMAT
+2026-03-06 23:11:12,665 - app.services.market_data - INFO - Syncing fundamental for NET: market_cap=66865697000.0, PE=-0.29
+2026-03-06 23:11:14,998 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NET
+2026-03-06 23:11:17,285 - app.services.market_data - INFO - Syncing fundamental for MCD: market_cap=229164147999.99997, PE=11.95
+2026-03-06 23:11:19,475 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MCD
+2026-03-06 23:11:21,766 - app.services.market_data - INFO - Syncing fundamental for ACN: market_cap=130955370000.0, PE=12.1
+2026-03-06 23:11:23,796 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ACN
+2026-03-06 23:11:26,088 - app.services.market_data - INFO - Syncing fundamental for AMGN: market_cap=198290654000.0, PE=14.23
+2026-03-06 23:11:28,119 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AMGN
+2026-03-06 23:11:30,465 - app.services.market_data - INFO - Syncing fundamental for CRM: market_cap=183409330000.0, PE=7.8
+2026-03-06 23:11:32,520 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CRM
+2026-03-06 23:11:34,803 - app.services.market_data - INFO - Syncing fundamental for ORCL: market_cap=447064855000.0, PE=5.32
+2026-03-06 23:11:37,005 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ORCL
+2026-03-06 23:11:39,313 - app.services.market_data - INFO - Syncing fundamental for AXP: market_cap=205053840000.0, PE=15.38
+2026-03-06 23:11:41,327 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AXP
+2026-03-06 23:11:43,727 - app.services.market_data - INFO - Syncing fundamental for QCOM: market_cap=143948970000.0, PE=4.96
+2026-03-06 23:11:46,935 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: QCOM
+2026-03-06 23:11:49,220 - app.services.market_data - INFO - Syncing fundamental for ASTS: market_cap=28361100000.0, PE=-1.33
+2026-03-06 23:11:51,598 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ASTS
+2026-03-06 23:11:54,091 - app.services.market_data - INFO - Syncing fundamental for DHR: market_cap=139525666000.0, PE=5.05
+2026-03-06 23:11:56,477 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: DHR
+2026-03-06 23:11:59,034 - app.services.market_data - INFO - Syncing fundamental for PFE: market_cap=149605696000.0, PE=1.36
+2026-03-06 23:12:01,076 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PFE
+2026-03-06 23:12:05,216 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: DJIA
+2026-03-06 23:12:07,634 - app.services.market_data - INFO - Syncing fundamental for BAC: market_cap=344193677000.0, PE=3.81
+2026-03-06 23:12:09,670 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: BAC
+2026-03-06 23:12:12,127 - app.services.market_data - INFO - Syncing fundamental for TMO: market_cap=188401949000.0, PE=17.74
+2026-03-06 23:12:14,156 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TMO
+2026-03-06 23:12:14,156 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 40 只标的。
+2026-03-06 23:13:15,491 - app.services.scheduler - INFO - [Scheduler] 发现 36 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-06 23:13:17,365 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-06 23:13:17,720 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:13:18,028 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-06 23:13:20,362 - app.services.market_data - INFO - Syncing fundamental for TXN: market_cap=175420489000.0, PE=5.45
+2026-03-06 23:13:22,392 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TXN
+2026-03-06 23:13:24,904 - app.services.market_data - INFO - Syncing fundamental for PEP: market_cap=214557067999.99997, PE=6.0
+2026-03-06 23:13:26,816 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PEP
+2026-03-06 23:13:29,115 - app.services.market_data - INFO - Syncing fundamental for TMUS: market_cap=240900250999.99997, PE=9.72
+2026-03-06 23:13:32,251 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TMUS
+2026-03-06 23:13:34,667 - app.services.market_data - INFO - Syncing fundamental for MRK: market_cap=282742749000.0, PE=7.28
+2026-03-06 23:13:37,016 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MRK
+2026-03-06 23:13:41,325 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: GLD
+2026-03-06 23:13:43,589 - app.services.market_data - INFO - Syncing fundamental for IAU: market_cap=82170536000.0, PE=4.62
+2026-03-06 23:13:45,588 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: IAU
+2026-03-06 23:13:47,986 - app.services.market_data - INFO - Syncing fundamental for SNDK: market_cap=83252749000.0, PE=-7.47
+2026-03-06 23:13:50,343 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: SNDK
+2026-03-06 23:13:54,602 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: SLV
+2026-03-06 23:13:57,110 - app.services.market_data - INFO - Syncing fundamental for IBM: market_cap=240474500000.0, PE=11.17
+2026-03-06 23:13:58,954 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: IBM
+2026-03-06 23:14:01,319 - app.services.market_data - INFO - Syncing fundamental for ABBV: market_cap=403372397000.0, PE=2.37
+2026-03-06 23:14:03,335 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ABBV
+2026-03-06 23:14:05,648 - app.services.market_data - INFO - Syncing fundamental for DIS: market_cap=177825163000.0, PE=6.79
+2026-03-06 23:14:07,503 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: DIS
+2026-03-06 23:14:09,443 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
+2026-03-06 23:14:11,744 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NDX
+2026-03-06 23:14:14,184 - app.services.market_data - INFO - Syncing fundamental for VZ: market_cap=213478084000.0, PE=4.06
+2026-03-06 23:14:16,181 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: VZ
+2026-03-06 23:14:18,625 - app.services.market_data - INFO - Syncing fundamental for NVDA: market_cap=4427095500000.0, PE=4.9
+2026-03-06 23:14:20,951 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NVDA
+2026-03-06 23:14:24,279 - app.services.market_data - INFO - Syncing fundamental for JNJ: market_cap=569338624000.0, PE=11.03
+2026-03-06 23:14:26,629 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: JNJ
+2026-03-06 23:14:29,833 - app.services.market_data - INFO - Syncing fundamental for NFLX: market_cap=413117456000.00006, PE=2.53
+2026-03-06 23:14:31,924 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NFLX
+2026-03-06 23:14:33,691 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-06 23:14:33,900 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:14:34,208 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-06 23:14:36,438 - app.services.market_data - INFO - Syncing fundamental for LLY: market_cap=874672681000.0, PE=22.95
+2026-03-06 23:14:38,454 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: LLY
+2026-03-06 23:14:40,847 - app.services.market_data - INFO - Syncing fundamental for AAPL: market_cap=3764172358000.0, PE=7.9
+2026-03-06 23:14:43,031 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AAPL
+2026-03-06 23:14:45,555 - app.services.market_data - INFO - Syncing fundamental for XOM: market_cap=627847917000.0, PE=6.7
+2026-03-06 23:14:47,753 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: XOM
+2026-03-06 23:14:50,140 - app.services.market_data - INFO - Syncing fundamental for CR: market_cap=11104609000.0, PE=6.26
+2026-03-06 23:14:51,981 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CR
+2026-03-06 23:14:54,404 - app.services.market_data - INFO - Syncing fundamental for WFC: market_cap=244937757000.0, PE=6.26
+2026-03-06 23:14:56,398 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: WFC
+2026-03-06 23:14:58,793 - app.services.market_data - INFO - Syncing fundamental for FRO: market_cap=7615929000.0, PE=1.7
+2026-03-06 23:15:01,164 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: FRO
+2026-03-06 23:15:03,457 - app.services.market_data - INFO - Syncing fundamental for CRCL: market_cap=24313110000.0, PE=-0.44
+2026-03-06 23:15:05,629 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CRCL
+2026-03-06 23:15:07,829 - app.services.market_data - INFO - Syncing fundamental for FCX: market_cap=87044115000.0, PE=1.52
+2026-03-06 23:15:09,836 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: FCX
+2026-03-06 23:15:12,254 - app.services.market_data - INFO - Syncing fundamental for WMT: market_cap=978417697000.0, PE=2.73
+2026-03-06 23:15:14,301 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: WMT
+2026-03-06 23:15:16,562 - app.services.market_data - INFO - Syncing fundamental for INTC: market_cap=224183612000.0, PE=-0.06
+2026-03-06 23:15:19,554 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: INTC
+WARNING:  StatReload detected changes in 'app/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [15296]
+2026-03-06 23:15:23,421 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+INFO:     Started server process [30316]
+INFO:     Waiting for application startup.
+2026-03-06 23:15:28,473 - api_logger - INFO - PHASE: Background scheduler task launched & DB synced.
+2026-03-06 23:15:28,474 - app.services.scheduler - INFO - [Scheduler] 调度中心全面启动，轮询精度：60s
+INFO:     Application startup complete.
+2026-03-06 23:15:29,761 - app.services.scheduler - INFO - [Scheduler] 发现 23 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-06 23:15:33,740 - app.services.market_data - INFO - Syncing fundamental for TSM: market_cap=1799042956000.0, PE=10.54
+2026-03-06 23:15:36,995 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TSM
+2026-03-06 23:15:39,360 - app.services.market_data - INFO - Syncing fundamental for HD: market_cap=354417021000.0, PE=14.23
+2026-03-06 23:15:41,476 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: HD
+2026-03-06 23:15:43,985 - app.services.market_data - INFO - Syncing fundamental for RKLB: market_cap=41429873000.0, PE=-0.37
+2026-03-06 23:15:46,026 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: RKLB
+2026-03-06 23:15:49,329 - app.services.market_data - INFO - Syncing fundamental for INTU: market_cap=129370090000.0, PE=15.37
+2026-03-06 23:15:51,349 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: INTU
+2026-03-06 23:15:53,576 - app.services.market_data - INFO - Syncing fundamental for LIN: market_cap=223254036000.0, PE=14.61
+2026-03-06 23:15:55,447 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: LIN
+2026-03-06 23:15:59,875 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: XLE
+2026-03-06 23:16:02,047 - app.services.market_data - INFO - Syncing fundamental for IREN: market_cap=13058041000.0, PE=1.44
+2026-03-06 23:16:04,079 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: IREN
+2026-03-06 23:16:06,426 - app.services.market_data - INFO - Syncing fundamental for JPM: market_cap=773050390000.0, PE=20.02
+2026-03-06 23:16:08,449 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: JPM
+2026-03-06 23:16:10,304 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-06 23:16:10,474 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:16:10,787 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-06 23:16:13,146 - app.services.market_data - INFO - Syncing fundamental for KO: market_cap=329994481000.0, PE=3.04
+2026-03-06 23:16:15,187 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: KO
+2026-03-06 23:16:17,574 - app.services.market_data - INFO - Syncing fundamental for CVX: market_cap=374885983000.0, PE=6.63
+2026-03-06 23:16:19,685 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CVX
+2026-03-06 23:16:22,037 - app.services.market_data - INFO - Syncing fundamental for OKLO: market_cap=9720912000.0, PE=-0.56
+2026-03-06 23:16:24,053 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: OKLO
+2026-03-06 23:16:26,460 - app.services.market_data - INFO - Syncing fundamental for PG: market_cap=354410104000.0, PE=6.75
+2026-03-06 23:16:28,325 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PG
+2026-03-06 23:16:30,518 - app.services.market_data - INFO - Syncing fundamental for TEM: market_cap=9371317000.0, PE=-1.41
+2026-03-06 23:16:32,544 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEM
+2026-03-06 23:16:34,313 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-06 23:16:34,512 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-06 23:16:34,824 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-06 23:16:37,013 - app.services.market_data - INFO - Syncing fundamental for UNH: market_cap=257371484000.0, PE=13.23
+2026-03-06 23:16:38,885 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: UNH
+2026-03-06 23:16:41,147 - app.services.market_data - INFO - Syncing fundamental for PLTR: market_cap=370183567000.0, PE=0.63
+2026-03-06 23:16:43,177 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PLTR
+2026-03-06 23:16:45,429 - app.services.market_data - INFO - Syncing fundamental for TSLA: market_cap=1493899459000.0, PE=1.08
+2026-03-06 23:16:47,617 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TSLA
+2026-03-06 23:16:49,950 - app.services.market_data - INFO - Syncing fundamental for AMZN: market_cap=2306880820000.0, PE=7.17
+2026-03-06 23:16:52,137 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AMZN
+2026-03-06 23:16:54,603 - app.services.market_data - INFO - Syncing fundamental for ABT: market_cap=189112029000.0, PE=3.72
+2026-03-06 23:16:56,617 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ABT
+2026-03-06 23:16:58,883 - app.services.market_data - INFO - Syncing fundamental for SIDU: market_cap=135368000.0, PE=-1.26
+2026-03-06 23:17:01,048 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: SIDU
+2026-03-06 23:17:03,314 - app.services.market_data - INFO - Syncing fundamental for META: market_cap=1625593523000.0, PE=23.49

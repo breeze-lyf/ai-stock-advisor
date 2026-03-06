@@ -297,8 +297,9 @@ export default function SettingsPage() {
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label>Preferred Analysis Model</Label>
+                                    <Label htmlFor="model-select">Preferred Analysis Model</Label>
                                     <select
+                                        id="model-select"
                                         className="w-full p-2 rounded-md border border-slate-200 dark:border-slate-800 bg-transparent text-sm"
                                         value={profile?.preferred_ai_model || "gemini-1.5-flash"}
                                         onChange={(e) => handleModelUpdate(e.target.value)}
@@ -330,12 +331,14 @@ export default function SettingsPage() {
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label>System Global Timezone</Label>
+                                    <Label htmlFor="timezone-select">System Global Timezone</Label>
                                     <select
+                                        id="timezone-select"
                                         className="w-full p-2 rounded-md border border-slate-200 dark:border-slate-800 bg-transparent text-sm"
                                         value={profile?.timezone || "Asia/Shanghai"}
                                         onChange={(e) => handleTimezoneUpdate(e.target.value)}
                                         disabled={saving}
+                                        title="Select System Timezone"
                                     >
                                         <optgroup label="亚洲 (Asia)">
                                             <option value="Asia/Shanghai">北京 / 上海 (UTC+8)</option>

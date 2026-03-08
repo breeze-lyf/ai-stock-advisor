@@ -1,0 +1,14 @@
+INFO:     Will watch for changes in these directories: ['/Users/breeze/Dev/ai-stock-advisor/backend']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [63442] using StatReload
+2026-02-14 10:59:00,047 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+INFO:     Started server process [63491]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+2026-02-14 10:59:12,830 - api_logger - INFO - rid=/api/health method=GET status_code=404 user_id=anonymous time=0.81ms
+INFO:     127.0.0.1:49311 - "GET /api/health HTTP/1.1" 404 Not Found
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [63491]
+INFO:     Stopping reloader process [63442]

@@ -1,0 +1,1115 @@
+INFO:     Will watch for changes in these directories: ['/Users/breeze/Dev/ai-stock-advisor/backend']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [99508] using StatReload
+2026-02-11 10:15:48,024 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+INFO:     Started server process [99558]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+2026-02-11 10:15:53,854 - api_logger - INFO - rid=/health method=GET status_code=200 user_id=anonymous time=0.54ms
+INFO:     127.0.0.1:52790 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53956 - "OPTIONS /api/analysis/ASTS HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53957 - "OPTIONS /api/portfolio/?refresh=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53958 - "OPTIONS /api/portfolio/ASTS/news HTTP/1.1" 200 OK
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1770797068, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1770797068, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1770797068, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+2026-02-11 10:28:08,588 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-11 10:28:08,588 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-11 10:28:08,634 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:08,634 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:08,634 INFO sqlalchemy.engine.Engine [generated in 0.00018s] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:08,634 - sqlalchemy.engine.Engine - INFO - [generated in 0.00018s] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:08,635 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-11 10:28:08,635 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-11 10:28:08,635 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:08,635 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:08,635 INFO sqlalchemy.engine.Engine [cached since 0.0006286s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:08,635 - sqlalchemy.engine.Engine - INFO - [cached since 0.0006286s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:08,635 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-11 10:28:08,635 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-11 10:28:08,635 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:08,635 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:08,635 INFO sqlalchemy.engine.Engine [cached since 0.0009775s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:08,635 - sqlalchemy.engine.Engine - INFO - [cached since 0.0009775s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:08,637 INFO sqlalchemy.engine.Engine SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.summary_status, analysis_reports.risk_level, analysis_reports.technical_analysis, analysis_reports.fundamental_news, analysis_reports.action_advice, analysis_reports.investment_horizon, analysis_reports.confidence_level, analysis_reports.immediate_action, analysis_reports.target_price, analysis_reports.stop_loss_price, analysis_reports.entry_zone, analysis_reports.entry_price_low, analysis_reports.entry_price_high, analysis_reports.rr_ratio, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:08,637 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.summary_status, analysis_reports.risk_level, analysis_reports.technical_analysis, analysis_reports.fundamental_news, analysis_reports.action_advice, analysis_reports.investment_horizon, analysis_reports.confidence_level, analysis_reports.immediate_action, analysis_reports.target_price, analysis_reports.stop_loss_price, analysis_reports.entry_zone, analysis_reports.entry_price_low, analysis_reports.entry_price_high, analysis_reports.rr_ratio, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:08,637 INFO sqlalchemy.engine.Engine [generated in 0.00015s] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'ASTS', 'qwen-3-vl-thinking', 1, 0)
+2026-02-11 10:28:08,637 - sqlalchemy.engine.Engine - INFO - [generated in 0.00015s] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'ASTS', 'qwen-3-vl-thinking', 1, 0)
+2026-02-11 10:28:08,639 INFO sqlalchemy.engine.Engine SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.macd_hist_slope, market_data_cache.macd_cross, market_data_cache.macd_is_new_cross, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.adx_14, market_data_cache.pivot_point, market_data_cache.resistance_1, market_data_cache.resistance_2, market_data_cache.support_1, market_data_cache.support_2, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-11 10:28:08,639 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.macd_hist_slope, market_data_cache.macd_cross, market_data_cache.macd_is_new_cross, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.adx_14, market_data_cache.pivot_point, market_data_cache.resistance_1, market_data_cache.resistance_2, market_data_cache.support_1, market_data_cache.support_2, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-11 10:28:08,639 INFO sqlalchemy.engine.Engine [generated in 0.00014s] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:08,639 - sqlalchemy.engine.Engine - INFO - [generated in 0.00014s] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:08,640 INFO sqlalchemy.engine.Engine SELECT stock_news.id, stock_news.ticker, stock_news.title, stock_news.publisher, stock_news.link, stock_news.publish_time, stock_news.summary, stock_news.sentiment 
+FROM stock_news 
+WHERE stock_news.ticker = ? ORDER BY stock_news.publish_time DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:08,640 - sqlalchemy.engine.Engine - INFO - SELECT stock_news.id, stock_news.ticker, stock_news.title, stock_news.publisher, stock_news.link, stock_news.publish_time, stock_news.summary, stock_news.sentiment 
+FROM stock_news 
+WHERE stock_news.ticker = ? ORDER BY stock_news.publish_time DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:08,640 INFO sqlalchemy.engine.Engine [generated in 0.00008s] ('ASTS', 20, 0)
+2026-02-11 10:28:08,640 - sqlalchemy.engine.Engine - INFO - [generated in 0.00008s] ('ASTS', 20, 0)
+2026-02-11 10:28:08,641 INFO sqlalchemy.engine.Engine ROLLBACK
+2026-02-11 10:28:08,641 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+INFO:     127.0.0.1:53957 - "GET /api/portfolio/?refresh=false HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/protocols/http/h11_impl.py", line 410, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/applications.py", line 1135, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_utils.py", line 85, in collapse_excgroups
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/main.py", line 49, in log_requests
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 115, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 101, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 355, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 243, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/api/v1/endpoints/portfolio.py", line 131, in get_portfolio
+    items.append(PortfolioItem(
+                 ~~~~~~~~~~~~~^
+        ticker=p.ticker,
+        ^^^^^^^^^^^^^^^^
+    ...<45 lines>...
+        change_percent=m.change_percent if m else 0.0
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ))
+    ^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/pydantic/main.py", line 250, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for PortfolioItem
+macd_is_new_cross
+  Input should be a valid boolean [type=bool_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/bool_type
+2026-02-11 10:28:08,653 - api_logger - INFO - rid=/api/analysis/ASTS method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=78.01ms
+INFO:     127.0.0.1:53958 - "GET /api/analysis/ASTS HTTP/1.1" 200 OK
+2026-02-11 10:28:08,653 - api_logger - INFO - rid=/api/portfolio/ASTS/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=66.62ms
+INFO:     127.0.0.1:53956 - "GET /api/portfolio/ASTS/news HTTP/1.1" 200 OK
+2026-02-11 10:28:08,654 INFO sqlalchemy.engine.Engine ROLLBACK
+2026-02-11 10:28:08,654 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-11 10:28:08,654 INFO sqlalchemy.engine.Engine ROLLBACK
+2026-02-11 10:28:08,654 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1770797068, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+2026-02-11 10:28:20,592 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-11 10:28:20,592 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-11 10:28:20,593 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:20,593 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:20,593 INFO sqlalchemy.engine.Engine [cached since 11.96s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:20,593 - sqlalchemy.engine.Engine - INFO - [cached since 11.96s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1770797068, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+2026-02-11 10:28:20,594 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-11 10:28:20,594 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-11 10:28:20,594 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:20,594 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:20,594 INFO sqlalchemy.engine.Engine [cached since 11.96s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:20,594 - sqlalchemy.engine.Engine - INFO - [cached since 11.96s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1770797068, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+2026-02-11 10:28:20,596 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-11 10:28:20,596 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-11 10:28:20,596 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:20,596 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:20,599 INFO sqlalchemy.engine.Engine [cached since 11.96s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:20,599 - sqlalchemy.engine.Engine - INFO - [cached since 11.96s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:20,600 INFO sqlalchemy.engine.Engine SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.summary_status, analysis_reports.risk_level, analysis_reports.technical_analysis, analysis_reports.fundamental_news, analysis_reports.action_advice, analysis_reports.investment_horizon, analysis_reports.confidence_level, analysis_reports.immediate_action, analysis_reports.target_price, analysis_reports.stop_loss_price, analysis_reports.entry_zone, analysis_reports.entry_price_low, analysis_reports.entry_price_high, analysis_reports.rr_ratio, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:20,600 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.summary_status, analysis_reports.risk_level, analysis_reports.technical_analysis, analysis_reports.fundamental_news, analysis_reports.action_advice, analysis_reports.investment_horizon, analysis_reports.confidence_level, analysis_reports.immediate_action, analysis_reports.target_price, analysis_reports.stop_loss_price, analysis_reports.entry_zone, analysis_reports.entry_price_low, analysis_reports.entry_price_high, analysis_reports.rr_ratio, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:20,601 INFO sqlalchemy.engine.Engine [cached since 11.96s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'ASTS', 'qwen-3-vl-thinking', 1, 0)
+2026-02-11 10:28:20,601 - sqlalchemy.engine.Engine - INFO - [cached since 11.96s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'ASTS', 'qwen-3-vl-thinking', 1, 0)
+2026-02-11 10:28:20,601 INFO sqlalchemy.engine.Engine SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.macd_hist_slope, market_data_cache.macd_cross, market_data_cache.macd_is_new_cross, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.adx_14, market_data_cache.pivot_point, market_data_cache.resistance_1, market_data_cache.resistance_2, market_data_cache.support_1, market_data_cache.support_2, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-11 10:28:20,601 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.macd_hist_slope, market_data_cache.macd_cross, market_data_cache.macd_is_new_cross, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.adx_14, market_data_cache.pivot_point, market_data_cache.resistance_1, market_data_cache.resistance_2, market_data_cache.support_1, market_data_cache.support_2, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-11 10:28:20,601 INFO sqlalchemy.engine.Engine [cached since 11.96s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:20,601 - sqlalchemy.engine.Engine - INFO - [cached since 11.96s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:20,602 INFO sqlalchemy.engine.Engine SELECT stock_news.id, stock_news.ticker, stock_news.title, stock_news.publisher, stock_news.link, stock_news.publish_time, stock_news.summary, stock_news.sentiment 
+FROM stock_news 
+WHERE stock_news.ticker = ? ORDER BY stock_news.publish_time DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:20,602 - sqlalchemy.engine.Engine - INFO - SELECT stock_news.id, stock_news.ticker, stock_news.title, stock_news.publisher, stock_news.link, stock_news.publish_time, stock_news.summary, stock_news.sentiment 
+FROM stock_news 
+WHERE stock_news.ticker = ? ORDER BY stock_news.publish_time DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:20,602 INFO sqlalchemy.engine.Engine [cached since 11.96s ago] ('ASTS', 20, 0)
+2026-02-11 10:28:20,602 - sqlalchemy.engine.Engine - INFO - [cached since 11.96s ago] ('ASTS', 20, 0)
+2026-02-11 10:28:20,605 - api_logger - INFO - rid=/api/portfolio/ASTS/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=12.18ms
+INFO:     127.0.0.1:53979 - "GET /api/portfolio/ASTS/news HTTP/1.1" 200 OK
+2026-02-11 10:28:20,606 - api_logger - INFO - rid=/api/analysis/ASTS method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=14.83ms
+INFO:     127.0.0.1:53977 - "GET /api/analysis/ASTS HTTP/1.1" 200 OK
+2026-02-11 10:28:20,606 INFO sqlalchemy.engine.Engine ROLLBACK
+2026-02-11 10:28:20,606 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-11 10:28:20,607 INFO sqlalchemy.engine.Engine ROLLBACK
+2026-02-11 10:28:20,607 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-11 10:28:20,608 INFO sqlalchemy.engine.Engine ROLLBACK
+2026-02-11 10:28:20,608 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+INFO:     127.0.0.1:53978 - "GET /api/portfolio/?refresh=false HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/protocols/http/h11_impl.py", line 410, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/applications.py", line 1135, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_utils.py", line 85, in collapse_excgroups
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/main.py", line 49, in log_requests
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 115, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 101, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 355, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 243, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/api/v1/endpoints/portfolio.py", line 131, in get_portfolio
+    items.append(PortfolioItem(
+                 ~~~~~~~~~~~~~^
+        ticker=p.ticker,
+        ^^^^^^^^^^^^^^^^
+    ...<45 lines>...
+        change_percent=m.change_percent if m else 0.0
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ))
+    ^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/pydantic/main.py", line 250, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for PortfolioItem
+macd_is_new_cross
+  Input should be a valid boolean [type=bool_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/bool_type
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1770797068, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+2026-02-11 10:28:20,870 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-11 10:28:20,870 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-11 10:28:20,870 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:20,870 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:20,870 INFO sqlalchemy.engine.Engine [cached since 12.24s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:20,870 - sqlalchemy.engine.Engine - INFO - [cached since 12.24s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1770797068, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+2026-02-11 10:28:20,870 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-11 10:28:20,870 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-11 10:28:20,870 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:20,870 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:20,870 INFO sqlalchemy.engine.Engine [cached since 12.24s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:20,870 - sqlalchemy.engine.Engine - INFO - [cached since 12.24s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1770797068, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+2026-02-11 10:28:20,871 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-11 10:28:20,871 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-11 10:28:20,872 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:20,872 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:20,872 INFO sqlalchemy.engine.Engine [cached since 12.24s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:20,872 - sqlalchemy.engine.Engine - INFO - [cached since 12.24s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:20,872 INFO sqlalchemy.engine.Engine SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.macd_hist_slope, market_data_cache.macd_cross, market_data_cache.macd_is_new_cross, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.adx_14, market_data_cache.pivot_point, market_data_cache.resistance_1, market_data_cache.resistance_2, market_data_cache.support_1, market_data_cache.support_2, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-11 10:28:20,872 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.macd_hist_slope, market_data_cache.macd_cross, market_data_cache.macd_is_new_cross, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.adx_14, market_data_cache.pivot_point, market_data_cache.resistance_1, market_data_cache.resistance_2, market_data_cache.support_1, market_data_cache.support_2, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-11 10:28:20,872 INFO sqlalchemy.engine.Engine [cached since 12.23s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:20,872 - sqlalchemy.engine.Engine - INFO - [cached since 12.23s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:20,873 INFO sqlalchemy.engine.Engine SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.summary_status, analysis_reports.risk_level, analysis_reports.technical_analysis, analysis_reports.fundamental_news, analysis_reports.action_advice, analysis_reports.investment_horizon, analysis_reports.confidence_level, analysis_reports.immediate_action, analysis_reports.target_price, analysis_reports.stop_loss_price, analysis_reports.entry_zone, analysis_reports.entry_price_low, analysis_reports.entry_price_high, analysis_reports.rr_ratio, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:20,873 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.summary_status, analysis_reports.risk_level, analysis_reports.technical_analysis, analysis_reports.fundamental_news, analysis_reports.action_advice, analysis_reports.investment_horizon, analysis_reports.confidence_level, analysis_reports.immediate_action, analysis_reports.target_price, analysis_reports.stop_loss_price, analysis_reports.entry_zone, analysis_reports.entry_price_low, analysis_reports.entry_price_high, analysis_reports.rr_ratio, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:20,873 INFO sqlalchemy.engine.Engine [cached since 12.24s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'ASTS', 'qwen-3-vl-thinking', 1, 0)
+2026-02-11 10:28:20,873 - sqlalchemy.engine.Engine - INFO - [cached since 12.24s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'ASTS', 'qwen-3-vl-thinking', 1, 0)
+2026-02-11 10:28:20,874 INFO sqlalchemy.engine.Engine SELECT stock_news.id, stock_news.ticker, stock_news.title, stock_news.publisher, stock_news.link, stock_news.publish_time, stock_news.summary, stock_news.sentiment 
+FROM stock_news 
+WHERE stock_news.ticker = ? ORDER BY stock_news.publish_time DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:20,874 - sqlalchemy.engine.Engine - INFO - SELECT stock_news.id, stock_news.ticker, stock_news.title, stock_news.publisher, stock_news.link, stock_news.publish_time, stock_news.summary, stock_news.sentiment 
+FROM stock_news 
+WHERE stock_news.ticker = ? ORDER BY stock_news.publish_time DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:20,874 INFO sqlalchemy.engine.Engine [cached since 12.23s ago] ('ASTS', 20, 0)
+2026-02-11 10:28:20,874 - sqlalchemy.engine.Engine - INFO - [cached since 12.23s ago] ('ASTS', 20, 0)
+2026-02-11 10:28:20,876 - api_logger - INFO - rid=/api/analysis/ASTS method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=6.91ms
+INFO:     127.0.0.1:53977 - "GET /api/analysis/ASTS HTTP/1.1" 200 OK
+2026-02-11 10:28:20,877 INFO sqlalchemy.engine.Engine ROLLBACK
+2026-02-11 10:28:20,877 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-11 10:28:20,878 INFO sqlalchemy.engine.Engine ROLLBACK
+2026-02-11 10:28:20,878 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-11 10:28:20,879 - api_logger - INFO - rid=/api/portfolio/ASTS/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=8.29ms
+INFO:     127.0.0.1:53981 - "GET /api/portfolio/ASTS/news HTTP/1.1" 200 OK
+2026-02-11 10:28:20,880 INFO sqlalchemy.engine.Engine ROLLBACK
+2026-02-11 10:28:20,880 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+INFO:     127.0.0.1:53979 - "GET /api/portfolio/?refresh=false HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/protocols/http/h11_impl.py", line 410, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/applications.py", line 1135, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_utils.py", line 85, in collapse_excgroups
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/main.py", line 49, in log_requests
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 115, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 101, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 355, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 243, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/api/v1/endpoints/portfolio.py", line 131, in get_portfolio
+    items.append(PortfolioItem(
+                 ~~~~~~~~~~~~~^
+        ticker=p.ticker,
+        ^^^^^^^^^^^^^^^^
+    ...<45 lines>...
+        change_percent=m.change_percent if m else 0.0
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ))
+    ^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/pydantic/main.py", line 250, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for PortfolioItem
+macd_is_new_cross
+  Input should be a valid boolean [type=bool_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/bool_type
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1770797068, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+2026-02-11 10:28:21,290 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-11 10:28:21,290 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-11 10:28:21,290 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:21,290 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:21,291 INFO sqlalchemy.engine.Engine [cached since 12.66s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:21,291 - sqlalchemy.engine.Engine - INFO - [cached since 12.66s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1770797068, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+2026-02-11 10:28:21,291 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-11 10:28:21,291 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-11 10:28:21,292 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:21,292 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:21,292 INFO sqlalchemy.engine.Engine [cached since 12.66s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:21,292 - sqlalchemy.engine.Engine - INFO - [cached since 12.66s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1770797068, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+2026-02-11 10:28:21,296 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-11 10:28:21,296 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-11 10:28:21,297 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:21,297 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:21,297 INFO sqlalchemy.engine.Engine [cached since 12.66s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:21,297 - sqlalchemy.engine.Engine - INFO - [cached since 12.66s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:21,298 INFO sqlalchemy.engine.Engine SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.summary_status, analysis_reports.risk_level, analysis_reports.technical_analysis, analysis_reports.fundamental_news, analysis_reports.action_advice, analysis_reports.investment_horizon, analysis_reports.confidence_level, analysis_reports.immediate_action, analysis_reports.target_price, analysis_reports.stop_loss_price, analysis_reports.entry_zone, analysis_reports.entry_price_low, analysis_reports.entry_price_high, analysis_reports.rr_ratio, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:21,298 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.summary_status, analysis_reports.risk_level, analysis_reports.technical_analysis, analysis_reports.fundamental_news, analysis_reports.action_advice, analysis_reports.investment_horizon, analysis_reports.confidence_level, analysis_reports.immediate_action, analysis_reports.target_price, analysis_reports.stop_loss_price, analysis_reports.entry_zone, analysis_reports.entry_price_low, analysis_reports.entry_price_high, analysis_reports.rr_ratio, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:21,298 INFO sqlalchemy.engine.Engine [cached since 12.66s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'ASTS', 'qwen-3-vl-thinking', 1, 0)
+2026-02-11 10:28:21,298 - sqlalchemy.engine.Engine - INFO - [cached since 12.66s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'ASTS', 'qwen-3-vl-thinking', 1, 0)
+2026-02-11 10:28:21,298 INFO sqlalchemy.engine.Engine SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.macd_hist_slope, market_data_cache.macd_cross, market_data_cache.macd_is_new_cross, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.adx_14, market_data_cache.pivot_point, market_data_cache.resistance_1, market_data_cache.resistance_2, market_data_cache.support_1, market_data_cache.support_2, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-11 10:28:21,298 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.macd_hist_slope, market_data_cache.macd_cross, market_data_cache.macd_is_new_cross, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.adx_14, market_data_cache.pivot_point, market_data_cache.resistance_1, market_data_cache.resistance_2, market_data_cache.support_1, market_data_cache.support_2, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-11 10:28:21,299 INFO sqlalchemy.engine.Engine [cached since 12.66s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:21,299 - sqlalchemy.engine.Engine - INFO - [cached since 12.66s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:21,300 INFO sqlalchemy.engine.Engine SELECT stock_news.id, stock_news.ticker, stock_news.title, stock_news.publisher, stock_news.link, stock_news.publish_time, stock_news.summary, stock_news.sentiment 
+FROM stock_news 
+WHERE stock_news.ticker = ? ORDER BY stock_news.publish_time DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:21,300 - sqlalchemy.engine.Engine - INFO - SELECT stock_news.id, stock_news.ticker, stock_news.title, stock_news.publisher, stock_news.link, stock_news.publish_time, stock_news.summary, stock_news.sentiment 
+FROM stock_news 
+WHERE stock_news.ticker = ? ORDER BY stock_news.publish_time DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:21,300 INFO sqlalchemy.engine.Engine [cached since 12.66s ago] ('ASTS', 20, 0)
+2026-02-11 10:28:21,300 - sqlalchemy.engine.Engine - INFO - [cached since 12.66s ago] ('ASTS', 20, 0)
+2026-02-11 10:28:21,300 - api_logger - INFO - rid=/api/analysis/ASTS method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=10.84ms
+INFO:     127.0.0.1:53981 - "GET /api/analysis/ASTS HTTP/1.1" 200 OK
+2026-02-11 10:28:21,301 INFO sqlalchemy.engine.Engine ROLLBACK
+2026-02-11 10:28:21,301 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-11 10:28:21,301 - api_logger - INFO - rid=/api/portfolio/ASTS/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=9.07ms
+INFO:     127.0.0.1:54001 - "GET /api/portfolio/ASTS/news HTTP/1.1" 200 OK
+2026-02-11 10:28:21,302 INFO sqlalchemy.engine.Engine ROLLBACK
+2026-02-11 10:28:21,302 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-11 10:28:21,302 INFO sqlalchemy.engine.Engine ROLLBACK
+2026-02-11 10:28:21,302 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+INFO:     127.0.0.1:53977 - "GET /api/portfolio/?refresh=false HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/protocols/http/h11_impl.py", line 410, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/applications.py", line 1135, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_utils.py", line 85, in collapse_excgroups
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/main.py", line 49, in log_requests
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 115, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 101, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 355, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 243, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/api/v1/endpoints/portfolio.py", line 131, in get_portfolio
+    items.append(PortfolioItem(
+                 ~~~~~~~~~~~~~^
+        ticker=p.ticker,
+        ^^^^^^^^^^^^^^^^
+    ...<45 lines>...
+        change_percent=m.change_percent if m else 0.0
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ))
+    ^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/pydantic/main.py", line 250, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for PortfolioItem
+macd_is_new_cross
+  Input should be a valid boolean [type=bool_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/bool_type
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1770797068, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+2026-02-11 10:28:21,490 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-11 10:28:21,490 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-11 10:28:21,491 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:21,491 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:21,491 INFO sqlalchemy.engine.Engine [cached since 12.86s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:21,491 - sqlalchemy.engine.Engine - INFO - [cached since 12.86s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1770797068, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+2026-02-11 10:28:21,492 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-11 10:28:21,492 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-11 10:28:21,492 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:21,492 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:21,492 INFO sqlalchemy.engine.Engine [cached since 12.86s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:21,492 - sqlalchemy.engine.Engine - INFO - [cached since 12.86s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1770797068, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+2026-02-11 10:28:21,493 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-11 10:28:21,493 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-11 10:28:21,493 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:21,493 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:21,493 INFO sqlalchemy.engine.Engine [cached since 12.86s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:21,493 - sqlalchemy.engine.Engine - INFO - [cached since 12.86s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:21,494 INFO sqlalchemy.engine.Engine SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.summary_status, analysis_reports.risk_level, analysis_reports.technical_analysis, analysis_reports.fundamental_news, analysis_reports.action_advice, analysis_reports.investment_horizon, analysis_reports.confidence_level, analysis_reports.immediate_action, analysis_reports.target_price, analysis_reports.stop_loss_price, analysis_reports.entry_zone, analysis_reports.entry_price_low, analysis_reports.entry_price_high, analysis_reports.rr_ratio, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:21,494 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.summary_status, analysis_reports.risk_level, analysis_reports.technical_analysis, analysis_reports.fundamental_news, analysis_reports.action_advice, analysis_reports.investment_horizon, analysis_reports.confidence_level, analysis_reports.immediate_action, analysis_reports.target_price, analysis_reports.stop_loss_price, analysis_reports.entry_zone, analysis_reports.entry_price_low, analysis_reports.entry_price_high, analysis_reports.rr_ratio, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:21,494 INFO sqlalchemy.engine.Engine [cached since 12.86s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'ASTS', 'qwen-3-vl-thinking', 1, 0)
+2026-02-11 10:28:21,494 - sqlalchemy.engine.Engine - INFO - [cached since 12.86s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'ASTS', 'qwen-3-vl-thinking', 1, 0)
+2026-02-11 10:28:21,495 INFO sqlalchemy.engine.Engine SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.macd_hist_slope, market_data_cache.macd_cross, market_data_cache.macd_is_new_cross, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.adx_14, market_data_cache.pivot_point, market_data_cache.resistance_1, market_data_cache.resistance_2, market_data_cache.support_1, market_data_cache.support_2, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-11 10:28:21,495 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.macd_hist_slope, market_data_cache.macd_cross, market_data_cache.macd_is_new_cross, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.adx_14, market_data_cache.pivot_point, market_data_cache.resistance_1, market_data_cache.resistance_2, market_data_cache.support_1, market_data_cache.support_2, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-11 10:28:21,495 INFO sqlalchemy.engine.Engine [cached since 12.86s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:21,495 - sqlalchemy.engine.Engine - INFO - [cached since 12.86s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:21,495 INFO sqlalchemy.engine.Engine SELECT stock_news.id, stock_news.ticker, stock_news.title, stock_news.publisher, stock_news.link, stock_news.publish_time, stock_news.summary, stock_news.sentiment 
+FROM stock_news 
+WHERE stock_news.ticker = ? ORDER BY stock_news.publish_time DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:21,495 - sqlalchemy.engine.Engine - INFO - SELECT stock_news.id, stock_news.ticker, stock_news.title, stock_news.publisher, stock_news.link, stock_news.publish_time, stock_news.summary, stock_news.sentiment 
+FROM stock_news 
+WHERE stock_news.ticker = ? ORDER BY stock_news.publish_time DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:21,495 INFO sqlalchemy.engine.Engine [cached since 12.86s ago] ('ASTS', 20, 0)
+2026-02-11 10:28:21,495 - sqlalchemy.engine.Engine - INFO - [cached since 12.86s ago] ('ASTS', 20, 0)
+2026-02-11 10:28:21,497 - api_logger - INFO - rid=/api/analysis/ASTS method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=7.43ms
+INFO:     127.0.0.1:54001 - "GET /api/analysis/ASTS HTTP/1.1" 200 OK
+2026-02-11 10:28:21,497 INFO sqlalchemy.engine.Engine ROLLBACK
+2026-02-11 10:28:21,497 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-11 10:28:21,498 - api_logger - INFO - rid=/api/portfolio/ASTS/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=5.26ms
+INFO:     127.0.0.1:54003 - "GET /api/portfolio/ASTS/news HTTP/1.1" 200 OK
+2026-02-11 10:28:21,499 INFO sqlalchemy.engine.Engine ROLLBACK
+2026-02-11 10:28:21,499 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-11 10:28:21,499 INFO sqlalchemy.engine.Engine ROLLBACK
+2026-02-11 10:28:21,499 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+INFO:     127.0.0.1:53981 - "GET /api/portfolio/?refresh=false HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/protocols/http/h11_impl.py", line 410, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/applications.py", line 1135, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_utils.py", line 85, in collapse_excgroups
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/main.py", line 49, in log_requests
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 115, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 101, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 355, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 243, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/api/v1/endpoints/portfolio.py", line 131, in get_portfolio
+    items.append(PortfolioItem(
+                 ~~~~~~~~~~~~~^
+        ticker=p.ticker,
+        ^^^^^^^^^^^^^^^^
+    ...<45 lines>...
+        change_percent=m.change_percent if m else 0.0
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ))
+    ^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/pydantic/main.py", line 250, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for PortfolioItem
+macd_is_new_cross
+  Input should be a valid boolean [type=bool_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/bool_type
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1770797068, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+2026-02-11 10:28:21,646 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-11 10:28:21,646 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-11 10:28:21,646 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:21,646 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:21,646 INFO sqlalchemy.engine.Engine [cached since 13.01s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:21,646 - sqlalchemy.engine.Engine - INFO - [cached since 13.01s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1770797068, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+2026-02-11 10:28:21,646 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-11 10:28:21,646 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-11 10:28:21,646 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:21,646 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:21,646 INFO sqlalchemy.engine.Engine [cached since 13.01s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:21,646 - sqlalchemy.engine.Engine - INFO - [cached since 13.01s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1770797068, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+2026-02-11 10:28:21,647 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+2026-02-11 10:28:21,647 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2026-02-11 10:28:21,647 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:21,647 - sqlalchemy.engine.Engine - INFO - SELECT users.id, users.email, users.hashed_password, users.is_active, users.membership_tier, users.api_key_gemini, users.api_key_deepseek, users.api_key_siliconflow, users.preferred_data_source, users.preferred_ai_model, users.created_at, users.last_login 
+FROM users 
+WHERE users.id = ?
+2026-02-11 10:28:21,647 INFO sqlalchemy.engine.Engine [cached since 13.01s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:21,647 - sqlalchemy.engine.Engine - INFO - [cached since 13.01s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:21,647 INFO sqlalchemy.engine.Engine SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.summary_status, analysis_reports.risk_level, analysis_reports.technical_analysis, analysis_reports.fundamental_news, analysis_reports.action_advice, analysis_reports.investment_horizon, analysis_reports.confidence_level, analysis_reports.immediate_action, analysis_reports.target_price, analysis_reports.stop_loss_price, analysis_reports.entry_zone, analysis_reports.entry_price_low, analysis_reports.entry_price_high, analysis_reports.rr_ratio, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:21,647 - sqlalchemy.engine.Engine - INFO - SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.summary_status, analysis_reports.risk_level, analysis_reports.technical_analysis, analysis_reports.fundamental_news, analysis_reports.action_advice, analysis_reports.investment_horizon, analysis_reports.confidence_level, analysis_reports.immediate_action, analysis_reports.target_price, analysis_reports.stop_loss_price, analysis_reports.entry_zone, analysis_reports.entry_price_low, analysis_reports.entry_price_high, analysis_reports.rr_ratio, analysis_reports.model_used, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = ? AND analysis_reports.ticker = ? AND analysis_reports.model_used = ? ORDER BY analysis_reports.created_at DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:21,647 INFO sqlalchemy.engine.Engine [cached since 13.01s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'ASTS', 'qwen-3-vl-thinking', 1, 0)
+2026-02-11 10:28:21,647 - sqlalchemy.engine.Engine - INFO - [cached since 13.01s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'ASTS', 'qwen-3-vl-thinking', 1, 0)
+2026-02-11 10:28:21,648 INFO sqlalchemy.engine.Engine SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.macd_hist_slope, market_data_cache.macd_cross, market_data_cache.macd_is_new_cross, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.adx_14, market_data_cache.pivot_point, market_data_cache.resistance_1, market_data_cache.resistance_2, market_data_cache.support_1, market_data_cache.support_2, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-11 10:28:21,648 - sqlalchemy.engine.Engine - INFO - SELECT portfolios.id, portfolios.user_id, portfolios.ticker, portfolios.quantity, portfolios.avg_cost, portfolios.target_price, portfolios.stop_loss_price, portfolios.created_at, portfolios.updated_at, market_data_cache.ticker AS ticker_1, market_data_cache.current_price, market_data_cache.change_percent, market_data_cache.rsi_14, market_data_cache.ma_20, market_data_cache.ma_50, market_data_cache.ma_200, market_data_cache.macd_val, market_data_cache.macd_signal, market_data_cache.macd_hist, market_data_cache.macd_hist_slope, market_data_cache.macd_cross, market_data_cache.macd_is_new_cross, market_data_cache.bb_upper, market_data_cache.bb_middle, market_data_cache.bb_lower, market_data_cache.atr_14, market_data_cache.k_line, market_data_cache.d_line, market_data_cache.j_line, market_data_cache.volume_ma_20, market_data_cache.volume_ratio, market_data_cache.adx_14, market_data_cache.pivot_point, market_data_cache.resistance_1, market_data_cache.resistance_2, market_data_cache.support_1, market_data_cache.support_2, market_data_cache.market_status, market_data_cache.last_updated, stocks.ticker AS ticker_2, stocks.name, stocks.sector, stocks.industry, stocks.market_cap, stocks.pe_ratio, stocks.forward_pe, stocks.eps, stocks.dividend_yield, stocks.beta, stocks.fifty_two_week_high, stocks.fifty_two_week_low, stocks.exchange, stocks.currency 
+FROM portfolios LEFT OUTER JOIN market_data_cache ON portfolios.ticker = market_data_cache.ticker LEFT OUTER JOIN stocks ON portfolios.ticker = stocks.ticker 
+WHERE portfolios.user_id = ?
+2026-02-11 10:28:21,648 INFO sqlalchemy.engine.Engine [cached since 13.01s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:21,648 - sqlalchemy.engine.Engine - INFO - [cached since 13.01s ago] ('9fe069c3-5985-4d2a-8814-91898152fc4a',)
+2026-02-11 10:28:21,648 INFO sqlalchemy.engine.Engine SELECT stock_news.id, stock_news.ticker, stock_news.title, stock_news.publisher, stock_news.link, stock_news.publish_time, stock_news.summary, stock_news.sentiment 
+FROM stock_news 
+WHERE stock_news.ticker = ? ORDER BY stock_news.publish_time DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:21,648 - sqlalchemy.engine.Engine - INFO - SELECT stock_news.id, stock_news.ticker, stock_news.title, stock_news.publisher, stock_news.link, stock_news.publish_time, stock_news.summary, stock_news.sentiment 
+FROM stock_news 
+WHERE stock_news.ticker = ? ORDER BY stock_news.publish_time DESC
+ LIMIT ? OFFSET ?
+2026-02-11 10:28:21,648 INFO sqlalchemy.engine.Engine [cached since 13.01s ago] ('ASTS', 20, 0)
+2026-02-11 10:28:21,648 - sqlalchemy.engine.Engine - INFO - [cached since 13.01s ago] ('ASTS', 20, 0)
+2026-02-11 10:28:21,649 - api_logger - INFO - rid=/api/analysis/ASTS method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=3.47ms
+INFO:     127.0.0.1:54003 - "GET /api/analysis/ASTS HTTP/1.1" 200 OK
+2026-02-11 10:28:21,649 INFO sqlalchemy.engine.Engine ROLLBACK
+2026-02-11 10:28:21,649 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-11 10:28:21,650 - api_logger - INFO - rid=/api/portfolio/ASTS/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=3.21ms
+INFO:     127.0.0.1:54008 - "GET /api/portfolio/ASTS/news HTTP/1.1" 200 OK
+2026-02-11 10:28:21,651 INFO sqlalchemy.engine.Engine ROLLBACK
+2026-02-11 10:28:21,651 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2026-02-11 10:28:21,656 INFO sqlalchemy.engine.Engine ROLLBACK
+2026-02-11 10:28:21,656 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+INFO:     127.0.0.1:54001 - "GET /api/portfolio/?refresh=false HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/protocols/http/h11_impl.py", line 410, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/applications.py", line 1135, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+                                   ~~~~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_utils.py", line 85, in collapse_excgroups
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/main.py", line 49, in log_requests
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 115, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 101, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 355, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/fastapi/routing.py", line 243, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/breeze/Dev/ai-stock-advisor/backend/app/api/v1/endpoints/portfolio.py", line 131, in get_portfolio
+    items.append(PortfolioItem(
+                 ~~~~~~~~~~~~~^
+        ticker=p.ticker,
+        ^^^^^^^^^^^^^^^^
+    ...<45 lines>...
+        change_percent=m.change_percent if m else 0.0
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ))
+    ^
+  File "/Users/breeze/Dev/ai-stock-advisor/.venv/lib/python3.14/site-packages/pydantic/main.py", line 250, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for PortfolioItem
+macd_is_new_cross
+  Input should be a valid boolean [type=bool_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.12/v/bool_type
+WARNING:  StatReload detected changes in 'app/api/v1/endpoints/portfolio.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [99558]
+2026-02-11 10:29:20,351 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+INFO:     Started server process [291]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'app/services/indicators.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [291]
+2026-02-11 11:11:23,643 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+INFO:     Started server process [1403]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'app/models/stock.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1403]
+2026-02-11 11:11:53,206 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+INFO:     Started server process [1417]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'app/schemas/portfolio.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1417]
+2026-02-11 11:12:10,020 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+INFO:     Started server process [1622]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'app/api/v1/endpoints/portfolio.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1622]
+2026-02-11 11:12:21,014 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+INFO:     Started server process [1642]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'app/services/market_data.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1642]
+2026-02-11 11:12:31,472 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+INFO:     Started server process [1661]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'app/services/market_providers/akshare.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [1661]
+2026-02-11 12:18:23,665 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+INFO:     Started server process [4181]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'app/services/market_providers/akshare.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [4181]
+2026-02-11 12:18:34,927 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+INFO:     Started server process [4194]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'app/services/market_providers/akshare.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [4194]
+2026-02-11 13:25:16,491 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+INFO:     Started server process [6998]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'app/services/market_providers/akshare.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [6998]
+2026-02-11 13:25:26,623 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+INFO:     Started server process [7010]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'app/services/market_providers/akshare.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [7010]
+2026-02-11 13:25:38,152 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+INFO:     Started server process [7024]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'app/services/indicators.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [7024]
+2026-02-11 13:28:56,412 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+INFO:     Started server process [8843]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [8843]
+INFO:     Stopping reloader process [99508]

@@ -1,0 +1,10 @@
+load database
+     from sqlite:///Users/breeze/Dev/ai-stock-advisor/backend/ai_advisor.db
+     into postgresql://neondb_owner$ep-lively-poetry-a178gfqx:npg_S4vrEcNRFz8M@ep-lively-poetry-a178gfqx-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+
+ with include drop, create tables, create indexes, reset sequences
+
+ set work_mem to '16MB', maintenance_work_mem to '512MB'
+
+ cast type datetime to timestamptz drop default drop not null,
+      type json to jsonb;

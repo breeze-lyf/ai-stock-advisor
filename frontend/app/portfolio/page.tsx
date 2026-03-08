@@ -98,7 +98,7 @@ export default function PortfolioPage() {
         return (
             <div className="h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-950">
                 <div className="flex flex-col items-center gap-4">
-                    <RefreshCw className="h-8 w-8 text-blue-500 animate-spin" />
+                    <RefreshCw className="h-8 w-8 text-blue-600 animate-spin" />
                     <p className="text-sm font-medium text-slate-500">正在获取持仓透视...</p>
                 </div>
             </div>
@@ -140,7 +140,7 @@ export default function PortfolioPage() {
                     <div className="col-span-12 lg:col-span-8 flex flex-col gap-6">
                         <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
                             {/* Decorative background element */}
-                            <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-500/5 blur-3xl rounded-full" />
+                            <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-600/5 blur-3xl rounded-full" />
                             
                             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-8">
                                 <div className="space-y-1">
@@ -158,14 +158,14 @@ export default function PortfolioPage() {
                                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">累计盈亏 (P/L)</span>
                                         <div className={clsx(
                                             "flex items-center gap-1.5 font-black text-xl tabular-nums",
-                                            isProfit ? "text-emerald-500" : "text-rose-500"
+                                            isProfit ? "text-emerald-600" : "text-rose-600"
                                         )}>
                                             {isProfit ? <TrendingUp className="h-5 w-5" /> : <TrendingDown className="h-5 w-5" />}
                                             {isProfit ? "+" : ""}{summary?.total_unrealized_pl.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                         </div>
                                         <div className={clsx(
                                             "text-xs font-bold px-2 py-0.5 rounded-full inline-block",
-                                            isProfit ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"
+                                            isProfit ? "bg-emerald-600/10 text-emerald-600" : "bg-rose-600/10 text-rose-600"
                                         )}>
                                             {summary?.total_pl_percent.toFixed(2)}%
                                         </div>
@@ -175,7 +175,7 @@ export default function PortfolioPage() {
                                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">今日变动 (Day Change)</span>
                                         <div className={clsx(
                                             "flex items-center gap-1.5 font-black text-xl tabular-nums",
-                                            (summary?.day_change || 0) >= 0 ? "text-emerald-500" : "text-rose-500"
+                                            (summary?.day_change || 0) >= 0 ? "text-emerald-600" : "text-rose-600"
                                         )}>
                                             {(summary?.day_change || 0) >= 0 ? "+" : ""}{summary?.day_change.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                         </div>
@@ -188,7 +188,7 @@ export default function PortfolioPage() {
                         <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden min-h-[400px]">
                             <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                                 <h3 className="font-black text-sm uppercase tracking-wider flex items-center gap-2">
-                                    <LayoutDashboard className="h-4 w-4 text-blue-500" />
+                                    <LayoutDashboard className="h-4 w-4 text-blue-600" />
                                     资产持仓细节 (Holdings)
                                 </h3>
                                 <div className="text-xs text-slate-400 font-bold">
@@ -233,13 +233,13 @@ export default function PortfolioPage() {
                                                     <div className="flex flex-col items-end">
                                                         <span className={clsx(
                                                             "font-black text-sm tabular-nums",
-                                                            item.unrealized_pl >= 0 ? "text-emerald-500" : "text-rose-500"
+                                                            item.unrealized_pl >= 0 ? "text-emerald-600" : "text-rose-600"
                                                         )}>
                                                             {item.unrealized_pl >= 0 ? "+" : ""}{item.unrealized_pl.toFixed(2)}
                                                         </span>
                                                         <span className={clsx(
                                                             "text-[10px] font-bold",
-                                                            item.pl_percent >= 0 ? "text-emerald-500/70" : "text-rose-500/70"
+                                                            item.pl_percent >= 0 ? "text-emerald-600/70" : "text-rose-600/70"
                                                         )}>
                                                             {item.pl_percent.toFixed(2)}%
                                                         </span>
@@ -272,7 +272,7 @@ export default function PortfolioPage() {
                         {/* AI Health Diagnostic Card */}
                         <div className="bg-slate-900 dark:bg-blue-950/20 rounded-3xl p-6 border border-slate-800 dark:border-blue-900/30 shadow-xl relative overflow-hidden group">
                             <div className="absolute top-0 right-0 p-4 opacity-10">
-                                <BrainCircuit className="h-24 w-24 text-blue-500" />
+                                <BrainCircuit className="h-24 w-24 text-blue-600" />
                             </div>
                             
                             <h3 className="text-white font-black text-sm uppercase tracking-widest flex items-center gap-2 mb-6">
@@ -282,7 +282,7 @@ export default function PortfolioPage() {
 
                             {!analysis ? (
                                 <div className="py-8 flex flex-col items-center text-center gap-4">
-                                    <div className="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+                                    <div className="w-16 h-16 rounded-full bg-blue-600/10 flex items-center justify-center border border-blue-600/20">
                                         <ShieldCheck className="h-8 w-8 text-blue-400" />
                                     </div>
                                     <div className="space-y-2">
@@ -292,7 +292,7 @@ export default function PortfolioPage() {
                                     <Button 
                                         onClick={handleAnalyze} 
                                         disabled={analyzing}
-                                        className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl mt-4 h-12"
+                                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl mt-4 h-12"
                                     >
                                         {analyzing ? (
                                             <>
@@ -314,7 +314,7 @@ export default function PortfolioPage() {
                                                 />
                                                 <circle 
                                                     cx="32" cy="32" r="28" 
-                                                    className="stroke-blue-500 fill-none transition-all duration-1000" 
+                                                    className="stroke-blue-600 fill-none transition-all duration-1000" 
                                                     strokeWidth="6"
                                                     strokeDasharray={175}
                                                     strokeDashoffset={175 - (175 * (analysis.health_score || 0)) / 100}
@@ -327,9 +327,9 @@ export default function PortfolioPage() {
                                                 <span className="text-xs font-black text-slate-400 uppercase tracking-widest">健康等级</span>
                                                 <span className={clsx(
                                                     "px-2 py-0.5 rounded-full text-[10px] font-black",
-                                                    analysis.risk_level === "低" ? "bg-emerald-500/20 text-emerald-400" :
-                                                    analysis.risk_level === "中" ? "bg-yellow-500/20 text-yellow-400" :
-                                                    "bg-rose-500/20 text-rose-400"
+                                                    analysis.risk_level === "低" ? "bg-emerald-600/20 text-emerald-400" :
+                                                    analysis.risk_level === "中" ? "bg-blue-600/20 text-blue-400" :
+                                                    "bg-rose-600/20 text-rose-400"
                                                 )}>
                                                     风险: {analysis.risk_level}
                                                 </span>
@@ -348,8 +348,8 @@ export default function PortfolioPage() {
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-3">
-                                        <div className="p-3 bg-rose-500/5 border border-rose-500/20 rounded-2xl space-y-2">
-                                            <span className="text-[8px] font-black text-rose-500 uppercase tracking-widest flex items-center gap-1">
+                                        <div className="p-3 bg-rose-600/5 border border-rose-600/20 rounded-2xl space-y-2">
+                                            <span className="text-[8px] font-black text-rose-600 uppercase tracking-widest flex items-center gap-1">
                                                 <AlertTriangle className="h-2 w-2" /> 多空风险
                                             </span>
                                             <ul className="text-[10px] text-rose-200/80 font-bold space-y-1">
@@ -357,8 +357,8 @@ export default function PortfolioPage() {
                                                 {(!analysis.top_risks || analysis.top_risks.length === 0) && <li>• 暂无明显风险</li>}
                                             </ul>
                                         </div>
-                                        <div className="p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-2xl space-y-2">
-                                            <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest flex items-center gap-1">
+                                        <div className="p-3 bg-emerald-600/5 border border-emerald-600/20 rounded-2xl space-y-2">
+                                            <span className="text-[8px] font-black text-emerald-600 uppercase tracking-widest flex items-center gap-1">
                                                 <TrendingUp className="h-2 w-2" /> 交易机会
                                             </span>
                                             <ul className="text-[10px] text-emerald-200/80 font-bold space-y-1">
@@ -382,8 +382,8 @@ export default function PortfolioPage() {
                                             <DialogContent className="max-w-2xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 p-0 overflow-hidden rounded-3xl">
                                                 <DialogHeader className="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-row items-center justify-between bg-slate-50/50 dark:bg-slate-800/20 space-y-0 text-left">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-2xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                                                            <BrainCircuit className="h-5 w-5 text-blue-500" />
+                                                        <div className="w-10 h-10 rounded-2xl bg-blue-600/10 flex items-center justify-center border border-blue-600/20">
+                                                            <BrainCircuit className="h-5 w-5 text-blue-600" />
                                                         </div>
                                                         <div className="text-left">
                                                             <DialogTitle className="font-black text-lg text-slate-900 dark:text-white leading-tight">
@@ -425,7 +425,7 @@ export default function PortfolioPage() {
                         {/* Sector Exposure Chart */}
                         <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
                             <h3 className="font-black text-sm uppercase tracking-wider flex items-center gap-2 mb-6">
-                                <PieChart className="h-4 w-4 text-emerald-500" />
+                                <PieChart className="h-4 w-4 text-emerald-600" />
                                 行业暴露 / 板块分布
                             </h3>
                             
@@ -440,8 +440,8 @@ export default function PortfolioPage() {
                                             <div 
                                                 className={clsx(
                                                     "h-full rounded-full transition-all duration-1000",
-                                                    idx === 0 ? "bg-blue-500" :
-                                                    idx === 1 ? "bg-emerald-500" : 
+                                                    idx === 0 ? "bg-blue-600" :
+                                                    idx === 1 ? "bg-emerald-600" : 
                                                     idx === 2 ? "bg-violet-500" : "bg-slate-400"
                                                 )} 
                                                 style={{ width: `${s.weight}%` }} 

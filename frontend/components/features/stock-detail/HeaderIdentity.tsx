@@ -38,7 +38,7 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 rounded-full text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300"
+                                className="h-8 w-8 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-600/10 transition-all duration-300"
                                 onClick={onRefresh}
                                 disabled={refreshing}
                                 title="刷新行情"
@@ -55,7 +55,7 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                     {/* 最新涨跌 (Daily Change) */}
                     <div className="hidden sm:flex flex-col items-end">
                         <span className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">最新涨跌</span>
-                        <span className={clsx("text-lg font-black tabular-nums", (selectedItem.change_percent || 0) >= 0 ? "text-emerald-500" : "text-rose-500")}>
+                        <span className={clsx("text-lg font-black tabular-nums", (selectedItem.change_percent || 0) >= 0 ? "text-emerald-600" : "text-rose-600")}>
                             {(selectedItem.change_percent || 0) >= 0 ? "+" : ""}{selectedItem.change_percent?.toFixed(2)}%
                         </span>
                     </div>
@@ -83,12 +83,12 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                     <div className="flex flex-col">
                         <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">账面盈亏</span>
                         <div className="flex items-center gap-2">
-                            <span className={clsx("text-md font-bold", selectedItem.unrealized_pl >= 0 ? "text-emerald-500" : "text-rose-500")}>
+                            <span className={clsx("text-md font-bold", selectedItem.unrealized_pl >= 0 ? "text-emerald-600" : "text-rose-600")}>
                                 {selectedItem.unrealized_pl >= 0 ? "+" : ""}${selectedItem.unrealized_pl.toFixed(2)}
                             </span>
                             <span className={clsx(
                                 "text-[10px] font-black px-1.5 py-0.5 rounded-md",
-                                selectedItem.pl_percent >= 0 ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400"
+                                selectedItem.pl_percent >= 0 ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-600/10 dark:text-emerald-400" : "bg-rose-50 text-rose-600 dark:bg-rose-600/10 dark:text-rose-400"
                             )}>
                                 {selectedItem.pl_percent >= 0 ? "+" : ""}{selectedItem.pl_percent.toFixed(2)}%
                             </span>

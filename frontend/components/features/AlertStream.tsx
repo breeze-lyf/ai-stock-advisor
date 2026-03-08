@@ -46,8 +46,8 @@ const AlertStream: React.FC = () => {
     const getIcon = (type: string) => {
         switch (type) {
             case 'MACRO_ALERT': return <Zap className="w-5 h-5 text-amber-500" />;
-            case 'PRICE_ALERT': return <TrendingUp className="w-5 h-5 text-emerald-500" />;
-            case 'DAILY_REPORT': return <Calendar className="w-5 h-5 text-blue-500" />;
+            case 'PRICE_ALERT': return <TrendingUp className="w-5 h-5 text-emerald-600" />;
+            case 'DAILY_REPORT': return <Calendar className="w-5 h-5 text-blue-600" />;
             default: return <Bell className="w-5 h-5 text-slate-400" />;
         }
     };
@@ -99,7 +99,7 @@ const AlertStream: React.FC = () => {
                         <div className={cn(
                             "absolute -left-[33px] top-1 w-4 h-4 rounded-full border-2 border-white dark:border-zinc-950 shadow-sm z-10",
                             log.type === 'MACRO_ALERT' ? 'bg-amber-500' : 
-                            log.type === 'PRICE_ALERT' ? 'bg-emerald-500' : 'bg-blue-500'
+                            log.type === 'PRICE_ALERT' ? 'bg-emerald-600' : 'bg-blue-600'
                         )} />
 
                         <div className="bg-white dark:bg-zinc-900/50 rounded-xl border border-slate-100 dark:border-zinc-800 p-5 shadow-sm hover:shadow-md transition-all group-hover:border-slate-300 dark:group-hover:border-zinc-700">
@@ -133,7 +133,7 @@ const AlertStream: React.FC = () => {
                                 <span className="flex items-center gap-1">
                                     渠道: <strong className="text-slate-500 dark:text-zinc-300">飞书机器人 (Webhook)</strong>
                                 </span>
-                                <button className="flex items-center gap-1 text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium group/btn">
+                                <button className="flex items-center gap-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium group/btn">
                                     查看完整卡片 <ChevronRight className="w-3 h-3 transition-transform group-hover/btn:translate-x-0.5" />
                                 </button>
                             </div>

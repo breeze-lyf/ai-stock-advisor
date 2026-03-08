@@ -71,7 +71,7 @@ export function MarketStatusIndicator({ className }: MarketStatusIndicatorProps)
         <div className={clsx("flex items-center gap-3 px-3 py-1.5 bg-slate-50 dark:bg-slate-800/50 rounded-full border border-slate-100 dark:border-slate-800", className)}>
             <div className={clsx(
                 "h-2 w-2 rounded-full animate-pulse",
-                marketStatus.status === 'open' ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-red-500"
+                marketStatus.status === 'open' ? "bg-emerald-600 shadow-[0_0_8px_rgba(5,150,105,0.5)]" : "bg-rose-600"
             )} />
             <div className="flex flex-col leading-none">
                 <span className="text-[10px] uppercase font-bold text-slate-400 tracking-tighter">{marketStatus.text}</span>

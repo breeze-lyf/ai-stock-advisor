@@ -64,7 +64,7 @@ export default function ProfilePage() {
                     <Card className="border-none shadow-2xl shadow-slate-200/50 dark:shadow-none bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl overflow-hidden">
                         <CardHeader className="pb-4">
                             <CardTitle className="text-lg flex items-center gap-2">
-                                <User className="h-5 w-5 text-blue-500" />
+                                <User className="h-5 w-5 text-blue-600" />
                                 账户详情
                             </CardTitle>
                         </CardHeader>

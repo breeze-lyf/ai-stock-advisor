@@ -34,7 +34,7 @@ export function GlobalNewsFeed() {
         <div className="flex flex-col h-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
             <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/50">
                 <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-blue-500" />
+                    <Clock className="w-4 h-4 text-blue-600" />
                     <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 uppercase tracking-tight">
                         财联社全球资讯 <span className="text-[10px] font-normal text-slate-400 ml-1">7x24H</span>
                     </h3>
@@ -67,7 +67,7 @@ export function GlobalNewsFeed() {
                             return (
                                 <div key={idx} className="relative pl-6 group">
                                     {/* Timeline Dot */}
-                                    <div className="absolute left-[3px] top-1.5 w-2 h-2 rounded-full bg-blue-500 ring-4 ring-white dark:ring-slate-900 z-10" />
+                                    <div className="absolute left-[3px] top-1.5 w-2 h-2 rounded-full bg-blue-600 ring-4 ring-white dark:ring-slate-900 z-10" />
                                     
                                     <div className="space-y-1">
                                         <div className="flex items-center gap-2">

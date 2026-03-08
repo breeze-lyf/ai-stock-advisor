@@ -7,10 +7,96 @@ from sqlalchemy.future import select
 from app.core.database import SessionLocal
 from app.models.stock import MarketDataCache
 from app.models.analysis import AnalysisReport
+from app.models.trade import SimulatedTrade, TradeHistoryLog, TradeStatus
 from app.services.market_data import MarketDataService
 from app.services.notification_service import NotificationService
 
 logger = logging.getLogger(__name__)
+
+async def refresh_simulated_trades():
+    """
+    检查所有状态为 OPEN 的模拟盘交易 (SimulatedTrade) 
+    1. 根据最新的 MarketDataCache 更新当前的浮动盈亏
+    2. 如果触碰 target_price 或 stop_loss_price，则强制平仓
+    3. 写入当天的 TradeHistoryLog (可以加上去重逻辑以确保每天只写一条)
+    """
+    async with SessionLocal() as db:
+        try:
+            # 获取所有处在 OPEN 状态的虚拟交易
+            stmt = select(SimulatedTrade).where(SimulatedTrade.status == TradeStatus.OPEN)
+            res = await db.execute(stmt)
+            open_trades = res.scalars().all()
+            
+            if not open_trades:
+                return
+                
+            updated_count = 0
+            closed_count = 0
+            
+            for trade in open_trades:
+                # 寻找其最新的行情缓存
+                cache_stmt = select(MarketDataCache).where(MarketDataCache.ticker == trade.stock_ticker)
+                cache_res = await db.execute(cache_stmt)
+                cache = cache_res.scalar_one_or_none()
+                
+                if not cache or cache.current_price is None:
+                    continue
+                
+                curr_price = cache.current_price
+                trade.current_price = curr_price
+                
+                # 计算浮盈浮亏百分比 (Unrealized PnL %)
+                if trade.entry_price > 0:
+                    trade.unrealized_pnl_pct = ((curr_price - trade.entry_price) / trade.entry_price) * 100
+                    
+                # 触发止盈
+                if trade.target_price and curr_price >= trade.target_price:
+                    trade.status = TradeStatus.CLOSED_PROFIT
+                    trade.exit_price = curr_price
+                    trade.exit_date = datetime.utcnow()
+                    trade.realized_pnl_pct = trade.unrealized_pnl_pct
+                    closed_count += 1
+                    
+                # 触发止损
+                elif trade.stop_loss_price and curr_price <= trade.stop_loss_price:
+                    trade.status = TradeStatus.CLOSED_LOSS
+                    trade.exit_price = curr_price
+                    trade.exit_date = datetime.utcnow()
+                    trade.realized_pnl_pct = trade.unrealized_pnl_pct
+                    closed_count += 1
+                
+                # 记录每日轨迹
+                today = datetime.utcnow().date()
+                log_stmt = select(TradeHistoryLog).where(
+                    TradeHistoryLog.simulated_trade_id == trade.id,
+                    TradeHistoryLog.date >= datetime.combine(today, datetime.min.time())
+                )
+                log_res = await db.execute(log_stmt)
+                existing_log = log_res.scalar_one_or_none()
+                
+                if existing_log:
+                    existing_log.price = curr_price
+                    existing_log.pnl_pct = trade.unrealized_pnl_pct
+                else:
+                    new_log = TradeHistoryLog(
+                        simulated_trade_id=trade.id,
+                        date=datetime.utcnow(),
+                        price=curr_price,
+                        pnl_pct=trade.unrealized_pnl_pct
+                    )
+                    db.add(new_log)
+                    
+                updated_count += 1
+                
+            if updated_count > 0:
+                await db.commit()
+                logger.info(f"[Scheduler] 完成了 {updated_count} 笔虚拟订单盯盘。其中 {closed_count} 笔触点平仓。")
+
+        except Exception as e:
+            logger.error(f"[Scheduler] 虚拟盯盘服务异常: {e}")
+            await db.rollback()
+
+
 
 # 时区定义
 CN_TZ = pytz.timezone("Asia/Shanghai")
@@ -546,5 +632,11 @@ async def start_scheduler():
             await refresh_post_market_analysis()
         except Exception as e:
             logger.error(f"[Scheduler] 盘后复盘触发异常: {e}")
+
+        # 6. 虚拟挂单模拟 (每 1 分钟检查一次)
+        try:
+            await refresh_simulated_trades()
+        except Exception as e:
+            logger.error(f"[Scheduler] 虚拟盯盘触发异常: {e}")
 
         await asyncio.sleep(60) # 将精度从 5 分钟提升至 1 分钟

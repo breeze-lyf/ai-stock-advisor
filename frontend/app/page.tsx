@@ -15,6 +15,7 @@ import { PortfolioDashboard } from "@/components/features/PortfolioDashboard";
 import { HotspotRadar } from "@/components/features/HotspotRadar";
 import { DashboardHeader } from "@/components/features/DashboardHeader";
 import AlertStream from "@/components/features/AlertStream";
+import { PaperTradingDashboard } from "@/components/features/paper-trading/PaperTradingDashboard";
 
 function DashboardContent() {
   const { isAuthenticated } = useAuth();
@@ -26,7 +27,7 @@ function DashboardContent() {
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedTicker, setSelectedTickerState] = useState<string | null>(searchParams.get("ticker"));
-  const [activeTab, setActiveTabState] = useState<"analysis" | "portfolio" | "radar" | "alerts">((searchParams.get("tab") as any) || "analysis");
+  const [activeTab, setActiveTabState] = useState<"analysis" | "portfolio" | "radar" | "alerts" | "papertrading">((searchParams.get("tab") as any) || "analysis");
   const [onlyHoldings, setOnlyHoldings] = useState(false);
   const [news, setNews] = useState<any[]>([]);
   const [analyzing, setAnalyzing] = useState(false);
@@ -52,7 +53,7 @@ function DashboardContent() {
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  const handleTabChange = (tab: "analysis" | "portfolio" | "radar" | "alerts") => {
+  const handleTabChange = (tab: "analysis" | "portfolio" | "radar" | "alerts" | "papertrading") => {
     setActiveTabState(tab);
     const params = new URLSearchParams(searchParams.toString());
     params.set("tab", tab);
@@ -69,7 +70,7 @@ function DashboardContent() {
     const tab = searchParams.get("tab") as any;
     const ticker = searchParams.get("ticker");
 
-    if (tab && ["analysis", "portfolio", "radar", "alerts"].includes(tab) && tab !== activeTab) {
+    if (tab && ["analysis", "portfolio", "radar", "alerts", "papertrading"].includes(tab) && tab !== activeTab) {
       setActiveTabState(tab);
     }
     if (ticker !== selectedTicker) {
@@ -233,6 +234,12 @@ function DashboardContent() {
         {activeTab === "alerts" && (
           <div className="absolute inset-0 flex flex-col bg-white dark:bg-slate-950 overflow-y-auto">
             <AlertStream />
+          </div>
+        )}
+
+        {activeTab === "papertrading" && (
+          <div className="absolute inset-0 flex flex-col bg-white dark:bg-slate-950 overflow-y-auto">
+            <PaperTradingDashboard />
           </div>
         )}
       </main>

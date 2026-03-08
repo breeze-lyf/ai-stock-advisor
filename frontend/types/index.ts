@@ -104,3 +104,20 @@ export interface GlobalNews {
     title: string;
     content: string;
 }
+
+export type TradeStatus = 'OPEN' | 'CLOSED_PROFIT' | 'CLOSED_LOSS' | 'CLOSED_MANUAL' | 'CLOSED_SYSTEM';
+
+export interface SimulatedTrade {
+    id: number;
+    user_id: string;
+    stock_ticker: string;
+    entry_price: number;
+    current_price: number;
+    entry_date: string;
+    exit_date?: string | null;
+    status: TradeStatus;
+    unrealized_pnl_pct: number;
+    target_price?: number | null;
+    stop_loss_price?: number | null;
+    entry_reason?: string | null;
+}

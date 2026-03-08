@@ -22,6 +22,8 @@ import { formatDistanceToNow, format } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import { AIVerdictProps } from "./types";
 import { MarkdownWithRefs } from "./shared";
+import { createSimulatedTrade } from "@/lib/api";
+import { Play } from "lucide-react";
 
 export const AIVerdict = React.memo(function AIVerdict({
     selectedItem,
@@ -98,6 +100,33 @@ function AIVerdictContent({
     sanitizePrice: (val: number | null | undefined) => string;
 }) {
     /**
+     * 加入模拟交易逻辑
+     */
+    const [isCreatingTrade, setIsCreatingTrade] = React.useState(false);
+    const [tradeCreated, setTradeCreated] = React.useState(false);
+
+    const handleJoinPaperTrade = async () => {
+        if (!selectedItem || !aiData) return;
+        setIsCreatingTrade(true);
+        try {
+            await createSimulatedTrade({
+                ticker: selectedItem.ticker,
+                entry_price: selectedItem.current_price,
+                entry_reason: aiData.action_advice || "AI 推荐",
+                target_price: aiData.target_price,
+                stop_loss_price: aiData.stop_loss_price
+            });
+            setTradeCreated(true);
+            setTimeout(() => setTradeCreated(false), 3000); // 3秒后恢复
+        } catch (error) {
+            console.error("Failed to create simulated trade:", error);
+            // 可以在此加入更完善的错误提示
+        } finally {
+            setIsCreatingTrade(false);
+        }
+    };
+
+    /**
      * 交易轴算法逻辑 (Trade Axis Algorithm)
      * 职责：将 AI 提供的 止损/建仓/目标价 映射到一个线性坐标轴上
      */
@@ -120,10 +149,10 @@ function AIVerdictContent({
     const getPos = (val: number) => ((val - axisMin) / totalRange) * 100;
 
     const zones = [
-        { name: (selectedItem?.quantity || 0) > 0 ? "止损" : "预设止损", start: axisMin, end: stop, color: "bg-[#F0614D]", darkColor: "bg-rose-500/80", textColor: "text-rose-600 dark:text-rose-400", bgColor: "bg-rose-50 dark:bg-rose-500/10", borderColor: "border-rose-200 dark:border-rose-500/20" },
-        { name: "建仓", start: stop, end: entryHigh, color: "bg-[#3CC68A]", darkColor: "bg-emerald-500/80", textColor: "text-emerald-600 dark:text-emerald-400", bgColor: "bg-emerald-50 dark:bg-emerald-500/10", borderColor: "border-emerald-200 dark:border-emerald-500/20" },
+        { name: (selectedItem?.quantity || 0) > 0 ? "止损" : "预设止损", start: axisMin, end: stop, color: "bg-rose-600", darkColor: "bg-rose-600/80", textColor: "text-rose-600 dark:text-rose-400", bgColor: "bg-rose-50 dark:bg-rose-600/10", borderColor: "border-rose-200 dark:border-rose-600/20" },
+        { name: "建仓", start: stop, end: entryHigh, color: "bg-emerald-600", darkColor: "bg-emerald-600/80", textColor: "text-emerald-600 dark:text-emerald-400", bgColor: "bg-emerald-50 dark:bg-emerald-600/10", borderColor: "border-emerald-200 dark:border-emerald-600/20" },
         { name: "观望/持有", start: entryHigh, end: target, color: "bg-[#E8EAED] dark:bg-slate-600", darkColor: "bg-slate-600", textColor: "text-slate-500 dark:text-slate-400", bgColor: "bg-slate-50 dark:bg-slate-800/50", borderColor: "border-slate-200 dark:border-slate-700" },
-        { name: "止盈", start: target, end: axisMax, color: "bg-[#3B82F6]", darkColor: "bg-blue-500/80", textColor: "text-blue-600 dark:text-blue-400", bgColor: "bg-blue-50 dark:bg-blue-500/10", borderColor: "border-blue-200 dark:border-blue-500/20" }
+        { name: "止盈", start: target, end: axisMax, color: "bg-blue-600", darkColor: "bg-blue-600/80", textColor: "text-blue-600 dark:text-blue-400", bgColor: "bg-blue-50 dark:bg-blue-600/10", borderColor: "border-blue-200 dark:border-blue-600/20" }
     ];
 
     const activeZone = zones.find(z => current >= z.start && current <= z.end) ||
@@ -135,7 +164,7 @@ function AIVerdictContent({
         <div className="space-y-0 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none animate-in fade-in slide-in-from-bottom-2 duration-700">
 
             {/* 1. Header & Sentiment Grid */}
-            <div className="p-6 md:p-8 bg-slate-50/50 dark:bg-white/5 border-b border-slate-100 dark:border-white/5">
+            <div className="py-4 px-6 md:py-6 md:px-8 bg-slate-50/50 dark:bg-white/5 border-b border-slate-100 dark:border-white/5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
                     {/* Left: Suggested Action */}
                     <div className="space-y-2">
@@ -158,9 +187,9 @@ function AIVerdictContent({
                             </span>
                             <div className={clsx(
                                 "flex items-center gap-1.5 px-2 py-0.5 rounded-md border ml-1",
-                                parseFloat(effectiveRR || "0") >= 2.5 ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20" :
-                                    parseFloat(effectiveRR || "0") >= 1.8 ? "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20" :
-                                        "bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20"
+                                parseFloat(effectiveRR || "0") >= 2.5 ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-600/10 dark:text-emerald-400 dark:border-emerald-600/20" :
+                                    parseFloat(effectiveRR || "0") >= 1.8 ? "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-600/10 dark:text-blue-400 dark:border-blue-600/20" :
+                                        "bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-600/10 dark:text-rose-400 dark:border-rose-600/20"
                             )}>
                                 <span className="text-[8px] font-bold uppercase tracking-tighter opacity-70">盈亏比 R/R</span>
                                 <span className="text-[10px] font-black tabular-nums">{effectiveRR || "--"}</span>
@@ -177,7 +206,30 @@ function AIVerdictContent({
                             )}
                         </div>
                         <div className="flex items-center gap-3">
-                            <span className="text-sm font-semibold text-blue-600 dark:text-blue-500 opacity-90">{aiData.summary_status || "技术修复中"}</span>
+                            <span className="text-sm font-semibold text-blue-600 dark:text-blue-600 opacity-90">{aiData.summary_status || "技术修复中"}</span>
+                            
+                            {/* 加入模拟交易按钮 */}
+                            {(aiData.immediate_action?.includes("买") || aiData.immediate_action?.includes("多")) && (
+                                <Button
+                                    size="sm"
+                                    onClick={handleJoinPaperTrade}
+                                    disabled={isCreatingTrade || tradeCreated}
+                                    className={clsx(
+                                        "h-7 px-3 text-[10px] font-bold rounded-lg transition-all",
+                                        tradeCreated 
+                                            ? "bg-emerald-600 text-white hover:bg-emerald-600" 
+                                            : "bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 active:scale-95 shadow-sm shadow-blue-600/20"
+                                    )}
+                                >
+                                    {tradeCreated ? (
+                                        <span className="flex items-center gap-1"><ShieldCheck className="h-3 w-3" /> 已加入</span>
+                                    ) : isCreatingTrade ? (
+                                        "创建中..."
+                                    ) : (
+                                        <span className="flex items-center gap-1"><Play className="h-3 w-3 fill-white" /> 模拟买入</span>
+                                    )}
+                                </Button>
+                            )}
                         </div>
 
                         <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -200,7 +252,7 @@ function AIVerdictContent({
                     <div className="space-y-4">
                         <div className="flex justify-between items-center text-[11px] font-black uppercase text-slate-400 tracking-[0.3em]">
                             <div className="flex items-center gap-3">
-                                <Activity className="h-4 w-4 text-blue-500" />
+                                <Activity className="h-4 w-4 text-blue-600" />
                                 <span>AI 情绪偏差</span>
                             </div>
                             <div className="flex items-center gap-2">
@@ -218,7 +270,7 @@ function AIVerdictContent({
                         </div>
                         <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0">
                             <div
-                                className="h-full rounded-full bg-blue-500 animate-[grow-bar_1.2s_cubic-bezier(0.22,1,0.36,1)_forwards]"
+                                className="h-full rounded-full bg-blue-600 animate-[grow-bar_1.2s_cubic-bezier(0.22,1,0.36,1)_forwards]"
                                 style={{ width: `${aiData.sentiment_score || 58}%`, ['--bar-width' as string]: `${aiData.sentiment_score || 58}%` }}
                             />
                         </div>
@@ -232,40 +284,40 @@ function AIVerdictContent({
             </div>
 
             {/* 2. Trade Range Axis */}
-            <div className="p-6 space-y-4">
-                <div className="space-y-4">
+            <div className="py-4 px-6 space-y-3">
+                <div className="space-y-3">
                     <div className="flex justify-between items-end">
                         <div className="space-y-1">
-                            <div className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 tracking-[0.2em] flex items-center gap-2">
-                                <Target className="h-3.5 w-3.5 text-blue-500" />
+                            <div className="text-sm font-black uppercase text-blue-600 dark:text-blue-600 tracking-[0.1em] flex items-center gap-2">
+                                <Target className="h-4 w-4 text-blue-600" />
                                 <span>交易执行区间</span>
                             </div>
-                            <p className="text-[10px] font-medium text-slate-400 italic opacity-80 ml-5.5">* 基于当前价的深度研判</p>
+                            <p className="text-[10px] font-medium text-slate-400 italic opacity-80 ml-6">* 基于当前价的深度研判</p>
                         </div>
                         <div className="flex gap-3">
-                            <div className="flex flex-col items-end gap-0.5 bg-rose-50/80 dark:bg-rose-500/5 border border-rose-100 dark:border-rose-500/10 rounded-xl px-3 py-1.5">
-                                <span className="text-[9px] font-black text-rose-400 dark:text-rose-500/80 uppercase tracking-tighter">
+                            <div className="flex flex-col items-end gap-0.5 bg-rose-50/80 dark:bg-rose-600/5 border border-rose-100 dark:border-rose-600/10 rounded-xl px-3 py-1.5">
+                                <span className="text-[9px] font-black text-rose-400 dark:text-rose-600/80 uppercase tracking-tighter">
                                     {(selectedItem?.quantity || 0) > 0 ? "止损" : "预设止损"}
                                 </span>
                                 <span className={clsx(
                                     "text-md font-black tabular-nums",
-                                    (selectedItem?.quantity || 0) > 0 ? "text-rose-500 dark:text-rose-400" : "text-rose-400 dark:text-rose-500/80"
+                                    (selectedItem?.quantity || 0) > 0 ? "text-rose-600 dark:text-rose-400" : "text-rose-400 dark:text-rose-600/80"
                                 )}>
                                     ${aiData.stop_loss_price?.toFixed(2) || "--"}
                                 </span>
                             </div>
-                            <div className="flex flex-col items-end gap-0.5 bg-emerald-50/80 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/10 rounded-xl px-3 py-1.5">
-                                <span className="text-[9px] font-black text-emerald-400 dark:text-emerald-500/80 uppercase tracking-tighter">建仓区间</span>
-                                <span className="text-md font-black text-emerald-500 dark:text-emerald-400 tabular-nums">
+                            <div className="flex flex-col items-end gap-0.5 bg-emerald-50/80 dark:bg-emerald-600/5 border border-emerald-100 dark:border-emerald-600/10 rounded-xl px-3 py-1.5">
+                                <span className="text-[9px] font-black text-emerald-400 dark:text-emerald-600/80 uppercase tracking-tighter">建仓区间</span>
+                                <span className="text-md font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
                                     {aiData.entry_price_low != null && aiData.entry_price_high != null
                                         ? `$${aiData.entry_price_low.toFixed(2)} - $${aiData.entry_price_high.toFixed(2)}`
                                         : (aiData.entry_zone || "--")
                                     }
                                 </span>
                             </div>
-                            <div className="flex flex-col items-end gap-0.5 bg-blue-50/80 dark:bg-blue-500/5 border border-blue-100 dark:border-blue-500/10 rounded-xl px-3 py-1.5">
-                                <span className="text-[9px] font-black text-blue-400 dark:text-blue-500/80 uppercase tracking-tighter">目标止盈</span>
-                                <span className="text-md font-black text-blue-500 dark:text-blue-400 tabular-nums">${aiData.target_price?.toFixed(2) || "--"}</span>
+                            <div className="flex flex-col items-end gap-0.5 bg-blue-50/80 dark:bg-blue-600/5 border border-blue-100 dark:border-blue-600/10 rounded-xl px-3 py-1.5">
+                                <span className="text-[9px] font-black text-blue-400 dark:text-blue-600/80 uppercase tracking-tighter">目标止盈</span>
+                                <span className="text-md font-black text-blue-600 dark:text-blue-400 tabular-nums">${aiData.target_price?.toFixed(2) || "--"}</span>
                             </div>
                         </div>
                     </div>
@@ -280,9 +332,9 @@ function AIVerdictContent({
             </div>
 
             {/* 4. Logical Breakdown */}
-            <div className="pt-5 px-6 pb-6 bg-slate-50/10 dark:bg-white/5 border-t border-slate-100 dark:border-white/5 space-y-1">
-                <div className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 tracking-[0.2em] flex items-center gap-2">
-                    <Activity className="h-3.5 w-3.5 text-blue-500" />
+            <div className="pt-4 px-6 pb-3 bg-slate-50/10 dark:bg-white/5 border-t border-slate-100 dark:border-white/5 space-y-1">
+                <div className="text-sm font-black uppercase text-blue-600 dark:text-blue-600 tracking-[0.1em] flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-blue-600" />
                     <span>诊断研判逻辑</span>
                 </div>
                 <div className="prose dark:prose-invert max-w-none text-[13px] font-normal leading-relaxed text-slate-500 dark:text-slate-400 [&>p]:m-0">
@@ -348,11 +400,11 @@ function TradeAxisVisual({
 
     // 核心：过滤掉重复或无效的区间
     const rawZones = [
-        { name: isHolding ? "止损" : "预设止损", start: axisMin, end: stopPrice, color: isHolding ? "bg-[#F0614D] dark:bg-rose-600/80" : "bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(240,97,77,0.5)_4px,rgba(240,97,77,0.5)_8px)] opacity-90 border-y border-[#F0614D]/40" },
+        { name: isHolding ? "止损" : "预设止损", start: axisMin, end: stopPrice, color: isHolding ? "bg-rose-600 dark:bg-rose-600/80" : "bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(244,63,94,0.5)_4px,rgba(244,63,94,0.5)_8px)] opacity-90 border-y border-rose-600/40" },
         { name: "观察", start: stopPrice, end: entryLow, color: "bg-[#E8EAED] dark:bg-white/5 opacity-30" },
-        { name: "买入", start: entryLow, end: entryHigh, color: "bg-[#3CC68A] dark:bg-emerald-500/80" },
+        { name: "买入", start: entryLow, end: entryHigh, color: "bg-emerald-600 dark:bg-emerald-600/80" },
         { name: "持有", start: entryHigh, end: targetPrice, color: "bg-[#E8EAED] dark:bg-white/10" },
-        { name: "止盈", start: targetPrice, end: axisMax, color: "bg-[#3B82F6] dark:bg-blue-600/80" }
+        { name: "止盈", start: targetPrice, end: axisMax, color: "bg-blue-600 dark:bg-blue-600/80" }
     ];
 
     const visibleZones = rawZones.filter(z => z.end > z.start);
@@ -397,7 +449,7 @@ function TradeAxisVisual({
                     </div>
 
                     {/* Marker Dot */}
-                    <div className="w-4 h-4 bg-blue-500 rounded-full border-[3px] border-white dark:border-slate-950 shadow-lg ring-4 ring-blue-500/10" />
+                    <div className="w-4 h-4 bg-blue-600 rounded-full border-[3px] border-white dark:border-slate-950 shadow-lg ring-4 ring-blue-600/10" />
                 </div>
             </div>
 
@@ -434,7 +486,7 @@ function TruthTracker({
     return (
         <div className="bg-slate-50/50 dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-[2rem] p-6">
             <div className="flex items-center gap-3 mb-6">
-                <Clock className="h-5 w-5 text-blue-500" />
+                <Clock className="h-5 w-5 text-blue-600" />
                 <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">AI 信号追踪与复盘 (The Truth Tracker)</h3>
             </div>
 
@@ -451,7 +503,7 @@ function TruthTracker({
                             {isWin !== null && (
                                 <div className={clsx(
                                     "absolute top-0 right-0 px-3 py-1 text-[8px] font-black uppercase rounded-bl-xl",
-                                    isWin ? "bg-emerald-500 text-white" : "bg-rose-500 text-white"
+                                    isWin ? "bg-emerald-600 text-white" : "bg-rose-600 text-white"
                                 )}>
                                     {isWin ? "命中" : "回撤"}
                                 </div>
@@ -464,8 +516,8 @@ function TruthTracker({
                                     </span>
                                     <span className={clsx(
                                         "text-xs font-black uppercase mt-1",
-                                        report.immediate_action?.includes("买") ? "text-emerald-500" :
-                                            report.immediate_action?.includes("卖") ? "text-rose-500" : "text-slate-500"
+                                        report.immediate_action?.includes("买") ? "text-emerald-600" :
+                                            report.immediate_action?.includes("卖") ? "text-rose-600" : "text-slate-500"
                                     )}>
                                         {report.immediate_action}
                                     </span>
@@ -483,7 +535,7 @@ function TruthTracker({
                                     <span className="text-[8px] font-bold text-slate-400 uppercase">预期盈亏</span>
                                     <span className={clsx(
                                         "text-sm font-black tabular-nums",
-                                        pl && pl >= 0 ? "text-emerald-500" : "text-rose-500"
+                                        pl && pl >= 0 ? "text-emerald-600" : "text-rose-600"
                                     )}>
                                         {pl !== null ? `${pl >= 0 ? "+" : ""}${pl.toFixed(2)}%` : "--"}
                                     </span>

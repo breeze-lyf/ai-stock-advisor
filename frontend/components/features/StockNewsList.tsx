@@ -44,13 +44,13 @@ export function StockNewsList({ news }: StockNewsListProps) {
                         className={clsx(
                             "group relative pl-6 border-l-2 transition-all duration-300",
                             isTavily 
-                                ? "border-blue-500 bg-blue-500/5 py-4 -ml-2 pl-[calc(1.5rem-8px)] rounded-r-2xl" 
-                                : "border-slate-100 dark:border-zinc-800 hover:border-blue-500"
+                                ? "border-blue-600 bg-blue-600/5 py-4 -ml-2 pl-[calc(1.5rem-8px)] rounded-r-2xl" 
+                                : "border-slate-100 dark:border-zinc-800 hover:border-blue-600"
                         )}
                     >
                         <div className={clsx(
                             "absolute -left-[5px] top-1 h-2 w-2 rounded-full transition-colors",
-                            isTavily ? "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" : "bg-slate-200 dark:bg-slate-700 group-hover:bg-blue-500"
+                            isTavily ? "bg-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.5)]" : "bg-slate-200 dark:bg-slate-700 group-hover:bg-blue-600"
                         )} />
 
                         <div className="flex flex-col gap-2">

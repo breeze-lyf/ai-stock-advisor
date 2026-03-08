@@ -1,6 +1,6 @@
 "use client";
 
-import { TrendingUp, PieChart, Globe, Bell } from "lucide-react";
+import { TrendingUp, PieChart, Globe, Bell, Target } from "lucide-react";
 import { MarketStatusIndicator } from "@/components/features/MarketStatusIndicator";
 import { UserMenu } from "@/components/features/UserMenu";
 import { UserProfile } from "@/types";
@@ -77,14 +77,21 @@ export function DashboardHeader({ user, activeTab, setActiveTab }: DashboardHead
           label="智能提醒"
           icon={<Bell className="w-4 h-4" />}
         />
+        <TabButton 
+          active={activeTab === "papertrading"} 
+          onClick={() => setActiveTab("papertrading")}
+          label="远航模拟"
+          icon={<Target className="w-4 h-4" />}
+        />
       </nav>
 
       {/* Mobile Nav Fallback (relative when absolute tab is hidden) */}
       <nav className="lg:hidden flex items-center gap-1 h-10 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl ml-2 overflow-x-auto min-w-0">
-         <button onClick={() => setActiveTab("analysis")} className={clsx("p-2 rounded-lg", activeTab === "analysis" ? "text-blue-600 bg-white" : "text-slate-500")} title="诊断"><TrendingUp className="w-4 h-4" /></button>
-         <button onClick={() => setActiveTab("portfolio")} className={clsx("p-2 rounded-lg", activeTab === "portfolio" ? "text-blue-600 bg-white" : "text-slate-500")} title="持仓"><PieChart className="w-4 h-4" /></button>
-         <button onClick={() => setActiveTab("radar")} className={clsx("p-2 rounded-lg", activeTab === "radar" ? "text-blue-600 bg-white" : "text-slate-500")} title="热点"><Globe className="w-4 h-4" /></button>
-         <button onClick={() => setActiveTab("alerts")} className={clsx("p-2 rounded-lg", activeTab === "alerts" ? "text-blue-600 bg-white" : "text-slate-500")} title="提醒"><Bell className="w-4 h-4" /></button>
+         <button onClick={() => setActiveTab("analysis")} className={clsx("p-2 rounded-lg shrink-0", activeTab === "analysis" ? "text-blue-600 bg-white" : "text-slate-500")} title="诊断"><TrendingUp className="w-4 h-4" /></button>
+         <button onClick={() => setActiveTab("portfolio")} className={clsx("p-2 rounded-lg shrink-0", activeTab === "portfolio" ? "text-blue-600 bg-white" : "text-slate-500")} title="持仓"><PieChart className="w-4 h-4" /></button>
+         <button onClick={() => setActiveTab("radar")} className={clsx("p-2 rounded-lg shrink-0", activeTab === "radar" ? "text-blue-600 bg-white" : "text-slate-500")} title="热点"><Globe className="w-4 h-4" /></button>
+         <button onClick={() => setActiveTab("alerts")} className={clsx("p-2 rounded-lg shrink-0", activeTab === "alerts" ? "text-blue-600 bg-white" : "text-slate-500")} title="提醒"><Bell className="w-4 h-4" /></button>
+         <button onClick={() => setActiveTab("papertrading")} className={clsx("p-2 rounded-lg shrink-0", activeTab === "papertrading" ? "text-blue-600 bg-white" : "text-slate-500")} title="模拟"><Target className="w-4 h-4" /></button>
       </nav>
 
       <div className="ml-auto flex items-center gap-4">

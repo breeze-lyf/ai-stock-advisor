@@ -26,9 +26,9 @@ export const getCurrencySymbol = (ticker: string): string => {
 
 /** RSI 进度条颜色：超买区红色、超卖区绿色、中性蓝色 */
 export const getRSIColor = (val: number): string => {
-    if (val > 70) return "bg-rose-500";
-    if (val < 30) return "bg-emerald-500";
-    return "bg-blue-500";
+    if (val > 70) return "bg-rose-600";
+    if (val < 30) return "bg-emerald-600";
+    return "bg-blue-600";
 };
 
 // ========================================
@@ -52,7 +52,7 @@ export const ReferenceCitation = ({ id }: { id: string }) => {
     return (
         <button
             onClick={() => highlightElement(id)}
-            className="inline-flex items-center gap-0.5 px-1.5 py-0.5 mx-0.5 rounded-md bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 text-[10px] font-black transition-colors border border-blue-500/20 group cursor-pointer"
+            className="inline-flex items-center gap-0.5 px-1.5 py-0.5 mx-0.5 rounded-md bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 text-[10px] font-black transition-colors border border-blue-600/20 group cursor-pointer"
             title="查看数据源"
         >
             <Link2 className="h-2.5 w-2.5" />
@@ -78,34 +78,34 @@ export const MarkdownWithRefs = ({ content }: { content: string }) => {
      *   第3段+ → 灰色 (支撑逻辑/辅助信息)
      */
     let h3Counter = 0;
-    const h3Colors = [
-        'border-blue-500',      // 操作建议 — 最高优先级
-        'border-emerald-500',   // 执行计划 — 可操作项
-        'border-slate-400',     // 支撑逻辑 — 辅助信息
+    const h3Styles = [
+        { text: 'text-slate-900 dark:text-white', border: 'border-emerald-600' },        // 1. 操作建议 (绿条)
+        { text: 'text-slate-900 dark:text-white', border: 'border-blue-600' },         // 2. 结构化操作计划 (蓝条)
+        { text: 'text-slate-900 dark:text-white', border: 'border-slate-800 dark:border-slate-500' }, // 3. 多维逻辑支撑 (黑条)
     ];
 
     return (
         <ReactMarkdown
             components={{
                 h3: ({ node, ...props }) => {
-                    const colorClass = h3Colors[Math.min(h3Counter, h3Colors.length - 1)];
+                    const style = h3Styles[Math.min(h3Counter, h3Styles.length - 1)];
                     const isFirst = h3Counter === 0;
                     h3Counter++;
                     return (
                         <h3
-                            className={`text-sm font-bold text-slate-800 dark:text-white mb-2 flex items-center gap-2 border-l-4 ${colorClass} pl-3 tracking-wider ${isFirst ? 'mt-2' : 'mt-8'}`}
+                            className={`text-sm font-bold ${style.text} mb-2 flex items-center gap-2 border-l-4 ${style.border} pl-3 tracking-wider ${isFirst ? 'mt-2' : 'mt-5'}`}
                             {...props}
                         />
                     );
                 },
                 strong: ({ node, ...props }) => (
-                    <strong className="font-bold text-slate-900 dark:text-white px-1 py-0.5 rounded bg-blue-50 dark:bg-blue-500/10" {...props} />
+                    <strong className="font-bold text-slate-900 dark:text-white px-1 py-0.5 rounded bg-blue-50 dark:bg-blue-600/10" {...props} />
                 ),
                 ul: ({ node, ...props }) => (
                     <ul className="space-y-1 mt-2 list-none p-0" {...props} />
                 ),
                 li: ({ node, ...props }) => (
-                    <li className="flex items-start gap-2 before:content-['•'] before:text-blue-500 before:font-black" {...props} />
+                    <li className="flex items-start gap-2 before:content-['•'] before:text-blue-600 before:font-black" {...props} />
                 ),
                 p: ({ node, ...props }) => {
                     const children = React.Children.toArray(props.children);

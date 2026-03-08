@@ -46,6 +46,8 @@ class Stock(Base):
     portfolios = relationship("Portfolio", back_populates="stock", cascade="all, delete-orphan")
     # 建立与“AI诊断报告”的一对多关联
     analysis_reports = relationship("AnalysisReport", back_populates="stock", cascade="all, delete-orphan")
+    # 建立与模拟交易记录的一对多关联
+    simulated_trades = relationship("SimulatedTrade", back_populates="stock", cascade="all, delete-orphan")
 
 
 # 市场数据缓存表：存储变化极快的价格和技术指标

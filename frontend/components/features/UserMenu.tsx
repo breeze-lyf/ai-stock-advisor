@@ -38,7 +38,7 @@ export function UserMenu({ user }: UserMenuProps) {
                 <DropdownMenu.Root>
                     <DropdownMenu.Trigger asChild>
                         <button className="flex items-center gap-1.5 focus:outline-none group">
-                            <div className="relative p-[2px] rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-blue-500 animate-gradient-slow shadow-lg group-hover:scale-105 transition-transform duration-300">
+                            <div className="relative p-[2px] rounded-full bg-gradient-to-tr from-yellow-400 via-rose-600 to-blue-600 animate-gradient-slow shadow-lg group-hover:scale-105 transition-transform duration-300">
                                 <Avatar.Root className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-slate-100 border-2 border-white dark:border-slate-900 shadow-inner">
                                     <Avatar.Image
                                         className="h-full w-full object-cover"
@@ -66,7 +66,7 @@ export function UserMenu({ user }: UserMenuProps) {
 
                             <DropdownMenu.Item className="group flex h-9 items-center px-2 text-sm font-medium text-slate-700 dark:text-slate-300 outline-none hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer">
                                 <Link href="/settings" className="flex items-center w-full gap-2.5">
-                                    <Settings className="h-4 w-4 text-slate-400 group-hover:text-blue-500 transition-colors" />
+                                    <Settings className="h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
                                     <span>设置 (Settings)</span>
                                 </Link>
                             </DropdownMenu.Item>
@@ -76,7 +76,7 @@ export function UserMenu({ user }: UserMenuProps) {
                                 onClick={() => router.push("/profile")}
                             >
                                 <div className="flex items-center w-full gap-2.5">
-                                    <User className="h-4 w-4 text-slate-400 group-hover:text-blue-500 transition-colors" />
+                                    <User className="h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
                                     <span>个人信息 (Profile)</span>
                                 </div>
                             </DropdownMenu.Item>
@@ -86,7 +86,7 @@ export function UserMenu({ user }: UserMenuProps) {
                                 onClick={() => router.push("/password")}
                             >
                                 <div className="flex items-center w-full gap-2.5">
-                                    <Key className="h-4 w-4 text-slate-400 group-hover:text-blue-500 transition-colors" />
+                                    <Key className="h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
                                     <span>修改密码 (Password)</span>
                                 </div>
                             </DropdownMenu.Item>

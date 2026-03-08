@@ -106,7 +106,7 @@ export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) 
         return (
             <div className="flex-1 flex items-center justify-center bg-slate-50 dark:bg-slate-950">
                 <div className="flex flex-col items-center gap-4">
-                    <RefreshCw className="h-8 w-8 text-blue-500 animate-spin" />
+                    <RefreshCw className="h-8 w-8 text-blue-600 animate-spin" />
                     <p className="text-sm font-medium text-slate-500">正在生成持仓透视...</p>
                 </div>
             </div>
@@ -122,7 +122,7 @@ export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) 
                 {/* Top Stats Banner */}
                 <div className="col-span-12 lg:col-span-8 flex flex-col gap-4">
                     <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm relative overflow-hidden">
-                        <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-500/5 blur-3xl rounded-full" />
+                        <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-600/5 blur-3xl rounded-full" />
                         
                         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                             <div className="space-y-1">
@@ -140,14 +140,14 @@ export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) 
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">累计盈亏 (P/L)</span>
                                     <div className={clsx(
                                         "flex items-center gap-1.5 font-bold text-lg tabular-nums",
-                                        isProfit ? "text-emerald-500" : "text-rose-500"
+                                        isProfit ? "text-emerald-600" : "text-rose-600"
                                     )}>
                                         {isProfit ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                                         {isProfit ? "+" : ""}{summary?.total_unrealized_pl.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </div>
                                     <div className={clsx(
                                         "text-[10px] font-bold px-2 py-0.5 rounded-full inline-block",
-                                        isProfit ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"
+                                        isProfit ? "bg-emerald-600/10 text-emerald-600" : "bg-rose-600/10 text-rose-600"
                                     )}>
                                         {summary?.total_pl_percent.toFixed(2)}%
                                     </div>
@@ -157,7 +157,7 @@ export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) 
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">今日变动 (Day Change)</span>
                                     <div className={clsx(
                                         "flex items-center gap-1.5 font-bold text-lg tabular-nums",
-                                        (summary?.day_change || 0) >= 0 ? "text-emerald-500" : "text-rose-500"
+                                        (summary?.day_change || 0) >= 0 ? "text-emerald-600" : "text-rose-600"
                                     )}>
                                         {(summary?.day_change || 0) >= 0 ? "+" : ""}{summary?.day_change.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </div>
@@ -170,7 +170,7 @@ export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) 
                     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                         <div className="px-5 py-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                             <h3 className="font-bold text-xs uppercase tracking-wider flex items-center gap-2">
-                                <LayoutDashboard className="h-3.5 w-3.5 text-blue-500" />
+                                <LayoutDashboard className="h-3.5 w-3.5 text-blue-600" />
                                 资产持仓细节 (Holdings)
                             </h3>
                             <div className="text-[10px] text-slate-400 font-bold">
@@ -223,13 +223,13 @@ export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) 
                                                     <div className="flex flex-col items-end">
                                                         <span className={clsx(
                                                             "font-bold text-xs tabular-nums",
-                                                            item.unrealized_pl >= 0 ? "text-emerald-500" : "text-rose-500"
+                                                            item.unrealized_pl >= 0 ? "text-emerald-600" : "text-rose-600"
                                                         )}>
                                                             {item.unrealized_pl >= 0 ? "+" : ""}{item.unrealized_pl.toFixed(2)}
                                                         </span>
                                                         <span className={clsx(
                                                             "text-[10px] font-bold",
-                                                            item.pl_percent >= 0 ? "text-emerald-500/70" : "text-rose-500/70"
+                                                            item.pl_percent >= 0 ? "text-emerald-600/70" : "text-rose-600/70"
                                                         )}>
                                                             {item.pl_percent.toFixed(2)}%
                                                         </span>
@@ -239,8 +239,8 @@ export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) 
                                                     <div className="flex flex-col items-end">
                                                         <span className={clsx(
                                                             "text-[10px] font-bold tabular-nums",
-                                                            (item.pe_percentile || 0) > 80 ? "text-rose-500" : 
-                                                            (item.pe_percentile || 0) < 20 ? "text-emerald-500" :
+                                                            (item.pe_percentile || 0) > 80 ? "text-rose-600" : 
+                                                            (item.pe_percentile || 0) < 20 ? "text-emerald-600" :
                                                             "text-slate-500"
                                                         )}>
                                                             PE {item.pe_percentile ? `${item.pe_percentile.toFixed(1)}%` : "--"}
@@ -253,8 +253,8 @@ export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) 
                                                 <td className="px-3 py-3 text-right">
                                                     <span className={clsx(
                                                         "text-[10px] font-bold tabular-nums",
-                                                        (item.net_inflow || 0) > 0 ? "text-emerald-500" : 
-                                                        (item.net_inflow || 0) < 0 ? "text-rose-500" :
+                                                        (item.net_inflow || 0) > 0 ? "text-emerald-600" : 
+                                                        (item.net_inflow || 0) < 0 ? "text-rose-600" :
                                                         "text-slate-500"
                                                     )}>
                                                         {item.net_inflow ? `${(item.net_inflow / 10000).toFixed(1)}万` : "--"}
@@ -263,9 +263,9 @@ export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) 
                                                 <td className="px-3 py-3 text-right">
                                                     <span className={clsx(
                                                         "text-[10px] font-bold tabular-nums",
-                                                        (item.risk_reward_ratio || 0) >= 2.0 ? "text-emerald-500" : 
-                                                        (item.risk_reward_ratio || 0) >= 1.5 ? "text-blue-500" :
-                                                        "text-rose-500"
+                                                        (item.risk_reward_ratio || 0) >= 2.0 ? "text-emerald-600" : 
+                                                        (item.risk_reward_ratio || 0) >= 1.5 ? "text-blue-600" :
+                                                        "text-rose-600"
                                                     )}>
                                                         {item.risk_reward_ratio ? item.risk_reward_ratio.toFixed(2) : "--"}
                                                     </span>
@@ -288,25 +288,25 @@ export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) 
                     {/* AI Health Diagnostic Card */}
                     <div className="bg-slate-900 dark:bg-blue-950/20 rounded-2xl p-5 border border-slate-800 dark:border-blue-900/30 shadow-sm relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4 opacity-10">
-                            <BrainCircuit className="h-16 w-16 text-blue-500" />
+                            <BrainCircuit className="h-16 w-16 text-blue-600" />
                         </div>
                         
                         <h3 className="text-white font-bold text-xs uppercase tracking-widest flex items-center gap-2 mb-4">
-                            <BrainCircuit className="h-3.5 w-3.5 text-blue-400" />
+                            <BrainCircuit className="h-3.5 w-3.5 text-blue-600" />
                             AI 组合诊断 (Health)
                         </h3>
 
                         {(!analysis && loadingAnalysis) ? (
                             <div className="py-8 flex flex-col items-center justify-center gap-3 animate-pulse">
-                                <div className="h-10 w-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                                    <RefreshCw className="h-5 w-5 text-blue-500 animate-spin" />
+                                <div className="h-10 w-10 rounded-full bg-blue-600/10 border border-blue-600/20 flex items-center justify-center">
+                                    <RefreshCw className="h-5 w-5 text-blue-600 animate-spin" />
                                 </div>
                                 <p className="text-slate-500 text-[10px] font-bold">同步历史诊断...</p>
                             </div>
                         ) : !analysis ? (
                             <div className="py-6 flex flex-col items-center text-center gap-3">
-                                <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                                    <ShieldCheck className="h-6 w-6 text-blue-400" />
+                                <div className="w-12 h-12 rounded-full bg-blue-600/10 flex items-center justify-center border border-blue-600/20">
+                                    <ShieldCheck className="h-6 w-6 text-blue-600" />
                                 </div>
                                 <div className="space-y-1">
                                     <p className="text-slate-300 text-xs font-bold">获取 AI 专业意见</p>
@@ -315,7 +315,7 @@ export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) 
                                 <Button 
                                     onClick={handleAnalyze} 
                                     disabled={analyzing}
-                                    className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl mt-2 h-10 text-xs shadow-lg shadow-blue-900/20"
+                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl mt-2 h-10 text-xs shadow-lg shadow-blue-900/20"
                                 >
                                     {analyzing ? (
                                         <>
@@ -337,7 +337,7 @@ export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) 
                                             />
                                             <circle 
                                                 cx="24" cy="24" r="20" 
-                                                className="stroke-blue-500 fill-none transition-all duration-1000" 
+                                                className="stroke-blue-600 fill-none transition-all duration-1000" 
                                                 strokeWidth="4"
                                                 strokeDasharray={125}
                                                 strokeDashoffset={125 - (125 * (analysis.health_score || 0)) / 100}
@@ -348,9 +348,9 @@ export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) 
                                     <div className="min-w-0">
                                         <span className={clsx(
                                             "inline-block px-1.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-tight mb-1",
-                                            analysis.risk_level === "低" ? "bg-emerald-500/20 text-emerald-400" :
-                                            analysis.risk_level === "中" ? "bg-yellow-500/20 text-yellow-400" :
-                                            "bg-rose-500/20 text-rose-400"
+                                            analysis.risk_level === "低" ? "bg-emerald-600/20 text-emerald-400" :
+                                            analysis.risk_level === "中" ? "bg-blue-600/20 text-blue-400" :
+                                            "bg-rose-600/20 text-rose-400"
                                         )}>
                                             风险: {analysis.risk_level}
                                         </span>
@@ -378,8 +378,8 @@ export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) 
                                         <DialogContent className="max-w-2xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 p-0 overflow-hidden rounded-2xl">
                                             <DialogHeader className="p-5 border-b border-slate-100 dark:border-slate-800 flex flex-row items-center justify-between bg-slate-50/50 dark:bg-slate-800/20 space-y-0 text-left">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                                                        <BrainCircuit className="h-4 w-4 text-blue-500" />
+                                                    <div className="w-8 h-8 rounded-xl bg-blue-600/10 flex items-center justify-center border border-blue-600/20">
+                                                        <BrainCircuit className="h-4 w-4 text-blue-600" />
                                                     </div>
                                                     <div className="text-left">
                                                         <DialogTitle className="font-bold text-base text-slate-900 dark:text-white leading-tight">
@@ -421,7 +421,7 @@ export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) 
                     {/* Sector Exposure Chart */}
                     <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
                         <h3 className="font-bold text-xs uppercase tracking-wider flex items-center gap-2 mb-4">
-                            <PieChart className="h-3.5 w-3.5 text-emerald-500" />
+                            <PieChart className="h-3.5 w-3.5 text-emerald-600" />
                             行业覆盖 / 分布
                         </h3>
                         
@@ -436,8 +436,8 @@ export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) 
                                         <div 
                                             className={clsx(
                                                 "h-full rounded-full transition-all duration-1000",
-                                                idx === 0 ? "bg-blue-500" :
-                                                idx === 1 ? "bg-emerald-500" : 
+                                                idx === 0 ? "bg-blue-600" :
+                                                idx === 1 ? "bg-emerald-600" : 
                                                 idx === 2 ? "bg-violet-500" : "bg-slate-400"
                                             )} 
                                             style={{ width: `${s.weight}%` }} 

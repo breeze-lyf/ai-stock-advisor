@@ -118,7 +118,7 @@ export function HotspotRadar({ onSelectTicker }: HotspotRadarProps) {
                           <span>热度指数</span>
                           <div className="w-24 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                              <div 
-                              className="h-full bg-rose-500" 
+                              className="h-full bg-rose-600" 
                               style={{ width: `${topic.heat_score}%` }}
                              />
                           </div>
@@ -156,7 +156,7 @@ export function HotspotRadar({ onSelectTicker }: HotspotRadarProps) {
                               >
                                 ${item.ticker} <ArrowRight className="w-3 h-3 inline opacity-0 group-hover:opacity-100 transition-opacity" />
                               </span>
-                              <p className="text-xs text-emerald-600/80 dark:text-emerald-500/80 truncate">{item.reason}</p>
+                              <p className="text-xs text-emerald-600/80 dark:text-emerald-600/80 truncate">{item.reason}</p>
                             </div>
                             <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
                               <TrendingUp className="w-3 h-3 text-emerald-600" />
@@ -181,7 +181,7 @@ export function HotspotRadar({ onSelectTicker }: HotspotRadarProps) {
                               >
                                 ${item.ticker} <ArrowRight className="w-3 h-3 inline opacity-0 group-hover:opacity-100 transition-opacity" />
                               </span>
-                              <p className="text-xs text-rose-600/80 dark:text-rose-500/80 truncate">{item.reason}</p>
+                              <p className="text-xs text-rose-600/80 dark:text-rose-600/80 truncate">{item.reason}</p>
                             </div>
                             <div className="w-6 h-6 rounded-full bg-rose-100 dark:bg-rose-900/40 flex items-center justify-center">
                               <TrendingDown className="w-3 h-3 text-rose-600" />

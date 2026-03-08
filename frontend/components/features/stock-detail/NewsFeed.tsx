@@ -42,17 +42,17 @@ export const NewsFeed = React.memo(function NewsFeed({ news, aiData }: NewsFeedP
                                     <ReactMarkdown
                                         components={{
                                             h3: ({ node, ...props }) => (
-                                                <h3 className="font-bold text-blue-500 dark:text-blue-400 mt-4 mb-2 first:mt-0 text-sm block">
+                                                <h3 className="font-bold text-blue-600 dark:text-blue-400 mt-4 mb-2 first:mt-0 text-sm block">
                                                     {props.children}
                                                 </h3>
                                             ),
                                             h4: ({ node, ...props }) => (
-                                                <h4 className="font-bold text-blue-500 dark:text-blue-400 mt-3 mb-1 first:mt-0 text-sm block">
+                                                <h4 className="font-bold text-blue-600 dark:text-blue-400 mt-3 mb-1 first:mt-0 text-sm block">
                                                     {props.children}
                                                 </h4>
                                             ),
                                             strong: ({ node, ...props }) => (
-                                                <strong className="font-bold text-blue-500 dark:text-blue-400">
+                                                <strong className="font-bold text-blue-600 dark:text-blue-400">
                                                     {props.children}
                                                 </strong>
                                             ),

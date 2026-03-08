@@ -70,3 +70,4 @@ class User(Base):
     
     # Relationships
     portfolio_items = relationship("Portfolio", back_populates="user", cascade="all, delete-orphan")
+    simulated_trades = relationship("SimulatedTrade", back_populates="user", cascade="all, delete-orphan")

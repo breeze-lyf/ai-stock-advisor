@@ -1,0 +1,843 @@
+2026-03-08 18:29:40,710 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+2026-03-08 18:29:45,834 - api_logger - INFO - PHASE: Background scheduler task launched & DB synced.
+2026-03-08 18:29:45,834 - app.services.scheduler - INFO - [Scheduler] 调度中心全面启动，轮询精度：60s
+2026-03-08 18:29:46,458 - app.services.scheduler - ERROR - [Scheduler] 轮询任务发生异常: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:29:49,843 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+2026-03-08 18:29:54,973 - api_logger - INFO - PHASE: Background scheduler task launched & DB synced.
+2026-03-08 18:29:54,973 - app.services.scheduler - INFO - [Scheduler] 调度中心全面启动，轮询精度：60s
+2026-03-08 18:29:55,603 - app.services.scheduler - ERROR - [Scheduler] 轮询任务发生异常: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:29:55,882 - api_logger - ERROR - Middleware caught unhandled error: InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:29:57,367 - api_logger - ERROR - Middleware caught unhandled error: InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:30:00,070 - api_logger - ERROR - Middleware caught unhandled error: InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:30:56,075 - app.services.scheduler - ERROR - [Scheduler] 轮询任务发生异常: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:31:52,838 - api_logger - ERROR - Middleware caught unhandled error: InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:31:54,378 - api_logger - ERROR - Middleware caught unhandled error: InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:31:56,536 - app.services.scheduler - ERROR - [Scheduler] 轮询任务发生异常: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:31:56,858 - api_logger - ERROR - Middleware caught unhandled error: InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:32:56,420 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:32:56,908 - api_logger - ERROR - Middleware caught unhandled error: InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:32:56,912 - api_logger - ERROR - Middleware caught unhandled error: InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:32:57,044 - api_logger - INFO - rid=/api/stocks/NVDA/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=638.14ms
+2026-03-08 18:32:57,046 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:32:57,276 - api_logger - INFO - rid=/api/stocks/NVDA/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=230.92ms
+2026-03-08 18:32:57,352 - api_logger - ERROR - Middleware caught unhandled error: InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:32:57,369 - api_logger - ERROR - Middleware caught unhandled error: InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:32:57,424 - app.services.scheduler - ERROR - [Scheduler] 轮询任务发生异常: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:32:58,388 - api_logger - ERROR - Middleware caught unhandled error: InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:32:58,667 - api_logger - ERROR - Middleware caught unhandled error: InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:32:58,819 - api_logger - ERROR - Middleware caught unhandled error: InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:32:59,012 - api_logger - ERROR - Middleware caught unhandled error: InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:33:00,867 - api_logger - ERROR - Middleware caught unhandled error: InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:33:01,133 - api_logger - ERROR - Middleware caught unhandled error: InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:33:01,286 - api_logger - ERROR - Middleware caught unhandled error: InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:33:01,478 - api_logger - ERROR - Middleware caught unhandled error: InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:33:57,908 - app.services.scheduler - ERROR - [Scheduler] 轮询任务发生异常: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:34:06,843 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+2026-03-08 18:34:11,873 - api_logger - INFO - PHASE: Background scheduler task launched & DB synced.
+2026-03-08 18:34:11,873 - app.services.scheduler - INFO - [Scheduler] 调度中心全面启动，轮询精度：60s
+2026-03-08 18:34:12,500 - app.services.scheduler - ERROR - [Scheduler] 轮询任务发生异常: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:34:18,527 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+2026-03-08 18:34:26,438 - api_logger - INFO - PHASE: Background scheduler task launched & DB synced.
+2026-03-08 18:34:26,439 - app.services.scheduler - INFO - [Scheduler] 调度中心全面启动，轮询精度：60s
+2026-03-08 18:34:26,443 - api_logger - INFO - rid=/api/v1/paper-trading method=GET status_code=404 user_id=anonymous time=0.33ms
+2026-03-08 18:34:27,065 - app.services.scheduler - ERROR - [Scheduler] 轮询任务发生异常: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:34:40,433 - api_logger - INFO - rid=/api/v1/paper-trading/ method=GET status_code=404 user_id=anonymous time=0.39ms
+2026-03-08 18:35:27,636 - app.services.scheduler - ERROR - [Scheduler] 轮询任务发生异常: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[User(users)]'. Original exception was: When initializing mapper Mapper[User(users)], expression 'AIConfig' failed to locate a name ('AIConfig'). If this is a class name, consider adding this relationship() to the <class 'app.models.user.User'> class after both dependent classes have been defined.
+2026-03-08 18:35:37,296 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+2026-03-08 18:35:42,853 - api_logger - INFO - PHASE: Background scheduler task launched & DB synced.
+2026-03-08 18:35:42,853 - app.services.scheduler - INFO - [Scheduler] 调度中心全面启动，轮询精度：60s
+2026-03-08 18:35:42,878 - api_logger - INFO - rid=/api/v1/paper-trading method=GET status_code=404 user_id=anonymous time=0.24ms
+2026-03-08 18:35:44,090 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 18:35:46,781 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:35:46,997 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 18:35:47,864 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:35:48,328 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 18:35:50,252 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:35:50,253 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 18:35:50,603 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:35:50,912 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 18:35:50,912 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 18:36:20,707 - api_logger - INFO - rid=/api/v1/paper-trading/ method=GET status_code=404 user_id=anonymous time=0.26ms
+2026-03-08 18:36:52,181 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 18:36:54,100 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:36:54,165 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 18:36:54,415 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:36:54,895 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 18:36:56,657 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:36:56,658 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 18:36:56,989 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:36:57,297 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 18:36:57,297 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 18:36:57,809 - api_logger - INFO - rid=/api/v1/auth/login method=POST status_code=404 user_id=anonymous time=0.16ms
+2026-03-08 18:37:58,377 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 18:38:00,160 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:38:00,262 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 18:38:00,406 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:38:00,713 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 18:38:02,481 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:38:02,482 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 18:38:02,827 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:38:03,135 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 18:38:03,135 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 18:39:04,200 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 18:39:05,965 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:39:06,077 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 18:39:06,202 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:39:06,507 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 18:39:08,271 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:39:08,271 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 18:39:08,490 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:39:08,796 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 18:39:08,796 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 18:39:40,206 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+2026-03-08 18:39:46,107 - api_logger - INFO - PHASE: Background scheduler task launched & DB synced.
+2026-03-08 18:39:46,107 - app.services.scheduler - INFO - [Scheduler] 调度中心全面启动，轮询精度：60s
+2026-03-08 18:39:47,357 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 18:39:49,781 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:39:49,873 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 18:39:50,867 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:39:51,390 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 18:39:53,307 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:39:53,308 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 18:39:53,693 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:39:53,999 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 18:39:53,999 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 18:40:11,386 - app.api.v1.endpoints.portfolio - INFO - PHASE: Portfolio router module importing...
+2026-03-08 18:40:17,915 - api_logger - INFO - PHASE: Background scheduler task launched & DB synced.
+2026-03-08 18:40:17,915 - app.services.scheduler - INFO - [Scheduler] 调度中心全面启动，轮询精度：60s
+2026-03-08 18:40:19,195 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 18:40:21,620 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:40:21,707 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 18:40:22,477 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:40:22,947 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 18:40:24,881 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:40:24,882 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 18:40:25,227 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:40:25,539 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 18:40:25,540 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 18:41:20,619 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=974.10ms
+2026-03-08 18:41:21,905 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=926.94ms
+2026-03-08 18:41:28,730 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 18:41:30,504 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:41:30,615 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 18:41:30,941 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:41:31,250 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 18:41:33,024 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:41:33,024 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 18:41:33,349 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:41:33,666 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 18:41:33,667 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 18:41:39,458 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=824.58ms
+2026-03-08 18:42:35,833 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 18:42:37,798 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:42:37,962 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 18:42:38,043 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:42:38,522 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 18:42:40,325 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:42:40,326 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 18:42:40,736 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:42:41,053 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 18:42:41,054 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 18:43:05,143 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=949.12ms
+2026-03-08 18:43:06,277 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=842.24ms
+2026-03-08 18:43:44,346 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 18:43:46,141 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:43:46,264 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 18:43:46,465 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:43:46,873 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 18:43:48,754 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:43:48,755 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 18:43:49,365 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:43:49,684 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 18:43:49,685 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 18:43:59,194 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=787.53ms
+2026-03-08 18:44:51,739 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 18:44:53,547 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:44:53,662 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 18:44:53,878 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:44:54,192 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 18:44:56,319 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:44:56,319 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 18:44:56,527 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:44:56,848 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 18:44:56,848 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 18:44:57,680 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1409.87ms
+2026-03-08 18:45:59,796 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 18:46:01,914 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:46:02,059 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 18:46:02,387 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:46:02,908 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 18:46:05,559 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:46:05,559 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 18:46:05,763 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:46:06,226 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 18:46:06,226 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 18:46:06,381 - app.services.scheduler - INFO - [Scheduler] 开始同步财联社全球快讯...
+2026-03-08 18:46:06,381 - app.services.macro_service - INFO - Starting Cailianshe global news update (Standard Version)...
+2026-03-08 18:46:11,913 - app.services.scheduler - INFO - [Scheduler] 财联社快讯同步完成。
+2026-03-08 18:46:32,957 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1083.24ms
+2026-03-08 18:46:59,939 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=974.77ms
+2026-03-08 18:47:15,155 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 18:47:17,088 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:47:17,205 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 18:47:17,566 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:47:18,076 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 18:47:19,969 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:47:19,969 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 18:47:20,305 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:47:20,624 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 18:47:20,624 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 18:47:40,948 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=796.76ms
+2026-03-08 18:48:22,139 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=920.91ms
+2026-03-08 18:48:22,466 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1231.23ms
+2026-03-08 18:48:22,474 - api_logger - ERROR - Middleware caught unhandled error: NotSupportedError: (sqlalchemy.dialects.postgresql.asyncpg.InvalidCachedStatementError) <class 'asyncpg.exceptions.InvalidCachedStatementError'>: cached statement plan is invalid due to a database schema or configuration change (SQLAlchemy asyncpg dialect will now invalidate all prepared caches in response to this exception)
+[SQL: SELECT analysis_reports.id, analysis_reports.user_id, analysis_reports.ticker, analysis_reports.input_context_snapshot, analysis_reports.ai_response_markdown, analysis_reports.sentiment_score, analysis_reports.summary_status, analysis_reports.risk_level, analysis_reports.technical_analysis, analysis_reports.fundamental_news, analysis_reports.action_advice, analysis_reports.investment_horizon, analysis_reports.confidence_level, analysis_reports.immediate_action, analysis_reports.target_price, analysis_reports.stop_loss_price, analysis_reports.entry_zone, analysis_reports.entry_price_low, analysis_reports.entry_price_high, analysis_reports.rr_ratio, analysis_reports.model_used, analysis_reports.max_drawdown, analysis_reports.max_favorable_excursion, analysis_reports.scenario_tags, analysis_reports.audit_notes, analysis_reports.thought_process, analysis_reports.created_at 
+FROM analysis_reports 
+WHERE analysis_reports.user_id = $1::VARCHAR AND analysis_reports.ticker = $2::VARCHAR ORDER BY analysis_reports.created_at DESC 
+ LIMIT $3::INTEGER]
+[parameters: ('9fe069c3-5985-4d2a-8814-91898152fc4a', 'NVDA', 1)]
+(Background on this error at: https://sqlalche.me/e/20/tw8g)
+2026-03-08 18:48:22,564 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:48:22,981 - api_logger - INFO - rid=/api/stocks/NVDA/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=418.33ms
+2026-03-08 18:48:22,984 - api_logger - INFO - rid=/api/portfolio/NVDA/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1744.38ms
+2026-03-08 18:48:24,047 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 18:48:24,108 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1637.04ms
+2026-03-08 18:48:24,664 - api_logger - INFO - rid=/api/analysis/NVDA/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=2098.68ms
+2026-03-08 18:48:25,082 - api_logger - INFO - rid=/api/analysis/NVDA method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1535.31ms
+2026-03-08 18:48:26,279 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:48:26,391 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 18:48:26,532 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:48:27,153 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 18:48:29,478 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:48:29,479 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 18:48:29,829 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:48:30,450 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 18:48:30,451 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 18:49:33,913 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 18:49:35,705 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:49:35,777 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 18:49:35,955 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:49:36,265 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 18:49:38,375 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:49:38,375 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 18:49:38,711 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:49:39,346 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 18:49:39,346 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 18:50:41,654 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 18:50:44,196 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:50:44,252 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 18:50:44,922 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:50:45,390 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 18:50:47,227 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:50:47,229 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 18:50:47,451 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:50:47,758 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 18:50:47,758 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 18:51:50,066 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 18:51:52,707 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:51:52,750 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 18:51:53,119 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:51:53,592 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 18:51:56,222 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:51:56,223 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 18:51:56,434 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:51:56,904 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 18:51:56,904 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 18:52:59,252 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 18:53:01,215 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:53:01,266 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 18:53:01,461 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:53:01,775 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 18:53:03,632 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:53:03,633 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 18:53:03,964 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:53:04,277 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 18:53:04,278 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 18:54:06,512 - api_logger - INFO - rid=/api/v1/paper-trading method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1.04ms
+2026-03-08 18:54:06,514 - api_logger - INFO - rid=/api/v1/paper-trading method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.44ms
+2026-03-08 18:54:06,537 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 18:54:08,317 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:54:08,448 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 18:54:08,624 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:54:08,934 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 18:54:10,720 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:54:10,720 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 18:54:11,054 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:54:11,368 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 18:54:11,368 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 18:54:44,041 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:54:44,405 - api_logger - INFO - rid=/api/stocks/NVDA/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=372.54ms
+2026-03-08 18:54:44,407 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:54:44,825 - api_logger - INFO - rid=/api/stocks/NVDA/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=418.60ms
+2026-03-08 18:54:45,710 - api_logger - INFO - rid=/api/portfolio/NVDA/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1658.23ms
+2026-03-08 18:54:45,722 - api_logger - INFO - rid=/api/analysis/NVDA/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1670.02ms
+2026-03-08 18:54:45,826 - api_logger - INFO - rid=/api/analysis/NVDA method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1774.43ms
+2026-03-08 18:54:47,756 - api_logger - INFO - rid=/api/analysis/NVDA/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=2027.94ms
+2026-03-08 18:55:15,078 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 18:55:16,899 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:55:16,949 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 18:55:17,142 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:55:17,455 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 18:55:19,238 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 18:55:19,239 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 18:55:19,580 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 18:55:19,904 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 18:55:19,904 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 18:55:39,449 - api_logger - INFO - rid=/api/v1/paper-trading method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1.79ms
+2026-03-08 18:55:39,451 - api_logger - INFO - rid=/api/v1/paper-trading method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.48ms
+2026-03-08 20:19:33,592 - app.services.scheduler - ERROR - [Scheduler] 轮询任务发生异常: [Errno 8] nodename nor servname provided, or not known
+2026-03-08 20:19:33,594 - app.services.scheduler - INFO - [Scheduler] 开始同步财联社全球快讯...
+2026-03-08 20:19:33,594 - app.services.macro_service - INFO - Starting Cailianshe global news update (Standard Version)...
+2026-03-08 20:27:13,551 - app.services.macro_service - INFO - Successfully persisted 2 news items.
+2026-03-08 20:27:13,552 - app.services.scheduler - INFO - [Scheduler] 财联社快讯同步完成。
+2026-03-08 20:27:13,553 - app.services.scheduler - INFO - [Scheduler] 开始探测财联社深度头条...
+2026-03-08 20:27:13,553 - app.services.scheduler - ERROR - [Scheduler] 财联社头条抓取失败: type object 'MacroService' has no attribute 'update_cls_headlines'
+2026-03-08 21:23:51,459 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 21:23:54,630 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:23:55,332 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 21:23:56,934 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:23:57,432 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 21:24:02,299 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:24:02,300 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 21:24:02,674 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:24:03,198 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 21:24:03,198 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 21:24:03,369 - app.services.scheduler - INFO - [Scheduler] 开始同步财联社全球快讯...
+2026-03-08 21:24:03,370 - app.services.macro_service - INFO - Starting Cailianshe global news update (Standard Version)...
+2026-03-08 21:24:11,589 - app.services.macro_service - INFO - Successfully persisted 2 news items.
+2026-03-08 21:24:11,590 - app.services.scheduler - INFO - [Scheduler] 财联社快讯同步完成。
+2026-03-08 21:25:16,315 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 21:25:19,040 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:25:19,182 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 21:25:19,487 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:25:19,957 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 21:25:22,089 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:25:22,089 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 21:25:22,292 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:25:22,757 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 21:25:22,757 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 21:26:24,883 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 21:26:26,649 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:26:26,719 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 21:26:26,959 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:26:27,265 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 21:26:29,057 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:26:29,058 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 21:26:29,440 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:26:29,753 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 21:26:29,753 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 21:27:32,060 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 21:27:33,836 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:27:34,008 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 21:27:34,145 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:27:34,473 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 21:27:36,332 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:27:36,333 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 21:27:36,754 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:27:37,058 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 21:27:37,058 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 21:28:39,060 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 21:28:40,823 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:28:41,003 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 21:28:41,132 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:28:41,435 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 21:28:43,196 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:28:43,196 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 21:28:43,583 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:28:43,883 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 21:28:43,883 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 21:29:47,056 - app.services.scheduler - INFO - [Scheduler] 发现 2 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 21:29:49,656 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:29:49,732 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 21:29:49,902 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:29:50,379 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 21:29:52,891 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:29:52,891 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 21:29:53,092 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:29:53,553 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 21:29:53,554 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 2 只标的。
+2026-03-08 21:30:57,579 - app.services.scheduler - INFO - [Scheduler] 发现 74 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 21:30:59,495 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:31:00,081 - app.services.market_data - INFO - Syncing fundamental for MU: market_cap=416776079000.0, PE=10.52
+2026-03-08 21:31:04,208 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MU
+2026-03-08 21:31:06,301 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:31:06,656 - app.services.market_data - INFO - Syncing fundamental for GOOGL: market_cap=3611196439999.9995, PE=10.81
+2026-03-08 21:31:10,225 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: GOOGL
+2026-03-08 21:31:12,012 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:31:12,481 - app.services.market_data - INFO - Syncing fundamental for BA: market_cap=181501567000.0, PE=2.48
+2026-03-08 21:31:15,466 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: BA
+2026-03-08 21:31:17,240 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:31:17,612 - app.services.market_data - INFO - Syncing fundamental for RKLB: market_cap=39783600000.0, PE=-0.37
+2026-03-08 21:31:20,135 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: RKLB
+2026-03-08 21:31:21,915 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:31:22,392 - app.services.market_data - INFO - Syncing fundamental for INTU: market_cap=133067564000.0, PE=15.37
+2026-03-08 21:31:24,738 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: INTU
+2026-03-08 21:31:26,522 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:31:26,919 - app.services.market_data - INFO - Syncing fundamental for LIN: market_cap=224625682999.99997, PE=14.61
+2026-03-08 21:31:29,290 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: LIN
+2026-03-08 21:31:31,053 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:31:31,497 - app.services.market_data - INFO - Syncing fundamental for BRK.B: market_cap=1076466896000.0001, PE=31.04
+2026-03-08 21:31:34,022 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: BRK.B
+2026-03-08 21:31:35,808 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:31:39,218 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: XLE
+2026-03-08 21:31:41,010 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:31:41,589 - app.services.market_data - INFO - Syncing fundamental for PG: market_cap=357036225000.0, PE=6.75
+2026-03-08 21:31:43,786 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PG
+2026-03-08 21:31:45,548 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:31:46,019 - app.services.market_data - INFO - Syncing fundamental for KO: market_cap=331327705000.0, PE=3.04
+2026-03-08 21:31:48,367 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: KO
+2026-03-08 21:31:50,151 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:31:50,233 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 21:31:50,394 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:31:50,709 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 21:31:52,465 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:31:53,049 - app.services.market_data - INFO - Syncing fundamental for CVX: market_cap=376312459000.0, PE=6.63
+2026-03-08 21:31:55,245 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CVX
+2026-03-08 21:31:57,025 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:31:57,583 - app.services.market_data - INFO - Syncing fundamental for JPM: market_cap=780736932000.0, PE=20.02
+2026-03-08 21:31:59,903 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: JPM
+2026-03-08 21:32:01,693 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:32:02,192 - app.services.market_data - INFO - Syncing fundamental for AVGO: market_cap=1566896165000.0, PE=5.12
+2026-03-08 21:32:04,390 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AVGO
+2026-03-08 21:32:06,178 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:32:06,540 - app.services.market_data - INFO - Syncing fundamental for OKLO: market_cap=9101392000.0, PE=-0.56
+2026-03-08 21:32:09,113 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: OKLO
+2026-03-08 21:32:10,891 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:32:11,270 - app.services.market_data - INFO - Syncing fundamental for IREN: market_cap=12175562000.0, PE=1.44
+2026-03-08 21:32:13,431 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: IREN
+2026-03-08 21:32:15,218 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:32:15,682 - app.services.market_data - INFO - Syncing fundamental for TEM: market_cap=9342713000.0, PE=-1.41
+2026-03-08 21:32:18,860 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEM
+2026-03-08 21:32:20,620 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:32:20,923 - app.services.market_data - INFO - Syncing fundamental for NBIS: market_cap=22602006000.0, PE=0.4
+2026-03-08 21:32:23,527 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NBIS
+2026-03-08 21:32:25,313 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:32:25,789 - app.services.market_data - INFO - Syncing fundamental for CAT: market_cap=316814144000.0, PE=18.81
+2026-03-08 21:32:28,052 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CAT
+2026-03-08 21:32:30,186 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:32:30,600 - app.services.market_data - INFO - Syncing fundamental for V: market_cap=610354145000.0, PE=10.65
+2026-03-08 21:32:32,813 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: V
+2026-03-08 21:32:34,591 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:32:35,213 - app.services.market_data - INFO - Syncing fundamental for PEP: market_cap=217884859000.0, PE=6.0
+2026-03-08 21:32:37,577 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PEP
+2026-03-08 21:32:39,390 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:32:42,423 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: GLD
+2026-03-08 21:32:44,210 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:32:44,706 - app.services.market_data - INFO - Syncing fundamental for TMUS: market_cap=244139727000.0, PE=9.72
+2026-03-08 21:32:46,921 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TMUS
+2026-03-08 21:32:48,693 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:32:49,396 - app.services.market_data - INFO - Syncing fundamental for MRK: market_cap=286278270000.0, PE=7.28
+2026-03-08 21:32:51,591 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MRK
+2026-03-08 21:32:53,375 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:32:53,793 - app.services.market_data - INFO - Syncing fundamental for AMD: market_cap=313739959000.0, PE=2.65
+2026-03-08 21:32:56,300 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AMD
+2026-03-08 21:32:58,091 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:32:58,794 - app.services.market_data - INFO - Syncing fundamental for TXN: market_cap=175366036000.0, PE=5.45
+2026-03-08 21:33:00,990 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TXN
+2026-03-08 21:33:02,747 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:33:03,192 - app.services.market_data - INFO - Syncing fundamental for IBM: market_cap=242810205000.0, PE=11.17
+2026-03-08 21:33:05,561 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: IBM
+2026-03-08 21:33:07,352 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:33:07,845 - app.services.market_data - INFO - Syncing fundamental for NVDA: market_cap=4321026000000.0, PE=4.9
+2026-03-08 21:33:10,722 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NVDA
+2026-03-08 21:33:12,513 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:33:12,845 - app.services.market_data - INFO - Syncing fundamental for SNDK: market_cap=77834421000.0, PE=-7.47
+2026-03-08 21:33:15,385 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: SNDK
+2026-03-08 21:33:17,143 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:33:17,566 - app.services.market_data - INFO - Syncing fundamental for ABBV: market_cap=406873371000.0, PE=2.37
+2026-03-08 21:33:19,755 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ABBV
+2026-03-08 21:33:21,542 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:33:21,731 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
+2026-03-08 21:33:24,551 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NDX
+2026-03-08 21:33:26,335 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:33:26,794 - app.services.market_data - INFO - Syncing fundamental for DIS: market_cap=179880126000.0, PE=6.79
+2026-03-08 21:33:28,983 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: DIS
+2026-03-08 21:33:30,763 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:33:33,880 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: SLV
+2026-03-08 21:33:35,659 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:33:36,177 - app.services.market_data - INFO - Syncing fundamental for VZ: market_cap=215608014999.99997, PE=4.06
+2026-03-08 21:33:38,319 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: VZ
+2026-03-08 21:33:40,098 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:33:40,652 - app.services.market_data - INFO - Syncing fundamental for JNJ: market_cap=579339704000.0, PE=11.03
+2026-03-08 21:33:42,850 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: JNJ
+2026-03-08 21:33:44,610 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:33:44,948 - app.services.market_data - INFO - Syncing fundamental for IAU: market_cap=82302077000.0, PE=4.62
+2026-03-08 21:33:47,453 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: IAU
+2026-03-08 21:33:49,228 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:33:49,229 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 21:33:49,439 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:33:49,748 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 21:33:51,511 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:33:51,989 - app.services.market_data - INFO - Syncing fundamental for WFC: market_cap=248146818000.0, PE=6.26
+2026-03-08 21:33:54,222 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: WFC
+2026-03-08 21:33:56,000 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:33:56,441 - app.services.market_data - INFO - Syncing fundamental for FRO: market_cap=7693847000.0, PE=1.7
+2026-03-08 21:33:58,918 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: FRO
+2026-03-08 21:34:00,702 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:34:01,091 - app.services.market_data - INFO - Syncing fundamental for AAPL: market_cap=3779806304000.0, PE=7.9
+2026-03-08 21:34:03,607 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AAPL
+2026-03-08 21:34:05,367 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:34:05,788 - app.services.market_data - INFO - Syncing fundamental for LLY: market_cap=884357183000.0001, PE=22.95
+2026-03-08 21:34:08,259 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: LLY
+2026-03-08 21:34:10,035 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:34:10,469 - app.services.market_data - INFO - Syncing fundamental for XOM: market_cap=630056302000.0, PE=6.7
+2026-03-08 21:34:12,623 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: XOM
+2026-03-08 21:34:14,412 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:34:14,837 - app.services.market_data - INFO - Syncing fundamental for CR: market_cap=11022712000.0, PE=6.26
+2026-03-08 21:34:17,033 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CR
+2026-03-08 21:34:18,797 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:34:19,242 - app.services.market_data - INFO - Syncing fundamental for MA: market_cap=465829243000.00006, PE=16.52
+2026-03-08 21:34:21,447 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MA
+2026-03-08 21:34:23,227 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:34:23,699 - app.services.market_data - INFO - Syncing fundamental for CSCO: market_cap=310619589000.0, PE=2.78
+2026-03-08 21:34:25,846 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CSCO
+2026-03-08 21:34:28,001 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:34:29,048 - app.services.market_data - INFO - Syncing fundamental for NFLX: market_cap=418078496000.0, PE=2.53
+2026-03-08 21:34:33,578 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NFLX
+2026-03-08 21:34:35,510 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:34:36,065 - app.services.market_data - INFO - Syncing fundamental for WMT: market_cap=986706670000.0, PE=2.73
+2026-03-08 21:34:38,847 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: WMT
+2026-03-08 21:34:40,748 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:34:41,281 - app.services.market_data - INFO - Syncing fundamental for CRCL: market_cap=24187319000.0, PE=-0.44
+2026-03-08 21:34:44,943 - app.services.notification_service - INFO - Notification deduplication hit for user 9fe069c3-5985-4d2a-8814-91898152fc4a: PRICE_ALERT (Threshold: True)
+2026-03-08 21:34:46,149 - app.services.notification_service - INFO - Notification deduplication hit for user 9fe069c3-5985-4d2a-8814-91898152fc4a: INDICATOR_ALERT (Threshold: True)
+2026-03-08 21:34:46,521 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CRCL
+2026-03-08 21:34:49,142 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:34:49,710 - app.services.market_data - INFO - Syncing fundamental for AMAT: market_cap=257716868000.00003, PE=9.75
+2026-03-08 21:34:52,971 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AMAT
+2026-03-08 21:34:55,589 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:34:56,148 - app.services.market_data - INFO - Syncing fundamental for MSFT: market_cap=3036785267000.0, PE=15.98
+2026-03-08 21:35:00,310 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MSFT
+2026-03-08 21:35:02,924 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:35:03,422 - app.services.market_data - INFO - Syncing fundamental for FCX: market_cap=85312287000.0, PE=1.52
+2026-03-08 21:35:07,651 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: FCX
+2026-03-08 21:35:09,428 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:35:09,807 - app.services.market_data - INFO - Syncing fundamental for AMZN: market_cap=2288792479000.0, PE=7.17
+2026-03-08 21:35:13,411 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AMZN
+2026-03-08 21:35:15,180 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:35:15,537 - app.services.market_data - INFO - Syncing fundamental for TSLA: market_cap=1488702341000.0, PE=1.08
+2026-03-08 21:35:18,291 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TSLA
+2026-03-08 21:35:20,075 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:35:20,526 - app.services.market_data - INFO - Syncing fundamental for SIDU: market_cap=126387999.99999999, PE=-1.26
+2026-03-08 21:35:23,379 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: SIDU
+2026-03-08 21:35:25,154 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:35:25,568 - app.services.market_data - INFO - Syncing fundamental for PLTR: market_cap=375875755000.0, PE=0.63
+2026-03-08 21:35:30,200 - app.services.notification_service - INFO - Notification deduplication hit for user 9fe069c3-5985-4d2a-8814-91898152fc4a: INDICATOR_ALERT (Threshold: True)
+2026-03-08 21:35:30,508 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PLTR
+2026-03-08 21:35:32,277 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:35:32,710 - app.services.market_data - INFO - Syncing fundamental for INTC: market_cap=216890650999.99997, PE=-0.06
+2026-03-08 21:35:35,043 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: INTC
+2026-03-08 21:35:36,824 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:35:37,352 - app.services.market_data - INFO - Syncing fundamental for UNH: market_cap=260030974000.0, PE=13.23
+2026-03-08 21:35:39,687 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: UNH
+2026-03-08 21:35:41,459 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:35:41,957 - app.services.market_data - INFO - Syncing fundamental for ABT: market_cap=190380537000.0, PE=3.72
+2026-03-08 21:35:44,299 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ABT
+2026-03-08 21:35:46,090 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:35:46,554 - app.services.market_data - INFO - Syncing fundamental for ORCL: market_cap=439620959000.00006, PE=5.32
+2026-03-08 21:35:49,026 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ORCL
+2026-03-08 21:35:50,801 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:35:51,441 - app.services.market_data - INFO - Syncing fundamental for ACN: market_cap=132318559000.0, PE=12.1
+2026-03-08 21:35:53,192 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:35:53,629 - api_logger - INFO - rid=/api/stocks/NVDA/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=438.05ms
+2026-03-08 21:35:53,633 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:35:53,786 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ACN
+2026-03-08 21:35:53,854 - api_logger - INFO - rid=/api/stocks/NVDA/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=222.73ms
+2026-03-08 21:35:54,513 - api_logger - INFO - rid=/api/analysis/NVDA/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1319.35ms
+2026-03-08 21:35:54,589 - api_logger - INFO - rid=/api/analysis/NVDA method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1394.21ms
+2026-03-08 21:35:54,942 - api_logger - INFO - rid=/api/portfolio/NVDA/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1747.46ms
+2026-03-08 21:35:55,552 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:35:55,858 - api_logger - INFO - rid=/api/analysis/NVDA/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1343.70ms
+2026-03-08 21:35:56,114 - app.services.market_data - INFO - Syncing fundamental for AMGN: market_cap=199201678000.0, PE=14.23
+2026-03-08 21:35:58,756 - api_logger - INFO - rid=/api/v1/paper-trading method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1.28ms
+2026-03-08 21:35:58,759 - api_logger - INFO - rid=/api/v1/paper-trading method=GET status_code=404 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=0.75ms
+2026-03-08 21:35:58,769 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AMGN
+2026-03-08 21:36:00,842 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:36:01,209 - app.services.market_data - INFO - Syncing fundamental for META: market_cap=1631209137000.0, PE=23.49
+2026-03-08 21:36:04,205 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: META
+2026-03-08 21:36:05,966 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:36:06,429 - app.services.market_data - INFO - Syncing fundamental for QCOM: market_cap=144781230000.0, PE=4.96
+2026-03-08 21:36:08,643 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: QCOM
+2026-03-08 21:36:10,410 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:36:10,870 - app.services.market_data - INFO - Syncing fundamental for AXP: market_cap=206670816000.0, PE=15.38
+2026-03-08 21:36:13,185 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AXP
+2026-03-08 21:36:14,951 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:36:15,282 - app.services.market_data - INFO - Syncing fundamental for CRM: market_cap=186547530000.0, PE=7.8
+2026-03-08 21:36:17,446 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CRM
+2026-03-08 21:36:19,221 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:36:19,565 - app.services.market_data - INFO - Syncing fundamental for NET: market_cap=68703034000.0, PE=-0.29
+2026-03-08 21:36:22,116 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NET
+2026-03-08 21:36:23,883 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:36:24,448 - app.services.market_data - INFO - Syncing fundamental for MCD: market_cap=233629356000.0, PE=11.95
+2026-03-08 21:36:26,626 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MCD
+2026-03-08 21:36:28,399 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:36:28,881 - app.services.market_data - INFO - Syncing fundamental for TMO: market_cap=186473946000.0, PE=17.74
+2026-03-08 21:36:31,047 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TMO
+2026-03-08 21:36:32,810 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:36:33,265 - app.services.market_data - INFO - Syncing fundamental for BAC: market_cap=349073821000.0, PE=3.81
+2026-03-08 21:36:35,443 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: BAC
+2026-03-08 21:36:37,228 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:36:37,693 - app.services.market_data - INFO - Syncing fundamental for DHR: market_cap=138245744000.0, PE=5.05
+2026-03-08 21:36:39,864 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: DHR
+2026-03-08 21:36:41,631 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:36:42,047 - app.services.market_data - INFO - Syncing fundamental for COST: market_cap=443026059000.0, PE=18.67
+2026-03-08 21:36:44,211 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: COST
+2026-03-08 21:36:45,980 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:36:46,366 - app.services.market_data - INFO - Syncing fundamental for PFE: market_cap=153813534000.0, PE=1.36
+2026-03-08 21:36:49,681 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PFE
+2026-03-08 21:36:51,446 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:36:54,084 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: DJIA
+2026-03-08 21:36:55,855 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:36:56,220 - app.services.market_data - INFO - Syncing fundamental for ASTS: market_cap=26010757000.0, PE=-1.33
+2026-03-08 21:36:58,730 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ASTS
+2026-03-08 21:36:58,731 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 74 只标的。
+2026-03-08 21:36:58,732 - app.services.scheduler - ERROR - [Scheduler] 股票行情刷新异常: (sqlalchemy.dialects.postgresql.asyncpg.InterfaceError) <class 'asyncpg.exceptions._base.InterfaceError'>: cannot call Transaction.rollback(): the underlying connection is closed
+(Background on this error at: https://sqlalche.me/e/20/rvf5)
+2026-03-08 21:36:58,732 - app.services.scheduler - INFO - [Scheduler] 开始同步财联社全球快讯...
+2026-03-08 21:36:58,733 - app.services.macro_service - INFO - Starting Cailianshe global news update (Standard Version)...
+2026-03-08 21:37:03,780 - app.services.scheduler - INFO - [Scheduler] 财联社快讯同步完成。
+2026-03-08 21:38:08,103 - app.services.scheduler - INFO - [Scheduler] 发现 18 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 21:38:10,647 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:38:10,864 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 21:38:11,096 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:38:11,559 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 21:38:13,964 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:38:14,558 - app.services.market_data - INFO - Syncing fundamental for AVGO: market_cap=1566896165000.0, PE=5.12
+2026-03-08 21:38:17,822 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AVGO
+2026-03-08 21:38:19,908 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:38:20,167 - app.services.market_data - INFO - Syncing fundamental for OKLO: market_cap=9101392000.0, PE=-0.56
+2026-03-08 21:38:24,967 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: OKLO
+2026-03-08 21:38:26,907 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:38:27,236 - app.services.market_data - INFO - Syncing fundamental for IREN: market_cap=12175562000.0, PE=1.44
+2026-03-08 21:38:29,645 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: IREN
+2026-03-08 21:38:31,429 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:38:34,928 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: XLE
+2026-03-08 21:38:36,701 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:38:37,110 - app.services.market_data - INFO - Syncing fundamental for TEM: market_cap=9342713000.0, PE=-1.41
+2026-03-08 21:38:40,056 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEM
+2026-03-08 21:38:41,830 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:38:42,295 - app.services.market_data - INFO - Syncing fundamental for NBIS: market_cap=22602006000.0, PE=0.4
+2026-03-08 21:38:45,117 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NBIS
+2026-03-08 21:38:46,892 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:38:47,279 - app.services.market_data - INFO - Syncing fundamental for CAT: market_cap=316814144000.0, PE=18.81
+2026-03-08 21:38:49,441 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CAT
+2026-03-08 21:38:51,311 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:38:52,648 - app.services.market_data - INFO - Syncing fundamental for V: market_cap=610354145000.0, PE=10.65
+2026-03-08 21:38:54,965 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: V
+2026-03-08 21:38:56,750 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:38:57,349 - app.services.market_data - INFO - Syncing fundamental for PEP: market_cap=217884859000.0, PE=6.0
+2026-03-08 21:38:59,498 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PEP
+2026-03-08 21:39:01,272 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:39:04,285 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: GLD
+2026-03-08 21:39:06,069 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:39:06,511 - app.services.market_data - INFO - Syncing fundamental for TMUS: market_cap=244139727000.0, PE=9.72
+2026-03-08 21:39:08,666 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TMUS
+2026-03-08 21:39:10,458 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:39:11,144 - app.services.market_data - INFO - Syncing fundamental for MRK: market_cap=286278270000.0, PE=7.28
+2026-03-08 21:39:13,312 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MRK
+2026-03-08 21:39:15,099 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:39:15,561 - app.services.market_data - INFO - Syncing fundamental for TXN: market_cap=175366036000.0, PE=5.45
+2026-03-08 21:39:17,743 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TXN
+2026-03-08 21:39:19,516 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:39:19,985 - app.services.market_data - INFO - Syncing fundamental for IBM: market_cap=242810205000.0, PE=11.17
+2026-03-08 21:39:22,311 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: IBM
+2026-03-08 21:39:24,090 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:39:24,398 - app.services.market_data - INFO - Syncing fundamental for NVDA: market_cap=4321026000000.0, PE=4.9
+2026-03-08 21:39:26,903 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NVDA
+2026-03-08 21:39:28,689 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:39:29,000 - app.services.market_data - INFO - Syncing fundamental for AMD: market_cap=313739959000.0, PE=2.65
+2026-03-08 21:39:31,539 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AMD
+2026-03-08 21:39:33,317 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:39:33,318 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 21:39:33,525 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:39:33,992 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 21:39:33,992 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 18 只标的。
+2026-03-08 21:40:37,364 - app.services.scheduler - INFO - [Scheduler] 发现 15 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 21:40:39,129 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:40:39,283 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 21:40:39,366 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:40:39,674 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 21:40:41,453 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:40:41,454 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 21:40:41,665 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:40:41,975 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 21:40:44,079 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:40:44,540 - app.services.market_data - INFO - Syncing fundamental for CSCO: market_cap=310619589000.0, PE=2.78
+2026-03-08 21:40:47,179 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CSCO
+2026-03-08 21:40:48,952 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:40:49,430 - app.services.market_data - INFO - Syncing fundamental for NFLX: market_cap=418078496000.0, PE=2.53
+2026-03-08 21:40:52,226 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NFLX
+2026-03-08 21:40:53,995 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:40:54,561 - app.services.market_data - INFO - Syncing fundamental for WMT: market_cap=986706670000.0, PE=2.73
+2026-03-08 21:40:57,306 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: WMT
+2026-03-08 21:40:59,104 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:40:59,456 - app.services.market_data - INFO - Syncing fundamental for CRCL: market_cap=24187319000.0, PE=-0.44
+2026-03-08 21:41:03,191 - app.services.notification_service - INFO - Notification deduplication hit for user 9fe069c3-5985-4d2a-8814-91898152fc4a: PRICE_ALERT (Threshold: True)
+2026-03-08 21:41:04,321 - app.services.notification_service - INFO - Notification deduplication hit for user 9fe069c3-5985-4d2a-8814-91898152fc4a: INDICATOR_ALERT (Threshold: True)
+2026-03-08 21:41:04,629 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CRCL
+2026-03-08 21:41:06,400 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:41:10,198 - app.services.market_data - INFO - Syncing fundamental for AMAT: market_cap=257716868000.00003, PE=9.75
+2026-03-08 21:41:13,303 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AMAT
+2026-03-08 21:41:15,061 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:41:15,501 - app.services.market_data - INFO - Syncing fundamental for MSFT: market_cap=3036785267000.0, PE=15.98
+2026-03-08 21:41:18,453 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MSFT
+2026-03-08 21:41:20,220 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:41:20,592 - app.services.market_data - INFO - Syncing fundamental for FCX: market_cap=85312287000.0, PE=1.52
+2026-03-08 21:41:23,123 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: FCX
+2026-03-08 21:41:24,888 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:41:25,203 - app.services.market_data - INFO - Syncing fundamental for AMZN: market_cap=2288792479000.0, PE=7.17
+2026-03-08 21:41:27,690 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AMZN
+2026-03-08 21:41:29,463 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:41:29,770 - app.services.market_data - INFO - Syncing fundamental for TSLA: market_cap=1488702341000.0, PE=1.08
+2026-03-08 21:41:32,309 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TSLA
+2026-03-08 21:41:34,077 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:41:34,407 - app.services.market_data - INFO - Syncing fundamental for SIDU: market_cap=126387999.99999999, PE=-1.26
+2026-03-08 21:41:36,910 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: SIDU
+2026-03-08 21:41:38,687 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:41:39,066 - app.services.market_data - INFO - Syncing fundamental for PLTR: market_cap=375875755000.0, PE=0.63
+2026-03-08 21:41:42,196 - app.services.notification_service - INFO - Notification deduplication hit for user 9fe069c3-5985-4d2a-8814-91898152fc4a: INDICATOR_ALERT (Threshold: True)
+2026-03-08 21:41:42,502 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PLTR
+2026-03-08 21:41:44,278 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:41:44,720 - app.services.market_data - INFO - Syncing fundamental for INTC: market_cap=216890650999.99997, PE=-0.06
+2026-03-08 21:41:46,893 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: INTC
+2026-03-08 21:41:48,663 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:41:49,121 - app.services.market_data - INFO - Syncing fundamental for UNH: market_cap=260030974000.0, PE=13.23
+2026-03-08 21:41:51,452 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: UNH
+2026-03-08 21:41:51,452 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 15 只标的。
+2026-03-08 21:42:54,845 - app.services.scheduler - INFO - [Scheduler] 发现 17 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 21:42:57,402 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:42:58,063 - app.services.market_data - INFO - Syncing fundamental for HD: market_cap=356313471000.0, PE=14.23
+2026-03-08 21:43:00,744 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: HD
+2026-03-08 21:43:03,289 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:43:03,722 - app.services.market_data - INFO - Syncing fundamental for TSM: market_cap=1757654647000.0, PE=10.54
+2026-03-08 21:43:06,686 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TSM
+2026-03-08 21:43:08,613 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:43:09,072 - app.services.market_data - INFO - Syncing fundamental for MU: market_cap=416776079000.0, PE=10.52
+2026-03-08 21:43:13,171 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MU
+2026-03-08 21:43:15,101 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:43:15,472 - app.services.market_data - INFO - Syncing fundamental for GOOGL: market_cap=3611196439999.9995, PE=10.81
+2026-03-08 21:43:19,323 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: GOOGL
+2026-03-08 21:43:21,100 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:43:21,616 - app.services.market_data - INFO - Syncing fundamental for BA: market_cap=181501567000.0, PE=2.48
+2026-03-08 21:43:24,094 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: BA
+2026-03-08 21:43:25,866 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:43:26,221 - app.services.market_data - INFO - Syncing fundamental for RKLB: market_cap=39783600000.0, PE=-0.37
+2026-03-08 21:43:28,852 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: RKLB
+2026-03-08 21:43:30,628 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:43:35,761 - app.services.market_data - INFO - Syncing fundamental for INTU: market_cap=133067564000.0, PE=15.37
+2026-03-08 21:43:39,735 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: INTU
+2026-03-08 21:43:41,822 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:43:42,240 - app.services.market_data - INFO - Syncing fundamental for LIN: market_cap=224625682999.99997, PE=14.61
+2026-03-08 21:43:44,790 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: LIN
+2026-03-08 21:43:46,737 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:43:47,290 - app.services.market_data - INFO - Syncing fundamental for BRK.B: market_cap=1076466896000.0001, PE=31.04
+2026-03-08 21:43:50,038 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: BRK.B
+2026-03-08 21:43:51,978 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:43:52,539 - app.services.market_data - INFO - Syncing fundamental for PG: market_cap=357036225000.0, PE=6.75
+2026-03-08 21:43:55,085 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PG
+2026-03-08 21:43:56,869 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:43:57,059 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 21:43:57,185 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:43:57,706 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 21:43:59,481 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:43:59,936 - app.services.market_data - INFO - Syncing fundamental for KO: market_cap=331327705000.0, PE=3.04
+2026-03-08 21:44:03,320 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: KO
+2026-03-08 21:44:05,195 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:44:05,196 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 21:44:05,453 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:44:05,760 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 21:44:07,672 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:44:08,157 - app.services.market_data - INFO - Syncing fundamental for COST: market_cap=443026059000.0, PE=18.67
+2026-03-08 21:44:10,661 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: COST
+2026-03-08 21:44:12,542 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:44:13,110 - app.services.market_data - INFO - Syncing fundamental for PFE: market_cap=153813534000.0, PE=1.36
+2026-03-08 21:44:15,528 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PFE
+2026-03-08 21:44:17,297 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:44:21,303 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: DJIA
+2026-03-08 21:44:23,080 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:44:23,501 - app.services.market_data - INFO - Syncing fundamental for ASTS: market_cap=26010757000.0, PE=-1.33
+2026-03-08 21:44:27,592 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ASTS
+2026-03-08 21:44:27,592 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 17 只标的。
+2026-03-08 21:45:31,406 - app.services.scheduler - INFO - [Scheduler] 发现 24 只股票需要更新（盘中或盘后补录），开始后台刷新...
+2026-03-08 21:45:33,290 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:45:33,370 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for ^GSPC: list index out of range
+2026-03-08 21:45:33,544 - app.services.market_data - WARNING - ^GSPC 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:45:33,861 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ^GSPC
+2026-03-08 21:45:35,690 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:45:36,877 - app.services.market_data - INFO - Syncing fundamental for PEP: market_cap=217884859000.0, PE=6.0
+2026-03-08 21:45:41,360 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: PEP
+2026-03-08 21:45:43,127 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:45:46,559 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: GLD
+2026-03-08 21:45:48,329 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:45:48,892 - app.services.market_data - INFO - Syncing fundamental for TMUS: market_cap=244139727000.0, PE=9.72
+2026-03-08 21:45:51,350 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TMUS
+2026-03-08 21:45:53,125 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:45:53,551 - app.services.market_data - INFO - Syncing fundamental for MRK: market_cap=286278270000.0, PE=7.28
+2026-03-08 21:45:55,839 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MRK
+2026-03-08 21:45:57,608 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:45:58,606 - app.services.market_data - INFO - Syncing fundamental for TXN: market_cap=175366036000.0, PE=5.45
+2026-03-08 21:46:00,757 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TXN
+2026-03-08 21:46:02,543 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:46:03,100 - app.services.market_data - INFO - Syncing fundamental for DIS: market_cap=179880126000.0, PE=6.79
+2026-03-08 21:46:09,099 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: DIS
+2026-03-08 21:46:10,867 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:46:11,380 - app.services.market_data - INFO - Syncing fundamental for IBM: market_cap=242810205000.0, PE=11.17
+2026-03-08 21:46:13,764 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: IBM
+2026-03-08 21:46:15,538 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:46:16,049 - app.services.market_data - INFO - Syncing fundamental for NVDA: market_cap=4321026000000.0, PE=4.9
+2026-03-08 21:46:18,611 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NVDA
+2026-03-08 21:46:20,375 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:46:20,699 - app.services.market_data - INFO - Syncing fundamental for SNDK: market_cap=77834421000.0, PE=-7.47
+2026-03-08 21:46:23,640 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: SNDK
+2026-03-08 21:46:25,417 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:46:25,854 - app.services.market_data - INFO - Syncing fundamental for ABBV: market_cap=406873371000.0, PE=2.37
+2026-03-08 21:46:28,044 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: ABBV
+2026-03-08 21:46:29,813 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:46:29,942 - app.services.market_providers.akshare - ERROR - AkShare get_historical_data error for NDX: list index out of range
+2026-03-08 21:46:33,323 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: NDX
+2026-03-08 21:46:35,091 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:46:35,092 - app.services.market_providers.akshare - INFO - Skipping historical data fetch for test ticker: TEST_RRR
+2026-03-08 21:46:35,436 - app.services.market_data - WARNING - TEST_RRR 实时刷新失败，回退到使用现有缓存数据。
+2026-03-08 21:46:35,748 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: TEST_RRR
+2026-03-08 21:46:37,532 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:46:37,883 - app.services.market_data - INFO - Syncing fundamental for AMD: market_cap=313739959000.0, PE=2.65
+2026-03-08 21:46:40,617 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AMD
+2026-03-08 21:46:41,011 - api_logger - INFO - rid=/api/paper-trading method=GET status_code=307 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1.41ms
+2026-03-08 21:46:41,929 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=930.70ms
+2026-03-08 21:46:42,382 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:46:42,485 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1474.52ms
+2026-03-08 21:46:43,208 - api_logger - INFO - rid=/api/paper-trading/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=2194.67ms
+2026-03-08 21:46:43,253 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=761.95ms
+2026-03-08 21:46:46,152 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: SLV
+2026-03-08 21:46:47,984 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:46:48,290 - app.services.market_data - INFO - Syncing fundamental for IAU: market_cap=82302077000.0, PE=4.62
+2026-03-08 21:46:50,784 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: IAU
+2026-03-08 21:46:52,552 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:46:52,945 - app.services.market_data - INFO - Syncing fundamental for WFC: market_cap=248146818000.0, PE=6.26
+2026-03-08 21:46:55,117 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: WFC
+2026-03-08 21:46:56,897 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:46:57,221 - app.services.market_data - INFO - Syncing fundamental for FRO: market_cap=7693847000.0, PE=1.7
+2026-03-08 21:46:59,694 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: FRO
+2026-03-08 21:47:01,490 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:47:01,915 - app.services.market_data - INFO - Syncing fundamental for AAPL: market_cap=3779806304000.0, PE=7.9
+2026-03-08 21:47:04,424 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: AAPL
+2026-03-08 21:47:06,210 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:47:06,659 - app.services.market_data - INFO - Syncing fundamental for LLY: market_cap=884357183000.0001, PE=22.95
+2026-03-08 21:47:08,852 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: LLY
+2026-03-08 21:47:10,614 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:47:11,057 - app.services.market_data - INFO - Syncing fundamental for XOM: market_cap=630056302000.0, PE=6.7
+2026-03-08 21:47:13,220 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: XOM
+2026-03-08 21:47:14,992 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:47:15,360 - app.services.market_data - INFO - Syncing fundamental for CR: market_cap=11022712000.0, PE=6.26
+2026-03-08 21:47:17,508 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: CR
+2026-03-08 21:47:19,267 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:47:19,705 - app.services.market_data - INFO - Syncing fundamental for MA: market_cap=465829243000.00006, PE=16.52
+2026-03-08 21:47:21,854 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: MA
+2026-03-08 21:47:23,626 - app.services.market_providers.ibkr - WARNING - ib_async 未安装，IBKR Provider 不可用
+2026-03-08 21:47:24,085 - app.services.market_data - INFO - Syncing fundamental for VZ: market_cap=215608014999.99997, PE=4.06
+2026-03-08 21:47:26,573 - app.services.scheduler - INFO - [Scheduler] 成功更新股票行情: VZ
+2026-03-08 21:47:26,573 - app.services.scheduler - INFO - [Scheduler] 本轮后台刷新成功完成，共更新 24 只标的。
+2026-03-08 21:47:26,726 - app.services.scheduler - INFO - [Scheduler] 开始同步财联社全球快讯...
+2026-03-08 21:47:26,726 - app.services.macro_service - INFO - Starting Cailianshe global news update (Standard Version)...
+2026-03-08 21:47:31,618 - app.services.macro_service - INFO - Successfully persisted 2 news items.
+2026-03-08 21:47:31,619 - app.services.scheduler - INFO - [Scheduler] 财联社快讯同步完成。

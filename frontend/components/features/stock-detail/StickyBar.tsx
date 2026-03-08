@@ -50,7 +50,7 @@ export const StickyBar = React.memo(function StickyBar({
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="h-7 w-7 rounded-full text-slate-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300"
+                            className="h-7 w-7 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-600/10 transition-all duration-300"
                             onClick={onRefresh}
                             disabled={refreshing}
                             title="刷新行情"
@@ -60,14 +60,14 @@ export const StickyBar = React.memo(function StickyBar({
                         {selectedItem.quantity > 0 && (
                             <div className={clsx(
                                 "flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-black italic",
-                                (selectedItem.pl_percent || 0) >= 0 ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400"
+                                (selectedItem.pl_percent || 0) >= 0 ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-600/10 dark:text-emerald-400" : "bg-rose-50 text-rose-600 dark:bg-rose-600/10 dark:text-rose-400"
                             )}>
                                 <TrendingUp className={clsx("h-3 w-3", (selectedItem.pl_percent || 0) < 0 && "rotate-180")} />
                                 {selectedItem.pl_percent >= 0 ? "+" : ""}{selectedItem.pl_percent.toFixed(2)}%
                             </div>
                         )}
                         {selectedItem.market_status === "PRE_MARKET" && (
-                            <span className="text-[10px] px-2 py-0.5 rounded-md bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 font-black border border-orange-200 dark:border-orange-500/20 leading-none">
+                            <span className="text-[10px] px-2 py-0.5 rounded-md bg-orange-100 dark:bg-orange-600/10 text-orange-600 dark:text-orange-400 font-black border border-orange-200 dark:border-orange-600/20 leading-none">
                                 PRE
                             </span>
                         )}
@@ -82,7 +82,7 @@ export const StickyBar = React.memo(function StickyBar({
                 <div className="flex items-center gap-6">
                     <div className="hidden sm:flex flex-col items-end">
                         <span className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">最新增幅</span>
-                        <span className={clsx("text-sm font-black tabular-nums", (selectedItem.change_percent || 0) >= 0 ? "text-emerald-500" : "text-rose-500")}>
+                        <span className={clsx("text-sm font-black tabular-nums", (selectedItem.change_percent || 0) >= 0 ? "text-emerald-600" : "text-rose-600")}>
                             {(selectedItem.change_percent || 0) >= 0 ? "+" : ""}{(selectedItem.change_percent || 0).toFixed(2)}%
                         </span>
                     </div>

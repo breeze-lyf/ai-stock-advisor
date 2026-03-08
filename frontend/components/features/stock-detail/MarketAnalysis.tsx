@@ -27,7 +27,7 @@ export const MarketAnalysis = React.memo(function MarketAnalysis({
                 {/* 标题栏：顶格对齐，不使用水平缩进 */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="h-8 w-1.5 bg-emerald-500 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
+                        <div className="h-8 w-1.5 bg-emerald-600 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
                         <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-slate-100 uppercase">动态行情分析</h2>
                     </div>
                     
@@ -48,7 +48,7 @@ export const MarketAnalysis = React.memo(function MarketAnalysis({
                             onClick={onToggleRsi}
                             className={clsx(
                                 "px-4 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all duration-200",
-                                showRsi ? "bg-blue-500 text-white shadow-md shadow-blue-500/20" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                                showRsi ? "bg-blue-600 text-white shadow-md shadow-blue-600/20" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                             )}
                         >
                             RSI

@@ -71,7 +71,7 @@ export default function PasswordPage() {
                         {success ? (
                             <div className="py-6 flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-300">
                                 <div className="h-16 w-16 rounded-full bg-green-50 dark:bg-green-900/20 flex items-center justify-center">
-                                    <CheckCircle2 className="h-10 w-10 text-green-500" />
+                                    <CheckCircle2 className="h-10 w-10 text-green-600" />
                                 </div>
                                 <p className="text-sm font-bold text-green-600">密码修改成功！</p>
                                 <p className="text-xs text-slate-400">正在为您跳转...</p>
@@ -124,7 +124,7 @@ export default function PasswordPage() {
                                 ) }
 
                                 <Button 
-                                    className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20 font-bold transition-all mt-4"
+                                    className="w-full h-11 rounded-xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20 font-bold transition-all mt-4"
                                     disabled={loading}
                                 >
                                     {loading ? "正在处理..." : "确认修改密码"}

@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import auth, portfolio, analysis, user, stock, notifications, macro
+from app.api.v1.endpoints import auth, portfolio, analysis, user, stock, notifications, macro, paper_trading
 
 # 创建 v1 版本的总路由对象
 api_router = APIRouter()
@@ -27,3 +27,6 @@ api_router.include_router(user.router, prefix="/user", tags=["user"])
 
 # 通知历史模块：展示飞书推送流
 api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
+
+# 模拟交易回测模块：处理从今起航的纸面交易
+api_router.include_router(paper_trading.router, prefix="/paper-trading", tags=["paper-trading"])

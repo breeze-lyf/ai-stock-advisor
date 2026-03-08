@@ -163,14 +163,14 @@ export function PortfolioList({
                         title="只看持仓"
                         onClick={() => onToggleOnlyHoldings(!onlyHoldings)}
                     >
-                        <Filter className={clsx("h-3 w-3", onlyHoldings && "text-blue-500")} />
+                        <Filter className={clsx("h-3 w-3", onlyHoldings && "text-blue-600")} />
                     </Button>
                 </div>
                 <div className="flex items-center gap-1">
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 text-slate-400 hover:text-blue-500"
+                        className="h-6 w-6 text-slate-400 hover:text-blue-600"
                         title="刷新全部"
                         onClick={async () => {
                             if (isRefreshingAll) return;
@@ -189,7 +189,7 @@ export function PortfolioList({
                         }}
                         disabled={isRefreshingAll}
                     >
-                        <RefreshCw className={clsx("h-3.5 w-3.5", isRefreshingAll && "animate-spin text-blue-500")} />
+                        <RefreshCw className={clsx("h-3.5 w-3.5", isRefreshingAll && "animate-spin text-blue-600")} />
                     </Button>
                     <Button
                     variant="outline"
@@ -205,26 +205,26 @@ export function PortfolioList({
             {/* Table Headers */}
             <div className="grid grid-cols-4 px-4 py-1.5 border-b border-slate-100 dark:border-zinc-800 text-[10px] uppercase tracking-wider font-bold text-slate-400 bg-slate-50/50 dark:bg-zinc-900/50">
                 <div
-                    className="cursor-pointer hover:text-blue-500 transition-colors flex items-center gap-1"
+                    className="cursor-pointer hover:text-blue-600 transition-colors flex items-center gap-1"
                     onClick={() => handleSort(sortBy === "manual" ? "ticker" : "manual")}
                 >
                     {sortBy === "manual" ? "默认" : "代码"}{" "}
                     {sortBy === "manual" ? "" : (sortBy === "ticker" ? (sortOrder === "asc" ? "↑" : "↓") : "")}
                 </div>
                 <div
-                    className="cursor-pointer hover:text-blue-500 transition-colors flex items-center justify-center gap-1"
+                    className="cursor-pointer hover:text-blue-600 transition-colors flex items-center justify-center gap-1"
                     onClick={() => handleSort("price")}
                 >
                     价格 {sortBy === "price" && (sortOrder === "asc" ? "↑" : "↓")}
                 </div>
                 <div
-                    className="cursor-pointer hover:text-blue-500 transition-colors flex items-center justify-center gap-1"
+                    className="cursor-pointer hover:text-blue-600 transition-colors flex items-center justify-center gap-1"
                     onClick={() => handleSort("risk_reward_ratio")}
                 >
                     盈亏比 {sortBy === "risk_reward_ratio" && (sortOrder === "asc" ? "↑" : "↓")}
                 </div>
                 <div
-                    className="cursor-pointer hover:text-blue-500 transition-colors flex items-center justify-end gap-1"
+                    className="cursor-pointer hover:text-blue-600 transition-colors flex items-center justify-end gap-1"
                     onClick={() => handleSort("change")}
                 >
                     涨幅 {sortBy === "change" && (sortOrder === "asc" ? "↑" : "↓")}
@@ -238,7 +238,7 @@ export function PortfolioList({
                         className={clsx(
                             "border-b border-slate-100 dark:border-zinc-800/80 transition-all duration-200",
                             selectedTicker === item.ticker
-                                ? "bg-blue-50/50 dark:bg-blue-900/10 border-l-4 border-l-blue-500"
+                                ? "bg-blue-50/50 dark:bg-blue-900/10 border-l-4 border-l-blue-600"
                                 : "hover:bg-slate-50 dark:hover:bg-zinc-800/30"
                         )}
                     >
@@ -277,9 +277,9 @@ export function PortfolioList({
                                         {item.risk_reward_ratio !== null && item.risk_reward_ratio !== undefined ? (
                                             <div className={clsx(
                                                 "shrink-0 w-8 h-4 flex items-center justify-center rounded-[4px] border",
-                                                item.risk_reward_ratio >= 3.0 ? "bg-emerald-500/10 border-emerald-500/20" :
-                                                item.risk_reward_ratio >= 1.5 ? "bg-blue-500/10 border-blue-500/20" :
-                                                "bg-rose-500/10 border-rose-500/20"
+                                                item.risk_reward_ratio >= 3.0 ? "bg-emerald-600/10 border-emerald-600/20" :
+                                                item.risk_reward_ratio >= 1.5 ? "bg-blue-600/10 border-blue-600/20" :
+                                                "bg-rose-600/10 border-rose-600/20"
                                             )}>
                                                 <span className={clsx(
                                                     "text-[9px] font-black tabular-nums leading-none",
@@ -357,8 +357,8 @@ export function PortfolioList({
                                         className={clsx(
                                             "h-7 w-7",
                                             refreshingTicker === item.ticker
-                                                ? "text-blue-500 bg-blue-50"
-                                                : "text-slate-300 hover:text-blue-500 hover:bg-blue-50"
+                                                ? "text-blue-600 bg-blue-50"
+                                                : "text-slate-300 hover:text-blue-600 hover:bg-blue-50"
                                         )}
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -374,8 +374,8 @@ export function PortfolioList({
                                         className={clsx(
                                             "h-7 w-7",
                                             editingTicker === item.ticker
-                                                ? "text-blue-500 bg-blue-50"
-                                                : "text-slate-300 hover:text-blue-500 hover:bg-blue-50"
+                                                ? "text-blue-600 bg-blue-50"
+                                                : "text-slate-300 hover:text-blue-600 hover:bg-blue-50"
                                         )}
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -398,8 +398,8 @@ export function PortfolioList({
                                         className={clsx(
                                             "h-7 w-7",
                                             deletingTicker === item.ticker
-                                                ? "text-red-500 bg-red-50"
-                                                : "text-slate-300 hover:text-red-500 hover:bg-red-50"
+                                                ? "text-rose-600 bg-rose-50"
+                                                : "text-slate-300 hover:text-rose-600 hover:bg-rose-50"
                                         )}
                                         onClick={(e) => {
                                             e.stopPropagation();

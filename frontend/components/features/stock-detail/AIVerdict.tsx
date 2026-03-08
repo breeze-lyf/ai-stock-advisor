@@ -218,8 +218,8 @@ function AIVerdictContent({
                         </div>
                         <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0">
                             <div
-                                className="h-full rounded-full transition-all duration-1000 ease-out bg-blue-500"
-                                style={{ width: `${aiData.sentiment_score || 58}%` }}
+                                className="h-full rounded-full bg-blue-500 animate-[grow-bar_1.2s_cubic-bezier(0.22,1,0.36,1)_forwards]"
+                                style={{ width: `${aiData.sentiment_score || 58}%`, ['--bar-width' as string]: `${aiData.sentiment_score || 58}%` }}
                             />
                         </div>
                         <div className="flex justify-between text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
@@ -242,9 +242,9 @@ function AIVerdictContent({
                             </div>
                             <p className="text-[10px] font-medium text-slate-400 italic opacity-80 ml-5.5">* 基于当前价的深度研判</p>
                         </div>
-                        <div className="flex gap-6">
-                            <div className="flex flex-col items-end gap-0.5">
-                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">
+                        <div className="flex gap-3">
+                            <div className="flex flex-col items-end gap-0.5 bg-rose-50/80 dark:bg-rose-500/5 border border-rose-100 dark:border-rose-500/10 rounded-xl px-3 py-1.5">
+                                <span className="text-[9px] font-black text-rose-400 dark:text-rose-500/80 uppercase tracking-tighter">
                                     {(selectedItem?.quantity || 0) > 0 ? "止损" : "预设止损"}
                                 </span>
                                 <span className={clsx(
@@ -254,8 +254,8 @@ function AIVerdictContent({
                                     ${aiData.stop_loss_price?.toFixed(2) || "--"}
                                 </span>
                             </div>
-                            <div className="flex flex-col items-end gap-0.5">
-                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">建仓区间</span>
+                            <div className="flex flex-col items-end gap-0.5 bg-emerald-50/80 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/10 rounded-xl px-3 py-1.5">
+                                <span className="text-[9px] font-black text-emerald-400 dark:text-emerald-500/80 uppercase tracking-tighter">建仓区间</span>
                                 <span className="text-md font-black text-emerald-500 dark:text-emerald-400 tabular-nums">
                                     {aiData.entry_price_low != null && aiData.entry_price_high != null
                                         ? `$${aiData.entry_price_low.toFixed(2)} - $${aiData.entry_price_high.toFixed(2)}`
@@ -263,8 +263,8 @@ function AIVerdictContent({
                                     }
                                 </span>
                             </div>
-                            <div className="flex flex-col items-end gap-0.5">
-                                <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">目标止盈</span>
+                            <div className="flex flex-col items-end gap-0.5 bg-blue-50/80 dark:bg-blue-500/5 border border-blue-100 dark:border-blue-500/10 rounded-xl px-3 py-1.5">
+                                <span className="text-[9px] font-black text-blue-400 dark:text-blue-500/80 uppercase tracking-tighter">目标止盈</span>
                                 <span className="text-md font-black text-blue-500 dark:text-blue-400 tabular-nums">${aiData.target_price?.toFixed(2) || "--"}</span>
                             </div>
                         </div>
@@ -280,7 +280,7 @@ function AIVerdictContent({
             </div>
 
             {/* 4. Logical Breakdown */}
-            <div className="pt-5 px-6 pb-2.5 bg-slate-50/10 dark:bg-white/5 border-t border-slate-100 dark:border-white/5 space-y-1">
+            <div className="pt-5 px-6 pb-6 bg-slate-50/10 dark:bg-white/5 border-t border-slate-100 dark:border-white/5 space-y-1">
                 <div className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 tracking-[0.2em] flex items-center gap-2">
                     <Activity className="h-3.5 w-3.5 text-blue-500" />
                     <span>诊断研判逻辑</span>
@@ -288,24 +288,21 @@ function AIVerdictContent({
                 <div className="prose dark:prose-invert max-w-none text-[13px] font-normal leading-relaxed text-slate-500 dark:text-slate-400 [&>p]:m-0">
                     <MarkdownWithRefs content={aiData.action_advice} />
                 </div>
-                {aiData.created_at && (
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-2 px-6 border-y border-slate-100 dark:border-white/5 bg-slate-50/20 dark:bg-white/5">
-                        <div className="flex items-center gap-2">
-                            <ShieldCheck className="h-3 w-3 text-blue-500 opacity-60" />
-                            <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest whitespace-nowrap">
-                                AI 辅助决策系统 V4.0
-                            </span>
-                        </div>
-                        <span className="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase italic tracking-wider opacity-60">
-                            via DEEPSEEK • {formatDistanceToNow(new Date(aiData.created_at + (aiData.created_at.includes('Z') ? '' : 'Z')), { addSuffix: true, locale: zhCN })}
+            </div>
+
+            {/* 5. Footer: Disclaimer + Version */}
+            <div className="px-6 py-2.5 bg-slate-50/80 dark:bg-zinc-900/80 rounded-b-3xl">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-1.5">
+                    <div className="flex items-center gap-1.5 text-[8px] leading-relaxed text-slate-300 dark:text-slate-600 font-medium">
+                        <span className="font-black text-orange-500/60 dark:text-orange-500/40 italic shrink-0">DISCLAIMER:</span>
+                        <span>本报告基于机器学习算法自动化生成，不构成投资建议。价格建议仅供参考，不对盈亏负责。投资有风险，操作须谨慎。</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                        <ShieldCheck className="h-2.5 w-2.5 text-slate-300 dark:text-slate-600" />
+                        <span className="text-[8px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-widest whitespace-nowrap">
+                            AI V4.0 • DEEPSEEK • {aiData.created_at ? formatDistanceToNow(new Date(aiData.created_at + (aiData.created_at.includes('Z') ? '' : 'Z')), { addSuffix: true, locale: zhCN }) : ''}
                         </span>
                     </div>
-                )}
-                <div className="px-6 py-2.5 bg-orange-50/20 dark:bg-orange-950/5">
-                    <p className="text-[9.5px] leading-relaxed text-slate-400 dark:text-slate-500 font-medium opacity-80">
-                        <span className="font-black text-orange-600/80 dark:text-orange-500/60 mr-1 italic">DISCLAIMER:</span>
-                        本报告基于机器学习算法自动化生成，不构成投资建议。价格建议仅供参考，不对盈亏负责。投资有风险，操作须谨慎。
-                    </p>
                 </div>
             </div>
         </div>

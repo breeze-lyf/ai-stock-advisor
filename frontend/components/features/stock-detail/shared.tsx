@@ -70,12 +70,34 @@ export const ReferenceCitation = ({ id }: { id: string }) => {
  * 自动将文本中的 [[REF_T1]] 等标记替换为可点击的引用标签
  */
 export const MarkdownWithRefs = ({ content }: { content: string }) => {
+    /**
+     * h3 计数器：通过闭包追踪当前 h3 的索引
+     * 用于实现不同段落竖线颜色的轮换：
+     *   第1段 → 蓝色 (操作建议/核心结论)
+     *   第2段 → 绿色 (执行计划/可操作项)
+     *   第3段+ → 灰色 (支撑逻辑/辅助信息)
+     */
+    let h3Counter = 0;
+    const h3Colors = [
+        'border-blue-500',      // 操作建议 — 最高优先级
+        'border-emerald-500',   // 执行计划 — 可操作项
+        'border-slate-400',     // 支撑逻辑 — 辅助信息
+    ];
+
     return (
         <ReactMarkdown
             components={{
-                h3: ({ node, ...props }) => (
-                    <h3 className="text-sm font-bold text-slate-800 dark:text-white mt-4 mb-2 flex items-center gap-2 border-l-4 border-blue-500 pl-3 tracking-wider" {...props} />
-                ),
+                h3: ({ node, ...props }) => {
+                    const colorClass = h3Colors[Math.min(h3Counter, h3Colors.length - 1)];
+                    const isFirst = h3Counter === 0;
+                    h3Counter++;
+                    return (
+                        <h3
+                            className={`text-sm font-bold text-slate-800 dark:text-white mb-2 flex items-center gap-2 border-l-4 ${colorClass} pl-3 tracking-wider ${isFirst ? 'mt-2' : 'mt-8'}`}
+                            {...props}
+                        />
+                    );
+                },
                 strong: ({ node, ...props }) => (
                     <strong className="font-bold text-slate-900 dark:text-white px-1 py-0.5 rounded bg-blue-50 dark:bg-blue-500/10" {...props} />
                 ),

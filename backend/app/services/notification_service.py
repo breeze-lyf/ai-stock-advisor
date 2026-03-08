@@ -5,6 +5,7 @@ import hmac
 import hashlib
 import base64
 import time
+from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, Optional, List
 from app.core.config import settings
 
@@ -51,10 +52,10 @@ class NotificationService:
                 SKIP_24H_DEDUPE = ["MACRO_SUMMARY", "HOURLY_NEWS_SUMMARY"]
                 
                 one_day_ago = datetime.utcnow() - timedelta(hours=24 if msg_type not in SKIP_24H_DEDUPE else 0)
-                # 对于跳过 24h 的类型，仍需 1 分钟防重
-                one_min_ago = datetime.utcnow() - timedelta(minutes=1)
+                # 对于跳过 24h 的类型，设定更稳健的 30 分钟防重窗口（防止整点触发逻辑重叠）
+                one_summary_window = datetime.utcnow() - timedelta(minutes=30)
                 
-                check_threshold = one_day_ago if msg_type not in SKIP_24H_DEDUPE else one_min_ago
+                check_threshold = one_day_ago if msg_type not in SKIP_24H_DEDUPE else one_summary_window
 
                 stmt = select(NotificationLog).where(
                     NotificationLog.user_id == user_id,

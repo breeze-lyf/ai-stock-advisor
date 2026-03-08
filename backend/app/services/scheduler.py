@@ -184,6 +184,7 @@ async def check_and_notfy_alerts(ticker: str, current_data: MarketDataCache, db:
                         content=f"**{stock_name} ({ticker})** RSI(14) 已飙升至 `{current_data.rsi_14:.2f}`，处于严重超买区间。",
                         color="red",
                         msg_type="INDICATOR_ALERT",
+                        ticker=ticker,
                         user_id=user.id,
                         webhook_url=user.feishu_webhook_url
                     )
@@ -193,6 +194,7 @@ async def check_and_notfy_alerts(ticker: str, current_data: MarketDataCache, db:
                         content=f"**{stock_name} ({ticker})** RSI(14) 已跌至 `{current_data.rsi_14:.2f}`，处于严重超卖状态。",
                         color="green",
                         msg_type="INDICATOR_ALERT",
+                        ticker=ticker,
                         user_id=user.id,
                         webhook_url=user.feishu_webhook_url
                     )

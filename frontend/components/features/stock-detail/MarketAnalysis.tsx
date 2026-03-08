@@ -27,7 +27,7 @@ export const MarketAnalysis = React.memo(function MarketAnalysis({
                 {/* 标题栏：顶格对齐，不使用水平缩进 */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="h-8 w-1.5 bg-blue-500 rounded-full shadow-[0_0_12px_rgba(59,130,246,0.5)]" />
+                        <div className="h-8 w-1.5 bg-emerald-500 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
                         <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-slate-100 uppercase">动态行情分析</h2>
                     </div>
                     

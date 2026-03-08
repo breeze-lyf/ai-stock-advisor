@@ -32,7 +32,7 @@ export const NewsFeed = React.memo(function NewsFeed({ news, aiData }: NewsFeedP
                     <div className="mt-4 bg-slate-50/80 dark:bg-zinc-800/20 border border-slate-200/50 dark:border-zinc-800/50 rounded-2xl p-4 md:p-5 flex flex-col md:flex-row gap-4 items-start">
                         {/* 侧边标题 */}
                         <div className="flex items-center gap-2 shrink-0 md:w-28 md:pt-1">
-                            <div className="h-3 w-1 bg-amber-500 rounded-full shrink-0" />
+                            <div className="h-3 w-1 bg-slate-900 dark:bg-white rounded-full shrink-0" />
                             <h3 className="text-[10px] font-black uppercase text-slate-500 dark:text-zinc-400 tracking-[0.2em] whitespace-nowrap">消息面综述</h3>
                         </div>
 

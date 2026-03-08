@@ -22,6 +22,12 @@ class Settings(BaseSettings):
     FEISHU_WEBHOOK_URL: Optional[str] = None
     FEISHU_SECRET: Optional[str] = None
 
+    # IBKR TWS/IB Gateway 连接配置
+    IBKR_HOST: str = "127.0.0.1"       # TWS/Gateway 监听地址
+    IBKR_PORT: int = 7497              # 默认 Paper Trading 端口 (Live=7496, Gateway Live=4001, Gateway Paper=4002)
+    IBKR_CLIENT_ID: int = 10           # 客户端 ID，避免与交易终端冲突
+    IBKR_ENABLED: bool = False         # 总开关：设为 True 以启用 IBKR 数据源
+
     class Config:
         env_file = ".env"
         extra = "ignore"

@@ -44,7 +44,7 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                 {/* Row 1: Core Foundations (均线、MACD、RSI/KDJ) */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* 均线系统卡片 */}
-                    <div id="REF_T1" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-slate-200 dark:border-zinc-800/50 p-4 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-emerald-500/20 hover:shadow-lg transition-all shadow-md flex flex-col justify-between scroll-mt-24">
+                    <div id="REF_T1" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-slate-200 dark:border-zinc-800/50 p-4 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-emerald-500/20 hover:shadow-lg transition-all shadow-md flex flex-col scroll-mt-24">
                         <div className="flex justify-between items-center h-8 mb-2 relative z-10">
                             <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
                                 <LineChart className="h-4 w-4 text-emerald-400" /> 均线系统
@@ -76,7 +76,7 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                     </div>
 
                     {/* MACD 趋势动量卡片 */}
-                    <div id="REF_T2" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-slate-200 dark:border-zinc-800/50 p-4 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-indigo-500/30 hover:shadow-lg transition-all shadow-md flex flex-col justify-between overflow-hidden relative group scroll-mt-24">
+                    <div id="REF_T2" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-slate-200 dark:border-zinc-800/50 p-4 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-indigo-500/30 hover:shadow-lg transition-all shadow-md flex flex-col overflow-hidden relative group scroll-mt-24">
                         <div className="flex justify-between items-center h-8 mb-2 relative z-10">
                             <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 tracking-[0.2em] flex items-center gap-2">
                                 <Activity className="h-4 w-4 text-indigo-500" /> MACD 趋势动量

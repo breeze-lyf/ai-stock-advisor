@@ -157,6 +157,16 @@
     animation: gradient-xy 15s ease infinite;
   }
 
+  /* 情绪进度条动画：从0增长至目标宽度 */
+  @keyframes grow-bar {
+    from {
+      width: 0%;
+    }
+    to {
+      width: var(--bar-width, 50%);
+    }
+  }
+
   /* Premium Markdown Table Styles for Diagnostic Reports */
   .prose-diagnostic table {
     @apply w-full border-collapse text-[11px] mb-6;

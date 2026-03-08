@@ -19,4 +19,4 @@ class NotificationLog(Base):
     card_payload = Column(JSON, nullable=True) # 完整的飞书卡片 JSON 载体
     status = Column(String, default="SUCCESS") # 发送状态
     
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)

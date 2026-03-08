@@ -179,42 +179,41 @@ class AIService:
         {compliance_prefix}你是一位资深美股投资顾问和量化策略专家。请基于以下多维数据为代码 [{ticker}] 提供严谨的诊断。
         
         **1. 基础面概览 (Fundamental Context)**:
-        - 行业/板块: {fundamental_data.get('sector')} / {fundamental_data.get('industry')}
-        - 市值: {fundamental_data.get('market_cap')}
-        - PE (TTM): {fundamental_data.get('pe_ratio')} | Forward PE: {fundamental_data.get('forward_pe')}
-        - 52周波动范围: [{fundamental_data.get('fifty_two_week_low')}, {fundamental_data.get('fifty_two_week_high')}]
-        - Beta: {fundamental_data.get('beta')}
+        - [REF_F1] 行业/板块: {fundamental_data.get('sector')} / {fundamental_data.get('industry')}
+        - [REF_F2] 市值: {fundamental_data.get('market_cap')}
+        - [REF_F3] PE (TTM): {fundamental_data.get('pe_ratio')} | Forward PE: {fundamental_data.get('forward_pe')}
+        - [REF_F4] 52周波动范围: [{fundamental_data.get('fifty_two_week_low')}, {fundamental_data.get('fifty_two_week_high')}]
+        - [REF_F5] Beta: {fundamental_data.get('beta')}
         
         **2. 用户持仓背景 (Portfolio Context)**:
-        - 当前成本价: ${portfolio_data.get('avg_cost', 0)}
-        - 持仓数量: {portfolio_data.get('quantity', 0)}
-        - 未实现盈亏: ${portfolio_data.get('unrealized_pl', 0)} ({portfolio_data.get('pl_percent', 0)}%)
+        - [REF_P1] 当前成本价: ${portfolio_data.get('avg_cost', 0)}
+        - [REF_P2] 持仓数量: {portfolio_data.get('quantity', 0)}
+        - [REF_P3] 未实现盈亏: ${portfolio_data.get('unrealized_pl', 0)} ({portfolio_data.get('pl_percent', 0)}%)
         
         **3. 实时技术面数据 (Technical Data)**:
-        - 当前价格: ${market_data.get('current_price')}
-        - 今日涨跌: {market_data.get('change_percent')}%
-        - RSI (14): {market_data.get('rsi_14')} | KDJ (K): {market_data.get('k_line')} / (D): {market_data.get('d_line')} / (J): {market_data.get('j_line')}
-        - MACD: {market_data.get('macd_val')} (柱状图: {market_data.get('macd_hist')}, 斜率: {market_data.get('macd_hist_slope')})
-        - 布林带 (BB): 上轨: {market_data.get('bb_upper')} | 均线: {market_data.get('bb_middle')} | 下轨: {market_data.get('bb_lower')}
-        - MA 均线: [20: {market_data.get('ma_20')}, 50: {market_data.get('ma_50')}, 200: {market_data.get('ma_200')}]
-        - 趋势强度 (ADX): {market_data.get('adx_14')} | ATR: {market_data.get('atr_14')}
-        - 枢轴参考 (Pivots): 阻力位 R1: {market_data.get('resistance_1')} / R2: {market_data.get('resistance_2')} | 支撑位 S1: {market_data.get('support_1')} / S2: {market_data.get('support_2')}
+        - [REF_T1] 当前价格: ${market_data.get('current_price')}
+        - [REF_T2] 今日涨跌: {market_data.get('change_percent')}%
+        - [REF_T3] RSI (14): {market_data.get('rsi_14')}
+        - [REF_T4] KDJ (K): {market_data.get('k_line')} / (D): {market_data.get('d_line')} / (J): {market_data.get('j_line')}
+        - [REF_T5] MACD: {market_data.get('macd_val')} (柱状图: {market_data.get('macd_hist')}, 斜率: {market_data.get('macd_hist_slope')})
+        - [REF_T6] 布林带 (BB): 上轨: {market_data.get('bb_upper')} | 均线: {market_data.get('bb_middle')} | 下轨: {market_data.get('bb_lower')}
+        - [REF_T7] MA 均线: [20: {market_data.get('ma_20')}, 50: {market_data.get('ma_50')}, 200: {market_data.get('ma_200')}]
+        - [REF_T8] 趋势强度 (ADX): {market_data.get('adx_14')} | ATR: {market_data.get('atr_14')}
+        - [REF_T9] 枢轴参考 (Pivots): 阻力位 R1: {market_data.get('resistance_1')} / R2: {market_data.get('resistance_2')} | 支撑位 S1: {market_data.get('support_1')} / S2: {market_data.get('support_2')}
         
         **4. 实时个股消息面与资金流 (News & Capital Flow)**:
-        - 消息面: {news_data if news_data else "暂无重大个股新闻。"}
-        - 筹码动向: 今日主力净流入 **{fundamental_data.get('net_inflow', 'N/A')}** 元。
-        - 估值水位: 当前 PE 百分位为 **{fundamental_data.get('pe_percentile', 'N/A')}%**，PB 百分位为 **{fundamental_data.get('pb_percentile', 'N/A')}%**。
+        - [REF_N1] 消息面: {news_data if news_data else "暂无重大个股新闻。"}
+        - [REF_N2] 筹码动向: 今日主力净流入 **{fundamental_data.get('net_inflow', 'N/A')}** 元。
+        - [REF_N3] 估值水位: 当前 PE 百分位为 **{fundamental_data.get('pe_percentile', 'N/A')}%**，PB 百分位为 **{fundamental_data.get('pb_percentile', 'N/A')}%**。
         
         **5. 全球宏观雷达与热点 (Global Macro Radar & Hotspots)**:
-        [CONTEXT]: 以下是当前对全球市场影响最大的热点。请分析这些最新宏观偏见如何传导至该标的。
-        {macro_context if macro_context else "暂无显著全球宏观波动。"}
+        [CONTEXT]: 以下是当前对全球市场影响最大的热点。
+        - [REF_M1] 宏观偏见: {macro_context if macro_context else "暂无显著全球宏观波动。"}
         
-        **6. 历史分析上下文 (Historical Context - Previous AI Analysis)**:
+        **6. 历史分析上下文 (Historical Context)**:
         {f'''
-        - 上次研判结论: {previous_analysis.get('summary_status', '无')} (评分: {previous_analysis.get('sentiment_score', '无')})
-        - 上次策略建议: {previous_analysis.get('immediate_action', '无')}
-        - 上次关键点位: 目标位 {previous_analysis.get('target_price', '无')} | 止损位 {previous_analysis.get('stop_loss_price', '无')}
-        [Instruction]: 请针对多维数据变化，评估历史逻辑是否已“证伪”或需“增强”。
+        - [REF_H1] 上次研判结论: {previous_analysis.get('summary_status', '无')} (评分: {previous_analysis.get('sentiment_score', '无')})
+        - [REF_H2] 上次策略建议: {previous_analysis.get('immediate_action', '无')}
         ''' if previous_analysis else "该股票首次进行 AI 分析。"}
         
         **任务 (Core Task)**:
@@ -222,53 +221,53 @@ class AIService:
         请执行“逻辑严密”的投资诊断。
         
         **重要准则 (Strict Rules)**:
-        - **数据驱动**: 所有的止损位、加仓位和目标价**必须基于上述提供的技术指标或基础面数值**。例如，“止损设在 MA50 ({market_data.get('ma_50')}) 附近”或“参考布林线下轨 ({market_data.get('bb_lower')})”。
-        - **一致性准则 [CRITICAL]**: `immediate_action` 必须与你定义的 `entry_price` 区间严格逻辑一致。
-            * 如果 [当前价格] > `entry_price_high`，绝对不能建议“即时买入”或“直接建仓”，而应建议“持筹观望”或“等待回调”。
-            * 如果 [当前价格] 处于 [`entry_price_low`, `entry_price_high`] 之间，方可建议“分批买入”或“即刻进场”。
-            * 如果 [当前价格] > `target_price`，建议应侧重“分批止盈”或“警惕过热”。
-        - **严禁乱造**: 不要凭空编造 99.42 之类没有任何参考意义的数字。所有的价格锚点必须在数据中有迹可循。
-        - **持仓逻辑**: 如果用户当前持仓为 0，建议应侧重于建仓点位；如果已有持仓且浮盈/浮亏较大，应给出止盈/加码或减仓策略。
-        - **仓位管理**: 所有的仓位建议必须基于**总资金的百分比** (例如：5%, 10%)，严禁给出具体的股数 (如：100股)。单只个股总仓位通常不建议超过 20%。
+        - **数据驱动 [CRITICAL]**: 每个关键分析点必须基于提供的数据源。
+        - **持仓逻辑**: 如果用户当前持仓为 0，建议应侧重于建仓点位。
+        - **仓位管理**: 所有的仓位建议必须基于**总资金的百分比**。
         
         **返回格式要求**:
         - 使用简洁、专业的中文。
-        - **必须在 `technical_analysis` 中明确引用以下数值**: 当前价格、RSI、MACD、MA50/200 或布林带位点。
-        - **严谨精度**: AI 建议中的所有价格数值、指标数值必须**四舍五入保留 2 位小数点**（例如：88.54 而不是 88.544834）。
+        - **严谨精度**: 所有数值保留 2 位小数点。
         - 必须返回严格的 JSON 格式。
         
         JSON 结果结构:
         {{
-            "sentiment_score": 0-100 (量化评分：0=极度看空, 50=中性, 100=极度看多), 
+            "sentiment_score": 0-100, 
             "summary_status": "4-6字定调",
-            "immediate_action": "针对当下的决策建议 (例如：逢低买入/趋势做多/持仓观望/分批减持)",
-            "rr_ratio": "[CRITICAL] 盈亏比评价 (例如：高性价比/中性/低性价比)。当 (目标预期涨幅 / 潜在止损跌幅) < 1.5 时，必须标记为 '低性价比'。",
-            "entry_price_low": "[CRITICAL] 建议买入区间的下限 (Float, 例如：50.50)。必须基于技术支撑位（如布林下轨、MA50、关键支撑位等）。严禁直接使用当前实时价格。",
-            "entry_price_high": "[CRITICAL] 建议买入区间的上限 (Float, 例如：52.00)。必须基于技术参考位（如布林中轨、MA20、关键阻力位等）。**严禁等于当前实时价格**——建仓区间应反映技术面上的理想介入范围，而不是'现在就能买到的价格'。",
-            "target_price": "预期的止盈位 (Float)。必须基于技术阻力位或布林上轨等。",
-            "stop_loss_price": "[CRITICAL] 预期的止损位 (Float)。必须严格低于 entry_price_low (通常建议低 2%-5% 或设在更低一层的关键支撑位)，严禁与建仓下限重叠。",
-            "risk_level": "风险等级：低/中/高",
+            "immediate_action": "决策建议",
+            "rr_ratio": "盈亏比评价",
+            "entry_price_low": Float,
+            "entry_price_high": Float,
+            "target_price": Float,
+            "stop_loss_price": Float,
+            "risk_level": "低/中/高",
             "investment_horizon": "建议持仓期限",
-            "confidence_level": 0-100 (AI 信心指数),
-            "technical_analysis": "核心技术位解读（必须分析 RSI, MACD, MA50 等数值）",
+            "confidence_level": 0-100,
+            "thought_process": [
+                {{"step": "观察", "content": "基于数据的发现..."}},
+                {{"step": "推导", "content": "逻辑关联分析..."}},
+                {{"step": "风险评估", "content": "潜在的证伪条件..."}},
+                {{"step": "结论", "content": "最终行动定调..."}}
+            ],
+            "scenario_tags": [
+                {{"category": "技术形态", "value": "空中加油"}},
+                {{"category": "资金面", "value": "机构持续净流入"}}
+            ],
+            "technical_analysis": "核心技术位解读。必须使用 Markdown 排版，采用「**4-8字结论性小标题**: 解释文字」的结构。标题必须结论先行，直击核心！例如「**KDJ严重超卖**: J值触底，短期反弹动能积聚...」「**均线空头排列**: 跌破所有支撑，下行趋势确立...」「**量价齐升突破**: 突破盘整区，多头力量强劲...」。让用户即使只看小标题也能迅速掌握技术面全貌。",
             "fundamental_news": "基础面/消息面深度解读",
-            "action_advice": "[CRITICAL] 严格按照以下 Markdown 格式生成详细的操作建议，并对关键数值（价格、仓位、止损位）使用 **加粗**：
+            "action_advice": "Markdown 格式的操作建议。
             
 ### 1. 建议操作与交易综述
 - **建议操作**: **[即时行动建议]**
 - **行情综述**: 当前股价 **$价格** 处于 **[阶段定义]**。整体研判为 **[策略定调]**。
 
 ### 2. 结构化操作计划
-* **首批建仓:** **$建仓位1** (触发条件，建议仓位 **xx%**)
-* **次批加码:** **$建仓位2** (触发条件及建议仓位 **xx%**)
-* **止损方案:** **$止损价** (失效条件：明确说明什么情况下该策略失效)
-* **止盈目标:** **第一目标 $价格**，**第二目标 $价格**。
+- [建仓/减仓/止损/止盈具体计划]
 
 ### 3. 多维逻辑支撑
 * **技术面:** (核心技术指标信号)
 * **基本面:** (支撑研判的财务因素)
-* **消息面/宏观面:** (地缘政治、全球热点或个股重大新闻的传导逻辑)
-"
+* **消息面/宏观面:** (地缘政治、全球热点或个股重大新闻的传导逻辑)"
         }}
         """
         # 记录 Prompt 到日志，方便调试分析建议的质量 (Req: user callback)

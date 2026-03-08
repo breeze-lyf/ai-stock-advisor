@@ -3553,3 +3553,136 @@ INFO:     127.0.0.1:50834 - "GET /api/stocks/NVDA/history?period=1y HTTP/1.1" 20
 2026-03-07 01:08:16,981 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1278.26ms
 INFO:     127.0.0.1:50835 - "GET /api/user/me HTTP/1.1" 200 OK
  GET /sw.js 404 in 44ms (compile: 5ms, render: 39ms)
+ GET /?tab=analysis&ticker=NVDA 200 in 58ms (compile: 14ms, render: 44ms)
+2026-03-07 01:14:03,554 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1628.71ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:51901 - "GET /api/user/me HTTP/1.1" 200 OK
+2026-03-07 01:14:04,035 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=2096.39ms
+INFO:     127.0.0.1:51906 - "GET /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 200 OK
+2026-03-07 01:14:04,165 - api_logger - INFO - rid=/api/portfolio/NVDA/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=2226.02ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:51907 - "GET /api/portfolio/NVDA/news HTTP/1.1" 200 OK
+2026-03-07 01:14:04,237 - api_logger - INFO - rid=/api/analysis/NVDA method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=2298.63ms
+INFO:     127.0.0.1:51905 - "GET /api/analysis/NVDA HTTP/1.1" 200 OK
+2026-03-07 01:14:04,540 - api_logger - INFO - rid=/api/stocks/NVDA/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=398.76ms
+INFO:     127.0.0.1:51901 - "GET /api/stocks/NVDA/history?period=1y HTTP/1.1" 200 OK
+2026-03-07 01:14:05,027 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=987.56ms
+INFO:     127.0.0.1:51906 - "GET /api/user/me HTTP/1.1" 200 OK
+ GET /sw.js 404 in 49ms (compile: 9ms, render: 40ms)
+✓ Compiled in 202ms
+✓ Compiled in 52ms
+✓ Compiled in 91ms
+ GET /settings 200 in 153ms (compile: 139ms, render: 15ms)
+INFO:     127.0.0.1:53007 - "OPTIONS /api/user/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53010 - "OPTIONS /api/user/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53011 - "OPTIONS /api/user/me HTTP/1.1" 200 OK
+2026-03-07 01:22:43,533 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1867.46ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:53007 - "GET /api/user/me HTTP/1.1" 200 OK
+2026-03-07 01:22:45,028 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1490.13ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:53011 - "GET /api/user/me HTTP/1.1" 200 OK
+2026-03-07 01:22:46,492 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1461.06ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:53007 - "GET /api/user/me HTTP/1.1" 200 OK
+ GET / 200 in 76ms (compile: 61ms, render: 15ms)
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:53011 - "OPTIONS /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53030 - "OPTIONS /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 200 OK
+2026-03-07 01:22:49,114 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1398.04ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:53011 - "GET /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 200 OK
+2026-03-07 01:22:49,187 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1476.45ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:53007 - "GET /api/user/me HTTP/1.1" 200 OK
+2026-03-07 01:22:50,186 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=996.35ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:53011 - "GET /api/user/me HTTP/1.1" 200 OK
+2026-03-07 01:22:50,541 - api_logger - INFO - rid=/api/portfolio/ method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1424.29ms
+INFO:     127.0.0.1:53030 - "GET /api/portfolio/?refresh=false&price_only=false HTTP/1.1" 200 OK
+2026-03-07 01:22:51,373 - api_logger - INFO - rid=/api/user/me method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=823.21ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:53030 - "GET /api/user/me HTTP/1.1" 200 OK
+ GET /?ticker=NVDA 200 in 24ms (compile: 4ms, render: 20ms)
+INFO:     127.0.0.1:53030 - "OPTIONS /api/stocks/NVDA/history?period=1y HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53011 - "OPTIONS /api/analysis/NVDA HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53007 - "OPTIONS /api/stocks/NVDA/history?period=1y HTTP/1.1" 200 OK
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:53041 - "OPTIONS /api/portfolio/NVDA/news HTTP/1.1" 200 OK
+2026-03-07 01:22:53,259 - api_logger - INFO - rid=/api/stocks/NVDA/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=466.60ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:53030 - "GET /api/stocks/NVDA/history?period=1y HTTP/1.1" 200 OK
+2026-03-07 01:22:53,599 - api_logger - INFO - rid=/api/stocks/NVDA/history method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=337.72ms
+INFO:     127.0.0.1:53007 - "GET /api/stocks/NVDA/history?period=1y HTTP/1.1" 200 OK
+2026-03-07 01:22:54,049 - api_logger - INFO - rid=/api/portfolio/NVDA/news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1244.10ms
+INFO:     127.0.0.1:53041 - "GET /api/portfolio/NVDA/news HTTP/1.1" 200 OK
+2026-03-07 01:22:54,505 - api_logger - INFO - rid=/api/analysis/NVDA method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1712.73ms
+INFO:     127.0.0.1:53011 - "GET /api/analysis/NVDA HTTP/1.1" 200 OK
+✓ Compiled in 133ms
+✓ Compiled in 116ms
+✓ Compiled in 23ms
+INFO:     127.0.0.1:64353 - "OPTIONS /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64357 - "OPTIONS /api/macro/radar?refresh=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64358 - "OPTIONS /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64359 - "OPTIONS /api/macro/radar?refresh=false HTTP/1.1" 200 OK
+ GET /?tab=radar 200 in 134ms (compile: 98ms, render: 36ms)
+2026-03-07 11:15:46,846 - api_logger - INFO - rid=/api/macro/radar method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1804.28ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:64358 - "GET /api/macro/radar?refresh=false HTTP/1.1" 200 OK
+2026-03-07 11:15:46,894 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1868.61ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:64359 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+2026-03-07 11:15:48,624 - api_logger - INFO - rid=/api/macro/radar method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1773.95ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:64357 - "GET /api/macro/radar?refresh=false HTTP/1.1" 200 OK
+2026-03-07 11:15:48,704 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1808.61ms
+INFO:     127.0.0.1:64358 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64358 - "OPTIONS /api/macro/cls_news?refresh=true HTTP/1.1" 200 OK
+2026-03-07 11:15:53,660 - app.services.macro_service - INFO - Starting Cailianshe global news update (Standard Version)...
+2026-03-07 11:15:57,704 - app.services.macro_service - INFO - Successfully persisted 1 news items.
+2026-03-07 11:15:58,777 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=6026.03ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:64358 - "GET /api/macro/cls_news?refresh=true HTTP/1.1" 200 OK
+2026-03-07 11:17:46,495 - api_logger - INFO - rid=/api/macro/cls_news method=GET status_code=200 user_id=9fe069c3-5985-4d2a-8814-91898152fc4a time=1479.56ms
+DEBUG: Validating token: eyJhbGciOi...
+DEBUG: Token payload: {'exp': 1772881980, 'sub': '9fe069c3-5985-4d2a-8814-91898152fc4a'}
+INFO:     127.0.0.1:64493 - "GET /api/macro/cls_news?refresh=false HTTP/1.1" 200 OK
+ GET /?tab=alerts 200 in 35ms (compile: 7ms, render: 28ms)
+2026-03-07 11:19:35,699 - api_logger - INFO - rid=/api/notifications/history method=GET status_code=200 user_id=anonymous time=1399.71ms
+INFO:     127.0.0.1:64685 - "GET /api/notifications/history?limit=30 HTTP/1.1" 200 OK
+2026-03-07 11:19:36,870 - api_logger - INFO - rid=/api/notifications/history method=GET status_code=200 user_id=anonymous time=1165.16ms
+INFO:     127.0.0.1:64689 - "GET /api/notifications/history?limit=30 HTTP/1.1" 200 OK
+2026-03-07 11:20:05,472 - api_logger - INFO - rid=/api/notifications/history method=GET status_code=200 user_id=anonymous time=1166.14ms
+INFO:     127.0.0.1:64768 - "GET /api/notifications/history?limit=30 HTTP/1.1" 200 OK
+2026-03-07 11:20:35,555 - api_logger - INFO - rid=/api/notifications/history method=GET status_code=200 user_id=anonymous time=1250.72ms
+INFO:     127.0.0.1:64821 - "GET /api/notifications/history?limit=30 HTTP/1.1" 200 OK
+./start.sh: line 61: 15297 Hangup: 1               npm run dev -- -p 3000  (wd: ~/Dev/ai-stock-advisor/frontend)
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [52588]
+INFO:     Stopping reloader process [15291]

@@ -326,11 +326,12 @@ async def add_portfolio_item(
     cache_result = await db.execute(cache_stmt)
     cache = cache_result.scalar_one_or_none()
     
-    needs_fetch = not cache or cache.rsi_14 is None or (datetime.utcnow() - cache.last_updated) > timedelta(minutes=30)
+    # 计算是否需要立即刷新：如果没有缓存或数据超过 30 分钟。
+    needs_fetch = not cache or cache.rsi_14 is None or (datetime.utcnow() - cache.last_updated if cache and cache.last_updated else timedelta(days=1)) > timedelta(minutes=30)
     if needs_fetch:
         background_tasks.add_task(_background_fetch, ticker)
     
-    return {"message": "Portfolio updated"}
+    return {"message": "Portfolio updated", "ticker": ticker, "needs_fetch": needs_fetch}
 
 async def _background_fetch(ticker: str):
     """后台任务：在添加股票后异步补全数据（使用独立 Session）"""
@@ -406,31 +407,48 @@ async def refresh_stock_data(
                 "message": "刷新失败且数据库无历史记录。请稍后再试。"
             }
             
-        # 2. 异步持久化：将耗时 5-8s 的远程 Neon 数据库同步放入后台去执行
-        async def background_sync():
-            from app.core.database import SessionLocal
-            from sqlalchemy.future import select
-            from app.models.stock import MarketDataCache
-            async with SessionLocal() as bg_db:
-                try:
-                    stmt = select(MarketDataCache).where(MarketDataCache.ticker == ticker)
-                    result = await bg_db.execute(stmt)
-                    existing_cache = result.scalar_one_or_none()
-                    await MarketDataService._update_database(ticker, data, existing_cache, bg_db, datetime.utcnow())
-                except Exception as e:
-                    logger.error(f"Background DB sync failed for {ticker}: {e}")
+        # 2. 同步或异步持久化：
+        # 如果是全量刷新（非 price_only），我们必须等待数据存入数据库，否则前端随后拿到的可能是旧数据
+        if not price_only:
+            # 同步更新数据库
+            await MarketDataService._update_database(ticker, data, None, db, datetime.utcnow())
+            # 更新完后，我们需要拿到最新的 cache 状态返回给前端
+            stmt = select(MarketDataCache).where(MarketDataCache.ticker == ticker)
+            res = await db.execute(stmt)
+            cache = res.scalar_one_or_none()
+            
+            return {
+                "ticker": ticker,
+                "success": True,
+                "message": "深度刷新成功",
+                "current_price": cache.current_price if cache else data.quote.price,
+                "change_percent": cache.change_percent if cache else data.quote.change_percent,
+                # 指标齐全标识
+                "has_indicators": cache.rsi_14 is not None if cache else False
+            }
+        else:
+            # 如果仅仅是价格更新，可以走异步以加快响应
+            async def background_sync():
+                from app.core.database import SessionLocal
+                async with SessionLocal() as bg_db:
+                    try:
+                        # 再次查询最新 cache 以确定传给 _update_database
+                        stmt = select(MarketDataCache).where(MarketDataCache.ticker == ticker)
+                        result = await bg_db.execute(stmt)
+                        existing_cache = result.scalar_one_or_none()
+                        await MarketDataService._update_database(ticker, data, existing_cache, bg_db, datetime.utcnow())
+                    except Exception as e:
+                        logger.error(f"Background DB sync failed for {ticker}: {e}")
 
-        background_tasks.add_task(background_sync)
-        
-        # 3. 秒回前端
-        return {
-            "ticker": ticker,
-            "success": True,
-            "message": "刷新成功",
-            "current_price": data.quote.price,
-            "change_percent": data.quote.change_percent,
-            "last_updated": data.quote.last_updated
-        }
+            background_tasks.add_task(background_sync)
+            
+            return {
+                "ticker": ticker,
+                "success": True,
+                "message": "行情刷新已排队",
+                "current_price": data.quote.price,
+                "change_percent": data.quote.change_percent
+            }
     except Exception as e:
         logger.error(f"Refresh failed for {ticker}: {e}")
         return {

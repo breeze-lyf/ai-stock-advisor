@@ -231,118 +231,101 @@ class MarketDataService:
         """
         数据库持久化：把网络抓取来的“散乱数据”精准地填入数据库表里。
         """
-        # 1. 处理 Stock 基础表 (查漏补缺)
-        stock_stmt = select(Stock).where(Stock.ticker == ticker)
-        stock_result = await db.execute(stock_stmt)
-        stock = stock_result.scalar_one_or_none()
+        # 1. 处理 Stock 基础表 (使用插入/更新原子操作)
+        from sqlalchemy.dialects.postgresql import insert as pg_insert
         
-        if not stock:
-            # 如果系统里还没这支票，帮用户自动录入名称
-            stock = Stock(ticker=ticker, name=data.quote.name or ticker)
-            db.add(stock)
-            await db.commit() # 先提交一遍，防止后面的外键约束失败
-            stock_result = await db.execute(stock_stmt)
-            stock = stock_result.scalar_one_or_none()
-        else:
-            # 如果已有数据，看看名称需不需要修正（比如从代码变成中文名）
-            new_name = data.quote.name
-            if new_name and new_name != ticker:
-                stock.name = new_name
-            elif not stock.name or stock.name == ticker:
-                if new_name:
-                    stock.name = new_name
-
-        # 2. 同步基本面 (PE, 股息等)
+        stock_values = {
+            "ticker": ticker,
+            "name": data.quote.name or ticker
+        }
+        
+        # 预先处理基本面字段（如果有数据）
         fundamental = data.fundamental
         if fundamental:
-            # 记录以确认进入了同步逻辑
             logger.info(f"Syncing fundamental for {ticker}: market_cap={fundamental.market_cap}, PE={fundamental.pe_ratio}")
-            
-            # 使用 getattr/setattr 模式以防漏掉字段，且确保哪怕以前有值现在也要更新
             fields = ['sector', 'industry', 'market_cap', 'pe_ratio', 'forward_pe', 'eps', 'dividend_yield', 'beta', 'fifty_two_week_high', 'fifty_two_week_low']
             for field in fields:
                 val = getattr(fundamental, field, None)
                 if val is not None:
-                    setattr(stock, field, val)
+                    stock_values[field] = val
 
-        # 3. 同步至 MarketDataCache 的专业量化字段 (百分位、资金流等)
-        if not cache:
-            cache = MarketDataCache(ticker=ticker)
-            db.add(cache)
+        # 执行 Stock 表的原子操作
+        stock_upsert = pg_insert(Stock).values(stock_values)
+        # 如果冲突，更新名称和基本面字段
+        update_cols = {k: v for k, v in stock_values.items() if k != "ticker"}
+        # 特殊逻辑：仅当新名称不是 ticker 时才更新名称
+        if stock_values["name"] == ticker:
+            update_cols.pop("name", None)
+            
+        stock_upsert = stock_upsert.on_conflict_do_update(
+            index_elements=["ticker"],
+            set_=update_cols
+        )
+        await db.execute(stock_upsert)
+
+        # 2. 处理 MarketDataCache (使用插入/更新原子操作)
+        cache_values = {
+            "ticker": ticker,
+            "current_price": sanitize_float(data.quote.price, 0.0),
+            "change_percent": sanitize_float(data.quote.change_percent, 0.0),
+            "market_status": data.quote.market_status or MarketStatus.OPEN.value,
+            "last_updated": now
+        }
         
-        # 逻辑修复：无论 fundamental 整体是否存在，只要其中的百分位/资金流字段有值，就同步到 Cache
+        # 注入基本面推导的量化字段
         if fundamental:
-            cache.pe_percentile = sanitize_float(fundamental.pe_percentile, cache.pe_percentile)
-            cache.pb_percentile = sanitize_float(fundamental.pb_percentile, cache.pb_percentile)
-            cache.net_inflow = sanitize_float(fundamental.net_inflow, cache.net_inflow)
+            cache_values["pe_percentile"] = sanitize_float(fundamental.pe_percentile)
+            cache_values["pb_percentile"] = sanitize_float(fundamental.pb_percentile)
+            cache_values["net_inflow"] = sanitize_float(fundamental.net_inflow)
 
-        # 4. 同步实时缓存信息 (价格、RSI、MACD 等)
-        if not cache:
-            cache = MarketDataCache(ticker=ticker)
-            db.add(cache)
-
-        cache.current_price = sanitize_float(data.quote.price, 0.0)
-        cache.change_percent = sanitize_float(data.quote.change_percent, 0.0)
-        
-        # 将复杂的数学计算指标映射到数据库字段
+        # 注入技术指标
         if data.technical and data.technical.indicators:
             ind = data.technical.indicators
-            cache.rsi_14 = sanitize_float(ind.get('rsi_14'), cache.rsi_14)
-            cache.ma_20 = sanitize_float(ind.get('ma_20'), cache.ma_20)
-            cache.ma_50 = sanitize_float(ind.get('ma_50'), cache.ma_50)
-            cache.ma_200 = sanitize_float(ind.get('ma_200'), cache.ma_200)
-            cache.macd_val = sanitize_float(ind.get('macd_val'), cache.macd_val)
-            cache.macd_signal = sanitize_float(ind.get('macd_signal'), cache.macd_signal)
-            cache.macd_hist = sanitize_float(ind.get('macd_hist'), cache.macd_hist)
-            cache.bb_upper = sanitize_float(ind.get('bb_upper'), cache.bb_upper)
-            cache.bb_middle = sanitize_float(ind.get('bb_middle'), cache.bb_middle)
-            cache.bb_lower = sanitize_float(ind.get('bb_lower'), cache.bb_lower)
-            cache.atr_14 = sanitize_float(ind.get('atr_14'), cache.atr_14)
-            cache.k_line = sanitize_float(ind.get('k_line'), cache.k_line)
-            cache.d_line = sanitize_float(ind.get('d_line'), cache.d_line)
-            cache.j_line = sanitize_float(ind.get('j_line'), cache.j_line)
-            cache.volume_ma_20 = sanitize_float(ind.get('volume_ma_20'), cache.volume_ma_20)
-            cache.volume_ratio = sanitize_float(ind.get('volume_ratio'), cache.volume_ratio)
-            cache.macd_hist_slope = sanitize_float(ind.get('macd_hist_slope'), cache.macd_hist_slope)
-            cache.macd_cross = ind.get('macd_cross', cache.macd_cross)
-            cache.macd_is_new_cross = ind.get('macd_is_new_cross', cache.macd_is_new_cross)
-            cache.adx_14 = sanitize_float(ind.get('adx_14'), cache.adx_14)
-            cache.pivot_point = sanitize_float(ind.get('pivot_point'), cache.pivot_point)
+            tech_fields = [
+                'rsi_14', 'ma_20', 'ma_50', 'ma_200', 'macd_val', 'macd_signal', 
+                'macd_hist', 'bb_upper', 'bb_middle', 'bb_lower', 'atr_14', 
+                'k_line', 'd_line', 'j_line', 'volume_ma_20', 'volume_ratio', 
+                'macd_hist_slope', 'macd_cross', 'macd_is_new_cross', 'adx_14', 'pivot_point'
+            ]
+            for f in tech_fields:
+                if f in ind:
+                    cache_values[f] = ind[f]
             
-            # ---【本项目核心逻辑】盈亏比的动态重算 ---
-            # 盈亏比 (Reward/Risk) = (目标价 - 现价) / (现价 - 止损价)
-            
-            # 1. 优先级：如果已有阻力位/支撑位（无论是 AI 锁定的还是机器算的）
-            res = cache.resistance_1 or ind.get('resistance_1')
-            sup = cache.support_1 or ind.get('support_1')
-            curr_p = cache.current_price
+            # 盈亏比计算 (逻辑同前，但在 atomic 操作前计算)
+            # 注意：此处使用 data.quote.price (现价) 和 支撑/阻力位进行重算
+            res = cache_values.get('resistance_1') or (cache.resistance_1 if cache else None) or ind.get('resistance_1')
+            sup = cache_values.get('support_1') or (cache.support_1 if cache else None) or ind.get('support_1')
+            curr_p = cache_values["current_price"]
 
             if res and sup and curr_p:
-                reward = sanitize_float(res) - sanitize_float(curr_p) # 潜在盈利
-                risk = sanitize_float(curr_p) - sanitize_float(sup)    # 潜在损失
+                reward = sanitize_float(res) - sanitize_float(curr_p)
+                risk = sanitize_float(curr_p) - sanitize_float(sup)
                 
-                # 更新模型中的支撑/阻力位（如果不是 AI 锁定的）
-                if not cache.is_ai_strategy:
-                    cache.resistance_1 = sanitize_float(ind.get('resistance_1'), cache.resistance_1)
-                    cache.resistance_2 = sanitize_float(ind.get('resistance_2'), cache.resistance_2)
-                    cache.support_1 = sanitize_float(ind.get('support_1'), cache.support_1)
-                    cache.support_2 = sanitize_float(ind.get('support_2'), cache.support_2)
+                # 如果不是 AI 锁定的，更新支撑阻力
+                is_ai = cache.is_ai_strategy if cache else False
+                if not is_ai:
+                    cache_values['resistance_1'] = sanitize_float(ind.get('resistance_1'))
+                    cache_values['resistance_2'] = sanitize_float(ind.get('resistance_2'))
+                    cache_values['support_1'] = sanitize_float(ind.get('support_1'))
+                    cache_values['support_2'] = sanitize_float(ind.get('support_2'))
 
                 if risk and risk > 0.01:
-                    # 如果价格在区间内
-                    if reward > 0:
-                        cache.risk_reward_ratio = round(reward / risk, 2)
-                    else:
-                        # 价格已突破阻力位，置为 0 表示当前点位性价比低
-                        cache.risk_reward_ratio = 0.0
-                else:
-                    # 风险极小（接近支撑位）或已跌破支撑位
-                    cache.risk_reward_ratio = None
-            else:
-                cache.risk_reward_ratio = None
+                    cache_values['risk_reward_ratio'] = round(reward / risk, 2) if reward > 0 else 0.0
 
-        cache.market_status = data.quote.market_status or MarketStatus.OPEN.value
-        cache.last_updated = now
+        # 执行 Cache 表的原子操作
+        cache_upsert = pg_insert(MarketDataCache).values(cache_values)
+        update_set = {k: v for k, v in cache_values.items() if k != "ticker"}
+        
+        # 如果是 AI 策略锁定，不要覆盖支撑阻力位
+        if cache and cache.is_ai_strategy:
+            for k in ['resistance_1', 'resistance_2', 'support_1', 'support_2', 'risk_reward_ratio']:
+                update_set.pop(k, None)
+                
+        cache_upsert = cache_upsert.on_conflict_do_update(
+            index_elements=["ticker"],
+            set_=update_set
+        )
+        await db.execute(cache_upsert)
 
         # 4. 新闻增量同步与去重
         if data.news:
@@ -369,17 +352,27 @@ class MarketDataService:
                 })
                 
             if news_values:
-                # 批量插入新闻以解决远程数据库的插入延迟 (解决单点耗时数十秒的关键)
+                # 批量插入新闻以解决远程数据库的插入延迟
                 news_stmt = insert(StockNews).values(news_values).on_conflict_do_nothing()
                 await db.execute(news_stmt)
 
         await db.commit()
+        
+        # 重新获取最新的对象以返回，因为 UPSERT 是绕过 ORM 追踪的原生 SQL
         try: 
-            # 必须进行显式刷新，否则由于 SQLAlchemy 的延迟加载，返回的对象可能还是旧的
+            stock_stmt = select(Stock).where(Stock.ticker == ticker)
+            stock_res = await db.execute(stock_stmt)
+            stock = stock_res.scalar_one_or_none()
+            
+            cache_stmt = select(MarketDataCache).where(MarketDataCache.ticker == ticker)
+            cache_res = await db.execute(cache_stmt)
+            cache = cache_res.scalar_one_or_none()
+
             if stock: await db.refresh(stock)
             if cache: await db.refresh(cache)
         except Exception as e: 
-            logger.error(f"Error during db refresh: {e}")
+            logger.error(f"Error during db re-fetching/refresh: {e}")
+            
         return cache
 
     @staticmethod

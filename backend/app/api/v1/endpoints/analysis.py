@@ -614,6 +614,8 @@ async def analyze_stock(
             entry_price_low=to_float(parsed_data.get("entry_price_low")),
             entry_price_high=to_float(parsed_data.get("entry_price_high")),
             rr_ratio=final_rr_str,
+            scenario_tags=parsed_data.get("scenario_tags"),
+            thought_process=parsed_data.get("thought_process"),
             input_context_snapshot={
                 "market_data": market_data,
                 "portfolio_data": portfolio_data
@@ -687,11 +689,74 @@ async def analyze_stock(
         "entry_price_low": new_report.entry_price_low if new_report else to_float(parsed_data.get("entry_price_low")),
         "entry_price_high": new_report.entry_price_high if new_report else to_float(parsed_data.get("entry_price_high")),
         "rr_ratio": final_rr_str,
+        "scenario_tags": parsed_data.get("scenario_tags"),
+        "thought_process": parsed_data.get("thought_process"),
         "is_cached": False,
         "model_used": preferred_model,
         "created_at": new_report.created_at if new_report else datetime.utcnow()
     }
 
+
+@router.get("/{ticker}/history", response_model=List[AnalysisResponse])
+async def get_analysis_history(
+    ticker: str,
+    limit: int = 20,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    获取股票历史分析记录列表 (History of AI Analysis)
+    """
+    try:
+        stmt = select(AnalysisReport).where(
+            AnalysisReport.user_id == current_user.id,
+            AnalysisReport.ticker == ticker
+        ).order_by(AnalysisReport.created_at.desc()).limit(limit)
+        
+        result = await db.execute(stmt)
+        reports = result.scalars().all()
+        
+        # 构造响应，确保包含快照中的价格信息（如果存在）
+        response = []
+        for r in reports:
+            # 兜底：如果 structured 字段为空，尝试从 snapshot 或文本提取
+            snapshot = r.input_context_snapshot or {}
+            market_data_snap = snapshot.get("market_data", {}) if isinstance(snapshot, dict) else {}
+            snap_price = market_data_snap.get("current_price") if isinstance(market_data_snap, dict) else None
+            
+            item = {
+                "ticker": r.ticker,
+                "analysis": r.ai_response_markdown,
+                "sentiment_score": float(r.sentiment_score) if r.sentiment_score else None,
+                "summary_status": r.summary_status,
+                "risk_level": r.risk_level,
+                "technical_analysis": r.technical_analysis,
+                "fundamental_news": r.fundamental_news,
+                "action_advice": r.action_advice,
+                "investment_horizon": r.investment_horizon,
+                "confidence_level": r.confidence_level,
+                "immediate_action": r.immediate_action,
+                "target_price": r.target_price,
+                "stop_loss_price": r.stop_loss_price,
+                "entry_zone": r.entry_zone or extract_entry_zone_fallback(r.action_advice),
+                "entry_price_low": r.entry_price_low,
+                "entry_price_high": r.entry_price_high,
+                "rr_ratio": r.rr_ratio,
+                "scenario_tags": r.scenario_tags,
+                "thought_process": r.thought_process,
+                "is_cached": True,
+                "model_used": r.model_used,
+                "created_at": r.created_at,
+                "history_price": snap_price
+            }
+            response.append(item)
+            
+        return response
+    except Exception as e:
+        logger.error(f"Error in get_analysis_history: {str(e)}", exc_info=True)
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 @router.get("/{ticker}", response_model=AnalysisResponse)
 async def get_latest_analysis(

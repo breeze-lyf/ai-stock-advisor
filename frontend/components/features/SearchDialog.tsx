@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Search, Loader2, Check } from "lucide-react";
 import { PortfolioItem, SearchResult } from "@/types";
-import { searchStocks, addPortfolioItem } from "@/lib/api";
+import { searchStocks, addPortfolioItem, refreshStock } from "@/lib/api";
 
 interface SearchDialogProps {
     isOpen: boolean;
@@ -55,10 +55,22 @@ export function SearchDialog({
         try {
             await addPortfolioItem(ticker, 0, 0);
             
-            // 核心修复：闭合优先。先关闭弹窗以卸载 Overlay 遮罩，防止后续重渲染干扰导致灰屏。
+            // 稍作延迟并触发深度刷新
+            // 延迟是为了给后端 addPortfolioItem 的 background_tasks 一点启动时间
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            try {
+                // 等待刷新完成，确保后端同步落库
+                await refreshStock(ticker, false);
+            } catch (e: any) {
+                console.error("Initial deep refresh failed", e);
+            }
+
+            // 核心修复：先关闭弹窗
             onOpenChange(false);
             
-            onRefresh();
+            // 刷新列表
+            await onRefresh();
             // 自动跳转
             if (onSelectTicker) {
                 onSelectTicker(ticker);

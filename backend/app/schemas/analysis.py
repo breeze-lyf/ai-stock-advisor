@@ -23,6 +23,13 @@ class AnalysisResponse(BaseModel):
     is_cached: bool = False
     model_used: Optional[str] = None
     created_at: Optional[datetime] = None
+    history_price: Optional[float] = None
+    # Truth Tracker 2.0 & Phase 2
+    max_drawdown: Optional[float] = None
+    max_favorable_excursion: Optional[float] = None
+    scenario_tags: Optional[List[dict]] = None
+    audit_notes: Optional[str] = None
+    thought_process: Optional[List[dict]] = None
 
 class PortfolioAnalysisResponse(BaseModel):
     health_score: int

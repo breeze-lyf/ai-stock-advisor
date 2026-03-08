@@ -56,7 +56,14 @@ class AnalysisReport(Base):
     rr_ratio = Column(String, nullable=True)        
     
     model_used = Column(String) # 记录是哪位“老师”分析的 (DeepSeek, Gemini 等)。
-    
+
+    # --- 复盘系统 2.0 (Truth Tracker Pro) 增强字段 ---
+    max_drawdown = Column(Float, nullable=True) # MAE (最大回撤): 建议后的最低价变动百分比
+    max_favorable_excursion = Column(Float, nullable=True) # MFE (最大浮盈): 建议后的最高价变动百分比
+    scenario_tags = Column(JSON, nullable=True) # [{ "category": "形态", "value": "空中加油" }]
+    audit_notes = Column(Text, nullable=True) # AI 逻辑审计笔记：分析逻辑证伪或正确的原因
+    thought_process = Column(JSON, nullable=True) # 保存 Phase 2 的思维链数据
+
     # 创建时间作为索引，方便用户查看“历史报告”时快速排序。
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
 

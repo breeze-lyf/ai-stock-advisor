@@ -164,6 +164,12 @@ export const analyzePortfolio = async (): Promise<PortfolioAnalysisResponse> => 
     return response.data;
 };
 
+/** 获取单个股票的 AI 分析历史记录 */
+export const getAnalysisHistory = async (ticker: string): Promise<AnalysisResponse[]> => {
+    const response = await api.get(`/api/analysis/${ticker}/history`);
+    return response.data;
+};
+
 /** 获取最新的全量持仓诊断缓存 */
 export const getLatestPortfolioAnalysis = async (): Promise<PortfolioAnalysisResponse | null> => {
     try {

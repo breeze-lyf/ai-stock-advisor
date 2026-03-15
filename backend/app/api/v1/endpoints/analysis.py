@@ -8,6 +8,7 @@ from app.core.database import get_db
 from sqlalchemy import func
 from app.models.stock import Stock, MarketDataCache, StockNews
 from app.services.ai_service import AIService
+from app.utils.ai_response_parser import parse_ai_json, parse_portfolio_ai_json
 from app.services.market_data import MarketDataService
 from app.models.portfolio import Portfolio
 from app.models.user import User
@@ -162,48 +163,14 @@ async def analyze_portfolio(
         market_news=market_news_context,
         macro_context=macro_context,
         model=preferred_model,
-        api_key_gemini=gemini_key,
-        api_key_siliconflow=siliconflow_key,
-        db=db
+        db=db,
+        user_id=current_user.id
     )
     
     logger.info(f"AI Portfolio Analysis Response: {ai_raw_response[:500]}...")
 
-    # 4. 解析结构化结果
-    import json
-    import re
-    
-    parsed_data = {}
-    try:
-        # 尝试通过正则表达式提取 JSON，增加对多种异常格式的处理
-        # 匹配最外层的 {}
-        json_match = re.search(r'(\{.*\})', ai_raw_response, re.DOTALL)
-        if json_match:
-            clean_json = json_match.group(1)
-            # 移除 JSON 内部可能存在的 markdown 标记或控制字符
-            clean_json = re.sub(r'[\x00-\x1F\x7F-\x9F]', '', clean_json)
-            parsed_data = json.loads(clean_json)
-        else:
-            # 兜底：尝试清理常见的 markdown 包装
-            clean_text = ai_raw_response.strip()
-            if clean_text.startswith("```json"):
-                clean_text = clean_text[7:]
-            if clean_text.endswith("```"):
-                clean_text = clean_text[:-3]
-            parsed_data = json.loads(clean_text.strip())
-    except Exception as e:
-        logger.error(f"Failed to parse Portfolio AI JSON: {e}. Raw: {ai_raw_response[:200]}")
-        # 即使解析失败，也不要返回空，将原始回答放入 detailed_report
-        parsed_data = {
-            "health_score": 50,
-            "risk_level": "中",
-            "summary": "AI 诊断已完成 (点击查看详情)",
-            "diversification_analysis": "解析失败，详细请见报告。",
-            "strategic_advice": "请直接阅读下方深度诊断报告。",
-            "top_risks": ["无法自动提取风险点"],
-            "top_opportunities": ["无法自动提取机会点"],
-            "detailed_report": ai_raw_response # 确保内容不丢失
-        }
+    # 4. 使用统一解析器提取结构化结果
+    parsed_data = parse_portfolio_ai_json(ai_raw_response)
 
     # 5. 持久化存储 (Persistence)
     try:
@@ -529,54 +496,16 @@ async def analyze_stock(
         fundamental_data=fundamental_data,
         previous_analysis=previous_analysis_context,
         model=preferred_model,
-        api_key_gemini=gemini_key,
-        api_key_siliconflow=siliconflow_key,
-        db=db
+        db=db,
+        user_id=current_user.id
     )
     
     # 记录 Prompt 日志
     # 记录完整 Response 日志
     logger.info(f"AI Response for {ticker}: {ai_raw_response}")
 
-    # 7. 解析结构化 JSON 结果
-    import json
-    parsed_data = {}
-    # --- 增强型 JSON 解析逻辑 ---
-    ai_raw_response = ai_raw_response.strip()
-    parsed_data = {}
-    
-    # 1. 检查是否是 AIService 返回的显式错误字符串
-    if ai_raw_response.startswith("**Error**"):
-        logger.error(f"AI Service returned an error: {ai_raw_response}")
-        parsed_data = {
-            "technical_analysis": f"AI 服务调用异常: {ai_raw_response}",
-            "action_advice": "由于 AI 接口调用失败，暂时无法生成详细诊断建议。请检查 API 配置或稍后重试。",
-            "summary_status": "调用失败",
-            "sentiment_score": 50,
-            "risk_level": "未知"
-        }
-    else:
-        try:
-            # 2. 尝试正则提取第一个 { 到最后一个 } 之间的内容 (处理前后杂质)
-            import re
-            json_match = re.search(r'(\{.*\})', ai_raw_response, re.DOTALL)
-            if json_match:
-                clean_json = json_match.group(1)
-                parsed_data = json.loads(clean_json)
-            else:
-                # 3. 兜底解析
-                clean_json = ai_raw_response.replace("```json", "").replace("```", "").strip()
-                parsed_data = json.loads(clean_json)
-        except Exception as e:
-            logger.error(f"Failed to parse AI JSON response: {e}. Raw: {ai_raw_response[:200]}...")
-            # 严重降级处理：尝试把原始文本塞入主要说明字段，防止前端全空
-            parsed_data = {
-                "technical_analysis": ai_raw_response if len(ai_raw_response) > 50 else "",
-                "action_advice": ai_raw_response if len(ai_raw_response) <= 50 else "AI 响应格式解析失败，请查看技术分析详情。",
-                "summary_status": "解析失败",
-                "sentiment_score": 50,
-                "risk_level": "中"
-            }
+    # 7. 使用统一解析器提取结构化 JSON 结果
+    parsed_data = parse_ai_json(ai_raw_response, context=f"stock_{ticker}")
 
 
     # 7.5 盈亏比自动补全 (RRR Auto-completion)

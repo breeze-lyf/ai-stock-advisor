@@ -63,11 +63,13 @@ jobs:
             fi
             ./venv/bin/pip install -r requirements.txt
             ./venv/bin/python -m alembic upgrade head
+            fuser -k 8000/tcp || true
             pm2 restart stock-backend || pm2 start "./venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8000" --name stock-backend
 
             # 2. 前端服务端依赖安装与重启
             cd ../frontend
             npm install --production --registry=https://registry.npmmirror.com
+            fuser -k 3000/tcp || true
             pm2 restart stock-frontend || pm2 start "npm start" --name stock-frontend
 
             echo "Deployment Pipeline Executed Successfully!"

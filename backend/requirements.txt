@@ -71,7 +71,6 @@ urllib3==2.6.3
 uvicorn==0.40.0
 webencodings==0.5.1
 websockets>=13.0,<15.0
-yfinance
 gunicorn==23.0.0
 akshare
 ib_async

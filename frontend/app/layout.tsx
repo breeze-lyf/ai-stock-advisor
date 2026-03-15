@@ -20,7 +20,6 @@ export const metadata: Metadata = {
 import { AuthProvider } from "@/context/AuthContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { ComplianceBanner, FooterCompliance } from "@/components/features/ComplianceBanner";
 
 export default function RootLayout({
   children,
@@ -40,11 +39,9 @@ export default function RootLayout({
         >
           <AuthProvider>
             <TooltipProvider>
-              <ComplianceBanner />
               <main className="flex-1 flex flex-col">
                 {children}
               </main>
-              <FooterCompliance />
             </TooltipProvider>
           </AuthProvider>
         </ThemeProvider>

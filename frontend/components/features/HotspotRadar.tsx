@@ -1,54 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { TrendingUp, TrendingDown, AlertCircle, RefreshCw, Globe, ArrowRight } from "lucide-react";
 import clsx from "clsx";
-import { getMacroRadar } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import type { MacroTopic } from "@/features/dashboard/hooks/useDashboardRadarData";
 import { formatDateTime } from "@/lib/utils";
 
 import { GlobalNewsFeed } from "./GlobalNewsFeed";
 
-interface MacroTopic {
-  id: string;
-  title: string;
-  summary: string;
-  heat_score: number;
-  impact_analysis: {
-    logic: string;
-    beneficiaries: { ticker: string; reason: string }[];
-    detriments: { ticker: string; reason: string }[];
-  };
-  source_links: string[];
-  updated_at: string;
-}
-
 interface HotspotRadarProps {
-  onSelectTicker: (ticker: string) => void;
+  loading: boolean;
+  onRefresh: (refresh?: boolean) => Promise<void>;
+  onSelectTicker: (ticker: string | null) => void;
+  topics: MacroTopic[];
 }
 
-export function HotspotRadar({ onSelectTicker }: HotspotRadarProps) {
+export function HotspotRadar({ loading, onRefresh, onSelectTicker, topics }: HotspotRadarProps) {
   const { user } = useAuth();
-  const [topics, setTopics] = useState<MacroTopic[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const fetchRadar = async (refresh = false) => {
-    setLoading(true);
-    try {
-      const data = await getMacroRadar(refresh);
-      setTopics(data);
-    } catch (error) {
-      console.error("Failed to fetch macro radar", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchRadar();
-  }, []);
 
   return (
     <div className="flex flex-col h-full bg-slate-50 dark:bg-slate-950 p-4 space-y-4">
@@ -65,7 +34,7 @@ export function HotspotRadar({ onSelectTicker }: HotspotRadarProps) {
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={() => fetchRadar(true)} 
+          onClick={() => onRefresh(true)} 
           disabled={loading}
           className="gap-2 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800"
         >

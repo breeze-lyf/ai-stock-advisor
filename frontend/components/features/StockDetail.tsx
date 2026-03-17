@@ -13,8 +13,10 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Zap } from "lucide-react";
+import { useDashboardStockDetailData } from "@/features/dashboard/hooks/useDashboardStockDetailData";
 import { PortfolioItem } from "@/types";
-import { refreshStock, fetchStockHistory, getAnalysisHistory } from "@/lib/api";
+import { refreshStock } from "@/features/portfolio/api";
+import type { AIData } from "./stock-detail/types";
 
 // --- L2 板块子组件导入 ---
 import { sanitizePrice, getCurrencySymbol } from "./stock-detail/shared";
@@ -33,27 +35,7 @@ interface StockDetailProps {
     onRefresh: () => void;
     onBack?: () => void;
     analyzing: boolean;
-    aiData: {
-        sentiment_score?: number;
-        summary_status?: string;
-        risk_level?: string;
-        technical_analysis: string;
-        fundamental_news: string;
-        action_advice: string;
-        immediate_action?: string;
-        target_price?: number;
-        stop_loss_price?: number;
-        entry_zone?: string;
-        entry_price_low?: number;
-        entry_price_high?: number;
-        rr_ratio?: string;
-        investment_horizon?: string;
-        confidence_level?: number;
-        thought_process?: Array<{ step: string; content: string }>;
-        is_cached?: boolean;
-        created_at?: string;
-        model_used?: string;
-    } | null;
+    aiData: AIData | null;
     news?: any[];
     refreshTimestamp?: number;
 }
@@ -70,9 +52,10 @@ export function StockDetail({
 }: StockDetailProps) {
     // --- 全局状态管理 ---
     const [refreshing, setRefreshing] = useState(false);
-    const [historyData, setHistoryData] = useState<any[]>([]);
-    const [analysisHistory, setAnalysisHistory] = useState<any[]>([]);
-    const [historyLoading, setHistoryLoading] = useState(false);
+    const { analysisHistory, historyData } = useDashboardStockDetailData(
+        selectedItem?.ticker || null,
+        refreshTimestamp
+    );
 
     // 图层切换开关
     const [showBb, setShowBb] = useState(true);
@@ -100,27 +83,6 @@ export function StockDetail({
         
         return () => container.removeEventListener("scroll", handleScroll);
     }, [selectedItem?.ticker]);
-
-    // --- 数据加载 Effect ---
-    useEffect(() => {
-        const loadHistory = async () => {
-            if (!selectedItem) return;
-            setHistoryLoading(true);
-            try {
-                const [hData, aHistory] = await Promise.all([
-                    fetchStockHistory(selectedItem.ticker),
-                    getAnalysisHistory(selectedItem.ticker)
-                ]);
-                setHistoryData(hData);
-                setAnalysisHistory(aHistory);
-            } catch (err) {
-                console.error("Failed to fetch history:", err);
-            } finally {
-                setHistoryLoading(false);
-            }
-        };
-        loadHistory();
-    }, [selectedItem?.ticker, refreshTimestamp]);
 
     // --- 空状态 ---
     if (!selectedItem) {

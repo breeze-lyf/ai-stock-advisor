@@ -1,382 +1,825 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useTheme } from "next-themes";
+import {
+  ArrowLeft,
+  Bell,
+  Bot,
+  ChevronRight,
+  Database,
+  HardDrive,
+  Moon,
+  Pencil,
+  Plus,
+  RefreshCcw,
+  Save,
+  Settings2,
+  Shield,
+  Sparkles,
+  Sun,
+} from "lucide-react";
+
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { getProfile, updateSettings, UserProfile } from "@/lib/api";
-import Link from "next/link";
-import { ArrowLeft, Save, Key, Database, Cpu, Clock, Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
+import { Switch } from "@/components/ui/switch";
+import {
+  changePassword,
+  createAIModel,
+  deleteAIModel,
+  getProfile,
+  listAIModels,
+  testAIConnection,
+  updateSettings,
+  type AIModelConfigItem,
+} from "@/features/user/api";
+import type { UserProfile } from "@/types";
+
+type SettingsSection = "general" | "ai" | "notifications" | "security" | "data";
+
+const SECTION_ITEMS: Array<{ id: SettingsSection; label: string; description: string; icon: typeof Settings2 }> = [
+  { id: "general", label: "通用设置", description: "主题与时区", icon: Settings2 },
+  { id: "ai", label: "AI 配置", description: "默认模型与我的模型", icon: Bot },
+  { id: "notifications", label: "通知", description: "飞书与推送偏好", icon: Bell },
+  { id: "security", label: "安全", description: "密码管理", icon: Shield },
+  { id: "data", label: "数据管理", description: "配置状态与同步", icon: HardDrive },
+];
+
+function normalizeBaseUrl(rawBaseUrl?: string) {
+  const trimmed = (rawBaseUrl || "").trim();
+  if (!trimmed) return "";
+  return trimmed.replace(/\/+$/, "").replace(/\/chat\/completions$/i, "").replace(/\/models$/i, "");
+}
+
+function maskText(value: string, keep = 40) {
+  if (value.length <= keep) return value;
+  return `${value.slice(0, keep)}...`;
+}
+
+async function copyText(value: string, onDone: (message: { text: string; type: "success" | "error" }) => void) {
+  try {
+    await navigator.clipboard.writeText(value);
+    onDone({ text: "已复制到剪贴板。", type: "success" });
+  } catch {
+    onDone({ text: "复制失败。", type: "error" });
+  }
+}
 
 export default function SettingsPage() {
-    const { isAuthenticated } = useAuth();
-    const { theme: currentTheme, setTheme } = useTheme();
-    const [profile, setProfile] = useState<UserProfile | null>(null);
-    const [geminiKey, setGeminiKey] = useState("");
-    const [feishuUrl, setFeishuUrl] = useState("");
-    const [loading, setLoading] = useState(true);
-    const [saving, setSaving] = useState(false);
-    const [message, setMessage] = useState<{ text: string, type: 'success' | 'error' } | null>(null);
+  const { token, user: authUser, isAuthenticated, loading: authLoading } = useAuth();
+  const { theme: currentTheme, setTheme } = useTheme();
 
-    useEffect(() => {
-        if (isAuthenticated) {
-            loadProfile();
-        }
-    }, [isAuthenticated]);
+  const [mounted, setMounted] = useState(false);
+  const [activeSection, setActiveSection] = useState<SettingsSection>("general");
+  const [profile, setProfile] = useState<UserProfile | null>(authUser);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
-    const loadProfile = async () => {
-        try {
-            const data = await getProfile();
-            setProfile(data);
-            if (data.feishu_webhook_url) setFeishuUrl(data.feishu_webhook_url);
-            // Sync theme from backend if needed
-            if (data.theme && currentTheme !== data.theme) {
-                setTheme(data.theme);
-            }
-        } catch (error) {
-            console.error("Failed to load profile", error);
-        } finally {
-            setLoading(false);
-        }
+  const [availableModels, setAvailableModels] = useState<AIModelConfigItem[]>([]);
+  const [modelsLoading, setModelsLoading] = useState(false);
+  const [isAddModelOpen, setIsAddModelOpen] = useState(false);
+  const [addingModel, setAddingModel] = useState(false);
+  const [testingModel, setTestingModel] = useState(false);
+  const [deletingModelKey, setDeletingModelKey] = useState<string | null>(null);
+  const [editingModelKey, setEditingModelKey] = useState<string | null>(null);
+  const [modelTestMessage, setModelTestMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+  const [customModel, setCustomModel] = useState({
+    key: "",
+    display_name: "",
+    provider_note: "",
+    model_id: "",
+    api_key: "",
+    base_url: "",
+    is_default: true,
+  });
+
+  const [feishuUrl, setFeishuUrl] = useState("");
+  const [passwordForm, setPasswordForm] = useState({
+    old_password: "",
+    new_password: "",
+    confirm_password: "",
+  });
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+    if (!authUser) return;
+    setProfile(authUser);
+    setFeishuUrl(authUser.feishu_webhook_url || "");
+    if (authUser.theme && currentTheme !== authUser.theme) setTheme(authUser.theme);
+  }, [authUser, currentTheme, setTheme]);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!token && !isAuthenticated) {
+      return;
+    }
+    void loadProfile();
+    void loadModels();
+  }, [authLoading, token, isAuthenticated]);
+
+  const loadProfile = async () => {
+    setProfileLoading(true);
+    try {
+      const data = await getProfile();
+      setProfile(data);
+      setFeishuUrl(data.feishu_webhook_url || "");
+      if (data.theme && currentTheme !== data.theme) setTheme(data.theme);
+    } catch (error) {
+      console.error("Failed to load profile", error);
+    } finally {
+      setProfileLoading(false);
+    }
+  };
+
+  const loadModels = async () => {
+    setModelsLoading(true);
+    try {
+      setAvailableModels(await listAIModels());
+    } catch (error) {
+      console.error("Failed to load AI models", error);
+      setAvailableModels([]);
+    } finally {
+      setModelsLoading(false);
+    }
+  };
+
+  const selectedModel = useMemo(
+    () => availableModels.find((model) => model.key === (profile?.preferred_ai_model || "")) || null,
+    [availableModels, profile?.preferred_ai_model],
+  );
+
+  const handleSetDefaultModel = async (modelKey: string) => {
+    setSaving(true);
+    setMessage(null);
+    try {
+      await updateSettings({ preferred_ai_model: modelKey });
+      await loadProfile();
+      setMessage({ text: "默认分析模型已更新。", type: "success" });
+    } catch (error) {
+      console.error("Failed to update default model", error);
+      setMessage({ text: "切换默认模型失败。", type: "error" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAddModel = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAddingModel(true);
+    setMessage(null);
+
+    const payload = {
+      key: customModel.key.trim() || undefined,
+      display_name: customModel.display_name.trim(),
+      provider_note: customModel.provider_note.trim() || undefined,
+      model_id: customModel.model_id.trim(),
+      api_key: customModel.api_key.trim() || undefined,
+      base_url: normalizeBaseUrl(customModel.base_url),
     };
 
-    const handleSaveKeys = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setSaving(true);
-        setMessage(null);
+    if (!payload.display_name || !payload.model_id || !payload.base_url) {
+      setMessage({ text: "请填写模型名称、模型名称标识和 Base URL。", type: "error" });
+      setAddingModel(false);
+      return;
+    }
+    if (!editingModelKey && !payload.api_key) {
+      setMessage({ text: "新增模型时必须填写 API Key。", type: "error" });
+      setAddingModel(false);
+      return;
+    }
 
-        try {
-            const payload: any = {};
-            if (geminiKey) payload.api_key_gemini = geminiKey;
-            if (feishuUrl !== profile?.feishu_webhook_url) payload.feishu_webhook_url = feishuUrl;
-
-            if (Object.keys(payload).length === 0) {
-                setSaving(false);
-                return;
-            }
-
-            await updateSettings(payload);
-
-            setMessage({ text: "API Keys updated successfully!", type: "success" });
-            setGeminiKey("");
-            loadProfile();
-        } catch (error) {
-            setMessage({ text: "Failed to update settings.", type: "error" });
-        } finally {
-            setSaving(false);
+    try {
+      const savedModel = await createAIModel(payload);
+      
+      // 1. Update models list immediately
+      setAvailableModels((prev) => [savedModel, ...prev.filter((item) => item.key !== savedModel.key)]);
+      
+      // 2. Optimistic Profile Update & Non-blocking Settings Update
+      const needsProfileUpdate = customModel.is_default && profile?.preferred_ai_model !== savedModel.key;
+      
+      if (needsProfileUpdate) {
+        // Fire and forget settings update
+        updateSettings({ preferred_ai_model: savedModel.key }).catch(err => {
+          console.error("Failed to update preferred model:", err);
+        });
+        
+        // Optimistically update local profile
+        if (profile) {
+          setProfile({ ...profile, preferred_ai_model: savedModel.key });
         }
+      }
+
+      // 3. Immediate UI Reset
+      setCustomModel({
+        key: "",
+        display_name: "",
+        provider_note: "",
+        model_id: "",
+        api_key: "",
+        base_url: "",
+        is_default: true,
+      });
+      setEditingModelKey(null);
+      setModelTestMessage(null);
+      setIsAddModelOpen(false);
+      
+      setMessage({ 
+        text: editingModelKey 
+          ? `模型 ${savedModel.display_name} 已更新。` 
+          : (customModel.is_default ? `模型 ${savedModel.display_name} 已添加并设为默认。` : `模型 ${savedModel.display_name} 已添加。`), 
+        type: "success" 
+      });
+
+      // 4. Background sync if needed, but don't block UI closure
+      if (needsProfileUpdate) {
+          setTimeout(() => loadProfile(), 1000); // Debounced background sync
+      }
+    } catch (error: any) {
+      setMessage({ text: error.response?.data?.detail || (editingModelKey ? "更新模型失败。" : "添加模型失败。"), type: "error" });
+    } finally {
+      setAddingModel(false);
+    }
+  };
+
+  const handleTestModel = async () => {
+    setModelTestMessage(null);
+    const payload = {
+      provider_note: customModel.provider_note.trim() || undefined,
+      model_id: customModel.model_id.trim(),
+      api_key: customModel.api_key.trim() || undefined,
+      base_url: normalizeBaseUrl(customModel.base_url),
     };
 
-    const handleModelUpdate = async (model: string) => {
-        setSaving(true);
-        try {
-            await updateSettings({
-                preferred_ai_model: model
-            });
-            loadProfile();
-            setMessage({ text: `Preferred content switched to ${model}`, type: "success" });
-        } catch (error) {
-            console.error("Failed to update model", error);
-        } finally {
-            setSaving(false);
-        }
-    };
+    if (!payload.model_id || !payload.base_url) {
+      setModelTestMessage({ text: "测试前请先填写模型名称标识和 Base URL。", type: "error" });
+      return;
+    }
+    if (!payload.api_key && !editingModelKey) {
+      setModelTestMessage({ text: "测试前请先填写模型名称标识、API Key 和 Base URL。", type: "error" });
+      return;
+    }
 
-    const handleTimezoneUpdate = async (timezone: string) => {
-        setSaving(true);
-        try {
-            await updateSettings({
-                timezone: timezone
-            });
-            loadProfile();
-            setMessage({ text: `Timezone updated to ${timezone}`, type: "success" });
-        } catch (error) {
-            console.error("Failed to update timezone", error);
-            setMessage({ text: "Failed to update timezone.", type: "error" });
-        } finally {
-            setSaving(false);
-        }
-    };    const handleThemeUpdate = async (theme: string) => {
-        setSaving(true);
-        setTheme(theme);
-        try {
-            await updateSettings({
-                theme: theme
-            });
-            loadProfile();
-            setMessage({ text: `Visual theme updated to ${theme}`, type: "success" });
-        } catch (error) {
-            console.error("Failed to update theme", error);
-            setMessage({ text: "Failed to update theme.", type: "error" });
-        } finally {
-            setSaving(false);
-        }
-    };
+    setTestingModel(true);
+    try {
+      const result = await testAIConnection(payload);
+      setModelTestMessage({
+        text: result.message,
+        type: result.status === "success" ? "success" : "error",
+      });
+    } catch (error: any) {
+      setModelTestMessage({
+        text: error.response?.data?.detail || "测试连接失败。",
+        type: "error",
+      });
+    } finally {
+      setTestingModel(false);
+    }
+  };
 
-    const handleToggleSwitch = async (key: keyof UserProfile, value: boolean) => {
-        setSaving(true);
-        try {
-            await updateSettings({
-                [key]: value
-            });
-            loadProfile();
-            setMessage({ text: "Notification preference updated.", type: "success" });
-        } catch (error) {
-            console.error("Failed to update notification setting", error);
-            setMessage({ text: "Failed to update notification setting.", type: "error" });
-        } finally {
-            setSaving(false);
-        }
-    };
+  const resetModelForm = () => {
+    setCustomModel({
+      key: "",
+      display_name: "",
+      provider_note: "",
+      model_id: "",
+      api_key: "",
+      base_url: "",
+      is_default: true,
+    });
+    setEditingModelKey(null);
+    setModelTestMessage(null);
+  };
 
+  const openAddModelDialog = () => {
+    resetModelForm();
+    setIsAddModelOpen(true);
+  };
 
-    if (loading) return <div className="p-8">Loading settings...</div>;
+  const openEditModelDialog = (model: AIModelConfigItem) => {
+    setCustomModel({
+      key: model.key,
+      display_name: model.display_name,
+      provider_note: model.provider_note || "",
+      model_id: model.model_id,
+      api_key: "",
+      base_url: normalizeBaseUrl(model.base_url),
+      is_default: profile?.preferred_ai_model === model.key,
+    });
+    setEditingModelKey(model.key);
+    setModelTestMessage(null);
+    setIsAddModelOpen(true);
+  };
 
+  const handleDeleteModel = async (modelKey: string) => {
+    setDeletingModelKey(modelKey);
+    setMessage(null);
+    try {
+      const response = await deleteAIModel(modelKey);
+      setAvailableModels((prev) => prev.filter((model) => model.key !== modelKey));
+      await loadProfile();
+      setMessage({ text: response.message || "模型已删除。", type: "success" });
+    } catch (error: any) {
+      setMessage({ text: error.response?.data?.detail || "删除模型失败。", type: "error" });
+    } finally {
+      setDeletingModelKey(null);
+    }
+  };
+
+  const handleThemeUpdate = async (theme: string) => {
+    setSaving(true);
+    setTheme(theme);
+    try {
+      await updateSettings({ theme });
+      await loadProfile();
+      setMessage({ text: "外观主题已更新。", type: "success" });
+    } catch (error) {
+      console.error("Failed to update theme", error);
+      setMessage({ text: "更新主题失败。", type: "error" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleTimezoneUpdate = async (timezone: string) => {
+    setSaving(true);
+    try {
+      await updateSettings({ timezone });
+      await loadProfile();
+      setMessage({ text: "时区设置已更新。", type: "success" });
+    } catch (error) {
+      console.error("Failed to update timezone", error);
+      setMessage({ text: "更新时区失败。", type: "error" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleToggleSwitch = async (key: keyof UserProfile, value: boolean) => {
+    setSaving(true);
+    try {
+      await updateSettings({ [key]: value });
+      await loadProfile();
+      setMessage({ text: "通知偏好已更新。", type: "success" });
+    } catch (error) {
+      console.error("Failed to update notification setting", error);
+      setMessage({ text: "更新通知偏好失败。", type: "error" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleSaveNotificationChannel = async () => {
+    setSaving(true);
+    try {
+      await updateSettings({ feishu_webhook_url: feishuUrl });
+      await loadProfile();
+      setMessage({ text: "通知通道已保存。", type: "success" });
+    } catch (error) {
+      console.error("Failed to save notification channel", error);
+      setMessage({ text: "保存通知通道失败。", type: "error" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordMessage(null);
+    if (passwordForm.new_password !== passwordForm.confirm_password) {
+      setPasswordMessage({ text: "两次输入的新密码不一致。", type: "error" });
+      return;
+    }
+    if (passwordForm.new_password.length < 6) {
+      setPasswordMessage({ text: "新密码长度至少为 6 位。", type: "error" });
+      return;
+    }
+    setPasswordLoading(true);
+    try {
+      await changePassword({ old_password: passwordForm.old_password, new_password: passwordForm.new_password });
+      setPasswordForm({ old_password: "", new_password: "", confirm_password: "" });
+      setPasswordMessage({ text: "密码更新成功。", type: "success" });
+    } catch (error: any) {
+      setPasswordMessage({ text: error.response?.data?.detail || "更新密码失败。", type: "error" });
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  if (!authLoading && !token && !isAuthenticated) {
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-8">
-            <div className="max-w-4xl mx-auto space-y-6">
-                <div className="flex items-center gap-4">
-                    <Link href="/">
-                        <Button variant="ghost" size="icon">
-                            <ArrowLeft className="h-4 w-4" />
-                        </Button>
-                    </Link>
-                    <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
-                </div>
-
-                {message && (
-                    <div className={`p-4 rounded-md border ${message.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
-                        {message.text}
-                    </div>
-                )}
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Moon className="h-5 w-5 text-slate-400 dark:text-slate-500" />
-                                    Visual Theme
-                                </CardTitle>
-                                <CardDescription>
-                                    Switch between light and dark modes.
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="grid grid-cols-3 gap-2">
-                                <Button 
-                                    variant={currentTheme === 'light' ? 'default' : 'outline'} 
-                                    className="flex items-center gap-2 h-20 flex-col"
-                                    onClick={() => handleThemeUpdate('light')}
-                                    disabled={saving}
-                                >
-                                    <Sun className="h-5 w-5" />
-                                    <span className="text-xs">Light</span>
-                                </Button>
-                                <Button 
-                                    variant={currentTheme === 'dark' ? 'default' : 'outline'} 
-                                    className="flex items-center gap-2 h-20 flex-col"
-                                    onClick={() => handleThemeUpdate('dark')}
-                                    disabled={saving}
-                                >
-                                    <Moon className="h-5 w-5" />
-                                    <span className="text-xs">Dark</span>
-                                </Button>
-                                <Button 
-                                    variant={currentTheme === 'system' ? 'default' : 'outline'} 
-                                    className="flex items-center gap-2 h-20 flex-col"
-                                    onClick={() => handleThemeUpdate('system')}
-                                    disabled={saving}
-                                >
-                                    <Cpu className="h-5 w-5" />
-                                    <span className="text-xs">Auto</span>
-                                </Button>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Key className="h-5 w-5" />
-                                    API Key Management
-                                </CardTitle>
-                                <CardDescription>
-                                    Configure your own AI API Keys.
-                                </CardDescription>
-                            </CardHeader>
-                            <form onSubmit={handleSaveKeys}>
-                                <CardContent className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="gemini">Google Gemini Key</Label>
-                                        <Input
-                                            id="gemini"
-                                            type="password"
-                                            placeholder="AIzaSy..."
-                                            value={geminiKey}
-                                            onChange={(e) => setGeminiKey(e.target.value)}
-                                        />
-                                        <div className="text-[10px] text-muted-foreground flex justify-between">
-                                            <span>Status: {profile?.has_gemini_key ? "✅ Set" : "⚠️ Not Set"}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800">
-                                        <Label htmlFor="feishu" className="flex items-center gap-2">
-                                            飞书机器人 Webhook (私人)
-                                        </Label>
-                                        <Input
-                                            id="feishu"
-                                            type="text"
-                                            placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/..."
-                                            value={feishuUrl}
-                                            onChange={(e) => setFeishuUrl(e.target.value)}
-                                        />
-                                        <CardDescription className="text-[10px]">
-                                            不配飞书地址的用户将不会启动 AI 自动化分析与汇总，以节省 API 额度。
-                                        </CardDescription>
-                                    </div>
-                                </CardContent>
-                                <CardFooter>
-                                    <Button type="submit" className="w-full" disabled={saving || (!geminiKey && feishuUrl === profile?.feishu_webhook_url)}>
-                                        {saving ? "Saving..." : "Save Settings"}
-                                        <Save className="ml-2 h-4 w-4" />
-                                    </Button>
-                                </CardFooter>
-                            </form>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Clock className="h-5 w-5" />
-                                    推送偏好设置
-                                </CardTitle>
-                                <CardDescription>
-                                    精细化控制飞书机器人的推送频率与类别。
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                {[
-                                    { id: 'enable_price_alerts', label: '价格/风险预警', desc: '触达止盈止损或指标极端值时推送', key: 'enable_price_alerts' as const },
-                                    { id: 'enable_hourly_summary', label: '持仓整点摘要', desc: '每小时针对持仓标的进行全网新闻精要汇总', key: 'enable_hourly_summary' as const },
-                                    { id: 'enable_daily_report', label: '每日持仓报告', desc: '北京时间 09:00/22:00 生成深度持仓体检报告', key: 'enable_daily_report' as const },
-                                    { id: 'enable_macro_alerts', label: '全球宏观变动', desc: '实时监控并推送影响全球市场的宏观大事件', key: 'enable_macro_alerts' as const },
-                                ].map((item) => (
-                                    <div key={item.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-                                        <div className="space-y-0.5">
-                                            <Label htmlFor={item.id} className="text-sm font-medium">{item.label}</Label>
-                                            <p className="text-[10px] text-muted-foreground">{item.desc}</p>
-                                        </div>
-                                        <button
-                                            id={item.id}
-                                            onClick={() => handleToggleSwitch(item.key, !profile?.[item.key])}
-                                            disabled={saving}
-                                            title={`Toggle ${item.label}`}
-                                            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${profile?.[item.key] ? 'bg-emerald-600' : 'bg-slate-200 dark:bg-slate-700'}`}
-                                        >
-                                            <span className={`pointer-events-none block h-4 w-4 rounded-full bg-white shadow-lg ring-0 transition-transform ${profile?.[item.key] ? 'translate-x-4' : 'translate-x-0.5'}`} />
-                                        </button>
-                                    </div>
-                                ))}
-                            </CardContent>
-                        </Card>
-                    </div>
-
-                    <div className="space-y-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Cpu className="h-5 w-5" />
-                                    AI Model Selection
-                                </CardTitle>
-                                <CardDescription>
-                                    Choose which model to use for stock analysis.
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="model-select">Preferred Analysis Model</Label>
-                                    <select
-                                        id="model-select"
-                                        className="w-full p-2 rounded-md border border-slate-200 dark:border-slate-800 bg-transparent text-sm"
-                                        value={profile?.preferred_ai_model || "gemini-1.5-flash"}
-                                        onChange={(e) => handleModelUpdate(e.target.value)}
-                                        disabled={saving}
-                                        title="Select AI Model"
-                                    >
-                                        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Fast/Default)</option>
-                                        <option value="deepseek-v3">DeepSeek V3 (Reasoning/SF)</option>
-                                        <option value="deepseek-r1">DeepSeek R1 (Thought/SF)</option>
-                                        <option value="qwen-2.5-72b">Qwen 2.5 72B (Versatile/SF)</option>
-                                        <option value="qwen-3-vl-thinking">Qwen 3 VL (Reasoning/Thinking/SF)</option>
-                                    </select>
-                                </div>
-                                <p className="text-xs text-muted-foreground">
-                                    Note: SiliconFlow models use the system-managed API Key. You only need to provide your own Gemini Key if you use Gemini models.
-                                </p>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Clock className="h-5 w-5" />
-                                    Timezone Configuration
-                                </CardTitle>
-                                <CardDescription>
-                                    Set your preferred timezone for all displays.
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="timezone-select">System Global Timezone</Label>
-                                    <select
-                                        id="timezone-select"
-                                        className="w-full p-2 rounded-md border border-slate-200 dark:border-slate-800 bg-transparent text-sm"
-                                        value={profile?.timezone || "Asia/Shanghai"}
-                                        onChange={(e) => handleTimezoneUpdate(e.target.value)}
-                                        disabled={saving}
-                                        title="Select System Timezone"
-                                    >
-                                        <optgroup label="亚洲 (Asia)">
-                                            <option value="Asia/Shanghai">北京 / 上海 (UTC+8)</option>
-                                            <option value="Asia/Hong_Kong">香港 / 台北 (UTC+8)</option>
-                                            <option value="Asia/Tokyo">东京 / 首尔 (UTC+9)</option>
-                                            <option value="Asia/Singapore">新加坡 (UTC+8)</option>
-                                            <option value="Asia/Dubai">迪拜 (UTC+4)</option>
-                                        </optgroup>
-                                        <optgroup label="美洲 (Americas)">
-                                            <option value="America/New_York">纽约 / 华盛顿 (EST/EDT)</option>
-                                            <option value="America/Chicago">芝加哥 (CST/CDT)</option>
-                                            <option value="America/Los_Angeles">洛杉矶 / 旧金山 (PST/PDT)</option>
-                                            <option value="America/Toronto">多伦多 (EST/EDT)</option>
-                                        </optgroup>
-                                        <optgroup label="欧洲 (Europe)">
-                                            <option value="Europe/London">伦敦 / GMT (UTC+0/+1)</option>
-                                            <option value="Europe/Paris">巴黎 / 柏林 / 罗马 (UTC+1/+2)</option>
-                                            <option value="Europe/Zurich">苏黎世 (UTC+1/+2)</option>
-                                            <option value="Europe/Moscow">莫斯科 (UTC+3)</option>
-                                        </optgroup>
-                                        <optgroup label="大洋洲 (Oceania)">
-                                            <option value="Australia/Sydney">悉尼 / 墨尔本 (UTC+10/+11)</option>
-                                            <option value="Pacific/Auckland">奥克兰 (UTC+12/+13)</option>
-                                        </optgroup>
-                                        <optgroup label="标准 (Standard)">
-                                            <option value="UTC">UTC (Universal Coordinated Time)</option>
-                                        </optgroup>
-                                    </select>
-                                </div>
-                                <p className="text-xs text-muted-foreground">
-                                    This will affect Smart Alert Stream, Macro Radar, and all historical data charts.
-                                </p>
-                            </CardContent>
-                        </Card>
-
-                    </div>
-                </div>
-            </div>
-        </div>
+      <div className="p-8">
+        <p className="text-sm text-slate-500">未登录，正在跳转到登录页...</p>
+      </div>
     );
+  }
+
+  const renderGeneralSection = () => (
+    <div className="space-y-8">
+      <div className="space-y-3">
+        <Label className="text-sm font-semibold">主题模式</Label>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { key: "light", label: "浅色", icon: Sun },
+            { key: "dark", label: "深色", icon: Moon },
+            { key: "system", label: "跟随系统", icon: Sparkles },
+          ].map((item) => {
+            const Icon = item.icon;
+            const active = mounted && currentTheme === item.key;
+            return (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => handleThemeUpdate(item.key)}
+                disabled={saving}
+                className={`rounded-2xl border p-4 text-left transition ${
+                  active
+                    ? "border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-950"
+                    : "border-slate-200 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-slate-700"
+                }`}
+              >
+                <Icon className="mb-4 h-5 w-5" />
+                <div className="text-sm font-semibold">{item.label}</div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="border-t border-slate-200 pt-6 dark:border-slate-800">
+        <div className="space-y-2">
+          <Label htmlFor="timezone-select" className="text-sm font-semibold">时区</Label>
+          <select
+            id="timezone-select"
+            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+            value={profile?.timezone || authUser?.timezone || "Asia/Shanghai"}
+            onChange={(e) => handleTimezoneUpdate(e.target.value)}
+            disabled={saving}
+          >
+            <option value="Asia/Shanghai">北京 / 上海 (UTC+8)</option>
+            <option value="Asia/Hong_Kong">香港 / 台北 (UTC+8)</option>
+            <option value="Asia/Tokyo">东京 / 首尔 (UTC+9)</option>
+            <option value="America/New_York">纽约 / 华盛顿</option>
+            <option value="America/Los_Angeles">洛杉矶 / 旧金山</option>
+            <option value="Europe/London">伦敦</option>
+            <option value="UTC">UTC</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAiSection = () => (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">我的模型</h3>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{availableModels.length} 个已配置的模型</p>
+        </div>
+        <Dialog
+          open={isAddModelOpen}
+          onOpenChange={(open) => {
+            setIsAddModelOpen(open);
+            if (!open) resetModelForm();
+          }}
+        >
+          <DialogTrigger asChild>
+            <Button variant="default" size="sm" className="gap-2" onClick={openAddModelDialog}>
+              <Plus className="h-4 w-4" />
+              添加模型
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-xl">
+            <DialogHeader>
+              <DialogTitle>{editingModelKey ? "编辑模型" : "添加新模型"}</DialogTitle>
+              <DialogDescription>
+                {editingModelKey ? "更新模型配置。API Key 留空时保留当前已保存的密钥。" : "添加一个新的 AI 模型到你的模型列表。"}
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleAddModel} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="model-name">模型名称</Label>
+                <Input id="model-name" placeholder="例如：Claude Sonnet 4" value={customModel.display_name} onChange={(e) => setCustomModel((prev) => ({ ...prev, display_name: e.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="model-id">模型名称标识</Label>
+                <Input id="model-id" placeholder="例如：gpt-4o-mini / gemini-1.5-flash / qwen-max" value={customModel.model_id} onChange={(e) => setCustomModel((prev) => ({ ...prev, model_id: e.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="model-base-url">Base URL</Label>
+                <Input id="model-base-url" placeholder="例如：https://api.openai.com/v1" value={customModel.base_url} onChange={(e) => setCustomModel((prev) => ({ ...prev, base_url: e.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="model-api-key">API Key</Label>
+                <Input id="model-api-key" type="password" placeholder={editingModelKey ? "留空则保留当前密钥" : "输入可调用该模型的 API Key"} value={customModel.api_key} onChange={(e) => setCustomModel((prev) => ({ ...prev, api_key: e.target.value }))} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="provider-note">提供商备注</Label>
+                <Input id="provider-note" placeholder="例如：OpenRouter / Gemini Native / 自建中转" value={customModel.provider_note} onChange={(e) => setCustomModel((prev) => ({ ...prev, provider_note: e.target.value }))} />
+              </div>
+              <div className="flex items-center justify-between rounded-lg border border-slate-200 p-3 dark:border-slate-800">
+                <div className="space-y-0.5">
+                  <Label htmlFor="is-default" className="text-sm font-medium">设为默认模型</Label>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    添加后自动将其设置为全站默认使用的 AI 模型
+                  </p>
+                </div>
+                <Switch
+                  checked={customModel.is_default}
+                  onCheckedChange={(checked) => setCustomModel((prev) => ({ ...prev, is_default: checked }))}
+                />
+              </div>
+              {modelTestMessage && (
+                <div
+                  className={`rounded-xl border px-4 py-3 text-sm ${
+                    modelTestMessage.type === "success"
+                      ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300"
+                      : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300"
+                  }`}
+                >
+                  {modelTestMessage.text}
+                </div>
+              )}
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={handleTestModel} disabled={testingModel || addingModel}>
+                  {testingModel ? "测试中..." : "测试连接"}
+                </Button>
+                <Button type="submit" disabled={addingModel}>{addingModel ? (editingModelKey ? "更新中..." : "添加中...") : (editingModelKey ? "保存修改" : "添加模型")}</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="mt-4">
+        {availableModels.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-slate-300 px-4 py-6 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+            还没有配置任何大模型。点击右上角“添加模型”开始。
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {availableModels.map((model) => {
+              const isDefault = profile?.preferred_ai_model === model.key;
+              return (
+                <div key={model.key} className="rounded-2xl border border-slate-200 px-5 py-5 dark:border-slate-800">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h4 className="text-base font-semibold text-slate-900 dark:text-slate-100">{model.display_name}</h4>
+                        {isDefault && <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">默认</span>}
+                        {model.is_builtin && <span className="rounded-full border border-sky-500/20 bg-sky-500/10 px-2.5 py-1 text-[11px] font-semibold text-sky-600 dark:text-sky-400">系统内置</span>}
+                        <span className="rounded-full border border-slate-200 px-2.5 py-1 text-[11px] font-medium text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                          {model.is_active ? "已启用" : "已停用"}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                        {(model.provider_note || "未填写提供商备注")} · {model.model_id}
+                      </p>
+                    </div>
+                    <Switch checked={Boolean(model.is_active)} disabled />
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-slate-600 dark:text-slate-300">
+                    <div className="min-w-0">
+                      <span className="mr-2 text-slate-500 dark:text-slate-400">API 密钥:</span>
+                      <span className="font-mono font-medium text-slate-900 dark:text-slate-100">
+                        {model.masked_api_key || (model.has_api_key ? "已保存" : "未保存")}
+                      </span>
+                    </div>
+                    <div className="min-w-0">
+                      <span className="mr-2 text-slate-500 dark:text-slate-400">API 地址:</span>
+                      <span className="font-mono font-medium text-slate-900 dark:text-slate-100">
+                        {maskText(normalizeBaseUrl(model.base_url), 56)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-end gap-2">
+                    {!isDefault && <Button variant="outline" size="sm" onClick={() => handleSetDefaultModel(model.key)} disabled={saving || deletingModelKey === model.key}>设为默认</Button>}
+                    {!model.is_builtin && (
+                      <>
+                        <Button variant="outline" size="sm" onClick={() => openEditModelDialog(model)} disabled={saving || deletingModelKey === model.key}>
+                          <Pencil className="mr-1.5 h-4 w-4" />
+                          编辑
+                        </Button>
+                        <Button variant="ghost" size="sm" className="text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300" onClick={() => handleDeleteModel(model.key)} disabled={deletingModelKey !== null || saving}>
+                          {deletingModelKey === model.key ? "删除中..." : "删除"}
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderNotificationsSection = () => (
+    <div className="space-y-8">
+      <div className="space-y-2">
+        <Label htmlFor="feishu-webhook" className="text-sm font-semibold">飞书机器人 Webhook</Label>
+        <Input id="feishu-webhook" type="text" placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/..." value={feishuUrl} onChange={(e) => setFeishuUrl(e.target.value)} />
+        <Button variant="outline" onClick={handleSaveNotificationChannel} disabled={saving}>
+          <Save className="mr-2 h-4 w-4" />
+          保存通知通道
+        </Button>
+      </div>
+
+      <div className="border-t border-slate-200 pt-6 dark:border-slate-800">
+        <div className="space-y-3">
+          {[
+            { key: "enable_price_alerts" as const, title: "价格 / 风险预警", description: "触达止盈止损或指标异常时推送。" },
+            { key: "enable_hourly_summary" as const, title: "持仓整点摘要", description: "每小时对持仓标的做新闻与行情总结。" },
+            { key: "enable_daily_report" as const, title: "每日持仓报告", description: "北京时间 09:00 / 22:00 生成深度持仓体检。" },
+            { key: "enable_macro_alerts" as const, title: "全球宏观提醒", description: "推送影响全球市场的大事件与风险。" },
+          ].map((item) => (
+            <div key={item.key} className="flex items-center justify-between border-b border-slate-200 py-4 last:border-b-0 dark:border-slate-800">
+              <div>
+                <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{item.title}</div>
+                <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">{item.description}</div>
+              </div>
+              <Switch
+                checked={Boolean(profile?.[item.key] ?? authUser?.[item.key])}
+                disabled={saving}
+                onCheckedChange={(checked) => handleToggleSwitch(item.key, checked)}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderSecuritySection = () => (
+    <div className="space-y-8">
+      <form onSubmit={handleChangePassword} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="old-password">当前密码</Label>
+          <Input id="old-password" type="password" value={passwordForm.old_password} onChange={(e) => setPasswordForm((prev) => ({ ...prev, old_password: e.target.value }))} />
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="new-password">新密码</Label>
+            <Input id="new-password" type="password" value={passwordForm.new_password} onChange={(e) => setPasswordForm((prev) => ({ ...prev, new_password: e.target.value }))} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirm-password">确认新密码</Label>
+            <Input id="confirm-password" type="password" value={passwordForm.confirm_password} onChange={(e) => setPasswordForm((prev) => ({ ...prev, confirm_password: e.target.value }))} />
+          </div>
+        </div>
+        <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
+          {passwordMessage && (
+            <div
+              className={`mb-4 rounded-xl border px-4 py-3 text-sm ${
+                passwordMessage.type === "success"
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300"
+                  : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300"
+              }`}
+            >
+              {passwordMessage.text}
+            </div>
+          )}
+          <Button type="submit" disabled={passwordLoading}>{passwordLoading ? "更新中..." : "更新密码"}</Button>
+        </div>
+      </form>
+    </div>
+  );
+
+  const renderDataSection = () => (
+    <div className="space-y-8">
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="border-r border-slate-200 pr-4 dark:border-slate-800">
+          <div className="text-xs uppercase tracking-[0.2em] text-slate-500">我的模型</div>
+          <div className="mt-3 text-2xl font-semibold text-slate-900 dark:text-slate-100">{availableModels.length}</div>
+        </div>
+        <div className="border-r border-slate-200 px-4 dark:border-slate-800">
+          <div className="text-xs uppercase tracking-[0.2em] text-slate-500">当前默认模型</div>
+          <div className="mt-3 text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedModel?.display_name || profile?.preferred_ai_model || "未设置"}</div>
+        </div>
+        <div className="pl-4">
+          <div className="text-xs uppercase tracking-[0.2em] text-slate-500">当前主题</div>
+          <div className="mt-3 text-sm font-semibold text-slate-900 dark:text-slate-100">{profile?.theme || authUser?.theme || "未设置"}</div>
+        </div>
+      </div>
+
+      <div className="border-t border-slate-200 pt-6 dark:border-slate-800">
+        <div className="flex flex-wrap gap-3">
+          <Button variant="outline" onClick={() => { void loadProfile(); void loadModels(); }}>
+            <RefreshCcw className="mr-2 h-4 w-4" />
+            重新同步配置
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              resetModelForm();
+              setMessage({ text: "添加模型弹窗的临时输入已清空。", type: "success" });
+            }}
+          >
+            清空未保存输入
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const activeSectionConfig = SECTION_ITEMS.find((item) => item.id === activeSection)!;
+
+  return (
+    <div className="min-h-screen bg-slate-50 px-4 py-6 dark:bg-slate-950 md:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-6 flex items-center gap-3">
+          <Link href="/">
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">设置</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              {profileLoading ? "正在同步最新设置..." : "沿用当前主题体系，重组为更清晰的工作区式设置中心。"}
+            </p>
+          </div>
+        </div>
+
+        {message && (
+          <div className={`mb-6 rounded-2xl border px-4 py-3 text-sm ${
+            message.type === "success"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300"
+              : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300"
+          }`}>
+            {message.text}
+          </div>
+        )}
+
+        <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="grid min-h-[760px] lg:grid-cols-[280px_1fr]">
+            <aside className="border-b border-slate-200 bg-slate-50/80 p-5 dark:border-slate-800 dark:bg-slate-950/80 lg:border-b-0 lg:border-r">
+              <div className="mb-6">
+                <h2 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">设置</h2>
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">管理您的账户、AI 模型与自动化偏好。</p>
+              </div>
+
+              <nav className="space-y-2">
+                {SECTION_ITEMS.map((item) => {
+                  const Icon = item.icon;
+                  const active = activeSection === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setActiveSection(item.id)}
+                      className={`flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left transition ${
+                        active ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-950" : "hover:bg-slate-100 dark:hover:bg-slate-900"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className={`h-4 w-4 ${active ? "" : "text-slate-500"}`} />
+                        <div>
+                          <div className="text-sm font-semibold">{item.label}</div>
+                          <div className={`text-xs ${active ? "text-slate-300 dark:text-slate-600" : "text-slate-500 dark:text-slate-400"}`}>{item.description}</div>
+                        </div>
+                      </div>
+                      <ChevronRight className={`h-4 w-4 ${active ? "opacity-100" : "opacity-40"}`} />
+                    </button>
+                  );
+                })}
+              </nav>
+            </aside>
+
+            <main className="p-6 lg:p-8">
+              <div className="mb-8">
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                  <activeSectionConfig.icon className="h-4 w-4" />
+                  {activeSectionConfig.label}
+                </div>
+                <h3 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+                  {activeSection === "general" && "通用设置"}
+                  {activeSection === "ai" && "AI 配置"}
+                  {activeSection === "notifications" && "通知设置"}
+                  {activeSection === "security" && "安全设置"}
+                  {activeSection === "data" && "数据管理"}
+                </h3>
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{activeSectionConfig.description}</p>
+              </div>
+
+              {activeSection === "general" && renderGeneralSection()}
+              {activeSection === "ai" && renderAiSection()}
+              {activeSection === "notifications" && renderNotificationsSection()}
+              {activeSection === "security" && renderSecuritySection()}
+              {activeSection === "data" && renderDataSection()}
+            </main>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

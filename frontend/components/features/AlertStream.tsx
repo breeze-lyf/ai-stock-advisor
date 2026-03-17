@@ -1,47 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React from 'react';
 import { Bell, Zap, TrendingUp, AlertTriangle, Calendar, Clock, ChevronRight } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { useAuth } from '@/context/AuthContext';
+import type { NotificationLog } from '@/features/notifications/api';
 import { formatDateTime } from '@/lib/utils';
 
 function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
 
-interface NotificationLog {
-    id: string;
-    type: string;
-    title: string;
-    content: string;
-    card_payload: any;
-    created_at: string;
+interface AlertStreamProps {
+    loading: boolean;
+    logs: NotificationLog[];
 }
 
-const AlertStream: React.FC = () => {
-    const { isAuthenticated, user } = useAuth();
-    const [logs, setLogs] = useState<NotificationLog[]>([]);
-    const [loading, setLoading] = useState(true);
-
-    const fetchHistory = async () => {
-        try {
-            const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-            const response = await axios.get(`${apiBase}/api/notifications/history?limit=30`);
-            setLogs(response.data);
-        } catch (error) {
-            console.error("Failed to fetch notification history:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchHistory();
-        // 每 30 秒自动刷新一次，确保持时效性
-        const timer = setInterval(fetchHistory, 30000);
-        return () => clearInterval(timer);
-    }, []);
+const AlertStream: React.FC<AlertStreamProps> = ({ loading, logs }) => {
+    const { user } = useAuth();
 
     const getIcon = (type: string) => {
         switch (type) {

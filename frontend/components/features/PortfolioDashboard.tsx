@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { 
     LayoutDashboard, 
     TrendingUp, 
@@ -13,10 +12,6 @@ import {
     ChevronRight,
     BookOpen
 } from "lucide-react";
-import { 
-    getPortfolioSummary, 
-    analyzePortfolio 
-} from "@/lib/api";
 import { 
     PortfolioSummary, 
     PortfolioAnalysisResponse 
@@ -36,71 +31,28 @@ import remarkGfm from "remark-gfm";
 import clsx from "clsx";
 
 interface PortfolioDashboardProps {
-    onSelectTicker: (ticker: string) => void;
+    analysis: PortfolioAnalysisResponse | null;
+    analyzing: boolean;
+    loading: boolean;
+    loadingAnalysis: boolean;
+    onAnalyze: () => Promise<void>;
+    onSelectTicker: (ticker: string | null) => void;
+    onShowReportChange: (show: boolean) => void;
+    showReport: boolean;
+    summary: PortfolioSummary | null;
 }
 
-// Module-level cache to persist data across tab switches (preventing full screen loading)
-let globalSummaryCache: PortfolioSummary | null = null;
-let globalAnalysisCache: PortfolioAnalysisResponse | null = null;
-
-export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) {
-    const [summary, setSummary] = useState<PortfolioSummary | null>(globalSummaryCache);
-    const [analysis, setAnalysis] = useState<PortfolioAnalysisResponse | null>(globalAnalysisCache);
-    const [loading, setLoading] = useState(!globalSummaryCache); // Only show spinner if no cache
-    const [analyzing, setAnalyzing] = useState(false);
-    const [loadingAnalysis, setLoadingAnalysis] = useState(!globalAnalysisCache && !!globalSummaryCache);
-    const [showReport, setShowReport] = useState(false);
-
-    const fetchData = async () => {
-        // Step 1: Fetch and display summary
-        if (!globalSummaryCache) {
-            setLoading(true);
-        }
-        
-        try {
-            const summaryData = await getPortfolioSummary();
-            setSummary(summaryData);
-            globalSummaryCache = summaryData; // Update cache
-            setLoading(false); 
-            
-            // Step 2: Fetch latest analysis in background
-            if (!globalAnalysisCache) {
-                setLoadingAnalysis(true);
-            }
-            
-            try {
-                const api = await import("@/lib/api");
-                const latestAnalysis = await api.getLatestPortfolioAnalysis();
-                if (latestAnalysis) {
-                    setAnalysis(latestAnalysis);
-                    globalAnalysisCache = latestAnalysis; // Update cache
-                }
-            } catch (err) {
-                console.error("Analysis background fetch failed:", err);
-            } finally {
-                setLoadingAnalysis(false);
-            }
-        } catch (error) {
-            console.error("Failed to fetch portfolio data:", error);
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    const handleAnalyze = async () => {
-        setAnalyzing(true);
-        try {
-            const result = await analyzePortfolio();
-            setAnalysis(result);
-        } catch (error) {
-            console.error("Analysis failed:", error);
-        } finally {
-            setAnalyzing(false);
-        }
-    };
+export function PortfolioDashboard({
+    analysis,
+    analyzing,
+    loading,
+    loadingAnalysis,
+    onAnalyze,
+    onSelectTicker,
+    onShowReportChange,
+    showReport,
+    summary,
+}: PortfolioDashboardProps) {
 
     if (loading) {
         return (
@@ -313,7 +265,7 @@ export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) 
                                     <p className="text-slate-500 text-[10px] px-4">审视组合风险、行业集中度并获得策略建议。</p>
                                 </div>
                                 <Button 
-                                    onClick={handleAnalyze} 
+                                    onClick={onAnalyze} 
                                     disabled={analyzing}
                                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl mt-2 h-10 text-xs shadow-lg shadow-blue-900/20"
                                 >
@@ -365,7 +317,7 @@ export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) 
                                 </div>
 
                                 <div className="flex gap-2">
-                                    <Dialog open={showReport} onOpenChange={setShowReport}>
+                                    <Dialog open={showReport} onOpenChange={onShowReportChange}>
                                         <DialogTrigger asChild>
                                             <Button 
                                                 variant="secondary"
@@ -400,14 +352,14 @@ export function PortfolioDashboard({ onSelectTicker }: PortfolioDashboardProps) 
                                             
                                             <div className="p-3 bg-slate-50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center text-[10px]">
                                                 <span className="font-bold text-slate-400">报告生成时间: {new Date(analysis.created_at).toLocaleString()}</span>
-                                                <Button variant="ghost" size="sm" onClick={() => setShowReport(false)} className="font-bold text-[10px] h-7">关闭</Button>
+                                                <Button variant="ghost" size="sm" onClick={() => onShowReportChange(false)} className="font-bold text-[10px] h-7">关闭</Button>
                                             </div>
                                         </DialogContent>
                                     </Dialog>
 
                                     <Button 
                                         variant="outline" 
-                                        onClick={handleAnalyze}
+                                        onClick={onAnalyze}
                                         disabled={analyzing}
                                         className="bg-transparent border-slate-700 hover:bg-slate-800 text-slate-400 font-bold rounded-xl h-9 px-2.5"
                                     >

@@ -4,6 +4,7 @@ import { TrendingUp, PieChart, Globe, Bell, Target } from "lucide-react";
 import { MarketStatusIndicator } from "@/components/features/MarketStatusIndicator";
 import { UserMenu } from "@/components/features/UserMenu";
 import { UserProfile } from "@/types";
+import type { DashboardTab } from "@/features/dashboard/hooks/useDashboardRouteState";
 import clsx from "clsx";
 
 interface TabButtonProps {
@@ -32,8 +33,8 @@ function TabButton({ active, onClick, label, icon }: TabButtonProps) {
 
 interface DashboardHeaderProps {
   user: UserProfile | null;
-  activeTab: string;
-  setActiveTab: (tab: string) => void;
+  activeTab: DashboardTab;
+  setActiveTab: (tab: DashboardTab) => void;
 }
 
 export function DashboardHeader({ user, activeTab, setActiveTab }: DashboardHeaderProps) {

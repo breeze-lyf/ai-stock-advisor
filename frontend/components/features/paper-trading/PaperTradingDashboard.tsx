@@ -1,28 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Loader2, TrendingUp, TrendingDown, Target, ShieldAlert, CheckCircle2, XCircle, Clock } from "lucide-react";
-import { getSimulatedTrades } from "@/lib/api";
 import { SimulatedTrade } from "@/types";
 
-export function PaperTradingDashboard() {
-  const [loading, setLoading] = useState(true);
-  const [trades, setTrades] = useState<SimulatedTrade[]>([]);
+interface PaperTradingDashboardProps {
+  loading: boolean;
+  trades: SimulatedTrade[];
+}
 
-  useEffect(() => {
-    const fetchTrades = async () => {
-      try {
-        setLoading(true);
-        const data = await getSimulatedTrades();
-        setTrades(data);
-      } catch (err) {
-        console.error("Failed to load paper trades", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTrades();
-  }, []);
+export function PaperTradingDashboard({ loading, trades }: PaperTradingDashboardProps) {
 
   if (loading) {
     return (
@@ -224,4 +210,3 @@ function TradeStatusBadge({ status }: { status: string }) {
       return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">进行中</span>;
   }
 }
-

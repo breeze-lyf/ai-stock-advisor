@@ -506,7 +506,14 @@ class AkShareProvider(MarketDataProvider):
         """专用于获取美股行情的内部方法，包含国内直连回退机制"""
         try:
             # 兼容性逻辑：判断是否为指数 (Index)
-            is_index = ticker.upper() in ["NDX", "IXIC", "SPX", "DJI", ".NDX", ".IXIC", ".INX", ".DJI"]
+            is_index = ticker.upper() in ["NDX", "IXIC", "SPX", "DJI", ".NDX", ".IXIC", ".INX", ".DJI", "^GSPC", "^IXIC", "^DJI"]
+            
+            # 归一化指数代码
+            search_ticker = ticker.upper()
+            if search_ticker == "^GSPC": search_ticker = ".INX"
+            elif search_ticker == "^IXIC": search_ticker = ".IXIC"
+            elif search_ticker == "^DJI": search_ticker = ".DJI"
+            else: search_ticker = ticker
             
             # --- 极速路径 1：直接从 Yahoo 底层 API 获取 (通常需要代理) ---
             live_price = None
@@ -516,7 +523,7 @@ class AkShareProvider(MarketDataProvider):
                 async with httpx.AsyncClient(timeout=3.0) as client:
                     headers = {'User-Agent': 'Mozilla/5.0'}
                     # Yahoo 使用原始 ticker，注意：这会读取系统 HTTP_PROXY
-                    res = await client.get(f"https://query2.finance.yahoo.com/v8/finance/chart/{ticker}?interval=1m&range=1d", headers=headers)
+                    res = await client.get(f"https://query2.finance.yahoo.com/v8/finance/chart/{search_ticker}?interval=1m&range=1d", headers=headers)
                     if res.status_code == 200:
                         data = res.json()
                         meta = data.get("chart", {}).get("result", [{}])[0].get("meta", {})

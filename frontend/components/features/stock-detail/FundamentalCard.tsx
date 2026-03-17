@@ -6,10 +6,7 @@
 "use client";
 
 import React from "react";
-import ReactMarkdown from "react-markdown";
-import { Activity } from "lucide-react";
 import { FundamentalCardProps } from "./types";
-import { ReferenceCitation } from "./shared";
 
 export const FundamentalCard = React.memo(function FundamentalCard({
     selectedItem,
@@ -45,7 +42,31 @@ export const FundamentalCard = React.memo(function FundamentalCard({
                     ))}
                 </div>
 
-                {/* 消息面综述 (Moved to NewsFeed) */}
+                {(aiData?.fundamental_analysis || aiData?.macro_risk_note) && (
+                    <div className="mt-8 space-y-6">
+                        {aiData?.fundamental_analysis && (
+                            <div className="space-y-2">
+                                <h3 className="text-sm font-black tracking-tight text-amber-600 dark:text-amber-400 uppercase">
+                                    AI 基本面解读
+                                </h3>
+                                <p className="text-sm leading-7 text-slate-600 dark:text-slate-300 whitespace-pre-line">
+                                    {aiData.fundamental_analysis}
+                                </p>
+                            </div>
+                        )}
+
+                        {aiData?.macro_risk_note && (
+                            <div className="space-y-2 border-t border-slate-100 dark:border-slate-800 pt-6">
+                                <h3 className="text-sm font-black tracking-tight text-rose-600 dark:text-rose-400 uppercase">
+                                    宏观风险提示
+                                </h3>
+                                <p className="text-sm leading-7 text-slate-600 dark:text-slate-300 whitespace-pre-line">
+                                    {aiData.macro_risk_note}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );

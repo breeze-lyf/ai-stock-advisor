@@ -57,18 +57,36 @@ STOCK_ANALYSIS_PROMPT_TEMPLATE = """
 - **数据驱动 [CRITICAL]**: 每个关键分析点必须基于提供的数据源。
 - **持仓逻辑**: 如果用户当前持仓为 0，建议应侧重于建仓点位。
 - **仓位管理**: 所有的仓位建议必须基于**总资金的百分比**。
+- `news_summary` 只允许基于 `news_context` 中实际出现的新闻标题/事件，以及 `net_inflow` 这一条资金流数据进行总结。
+- `news_summary` 禁止引入 `macro_context`、估值判断、行业泛化结论、或新闻列表中未出现的事件。
+- `fundamental_analysis` 只允许基于 PE、Forward PE、Beta、行业、估值水位等基础面数据，不要混入新闻和宏观。
+- `macro_risk_note` 只允许基于 `macro_context`，用来解释该股票可能受到的外部宏观/政策/地缘影响。
+- 如果新闻列表中没有与该股票直接相关的事件，`news_summary` 就明确写“暂无直接相关重大消息，消息面中性”，不要自行补充外部话题。
+- 严禁在 `news_summary` 中编造具体事件名称、会议、监管动作或日期；引用事件时必须能在 `news_context` 找到依据。
 
 **返回格式要求**:
 - 使用简洁、专业的中文。
 - **严谨精度**: 所有数值保留 2 位小数点。
 - 必须返回严格的 JSON 格式。
+- `action_advice` 必须输出为**详细 Markdown**，不能只写 3-4 行摘要。
+- `action_advice` 必须至少包含以下 3 个一级编号章节，并且每节都要有充分内容：
+  1. `1. 建议操作与交易综述`
+  2. `2. 结构化操作计划`
+  3. `3. 多维逻辑支撑`
+- 第 1 节必须说明：建议操作、当前价位所处区间、总体研判。
+- 第 2 节必须明确说明：建仓/加仓/减仓或持仓条件、目标位、止损位、仓位建议。
+- 第 3 节必须分别覆盖：技术面、基本面、消息面/宏观面。
+- `action_advice` 中每个关键点尽量使用项目符号列出，避免只给一句总结。
+- 若当前更适合观望，也必须解释“等待什么条件触发再行动”，而不是只写“观望”。
+- `rr_ratio` 只允许返回**纯数字字符串**，例如 `"1.30"`、`"2.15"`。
+- `rr_ratio` 禁止返回 `1:1.3`、`1比1.3`、`中性/偏强/优秀`、括号说明或任何多余文字。
 
 JSON 结果结构:
 {{
     "sentiment_score": 0-100, 
     "summary_status": "4-6字定调",
     "immediate_action": "决策建议",
-    "rr_ratio": "盈亏比评价",
+    "rr_ratio": "纯数字字符串，例如 1.30",
     "entry_price_low": Float,
     "entry_price_high": Float,
     "target_price": Float,
@@ -87,8 +105,10 @@ JSON 结果结构:
         {{"category": "资金面", "value": "机构持续净流入"}}
     ],
     "technical_analysis": "核心技术位解读。使用 Markdown，结论先行。",
-    "fundamental_news": "基础面/消息面深度解读",
-    "action_advice": "Markdown 格式的操作建议。"
+    "news_summary": "只基于 news_context 的消息面综述，禁止混入基本面和宏观面。",
+    "fundamental_analysis": "只基于 PE、Forward PE、Beta、行业、估值水位等基本面数据的解读。",
+    "macro_risk_note": "只基于 macro_context 的宏观风险/政策影响说明。",
+    "action_advice": "详细 Markdown 操作建议。必须严格按 1/2/3 三大章节展开，内容不少于 8 行。"
 }}
 """
 

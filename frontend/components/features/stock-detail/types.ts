@@ -10,12 +10,16 @@ import { PortfolioItem } from "@/types";
 
 /** AI 分析结果的完整数据结构 */
 export interface AIData {
+    ticker?: string;
     sentiment_score?: number;
     summary_status?: string;
     risk_level?: string;
-    technical_analysis: string;
-    fundamental_news: string;
-    action_advice: string;
+    technical_analysis?: string;
+    fundamental_news?: string;
+    news_summary?: string;
+    fundamental_analysis?: string;
+    macro_risk_note?: string;
+    action_advice?: string;
     immediate_action?: string;
     target_price?: number;
     stop_loss_price?: number;

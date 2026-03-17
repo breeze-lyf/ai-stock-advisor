@@ -2,14 +2,13 @@ import asyncio
 import logging
 from datetime import datetime, time, timedelta
 import pytz
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 from app.core.database import SessionLocal
-from app.models.stock import MarketDataCache
-from app.models.analysis import AnalysisReport
-from app.models.trade import SimulatedTrade, TradeHistoryLog, TradeStatus
-from app.services.market_data import MarketDataService
-from app.services.notification_service import NotificationService
+from app.services.scheduler_jobs import (
+    run_daily_portfolio_report_job,
+    run_post_market_analysis_job,
+    run_refresh_all_stocks_job,
+    run_refresh_simulated_trades_job,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -22,79 +21,11 @@ async def refresh_simulated_trades():
     """
     async with SessionLocal() as db:
         try:
-            # 获取所有处在 OPEN 状态的虚拟交易
-            stmt = select(SimulatedTrade).where(SimulatedTrade.status == TradeStatus.OPEN)
-            res = await db.execute(stmt)
-            open_trades = res.scalars().all()
-            
-            if not open_trades:
-                return
-                
-            updated_count = 0
-            closed_count = 0
-            
-            for trade in open_trades:
-                # 寻找其最新的行情缓存
-                cache_stmt = select(MarketDataCache).where(MarketDataCache.ticker == trade.stock_ticker)
-                cache_res = await db.execute(cache_stmt)
-                cache = cache_res.scalar_one_or_none()
-                
-                if not cache or cache.current_price is None:
-                    continue
-                
-                curr_price = cache.current_price
-                trade.current_price = curr_price
-                
-                # 计算浮盈浮亏百分比 (Unrealized PnL %)
-                if trade.entry_price > 0:
-                    trade.unrealized_pnl_pct = ((curr_price - trade.entry_price) / trade.entry_price) * 100
-                    
-                # 触发止盈
-                if trade.target_price and curr_price >= trade.target_price:
-                    trade.status = TradeStatus.CLOSED_PROFIT
-                    trade.exit_price = curr_price
-                    trade.exit_date = datetime.utcnow()
-                    trade.realized_pnl_pct = trade.unrealized_pnl_pct
-                    closed_count += 1
-                    
-                # 触发止损
-                elif trade.stop_loss_price and curr_price <= trade.stop_loss_price:
-                    trade.status = TradeStatus.CLOSED_LOSS
-                    trade.exit_price = curr_price
-                    trade.exit_date = datetime.utcnow()
-                    trade.realized_pnl_pct = trade.unrealized_pnl_pct
-                    closed_count += 1
-                
-                # 记录每日轨迹
-                today = datetime.utcnow().date()
-                log_stmt = select(TradeHistoryLog).where(
-                    TradeHistoryLog.simulated_trade_id == trade.id,
-                    TradeHistoryLog.date >= datetime.combine(today, datetime.min.time())
-                )
-                log_res = await db.execute(log_stmt)
-                existing_log = log_res.scalar_one_or_none()
-                
-                if existing_log:
-                    existing_log.price = curr_price
-                    existing_log.pnl_pct = trade.unrealized_pnl_pct
-                else:
-                    new_log = TradeHistoryLog(
-                        simulated_trade_id=trade.id,
-                        date=datetime.utcnow(),
-                        price=curr_price,
-                        pnl_pct=trade.unrealized_pnl_pct
-                    )
-                    db.add(new_log)
-                    
-                updated_count += 1
-                
+            updated_count, closed_count = await run_refresh_simulated_trades_job(db)
             if updated_count > 0:
-                await db.commit()
                 logger.info(f"[Scheduler] 完成了 {updated_count} 笔虚拟订单盯盘。其中 {closed_count} 笔触点平仓。")
-
         except Exception as e:
             logger.error(f"[Scheduler] 虚拟盯盘服务异常: {e}")
-            await db.rollback()
 
 
 
@@ -164,128 +95,9 @@ async def refresh_all_stocks():
     """
     async with SessionLocal() as db:
         try:
-            # 1. 获取所有需要关注的股票及其最后更新时间
-            stmt = select(MarketDataCache)
-            result = await db.execute(stmt)
-            caches = result.scalars().all()
-            
-            if not caches:
-                return
-
-            # 2. 判定哪些股票需要刷新
-            active_tickers = [c.ticker for c in caches if should_refresh(c.ticker, c.last_updated)]
-            
-            if not active_tickers:
-                logger.debug("所有数据均已达到最新（包含盘后收盘价），跳过本轮刷新。")
-                return
-                
-            logger.info(f"[Scheduler] 发现 {len(active_tickers)} 只股票需要更新（盘中或盘后补录），开始后台刷新...")
-            
-            # 3. 并发刷新 (使用信号量限制压力)
-            semaphore = asyncio.Semaphore(3)
-            
-            async def safe_refresh(t):
-                async with semaphore:
-                    try:
-                        # 增加微小延迟，防止瞬时撞击三方 API (Tavily/AkShare)
-                        await asyncio.sleep(1)
-                        # 使用独立的 session 防止冲突
-                        async with SessionLocal() as local_db:
-                            # 后台自动刷新强制跳过新闻抓取 (skip_news=True)，以节省终端/Tavily 额度
-                            updated_data = await MarketDataService.get_real_time_data(t, local_db, force_refresh=True, skip_news=True)
-                            
-                            if updated_data:
-                                # --- 检查价格触达与指标异动 (Check price hits & indicator alerts) ---
-                                await check_and_notfy_alerts(t, updated_data, local_db)
-
-                        logger.info(f"[Scheduler] 成功更新股票行情: {t}")
-                    except Exception as e:
-                        logger.error(f"[Scheduler] 刷新 {t} 失败: {e}")
-
-            tasks = [safe_refresh(t) for t in active_tickers]
-            # 串行执行或小并发执行，确保 API 稳定性
-            for task in tasks:
-                await task
-            
-            logger.info(f"[Scheduler] 本轮后台刷新成功完成，共更新 {len(active_tickers)} 只标的。")
-            
+            await run_refresh_all_stocks_job(db, should_refresh, SessionLocal)
         except Exception as e:
             logger.error(f"[Scheduler] 轮询任务发生异常: {e}")
-
-async def check_and_notfy_alerts(ticker: str, current_data: MarketDataCache, db: AsyncSession):
-    """
-    检查价格与指标是否触发警报 (多用户版本)
-    """
-    try:
-        from app.models.stock import Stock
-        from app.models.portfolio import Portfolio
-        from app.models.user import User
-
-        # 1. 查找所有持有该股票的用户
-        stmt = select(User).join(Portfolio, User.id == Portfolio.user_id).where(Portfolio.ticker == ticker)
-        res = await db.execute(stmt)
-        users = res.scalars().all()
-
-        if not users:
-            return
-
-        # 获取股票名称
-        stock_res = await db.execute(select(Stock.name).where(Stock.ticker == ticker))
-        stock_name = stock_res.scalar_one_or_none() or ticker
-
-        for user in users:
-            # 熔断：如果没有配置飞书 Webhook，跳过该用户的分析与推送
-            if not user.feishu_webhook_url or not user.enable_price_alerts:
-                continue
-
-            # 2. 获取该用户对该股票的最新 AI 分析建议 (狙击位)
-            report_stmt = select(AnalysisReport).where(
-                AnalysisReport.ticker == ticker,
-                AnalysisReport.user_id == user.id
-            ).order_by(AnalysisReport.created_at.desc()).limit(1)
-            
-            report_res = await db.execute(report_stmt)
-            report = report_res.scalar_one_or_none()
-            
-            curr_price = current_data.current_price
-            
-            if report and curr_price:
-                # 价格触达逻辑
-                if report.target_price and curr_price >= report.target_price:
-                    await NotificationService.send_price_alert(
-                        ticker, stock_name, curr_price, report.target_price, 
-                        is_stop_loss=False, user_id=user.id, webhook_url=user.feishu_webhook_url
-                    )
-                elif report.stop_loss_price and curr_price <= report.stop_loss_price:
-                    await NotificationService.send_price_alert(
-                        ticker, stock_name, curr_price, report.stop_loss_price, 
-                        is_stop_loss=True, user_id=user.id, webhook_url=user.feishu_webhook_url
-                    )
-            
-            # 3. 指标异动监控 (RSI 极端值)
-            if current_data.rsi_14:
-                if current_data.rsi_14 > 75:
-                    await NotificationService.send_feishu_card(
-                        title=f"⚠️ 指标超买警报: {stock_name}",
-                        content=f"**{stock_name} ({ticker})** RSI(14) 已飙升至 `{current_data.rsi_14:.2f}`，处于严重超买区间。",
-                        color="red",
-                        msg_type="INDICATOR_ALERT",
-                        ticker=ticker,
-                        user_id=user.id,
-                        webhook_url=user.feishu_webhook_url
-                    )
-                elif current_data.rsi_14 < 25:
-                    await NotificationService.send_feishu_card(
-                        title=f"🟢 指标超卖警报: {stock_name}",
-                        content=f"**{stock_name} ({ticker})** RSI(14) 已跌至 `{current_data.rsi_14:.2f}`，处于严重超卖状态。",
-                        color="green",
-                        msg_type="INDICATOR_ALERT",
-                        ticker=ticker,
-                        user_id=user.id,
-                        webhook_url=user.feishu_webhook_url
-                    )
-    except Exception as e:
-        logger.error(f"Failed to check multi-user alerts for {ticker}: {e}")
 
 from app.services.macro_service import MacroService
 
@@ -323,14 +135,8 @@ async def refresh_hourly_summary():
     try:
         logger.info("[Scheduler] 正在为活跃用户生成每小时新闻精要...")
         async with SessionLocal() as db:
-            # 获取所有有持仓的用户及其 Email 进行个性化推送
-            from app.models.portfolio import Portfolio
-            from app.models.user import User
-            
-            # 使用 join 查询确保能拿到 email 和 feishu_webhook_url
-            stmt = select(User).join(Portfolio, User.id == Portfolio.user_id).distinct()
-            res = await db.execute(stmt)
-            active_users = res.scalars().all()
+            repo = SchedulerRepository(db)
+            active_users = await repo.get_active_hourly_summary_users()
             
             # 1. 先生成本小时全局共性分析报告 (单次 AI 调用，后续用户共享)
             await MacroService.generate_global_hourly_report(db)
@@ -362,138 +168,11 @@ async def refresh_post_market_analysis():
     3. 对比历史建议，如果发生重大偏差，推送 Feishu Alert
     """
     try:
-        from app.models.user import User
-        from app.models.portfolio import Portfolio
-        from app.models.stock import Stock
-        from app.services.ai_service import AIService
-        from app.services.macro_service import MacroService
-
-        now_utc = datetime.now(pytz.utc)
-        
-        # 定义各市场“适合复盘”的时间窗口 (收盘后 30 分钟内触发)
-        # 逻辑：如果是该市场的收盘窗口，则处理该市场的股票
-        markets_to_process = []
-        
-        # A股: 15:00 收盘，15:30 开始复盘
-        cn_now = now_utc.astimezone(CN_TZ)
-        if cn_now.hour == 15 and 30 <= cn_now.minute < 45:
-            markets_to_process.append("A")
-            
-        # 港股: 16:00 收盘，16:30 开始复盘
-        if cn_now.hour == 16 and 30 <= cn_now.minute < 45:
-            markets_to_process.append("HK")
-            
-        # 美股: 04:00/05:00 收盘 (冬/夏令时)，这里统一按 05:30 触发处理
-        if cn_now.hour == 5 and 30 <= cn_now.minute < 45:
-            markets_to_process.append("US")
+        async with SessionLocal() as db:
+            markets_to_process = await run_post_market_analysis_job(db)
 
         if not markets_to_process:
             return
-
-        logger.info(f"[Scheduler] 🚀 启动盘后深度复盘任务: {markets_to_process}")
-
-        async with SessionLocal() as db:
-            # 获取所有有持仓的用户
-            stmt = select(User).join(Portfolio, User.id == Portfolio.user_id).distinct()
-            res = await db.execute(stmt)
-            users = res.scalars().all()
-
-            # 获取全局宏观背景
-            macro_data = await MacroService.get_latest_radar(db)
-            news_data = await MacroService.get_latest_news(db, limit=20)
-            macro_context = ""
-            if macro_data:
-                macro_context += "\n### 全球异动雷达\n" + "\n".join([f"- {t.title}: {t.summary}" for t in macro_data])
-            if news_data:
-                macro_context += "\n### 实时快讯\n" + "\n".join([f"- {n.title}: {n.content[:100]}..." for n in news_data])
-
-            for user in users:
-                # 获取该用户在对应市场的持仓
-                p_stmt = select(Portfolio).where(Portfolio.user_id == user.id)
-                p_res = await db.execute(p_stmt)
-                user_portfolios = p_res.scalars().all()
-                
-                for p in user_portfolios:
-                    # 确定股票所属市场
-                    market = "US"
-                    if p.ticker.isdigit():
-                        market = "A" if len(p.ticker) == 6 else "HK"
-                    elif p.ticker.endswith(".HK"):
-                        market = "HK"
-                    
-                    if market not in markets_to_process:
-                        continue
-
-                    logger.info(f"[Scheduler] 正在复盘 {user.email} 的标标: {p.ticker}")
-                    
-                    # 1. 获取最后一次分析报告作为对比
-                    old_report_stmt = select(AnalysisReport).where(
-                        AnalysisReport.ticker == p.ticker,
-                        AnalysisReport.user_id == user.id
-                    ).order_by(AnalysisReport.created_at.desc()).limit(1)
-                    old_res = await db.execute(old_report_stmt)
-                    old_report = old_res.scalar_one_or_none()
-
-                    # 2. 触发新的深度分析 (盘后补录已确保获取到收盘价)
-                    # generate_analysis 会自动获取最新的 RealTimeData 和 News
-                    new_report = await AIService.generate_analysis(p.ticker, user.id, macro_context=macro_context)
-                    
-                    if not new_report:
-                        continue
-
-                    # 3. 比较逻辑与推送
-                    if old_report and user.feishu_webhook_url:
-                        # 构造核心策略包
-                        old_strat = {
-                            "action": old_report.immediate_action,
-                            "target": old_report.target_price,
-                            "stop_loss": old_report.stop_loss_price,
-                            "rr_grade": old_report.rr_ratio # 假设模型输出包含了分级
-                        }
-                        new_strat = {
-                            "action": new_report.immediate_action,
-                            "target": new_report.target_price,
-                            "stop_loss": new_report.stop_loss_price,
-                            "rr_grade": new_report.rr_ratio
-                        }
-
-                        # 判断是否需要发送策略变更通知
-                        # A. 建议动作改变 (重要)
-                        # B. 目标价偏移 > 3%
-                        # C. 止损价偏移 > 3%
-                        significant_change = False
-                        reason = ""
-
-                        if old_strat["action"] != new_strat["action"]:
-                            significant_change = True
-                            reason = f"建议操作由 [{old_strat['action']}] 调整为 [{new_strat['action']}]"
-                        
-                        elif old_strat["target"] and new_strat["target"]:
-                            diff = abs(new_strat["target"] - old_strat["target"]) / old_strat["target"]
-                            if diff > 0.03:
-                                significant_change = True
-                                reason = f"目标价发生显著修正 (偏差 {diff:.1%})"
-                                
-                        elif old_strat["stop_loss"] and new_strat["stop_loss"]:
-                            diff = abs(new_strat["stop_loss"] - old_strat["stop_loss"]) / old_strat["stop_loss"]
-                            if diff > 0.03:
-                                significant_change = True
-                                reason = f"止损位置需动态调整 (偏差 {diff:.1%})"
-
-                        if significant_change:
-                            stock_res = await db.execute(select(Stock.name).where(Stock.ticker == p.ticker))
-                            stock_name = stock_res.scalar_one_or_none() or p.ticker
-                            
-                            await NotificationService.send_strategy_change_alert(
-                                ticker=p.ticker,
-                                name=stock_name,
-                                old_strategy=old_strat,
-                                new_strategy=new_strat,
-                                change_reason=reason,
-                                user_id=user.id,
-                                webhook_url=user.feishu_webhook_url
-                            )
-
         logger.info(f"[Scheduler] 盘后复盘任务处理完成: {markets_to_process}")
     except Exception as e:
         logger.error(f"[Scheduler] 盘后复盘任务失败: {e}")
@@ -501,65 +180,9 @@ async def refresh_post_market_analysis():
 async def send_daily_portfolio_report():
     """生成并发送每日持仓健康报告 (Feishu Card)"""
     try:
-        from app.models.stock import Portfolio
-        from app.models.analysis import PortfolioAnalysisReport
-        from app.services.ai_service import AIService
-        from app.services.macro_service import MacroService
-        
         async with SessionLocal() as db:
-            # 按用户分发持仓报告
-            from app.models.user import User
-            from app.models.portfolio import Portfolio
-            
-            # 获取所有有持仓且有飞书配置且开启了每日报告的用户
-            stmt = select(User).join(Portfolio).where(
-                User.feishu_webhook_url != None,
-                User.enable_daily_report == True
-            ).distinct()
-            res = await db.execute(stmt)
-            users = res.scalars().all()
-            
-            if not users:
-                return
-            
-            # 获取公共宏观背景
-            macro_data = await MacroService.get_latest_radar(db)
-            news_data = await MacroService.get_latest_news(db, limit=10)
-            
-            macro_context = ""
-            if macro_data:
-                macro_context += "\n### 全球异动雷达\n" + "\n".join([f"- {t.title}: {t.summary} (热度: {t.heat_score})" for t in macro_data])
-            if news_data:
-                macro_context += "\n### 实时快讯\n" + "\n".join([f"- {n.title}: {n.content[:100]}..." for n in news_data])
-
-            for user in users:
-                # 获取该用户的具体持仓
-                p_stmt = select(Portfolio).where(Portfolio.user_id == user.id)
-                p_res = await db.execute(p_stmt)
-                user_portfolios = p_res.scalars().all()
-                
-                if not user_portfolios:
-                    continue
-                
-                portfolio_info = [{"ticker": p.ticker, "shares": p.shares} for p in user_portfolios]
-                
-                logger.info(f"[Scheduler] 正在为用户 {user.email} 生成持仓体检报告...")
-                
-                analysis = await AIService.generate_portfolio_analysis(
-                    portfolio_data=portfolio_info,
-                    macro_context=macro_context
-                )
-                
-                await NotificationService.send_feishu_card(
-                    title="📅 每日持仓全景体检报告",
-                    content=f"**当前持仓摘要**:\n{analysis[:800]}...",
-                    color="blue",
-                    msg_type="DAILY_REPORT",
-                    user_id=user.id,
-                    webhook_url=user.feishu_webhook_url
-                )
-            
-            logger.info(f"[Scheduler] 已完成 {len(users)} 位用户的持仓报告推送。")
+            users_count = await run_daily_portfolio_report_job(db)
+            logger.info(f"[Scheduler] 已完成 {users_count} 位用户的持仓报告推送。")
     except Exception as e:
         logger.error(f"[Scheduler] 每天报告生成失败: {e}")
 

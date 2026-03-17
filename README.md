@@ -1,6 +1,6 @@
 # 🤖 AI Smart Investment Advisor (AI 智能股票策略顾问)
 
-> **工业级 AI 量化决策辅助系统**。基于 Next.js 14 (App Router) 与 FastAPI 构建，深度整合 DeepSeek 研判模型与国内避墙数据源。
+> **AI 投资分析与组合辅助系统**。前端基于 Next.js App Router，后端基于 FastAPI，整合行情、新闻、宏观和 LLM 研判能力。
 
 ---
 
@@ -36,30 +36,85 @@
 
 ---
 
-## 🚀 快速启动 (Quick Start)
+## 🚀 启动方式
 
-项目提供了一键启动快捷脚本，可自动检测环境并启动前后端：
+项目现在明确区分两种启动路径：
+
+### 1. 本地开发
+
+适用于本机调试前后端代码。默认使用：
+
+- 前端：Next.js 开发服务器
+- 后端：Uvicorn `--reload`
+- 数据库：本地 `.env` 中配置的数据库，默认 SQLite
+- 后台任务：本地 `auto_refresh_market_data.py`
+
+启动命令：
 
 ```bash
-chmod +x start.sh
-./start.sh
+./scripts/start.sh dev
 ```
+
+本地开发前置要求：
+
+- Node.js 24+ 或兼容版本
+- Python 3.10+，推荐使用仓库根目录 `.venv`
+- 已准备好 `backend/.env`
+
+若需要分别启动，也可以手动执行：
+
+```bash
+cd backend
+../.venv/bin/python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+```bash
+cd frontend
+npm run dev -- -p 3000
+```
+
+### 2. 容器化部署
+
+适用于接近生产的部署方式。`docker-compose.yml` 会启动：
+
+- PostgreSQL
+- Redis
+- FastAPI backend
+- Next.js frontend
+
+启动命令：
+
+```bash
+./scripts/start.sh docker
+```
+
+或直接使用：
+
+```bash
+docker compose up --build -d
+```
+
+这一路径与本地开发的差异：
+
+- 数据库固定走 PostgreSQL
+- 服务通过容器网络互联
+- 更接近线上部署结构
 
 ---
 
 ## 🛠 系统架构与技术栈
 
 ### 前端 (Frontend)
-- **核心框架**: Next.js 14 (App Router)
+- **核心框架**: Next.js 16 (App Router) + React 19
 - **样式方案**: Tailwind CSS (遵循 `Slate/Zinc` 极简金融风)
 - **交互组件**: Radix UI + Lucide Icons
-- **可视化**: 物理像素校准的自定义 React 交易轴组件
+- **接口层**: Axios + OpenAPI 生成类型
 
 ### 后端 (Backend)
 - **核心框架**: FastAPI (Python 3.10+)
 - **任务调度**: 常驻后台协程 (轮询精度 60s)
 - **数据库**: SQLite / PostgreSQL (SQLAlchemy Async)
-- **AI 引擎**: SiliconFlow API (DeepSeek V3 / R1)
+- **AI 引擎**: SiliconFlow / Gemini，多 provider fallback
 
 ---
 
@@ -70,21 +125,55 @@ chmod +x start.sh
 - `backend/app/services/notification_service.py`: 飞书 Webhook 签名安全校验与去重算法。
 - `backend/app/services/scheduler.py`: 负责整点摘要生成的调度中心。
 - `backend/app/core/database.py`: 异步 Session 管理逻辑。
+- `backend/app/api/v1/endpoints/user.py`: 用户设置、密码修改、AI 连接测试接口。
 
 ### 前端核心目录
 - `frontend/components/features/StockDetail.tsx`: 包含复杂的交易轴 (Trade Axis) 渲染算法。
+- `frontend/lib/api.ts`: 前端统一 API 客户端与鉴权拦截器。
+- `frontend/types/schema.d.ts`: 基于后端 OpenAPI 生成的类型定义。
 - `frontend/lib/utils.ts`: 全局 `formatDateTime` 时区转换方案。
 - `frontend/app/settings/page.tsx`: 全局用户信息与时区偏好配置。
 
 ---
 
-## ⚠️ 部署注意事项 (Mainland Deployment)
+## 🔄 OpenAPI 类型同步
 
-1. **环境变量**: 确保 `.env` 中正确配置 `FEISHU_WEBHOOK_URL` 与 `SILICONFLOW_API_KEY`。
-2. **包管理换源**: 
+后端接口变更后，使用下面的流程同步前端类型：
+
+```bash
+cd backend
+../.venv/bin/python -c 'import json; from app.main import app; open("openapi.json", "w").write(json.dumps(app.openapi(), ensure_ascii=False, indent=2))'
+```
+
+```bash
+cd frontend
+npm run generate-types
+```
+
+`frontend/types/index.ts` 只保留 OpenAPI 未覆盖的少量业务扩展类型，用户设置相关类型应优先从生成文件派生。
+
+---
+
+## ⚠️ 部署注意事项
+
+1. 确保 `backend/.env` 中正确配置 `SECRET_KEY`、数据库连接、AI Provider Key、飞书 Webhook 等变量。
+2. 大陆网络环境建议使用镜像源安装依赖：
    - Python: `pip install -i https://pypi.tuna.tsinghua.edu.cn/simple`
    - Node: `npm --registry=https://registry.npmmirror.com`
-3. **数据库初始化**: 运行 `backend/scripts/init_db.py` 补充初始标的。
+3. 初始化数据库或补种子数据时，优先使用 `backend/scripts/` 下脚本。
+4. 生产部署优先使用 Docker Compose，不建议直接运行开发态脚本。
+
+---
+
+## 🗄️ 数据库迁移与安全 (Database Migrations)
+
+本项目使用 Alembic 进行结构管理。为了确保 Neon 主库的安全，必须遵循以下纪律：
+
+1. **结构变更流**：本地修改模型 -> 生成 Migration -> 在 Neon 临时分支验证 -> 确认无误后合并至主库。
+2. **禁止手动改表**：禁止直接在 Neon Console 或 SQL 客户端手动修改 Schema，所有变更必须有 Alembic 脚本。
+3. **部署前置**：在生产环境重启服务前，必须先执行 `alembic upgrade head`。
+
+若遇到依赖冲突（如 `DependentObjectsStillExistError`），请检查外键删除顺序，并优先在临时分支复现。
 
 ---
 

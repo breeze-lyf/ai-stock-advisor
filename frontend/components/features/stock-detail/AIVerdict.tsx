@@ -22,7 +22,7 @@ import { formatDistanceToNow, format } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import { AIVerdictProps } from "./types";
 import { MarkdownWithRefs } from "./shared";
-import { createSimulatedTrade } from "@/lib/api";
+import { createSimulatedTrade } from "@/features/paper-trading/api";
 import { Play } from "lucide-react";
 
 export const AIVerdict = React.memo(function AIVerdict({
@@ -338,7 +338,7 @@ function AIVerdictContent({
                     <span>诊断研判逻辑</span>
                 </div>
                 <div className="prose dark:prose-invert max-w-none text-[13px] font-normal leading-relaxed text-slate-500 dark:text-slate-400 [&>p]:m-0">
-                    <MarkdownWithRefs content={aiData.action_advice} />
+                    <MarkdownWithRefs content={aiData.action_advice || ""} />
                 </div>
             </div>
 
@@ -352,7 +352,7 @@ function AIVerdictContent({
                     <div className="flex items-center gap-1.5 shrink-0">
                         <ShieldCheck className="h-2.5 w-2.5 text-slate-300 dark:text-slate-600" />
                         <span className="text-[8px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-widest whitespace-nowrap">
-                            AI V4.0 • DEEPSEEK • {aiData.created_at ? formatDistanceToNow(new Date(aiData.created_at + (aiData.created_at.includes('Z') ? '' : 'Z')), { addSuffix: true, locale: zhCN }) : ''}
+                            AI V4.0 • {(aiData.model_used || "UNKNOWN").toUpperCase()} • {aiData.created_at ? formatDistanceToNow(new Date(aiData.created_at + (aiData.created_at.includes('Z') ? '' : 'Z')), { addSuffix: true, locale: zhCN }) : ''}
                         </span>
                     </div>
                 </div>

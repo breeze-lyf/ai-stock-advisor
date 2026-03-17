@@ -1,27 +1,38 @@
+from __future__ import annotations
 import logging
-import asyncio
 from typing import List, Dict, Any
-from datetime import datetime, timedelta
-import json
-import re
-import hashlib
+from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 
-from app.core.config import settings
-from app.services.market_providers.tavily import TavilyProvider
-from app.services.ai_service import AIService
+from app.infrastructure.db.repositories.macro_repository import MacroRepository
 from app.models.macro import MacroTopic, GlobalNews, GlobalHourlyReport
-from app.models.user import User
-from app.services.notification_service import NotificationService
+from app.services.macro_ai_service import MacroAIService
+from app.services.macro_fetcher import MacroFetcher
+from app.services.macro_notifier import MacroNotifier
 
 logger = logging.getLogger(__name__)
 
 class MacroService:
+    """
+    【宏观调度服务 (Macro Service)】
+    作为宏观经济子系统的核心调度中心，负责协调数据抓取 (Fetcher)、AI 分析 (AIService) 和数据持久化 (Repository)。
+    主要业务流包括：
+    1. 全球宏观雷达：监控地缘政治、美联储政策等重大事件。
+    2. 全球快讯：监控财联社等合规源的实时新闻。
+    3. 整点精要：每小时自动汇总并利用 AI 生成深度市场综述及持仓穿透分析。
+    """
+    @staticmethod
+    def _repo(db: AsyncSession) -> MacroRepository:
+        """初始化宏观数据仓库"""
+        return MacroRepository(db)
+
     @staticmethod
     async def update_global_radar(db: AsyncSession = None, api_key_siliconflow: str = None) -> List[MacroTopic]:
-        """抓取并持久化宏观雷达热点 (支持后台安全模式)"""
+        """
+        [业务入口] 抓取并持久化宏观雷达热点。
+        支持后台异步调用（db 为空时自动创建会话）。
+        """
         if db is None:
             from app.core.database import SessionLocal
             async with SessionLocal() as new_db:
@@ -30,231 +41,60 @@ class MacroService:
 
     @staticmethod
     async def _update_global_radar_internal(db: AsyncSession, api_key_siliconflow: str = None) -> List[MacroTopic]:
-        """具体的热点更新逻辑实现"""
-        logger.info("Starting global macro radar update...")
-        
-        # 1. 使用 Tavily 抓取当前最具市场影响力的 3-5 个新闻主题
-        tavily = TavilyProvider()
-        if not tavily.api_key:
-            logger.warning("Tavily API key not configured, macro radar update skipped.")
-            return []
-
-        # 搜索宏观热点
-        # 搜索词增强：聚焦于“影响市场”的宏观事件
-        queries = [
-            "top global macro economic events moving markets today",
-            "major geopolitical conflicts impacting stock market",
-            "Fed interest rate expectations and market impact news"
-        ]
-        
-        all_news_raw = []
-        for q in queries:
-            try:
-                # 借用 get_news 的结构，但我们可以直接调用 tavily 的原始 post 以获得更广的搜索
-                async with tavily._semaphore:
-                    import httpx
-                    async with httpx.AsyncClient(timeout=15.0) as client:
-                        payload = {
-                            "api_key": tavily.api_key,
-                            "query": q,
-                            "topic": "news",
-                            "search_depth": "advanced",
-                            "max_results": 8
-                        }
-                        resp = await client.post(tavily.base_url, json=payload)
-                        resp.raise_for_status()
-                        all_news_raw.extend(resp.json().get("results", []))
-            except Exception as e:
-                logger.error(f"Macro search failed for query '{q}': {e}")
-
-        if not all_news_raw:
-            logger.warning("Tavily returned 0 results or Quota Exceeded. Falling back to local GlobalNews...")
-            # 降级方案：从数据库中提取过去 24 小时内的财联社全球快讯
-            one_day_ago = datetime.utcnow() - timedelta(hours=24)
-            stmt = select(GlobalNews).where(GlobalNews.created_at >= one_day_ago).order_by(GlobalNews.created_at.desc()).limit(30)
-            res = await db.execute(stmt)
-            fallback_news = res.scalars().all()
-            
-            if not fallback_news:
-                logger.error("No local news available for fallback. Macro radar update aborted.")
-                return []
-                
-            all_news_raw = [{"title": n.title, "content": n.content, "source": "Local-Fallback"} for n in fallback_news]
-            logger.info(f"Fallback successful: loaded {len(all_news_raw)} local news items for AI analysis.")
-
-        logger.info(f"Data source ready. Proceeding to AI analyzer with {len(all_news_raw)} items...")
-        
-        # 2. 调用 AI 进行主题聚类与传导逻辑推演
-        # 我们给 AI 一堆杂乱的新闻，让它提炼出 3 个最核心的主题
-        news_context = "\n".join([f"- {n.get('title')}: {n.get('content')[:200]}" for n in all_news_raw])
-        
-        prompt = f"""
-        你是一位全球宏观策略首席分析师。请从以下新闻片段中提炼出当前对全球股市（特别是美股）影响最大的 3 个宏观主题。
-        
-        新闻背景:
-        {news_context}
-        
-        对于每个主题，请执行以下深度分析：
-        1. 核心逻辑 (Logic Chain): 事件是如何传导并影响市场的。
-        2. 利好标的 (Beneficiaries): 哪些板块、指数或具体美股标的受益，并给出理由。
-        3. 利空标的 (Detriments): 哪些板块或标的受损，并给出理由。
-        4. 热度评分 (Heat Score): 0-100 评分。
-        
-        请严格返回以下 JSON 格式：
-        {{
-          "topics": [
-            {{
-              "title": "主题标题",
-              "summary": "简短背景总结",
-              "heat_score": 85,
-              "logic": "逻辑链条描述",
-              "beneficiaries": [
-                {{"ticker": "代码", "reason": "利好路由"}}
-              ],
-              "detriments": [
-                {{"ticker": "代码", "reason": "利空理由"}}
-              ],
-              "sources": ["url1", "url2"]
-            }}
-          ]
-        }}
         """
-        
+        [核心逻辑] 宏观雷达更新：
+        1. 调用 Tavily 搜索全球最新宏观动态。
+        2. 如果搜索失败，回退利用近期数据库已有快讯。
+        3. 调用 AI 解析新闻，提炼出【逻辑链】、【利好标的】和【利空标的】。
+        4. 持久化并触发用户通知。
+        """
+        logger.info("Starting global macro radar update...")
+        repo = MacroService._repo(db)
         try:
-            # 这里的 AI 调用我们使用 SiliconFlow (DeepSeek/Qwen)
-            # 如果未传入 key，则尝试从系统配置中获取
-            final_api_key = api_key_siliconflow or settings.SILICONFLOW_API_KEY
-            if not final_api_key:
-                logger.error("No SiliconFlow API key provided for macro update.")
+            # 1. 抓取全球实时宏观动态 (Tavily Provider)
+            all_news_raw = await MacroFetcher.fetch_radar_news()
+            
+            # 2. 容错兜底：若抓取失败，则利用本地已有的最新快讯进行分析
+            if not all_news_raw:
+                all_news_raw = await repo.get_recent_news_for_radar()
+            
+            if not all_news_raw:
+                logger.error("No external or local news available for macro radar update.")
                 return []
 
-            ai_response = await AIService.call_siliconflow(
-                prompt=prompt,
-                api_key=final_api_key,
-                model="deepseek-v3",
-                db=db
-            )
+            logger.info(f"Data source ready. Proceeding to AI analyzer with {len(all_news_raw)} items...")
             
-            # 解析 JSON
-            json_match = re.search(r'(\{.*\})', ai_response, re.DOTALL)
-            if not json_match:
-                logger.error("Failed to extract JSON from AI macro response")
+            # 3. AI 深度解析：产出结构化的宏观主题
+            topics_data = await MacroAIService.analyze_radar_topics(all_news_raw, db, api_key_siliconflow)
+            
+            if not topics_data:
                 return []
-                
-            data = json.loads(json_match.group(1))
-            topics_data = data.get("topics", [])
+
+            # 4. 数据落地 (Upsert 模式确保不重复添加相同主题)
+            new_topics = await repo.upsert_topics(topics_data)
             
-            # 3. 持久化到数据库 (实现 Upsert 逻辑)
-            new_topics = []
-            for t_data in topics_data:
-                title = t_data.get("title")
-                # 检查是否已存在同名主题（防止重复沉积）
-                stmt = select(MacroTopic).where(MacroTopic.title == title)
-                res = await db.execute(stmt)
-                existing_topic = res.scalar_one_or_none()
-                
-                if existing_topic:
-                    # 更新旧主题的内容与时间戳，使其“保鲜”
-                    existing_topic.summary = t_data.get("summary")
-                    existing_topic.heat_score = t_data.get("heat_score", 50.0)
-                    existing_topic.impact_analysis = {
-                        "logic": t_data.get("logic"),
-                        "beneficiaries": t_data.get("beneficiaries", []),
-                        "detriments": t_data.get("detriments", [])
-                    }
-                    existing_topic.source_links = t_data.get("sources", [])
-                    existing_topic.updated_at = datetime.utcnow()
-                    new_topics.append(existing_topic)
-                    logger.info(f"Updated existing macro topic: {title}")
-                else:
-                    # 插入全新的主题
-                    topic = MacroTopic(
-                        title=title,
-                        summary=t_data.get("summary"),
-                        heat_score=t_data.get("heat_score", 50.0),
-                        impact_analysis={
-                            "logic": t_data.get("logic"),
-                            "beneficiaries": t_data.get("beneficiaries", []),
-                            "detriments": t_data.get("detriments", [])
-                        },
-                        source_links=t_data.get("sources", [])
-                    )
-                    db.add(topic)
-                    new_topics.append(topic)
-                    logger.info(f"Inserted new macro topic: {title}")
-            
-            await db.commit()
-            # 必须刷新对象以获取最新的 updated_at
-            for nt in new_topics:
-                try:
-                    await db.refresh(nt)
-                except:
-                    pass
+            # 5. 推送提醒：根据用户订阅状态分发飞书/终端通知
+            users = await repo.get_macro_alert_users()
             logger.info(f"Successfully processed {len(new_topics)} macro topics (Upsert).")
+            await MacroNotifier.notify_topics(users, new_topics)
             
-            # --- 异步触发飞书预警 (Async Feishu Notification) ---
-            if new_topics:
-                # 获取所有配置了飞书且开启了宏观雷达通知的用户
-                user_stmt = select(User).where(
-                    User.feishu_webhook_url != None,
-                    User.enable_macro_alerts == True
-                )
-                user_res = await db.execute(user_stmt)
-                notifiable_users = user_res.scalars().all()
-
-                for user in notifiable_users:
-                    # 1. 对高热度主题发送独立深度预警
-                    for topic in new_topics:
-                        if topic.heat_score >= 90:
-                            try:
-                                asyncio.create_task(NotificationService.send_macro_alert(
-                                    title=topic.title,
-                                    summary=topic.summary,
-                                    heat_score=topic.heat_score,
-                                    user_id=user.id,
-                                    webhook_url=user.feishu_webhook_url
-                                ))
-                            except Exception as notify_e:
-                                logger.error(f"Failed to trigger macro alert for user {user.email}: {notify_e}")
-                    
-                    # 2. 发送本轮扫描汇总简报
-                    try:
-                        asyncio.create_task(NotificationService.send_macro_summary(
-                            topics_count=len(new_topics),
-                            topics_list=new_topics,
-                            user_id=user.id,
-                            webhook_url=user.feishu_webhook_url
-                        ))
-                    except Exception as summary_e:
-                        logger.error(f"Failed to trigger macro summary for user {user.email}: {summary_e}")
-
             return new_topics
 
         except Exception as e:
             logger.error(f"Macro AI processing failed: {e}")
-            await db.rollback()
+            await repo.rollback()
             return []
 
     @staticmethod
     async def get_latest_radar(db: AsyncSession) -> List[MacroTopic]:
-        """获取最新的宏观雷达数据 (按时间倒序优先，确保新鲜度)"""
-        stmt = select(MacroTopic).order_by(MacroTopic.updated_at.desc(), MacroTopic.heat_score.desc()).limit(10)
-        result = await db.execute(stmt)
-        topics = list(result.scalars().all())
-        
-        # 数据填充：强制补全 impact_analysis 中的空字段，防止前端崩溃
-        for t in topics:
-            if not t.impact_analysis:
-                t.impact_analysis = {
-                    "logic": "逻辑正在实时推演中...",
-                    "beneficiaries": [],
-                    "detriments": []
-                }
-        return topics
+        """获取最新的宏观雷达主题（用于前端瀑布流展示）"""
+        return await MacroService._repo(db).get_latest_topics()
 
     @staticmethod
     async def update_cls_news(db: AsyncSession = None) -> List[GlobalNews]:
-        """抓取并持久化财联社全球快讯 (支持后台安全模式)"""
+        """
+        [业务入口] 抓取并持久化财联社全球快讯。
+        """
         if db is None:
             from app.core.database import SessionLocal
             async with SessionLocal() as new_db:
@@ -263,156 +103,80 @@ class MacroService:
 
     @staticmethod
     async def _update_cls_news_internal(db: AsyncSession) -> List[GlobalNews]:
-        """抓取并持久化财联社全球快讯的内部实现"""
+        """
+        [逻辑实现] 调用 AKShare 获取财联社全球快讯流，并进行指纹去重持久化。
+        """
         logger.info("Starting Cailianshe global news update (Standard Version)...")
+        repo = MacroService._repo(db)
         try:
-            def fetch_from_akshare():
-                import akshare as ak
-                return ak.stock_info_global_cls()
-            
-            news_df = await asyncio.to_thread(fetch_from_akshare)
-            
-            if news_df is None or news_df.empty:
-                return []
-                
-            recent_news = news_df.head(50)
-            new_items = []
-            
-            for _, row in recent_news.iterrows():
-                published_at = str(row.get('发布时间', ''))
-                title = str(row.get('标题', ''))
-                content = str(row.get('内容', ''))
-                
-                if not content: continue
-                
-                # 生成唯一指纹排重
-                fingerprint = hashlib.md5(f"{published_at}{content}".encode()).hexdigest()
-                
-                stmt = select(GlobalNews).where(GlobalNews.fingerprint == fingerprint)
-                existing = await db.execute(stmt)
-                if existing.scalar_one_or_none():
-                    continue
-                    
-                news_item = GlobalNews(
-                    published_at=published_at,
-                    title=title,
-                    content=content,
-                    fingerprint=fingerprint
-                )
-                db.add(news_item)
-                new_items.append(news_item)
-                
-            if new_items:
-                await db.commit()
-                logger.info(f"Successfully persisted {len(new_items)} news items.")
-            
-            return new_items
+            # 抓取原始 DataFrame 并构建模型列表
+            news_df = await MacroFetcher.fetch_cls_news_rows()
+            return await repo.persist_cls_news(MacroFetcher.build_news_items_from_df(news_df))
         except Exception as e:
             logger.error(f"Failed to update news: {e}")
-            await db.rollback()
+            await repo.rollback()
             return []
 
     @staticmethod
-    async def generate_hourly_news_summary(db: AsyncSession, user_id: str) -> Dict[str, Any]:
+    async def update_cls_headlines(db: AsyncSession = None) -> List[GlobalNews]:
+        """别名：更新快讯头条"""
+        return await MacroService.update_settings(db)
+
+    @staticmethod
+    async def generate_global_hourly_report(db: AsyncSession) -> GlobalHourlyReport | None:
         """
-        汇总过去 1 小时内的全量财联社新闻标题，并由 AI 生成精要总结。
-        用于飞书每小时定点推送。
+        [定时任务逻辑] 每整点汇总过去 1 小时快讯，生成一份全局宏观综述报告：
+        1. 提取核心摘要。
+        2. 计算整体市场情绪（看多/看空/中性）。
+        3. 构建影响图谱（Ticker -> 影响逻辑映射）。
         """
-        one_hour_ago = datetime.utcnow() - timedelta(hours=1)
-        # 查询过去一小时内创建的新闻
-        stmt = select(GlobalNews).where(GlobalNews.created_at >= one_hour_ago).order_by(GlobalNews.created_at.desc())
-        result = await db.execute(stmt)
-        news_items = result.scalars().all()
-        
+        repo = MacroService._repo(db)
+        news_items = await repo.get_recent_news_for_hourly_report()
         if not news_items:
             return None
-            
-        # 1. 构造时间指纹
+
         now = datetime.utcnow()
         hour_key = now.strftime("%Y-%m-%d-%H")
-        
-        # 检查是否已有全局分析结果
-        stmt = select(GlobalHourlyReport).where(GlobalHourlyReport.hour_key == hour_key)
-        res = await db.execute(stmt)
-        existing_report = res.scalar_one_or_none()
-        
+
+        # 缓存检查：同一小时不再重复生成
+        existing_report = await repo.get_hourly_report(hour_key)
         if existing_report:
             logger.info(f"Global hourly report for {hour_key} already exists. Skipping AI call.")
             return existing_report
 
-        # 2. 调用 AI 进行全局分析
-        titles = [f"- {n.title or n.content[:50]}" for n in news_items]
-        content_for_ai = "\n".join(titles)
-        
-        prompt = f"""
-        你是一位全球对冲基金首席策略师。以下是过去一小时内发生的财联社新闻汇总：
-        
-        {content_for_ai}
-        
-        请执行以下深度分析任务：
-        1. **【全局综述】**: 用 50-100 字概括本小时最重要的 1-3 件核心驱动事件及整体市场情绪。
-        2. **【影响图谱 (Impact Map)】**: 识别这些新闻受影响最直接的 5-10 个标的代码 (Tickers)，并说明其利好/利空逻辑。
-        
-        请严格返回以下 JSON 格式：
-        {{
-          "core_summary": "**【核心综述】**\\n具体内容...",
-          "sentiment": "看多/看空/中性",
-          "impact_map": {{
-            "AAPL": "利好理由...",
-            "TSLA": "利空理由..."
-          }}
-        }}
-        """
-        
         try:
-            ai_response = await AIService.call_siliconflow(
-                prompt=prompt,
-                model="deepseek-v3",
-                api_key=settings.SILICONFLOW_API_KEY,
-                db=db
-            )
+            # 调用 AI 生成高度压缩的精要总结
+            parsed_report = await MacroAIService.generate_hourly_report(news_items, db)
             
-            # 解析 JSON
-            json_match = re.search(r'(\{.*\})', ai_response, re.DOTALL)
-            if json_match:
-                data = json.loads(json_match.group(1))
-                new_report = GlobalHourlyReport(
-                    hour_key=hour_key,
-                    core_summary=data.get("core_summary", ""),
-                    sentiment=data.get("sentiment", "中性"),
-                    impact_map=data.get("impact_map", {}),
-                    news_count=len(news_items)
-                )
-                db.add(new_report)
-                await db.commit()
+            # 保存报告并关联到对应小时的 Key
+            new_report, existed = await repo.get_or_create_hourly_report(hour_key, parsed_report, len(news_items))
+            if existed:
+                logger.info(f"Global hourly report for {hour_key} already exists. Skipping AI call.")
+            elif new_report:
                 logger.info(f"Successfully generated global hourly report for {hour_key}")
-                return new_report
-            return None
+            return new_report
         except Exception as e:
             logger.error(f"Failed to generate global hourly report: {e}")
-            await db.rollback()
+            await repo.rollback()
             return None
 
     @staticmethod
     async def generate_hourly_news_summary(db: AsyncSession, user_id: str) -> Dict[str, Any]:
         """
-        重构版本：利用全局整点报告结合用户持仓进行分发。
+        [用户接口] 生成个性化的整点新闻总结：
+        1. 获取或生成当前小时的全局宏观报告。
+        2. 读取用户的持仓标的 (Portfolio)。
+        3. 将全局“影响图谱”与用户持仓进行碰撞，实现【持仓穿透分析】。
         """
-        # 1. 获取全局报告
+        # 1. 获取全局报告基准
         global_report = await MacroService.generate_global_hourly_report(db)
         if not global_report:
             return {"summary": "本小时暂无关键新闻或 AI 分析正在生成中。", "count": 0}
-            
-        # 2. 获取用户持仓
-        from app.models.portfolio import Portfolio
-        portfolio_stmt = select(Portfolio.ticker).where(
-            Portfolio.user_id == user_id,
-            Portfolio.quantity > 0
-        )
-        portfolio_res = await db.execute(portfolio_stmt)
-        user_tickers = set(portfolio_res.scalars().all())
 
-        # 3. 逻辑分发：匹配 Impact Map
+        # 2. 获取用户持仓数据 (仅 Ticker 列表)
+        user_tickers = await MacroService._repo(db).get_user_portfolio_tickers(user_id)
+
+        # 3. 执行个性化过滤：筛选出影响到用户持仓的条目
         personalized_impact = []
         impact_map = global_report.impact_map or {}
         
@@ -420,7 +184,7 @@ class MacroService:
             if ticker in user_tickers:
                 personalized_impact.append(f"**{ticker}**: {reason}")
 
-        # 4. 拼装总结
+        # 4. 拼装多级总结内容
         summary = global_report.core_summary
         if personalized_impact:
             summary += "\n\n**【持仓穿透】**\n" + "\n".join(personalized_impact)
@@ -435,7 +199,5 @@ class MacroService:
 
     @staticmethod
     async def get_latest_news(db: AsyncSession, limit: int = 50) -> List[GlobalNews]:
-        """从数据库获取最新的全球快讯 (标准排序)"""
-        stmt = select(GlobalNews).order_by(GlobalNews.created_at.desc()).limit(limit)
-        result = await db.execute(stmt)
-        return list(result.scalars().all())
+        """获取最新的快讯列表（用于前端时间线展示）"""
+        return await MacroService._repo(db).get_latest_news(limit=limit)

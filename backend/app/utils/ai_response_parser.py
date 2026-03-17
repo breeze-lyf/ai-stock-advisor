@@ -19,6 +19,9 @@ _ERROR_FALLBACK = {
     "risk_level": "未知",
     "technical_analysis": "",
     "fundamental_news": "",
+    "news_summary": "",
+    "fundamental_analysis": "",
+    "macro_risk_note": "",
     "action_advice": "",
 }
 

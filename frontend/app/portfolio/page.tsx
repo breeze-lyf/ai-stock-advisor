@@ -20,11 +20,9 @@ import {
     X
 } from "lucide-react";
 import Link from "next/link";
-import { 
-    getPortfolioSummary, 
-    analyzePortfolio, 
-    getProfile 
-} from "@/lib/api";
+import { analyzePortfolio } from "@/features/analysis/api";
+import { getPortfolioSummary } from "@/features/portfolio/api";
+import { getProfile } from "@/features/user/api";
 import { 
     PortfolioSummary, 
     PortfolioAnalysisResponse, 

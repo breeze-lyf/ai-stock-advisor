@@ -6,3 +6,5 @@ from app.models.ai_config import AIModelConfig
 from app.models.macro import MacroTopic, GlobalNews
 from app.models.notification import NotificationLog
 from app.models.provider_config import ProviderConfig
+from app.models.user_provider_credential import UserProviderCredential
+from app.models.user_ai_model import UserAIModel

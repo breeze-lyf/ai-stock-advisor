@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Search, Loader2, Check } from "lucide-react";
 import { PortfolioItem, SearchResult } from "@/types";
-import { searchStocks, addPortfolioItem, refreshStock } from "@/lib/api";
+import { addPortfolioItem, refreshStock, searchStocks } from "@/features/portfolio/api";
 
 interface SearchDialogProps {
     isOpen: boolean;

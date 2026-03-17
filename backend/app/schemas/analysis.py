@@ -10,6 +10,9 @@ class AnalysisResponse(BaseModel):
     risk_level: Optional[str] = None
     technical_analysis: Optional[str] = None
     fundamental_news: Optional[str] = None
+    news_summary: Optional[str] = None
+    fundamental_analysis: Optional[str] = None
+    macro_risk_note: Optional[str] = None
     action_advice: Optional[str] = None
     investment_horizon: Optional[str] = None
     confidence_level: Optional[float] = None

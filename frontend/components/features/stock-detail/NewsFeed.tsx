@@ -7,7 +7,6 @@
 
 import React from "react";
 import ReactMarkdown from "react-markdown";
-import { Activity } from "lucide-react";
 import { StockNewsList } from "../StockNewsList";
 import { NewsFeedProps, AIData } from "./types";
 import { ReferenceCitation } from "./shared";
@@ -26,14 +25,14 @@ export const NewsFeed = React.memo(function NewsFeed({ news, aiData }: NewsFeedP
                 </span>
             </div>
 
-            {/* 消息面综述卡片 */}
-            {aiData?.fundamental_news && (
+            {/* AI 消息面综述 */}
+            {(aiData?.news_summary || aiData?.fundamental_news) && (
                 <div className="px-4 md:px-10">
                     <div className="mt-4 bg-slate-50/80 dark:bg-zinc-800/20 border border-slate-200/50 dark:border-zinc-800/50 rounded-2xl p-4 md:p-5 flex flex-col md:flex-row gap-4 items-start">
                         {/* 侧边标题 */}
                         <div className="flex items-center gap-2 shrink-0 md:w-28 md:pt-1">
                             <div className="h-3 w-1 bg-slate-900 dark:bg-white rounded-full shrink-0" />
-                            <h3 className="text-[10px] font-black uppercase text-slate-500 dark:text-zinc-400 tracking-[0.2em] whitespace-nowrap">消息面综述</h3>
+                            <h3 className="text-[10px] font-black uppercase text-slate-500 dark:text-zinc-400 tracking-[0.2em] whitespace-nowrap">AI 消息面综述</h3>
                         </div>
 
                         <div className="flex-1 min-w-0 md:border-l border-slate-200/50 dark:border-zinc-800/50 md:pl-5">
@@ -88,9 +87,12 @@ export const NewsFeed = React.memo(function NewsFeed({ news, aiData }: NewsFeedP
                                             }
                                         }}
                                     >
-                                        {(aiData.fundamental_news || '').replace(/([。！？；;：:\.!\?])\s+(\*\*.*?\*\*\s*[:：])/g, '$1\n\n$2')}
+                                        {((aiData.news_summary || aiData.fundamental_news) || '').replace(/([。！？；;：:\.!\?])\s+(\*\*.*?\*\*\s*[:：])/g, '$1\n\n$2')}
                                     </ReactMarkdown>
                                 </div>
+                                <p className="mt-3 text-[11px] text-slate-400 dark:text-zinc-500">
+                                    仅总结下方新闻流中的公开信息，不展示基本面估值结论。
+                                </p>
                             </div>
                         </div>
                     </div>

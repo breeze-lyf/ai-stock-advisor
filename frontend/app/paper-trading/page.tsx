@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";
-import { PaperTradingDashboard } from "@/components/features/paper-trading/PaperTradingDashboard";
+import { PaperTradingTabContainer } from "@/features/dashboard/components/PaperTradingTabContainer";
 
 export default function PaperTradingPage() {
     const { isAuthenticated, loading: authLoading } = useAuth();
@@ -45,7 +45,7 @@ export default function PaperTradingPage() {
             {/* Main Content */}
             <main className="flex-1 overflow-y-auto p-4 md:p-8">
                 <div className="max-w-7xl mx-auto">
-                    <PaperTradingDashboard />
+                    <PaperTradingTabContainer />
                 </div>
             </main>
         </div>

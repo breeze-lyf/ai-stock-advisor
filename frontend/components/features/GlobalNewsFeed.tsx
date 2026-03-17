@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getClsNews } from "@/lib/api";
+import { getClsNews } from "@/features/macro/api";
 import { GlobalNews } from "@/types";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Clock, RefreshCw, MessageSquare } from "lucide-react";
 import clsx from "clsx";
 

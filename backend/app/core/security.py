@@ -33,7 +33,7 @@ def sanitize_float(val: Any, default: Any = None) -> Any:
     """
     数值清洗工具 (Numeric Sanitizer)
     职责：防止 NaN (非数字) 或 Inf (无穷大) 导致 JSON 序列化崩溃。
-    常用于从 yfinance 或 TA 库抓取的数据。
+    常用于从金融数据源 (如 AkShare, IBKR) 或 TA 库抓取的数据。
     """
     if val is None:
         return default

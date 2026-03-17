@@ -3,7 +3,6 @@ import re
 import logging
 
 from app.services.market_providers.base import MarketDataProvider
-from app.services.market_providers.yfinance import YFinanceProvider
 from app.services.market_providers.alpha_vantage import AlphaVantageProvider
 from app.services.market_providers.akshare import AkShareProvider
 
@@ -16,7 +15,7 @@ class ProviderFactory:
     _instances: Dict[str, MarketDataProvider] = {}
 
     @classmethod
-    def get_provider(cls, ticker: str, preferred_source: str = "YFINANCE") -> MarketDataProvider:
+    def get_provider(cls, ticker: str, preferred_source: str = "AKSHARE") -> MarketDataProvider:
         """
         核心分流逻辑（升级版）：
         1. 6 位数字代码 或 .SS/.SZ 后缀 -> AkShare (A 股)
@@ -55,13 +54,11 @@ class ProviderFactory:
             if source == "IBKR":
                 from app.services.market_providers.ibkr import IBKRProvider
                 cls._instances[source] = IBKRProvider()
-            elif source == "YFINANCE":
-                cls._instances[source] = YFinanceProvider()
             elif source == "ALPHA_VANTAGE":
                 cls._instances[source] = AlphaVantageProvider()
             elif source == "AKSHARE":
                 cls._instances[source] = AkShareProvider()
             else:
-                # 兜底
-                cls._instances[source] = YFinanceProvider()
+                # 兜底：不再使用 YFinance，统一回退到 AKSHARE
+                cls._instances[source] = AkShareProvider()
         return cls._instances[source]

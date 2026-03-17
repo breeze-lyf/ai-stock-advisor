@@ -71,6 +71,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/portfolio/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Portfolio Summary
+         * @description 获取投资组合汇总数据 (Get Portfolio Summary)
+         */
+        get: operations["get_portfolio_summary_api_portfolio_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/portfolio/": {
         parameters: {
             query?: never;
@@ -80,9 +100,12 @@ export interface paths {
         };
         /**
          * Get Portfolio
-         * @description 获取当前用户的投资组合列表
-         *     - 使用 outerjoin 一次性查出持仓量、最新价、基本面和技术指标
-         *     - 如果 refresh=True，会触发后台并行更新所有持仓的实时行情
+         * @description 获取当前用户的投资组合列表 (Fetch User Portfolio)
+         *
+         *     逻辑 (Logic)：
+         *     1. 联表查询：Portfolio (持仓) -> MarketDataCache (行情缓存) -> Stock (基础资料)
+         *     2. 若 refresh=True，则同步/异步触发全量实时刷新
+         *     3. 循环计算盈亏比例、市值、未实现盈亏等前端展示字段
          */
         get: operations["get_portfolio_api_portfolio__get"];
         put?: never;
@@ -128,7 +151,7 @@ export interface paths {
         put?: never;
         /**
          * Refresh Stock Data
-         * @description 针对单个股票的手动强制刷新接口
+         * @description 针对单个股票的手动强制刷新接口 (支持极速模式)
          */
         post: operations["refresh_stock_data_api_portfolio__ticker__refresh_post"];
         delete?: never;
@@ -151,6 +174,90 @@ export interface paths {
         get: operations["get_stock_news_api_portfolio__ticker__news_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portfolio/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Reorder Portfolio
+         * @description 批量更新排序权重 (Batch update sort_order)
+         */
+        patch: operations["reorder_portfolio_api_portfolio_reorder_patch"];
+        trace?: never;
+    };
+    "/api/stocks/{ticker}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Stock History
+         * @description 接口：获取股票的历史行情数据，专为 K 线图打造。
+         */
+        get: operations["get_stock_history_api_stocks__ticker__history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stocks/refresh_all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Refresh All Stocks
+         * @description 接口：一键同步当前数据库中所有活跃股票的最新行情。
+         */
+        post: operations["refresh_all_stocks_api_stocks_refresh_all_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/analysis/portfolio": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Portfolio Analysis
+         * @description 获取最近的一次全量持仓健康分析 (非实时生成)
+         */
+        get: operations["get_portfolio_analysis_api_analysis_portfolio_get"];
+        put?: never;
+        /**
+         * Analyze Portfolio
+         * @description 全量持仓健康分析接口 (Portfolio Health Check)
+         */
+        post: operations["analyze_portfolio_api_analysis_portfolio_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -186,6 +293,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/analysis/{ticker}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Analysis History
+         * @description 获取股票历史分析记录列表 (History of AI Analysis)
+         */
+        get: operations["get_analysis_history_api_analysis__ticker__history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/macro/radar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Macro Radar
+         * @description 获取宏观雷达热点，支持静默自动刷新
+         */
+        get: operations["get_macro_radar_api_macro_radar_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/macro/cls_news": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Cls News
+         * @description 获取数据库中持久化的最新全球快讯。
+         *     逻辑：DB 优先，根据新鲜度自动触发后台更新。支持 refresh=True 强制刷新。
+         */
+        get: operations["get_cls_news_api_macro_cls_news_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/user/me": {
         parameters: {
             query?: never;
@@ -196,6 +364,23 @@ export interface paths {
         /** Read Users Me */
         get: operations["read_users_me_api_user_me_get"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/user/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Change Password */
+        put: operations["change_password_api_user_password_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -220,15 +405,35 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/health": {
+    "/api/user/test-connection": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Health Check */
-        get: operations["health_check_health_get"];
+        get?: never;
+        put?: never;
+        /** Test Ai Connection */
+        post: operations["test_ai_connection_api_user_test_connection_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notifications/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Notification History
+         * @description 获取通知历史记录流
+         */
+        get: operations["get_notification_history_api_notifications_history_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -237,15 +442,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/": {
+    "/api/paper-trading/": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Root */
-        get: operations["root__get"];
+        /**
+         * Get Simulated Trades
+         * @description 获取所有的模拟交易 (Get all simulated trades)
+         */
+        get: operations["get_simulated_trades_api_paper_trading__get"];
+        put?: never;
+        /**
+         * Create Simulated Trade
+         * @description 一键加入模拟盘 (Join Paper Trading)
+         */
+        post: operations["create_simulated_trade_api_paper_trading__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Health Check
+         * @description 健康检查接口：确保后端服务在线
+         */
+        get: operations["health_check_health_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -286,6 +518,14 @@ export interface components {
             target_price?: number | null;
             /** Stop Loss Price */
             stop_loss_price?: number | null;
+            /** Entry Zone */
+            entry_zone?: string | null;
+            /** Entry Price Low */
+            entry_price_low?: number | null;
+            /** Entry Price High */
+            entry_price_high?: number | null;
+            /** Rr Ratio */
+            rr_ratio?: string | null;
             /**
              * Is Cached
              * @default false
@@ -295,6 +535,29 @@ export interface components {
             model_used?: string | null;
             /** Created At */
             created_at?: string | null;
+            /** History Price */
+            history_price?: number | null;
+            /** Max Drawdown */
+            max_drawdown?: number | null;
+            /** Max Favorable Excursion */
+            max_favorable_excursion?: number | null;
+            /** Scenario Tags */
+            scenario_tags?: {
+                [key: string]: unknown;
+            }[] | null;
+            /** Audit Notes */
+            audit_notes?: string | null;
+            /** Thought Process */
+            thought_process?: {
+                [key: string]: unknown;
+            }[] | null;
+        };
+        /** ApiConfig */
+        ApiConfig: {
+            /** Api Key */
+            api_key?: string | null;
+            /** Base Url */
+            base_url?: string | null;
         };
         /** Body_login_access_token_api_auth_login_post */
         Body_login_access_token_api_auth_login_post: {
@@ -324,6 +587,88 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** NotificationHistorySchema */
+        NotificationHistorySchema: {
+            /** Id */
+            id: string;
+            /** Type */
+            type: string;
+            /** Title */
+            title: string;
+            /** Content */
+            content: string;
+            /** Card Payload */
+            card_payload: {
+                [key: string]: unknown;
+            };
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** OHLCVItem */
+        OHLCVItem: {
+            /** Time */
+            time: string;
+            /** Open */
+            open: number;
+            /** High */
+            high: number;
+            /** Low */
+            low: number;
+            /** Close */
+            close: number;
+            /** Volume */
+            volume?: number | null;
+            /** Rsi */
+            rsi?: number | null;
+            /** Macd */
+            macd?: number | null;
+            /** Macd Signal */
+            macd_signal?: number | null;
+            /** Macd Hist */
+            macd_hist?: number | null;
+            /** Bb Upper */
+            bb_upper?: number | null;
+            /** Bb Middle */
+            bb_middle?: number | null;
+            /** Bb Lower */
+            bb_lower?: number | null;
+        };
+        /** PasswordChange */
+        PasswordChange: {
+            /** Old Password */
+            old_password: string;
+            /** New Password */
+            new_password: string;
+        };
+        /** PortfolioAnalysisResponse */
+        PortfolioAnalysisResponse: {
+            /** Health Score */
+            health_score: number;
+            /** Risk Level */
+            risk_level: string;
+            /** Summary */
+            summary: string;
+            /** Diversification Analysis */
+            diversification_analysis: string;
+            /** Strategic Advice */
+            strategic_advice: string;
+            /** Top Risks */
+            top_risks: string[];
+            /** Top Opportunities */
+            top_opportunities: string[];
+            /** Detailed Report */
+            detailed_report: string;
+            /** Model Used */
+            model_used?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** PortfolioCreate */
         PortfolioCreate: {
@@ -386,6 +731,12 @@ export interface components {
             fifty_two_week_high?: number | null;
             /** Fifty Two Week Low */
             fifty_two_week_low?: number | null;
+            /** Pe Percentile */
+            pe_percentile?: number | null;
+            /** Pb Percentile */
+            pb_percentile?: number | null;
+            /** Net Inflow */
+            net_inflow?: number | null;
             /** Rsi 14 */
             rsi_14?: number | null;
             /** Ma 20 */
@@ -402,6 +753,13 @@ export interface components {
             macd_hist?: number | null;
             /** Macd Hist Slope */
             macd_hist_slope?: number | null;
+            /** Macd Cross */
+            macd_cross?: string | null;
+            /**
+             * Macd Is New Cross
+             * @default false
+             */
+            macd_is_new_cross: boolean;
             /** Bb Upper */
             bb_upper?: number | null;
             /** Bb Middle */
@@ -432,11 +790,30 @@ export interface components {
             support_1?: number | null;
             /** Support 2 */
             support_2?: number | null;
+            /** Risk Reward Ratio */
+            risk_reward_ratio?: number | null;
             /**
              * Change Percent
              * @default 0
              */
             change_percent: number | null;
+            /** Market Status */
+            market_status?: string | null;
+        };
+        /** PortfolioSummary */
+        PortfolioSummary: {
+            /** Total Market Value */
+            total_market_value: number;
+            /** Total Unrealized Pl */
+            total_unrealized_pl: number;
+            /** Total Pl Percent */
+            total_pl_percent: number;
+            /** Day Change */
+            day_change: number;
+            /** Holdings */
+            holdings: components["schemas"]["PortfolioItem"][];
+            /** Sector Exposure */
+            sector_exposure: components["schemas"]["SectorExposure"][];
         };
         /** SearchResult */
         SearchResult: {
@@ -445,6 +822,34 @@ export interface components {
             /** Name */
             name: string;
         };
+        /** SectorExposure */
+        SectorExposure: {
+            /** Sector */
+            sector: string;
+            /** Weight */
+            weight: number;
+            /** Value */
+            value: number;
+        };
+        /** TestConnectionRequest */
+        TestConnectionRequest: {
+            /** Provider */
+            provider: string;
+            /** Api Key */
+            api_key?: string | null;
+            /** Base Url */
+            base_url?: string | null;
+        };
+        /** TestConnectionResponse */
+        TestConnectionResponse: {
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "success" | "error";
+            /** Message */
+            message: string;
+        };
         /** Token */
         Token: {
             /** Access Token */
@@ -452,6 +857,11 @@ export interface components {
             /** Token Type */
             token_type: string;
         };
+        /**
+         * TradeStatus
+         * @enum {string}
+         */
+        TradeStatus: "OPEN" | "CLOSED_PROFIT" | "CLOSED_LOSS" | "CLOSED_MANUAL";
         /** UserCreate */
         UserCreate: {
             /**
@@ -476,10 +886,30 @@ export interface components {
             has_deepseek_key: boolean;
             /** Has Siliconflow Key */
             has_siliconflow_key: boolean;
+            /** Api Configs */
+            api_configs?: {
+                [key: string]: components["schemas"]["ApiConfig"];
+            } | null;
+            /** Fallback Enabled */
+            fallback_enabled: boolean;
             /** Preferred Data Source */
             preferred_data_source: string;
             /** Preferred Ai Model */
             preferred_ai_model: string;
+            /** Timezone */
+            timezone: string;
+            /** Theme */
+            theme: string;
+            /** Feishu Webhook Url */
+            feishu_webhook_url?: string | null;
+            /** Enable Price Alerts */
+            enable_price_alerts: boolean;
+            /** Enable Hourly Summary */
+            enable_hourly_summary: boolean;
+            /** Enable Daily Report */
+            enable_daily_report: boolean;
+            /** Enable Macro Alerts */
+            enable_macro_alerts: boolean;
         };
         /** UserSettingsUpdate */
         UserSettingsUpdate: {
@@ -489,10 +919,30 @@ export interface components {
             api_key_deepseek?: string | null;
             /** Api Key Siliconflow */
             api_key_siliconflow?: string | null;
+            /** Api Configs */
+            api_configs?: {
+                [key: string]: components["schemas"]["ApiConfig"];
+            } | null;
+            /** Fallback Enabled */
+            fallback_enabled?: boolean | null;
             /** Preferred Data Source */
             preferred_data_source?: string | null;
             /** Preferred Ai Model */
             preferred_ai_model?: string | null;
+            /** Timezone */
+            timezone?: string | null;
+            /** Theme */
+            theme?: string | null;
+            /** Feishu Webhook Url */
+            feishu_webhook_url?: string | null;
+            /** Enable Price Alerts */
+            enable_price_alerts?: boolean | null;
+            /** Enable Hourly Summary */
+            enable_hourly_summary?: boolean | null;
+            /** Enable Daily Report */
+            enable_daily_report?: boolean | null;
+            /** Enable Macro Alerts */
+            enable_macro_alerts?: boolean | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -610,10 +1060,31 @@ export interface operations {
             };
         };
     };
+    get_portfolio_summary_api_portfolio_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortfolioSummary"];
+                };
+            };
+        };
+    };
     get_portfolio_api_portfolio__get: {
         parameters: {
             query?: {
                 refresh?: boolean;
+                price_only?: boolean;
             };
             header?: never;
             path?: never;
@@ -707,7 +1178,9 @@ export interface operations {
     };
     refresh_stock_data_api_portfolio__ticker__refresh_post: {
         parameters: {
-            query?: never;
+            query?: {
+                price_only?: boolean;
+            };
             header?: never;
             path: {
                 ticker: string;
@@ -763,6 +1236,146 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reorder_portfolio_api_portfolio_reorder_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    [key: string]: unknown;
+                }[];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_stock_history_api_stocks__ticker__history_get: {
+        parameters: {
+            query?: {
+                period?: string;
+                interval?: string;
+            };
+            header?: never;
+            path: {
+                ticker: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OHLCVItem"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    refresh_all_stocks_api_stocks_refresh_all_post: {
+        parameters: {
+            query?: {
+                price_only?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_portfolio_analysis_api_analysis_portfolio_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortfolioAnalysisResponse"];
+                };
+            };
+        };
+    };
+    analyze_portfolio_api_analysis_portfolio_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortfolioAnalysisResponse"];
                 };
             };
         };
@@ -831,6 +1444,101 @@ export interface operations {
             };
         };
     };
+    get_analysis_history_api_analysis__ticker__history_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                ticker: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnalysisResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_macro_radar_api_macro_radar_get: {
+        parameters: {
+            query?: {
+                refresh?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_cls_news_api_macro_cls_news_get: {
+        parameters: {
+            query?: {
+                refresh?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     read_users_me_api_user_me_get: {
         parameters: {
             query?: never;
@@ -847,6 +1555,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserProfile"];
+                };
+            };
+        };
+    };
+    change_password_api_user_password_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordChange"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -884,9 +1625,75 @@ export interface operations {
             };
         };
     };
-    health_check_health_get: {
+    test_ai_connection_api_user_test_connection_post: {
         parameters: {
             query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TestConnectionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestConnectionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_notification_history_api_notifications_history_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationHistorySchema"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_simulated_trades_api_paper_trading__get: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["TradeStatus"] | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -902,9 +1709,53 @@ export interface operations {
                     "application/json": unknown;
                 };
             };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
         };
     };
-    root__get: {
+    create_simulated_trade_api_paper_trading__post: {
+        parameters: {
+            query: {
+                ticker: string;
+                entry_price: number;
+                entry_reason: string;
+                target_price?: number | null;
+                stop_loss_price?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    health_check_health_get: {
         parameters: {
             query?: never;
             header?: never;

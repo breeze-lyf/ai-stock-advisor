@@ -26,6 +26,9 @@ export interface AnalysisResponse {
     risk_level?: string;
     technical_analysis?: string;
     fundamental_news?: string;
+    news_summary?: string;
+    fundamental_analysis?: string;
+    macro_risk_note?: string;
     action_advice?: string;
     investment_horizon?: string;
     confidence_level?: number;
@@ -33,44 +36,21 @@ export interface AnalysisResponse {
     target_price?: number;
     stop_loss_price?: number;
     entry_zone?: string;
+    entry_price_low?: number;
+    entry_price_high?: number;
     rr_ratio?: string;
     is_cached?: boolean;
     model_used?: string;
     created_at?: string;
 }
 export type SearchResult = components["schemas"]["SearchResult"];
-export interface UserProfile {
-    id: string;
-    email: string;
-    membership_tier: string;
-    has_gemini_key: boolean;
-    has_deepseek_key: boolean;
-    has_siliconflow_key: boolean;
-    preferred_data_source: string;
-    preferred_ai_model: string;
-    timezone: string;
-    theme: string;
-    feishu_webhook_url?: string;
-    enable_price_alerts: boolean;
-    enable_hourly_summary: boolean;
-    enable_daily_report: boolean;
-    enable_macro_alerts: boolean;
-}
+export type ApiConfig = components["schemas"]["ApiConfig"];
+export type UserProfile = components["schemas"]["UserProfile"];
+export type UserSettingsUpdate = components["schemas"]["UserSettingsUpdate"];
+export type PasswordChange = components["schemas"]["PasswordChange"];
+export type TestConnectionRequest = components["schemas"]["TestConnectionRequest"];
+export type TestConnectionResponse = components["schemas"]["TestConnectionResponse"];
 
-export interface UserSettingsUpdate {
-    api_key_gemini?: string;
-    api_key_deepseek?: string;
-    api_key_siliconflow?: string;
-    preferred_data_source?: string;
-    preferred_ai_model?: string;
-    timezone?: string;
-    theme?: string;
-    feishu_webhook_url?: string;
-    enable_price_alerts?: boolean;
-    enable_hourly_summary?: boolean;
-    enable_daily_report?: boolean;
-    enable_macro_alerts?: boolean;
-}
 export interface SectorExposure {
     sector: string;
     weight: number;

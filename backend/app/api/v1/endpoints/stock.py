@@ -1,8 +1,8 @@
+from __future__ import annotations
 import math
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-import yfinance as yf
 import pandas as pd
 from datetime import datetime
 import asyncio

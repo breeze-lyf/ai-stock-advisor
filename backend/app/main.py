@@ -116,7 +116,7 @@ app.add_middleware(
 from app.api.v1.api import api_router
 
 
-app.include_router(api_router, prefix="/api")
+app.include_router(api_router, prefix="/api/v1")
 
 # 6. 后端后台任务启动 (Background Task Startup)
 @app.on_event("startup")
@@ -124,8 +124,12 @@ async def startup_event():
     # 自动创建缺失的数据库表 (包括 notification_logs)
     from app.core.database import engine, Base
     from app.models.notification import NotificationLog
+    from app.services.system_ai_registry import ensure_system_ai_registry
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+    async with SessionLocal() as db:
+        await ensure_system_ai_registry(db)
     
     from app.services.scheduler import start_scheduler
     import asyncio
@@ -142,4 +146,3 @@ async def health_check():
 async def root():
     """欢迎页面"""
     return {"message": "Welcome to AI Smart Investment Advisor API"}
-

@@ -8,6 +8,7 @@ import { UserProfile } from "@/types";
 interface AuthContextType {
     token: string | null;
     user: UserProfile | null;
+    loading: boolean;
     login: (token: string) => void;
     logout: () => void;
     isAuthenticated: boolean;
@@ -21,6 +22,7 @@ const PUBLIC_ROUTES = ["/login", "/register", "/password"];
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [token, setToken] = useState<string | null>(null);
     const [user, setUser] = useState<UserProfile | null>(null);
+    const [loading, setLoading] = useState(true);
     const router = useRouter();
     const pathname = usePathname();
 
@@ -30,12 +32,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         try {
             const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-            const response = await fetch(`${apiBase}/api/user/me`, {
+            const response = await fetch(`${apiBase}/api/v1/user/me`, {
                 headers: { "Authorization": `Bearer ${storedToken}` }
             });
             if (response.ok) {
                 const data = await response.json();
                 setUser(data);
+            } else if (response.status === 401 || response.status === 403) {
+                localStorage.removeItem("token");
+                setToken(null);
+                setUser(null);
             }
         } catch (error) {
             console.error("Failed to refresh profile", error);
@@ -43,26 +49,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     useEffect(() => {
-        const storedToken = localStorage.getItem("token");
-        if (storedToken) {
-            setToken(storedToken);
-            refreshProfile();
-        } else {
-            if (!PUBLIC_ROUTES.includes(pathname)) {
+        let active = true;
+
+        const initializeAuth = async () => {
+            const storedToken = localStorage.getItem("token");
+            if (storedToken) {
+                setToken(storedToken);
+                await refreshProfile();
+            } else if (!PUBLIC_ROUTES.includes(pathname)) {
                 router.push("/login");
             }
-        }
+
+            if (active) {
+                setLoading(false);
+            }
+        };
+
+        setLoading(true);
+        initializeAuth();
+
+        return () => {
+            active = false;
+        };
     }, [pathname, router]);
 
     const login = (newToken: string) => {
         localStorage.setItem("token", newToken);
         setToken(newToken);
+        setLoading(false);
         router.push("/");
     };
 
     const logout = () => {
         localStorage.removeItem("token");
         setToken(null);
+        setUser(null);
+        setLoading(false);
         router.push("/login");
     };
 
@@ -71,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             value={{
                 token,
                 user,
+                loading,
                 login,
                 logout,
                 isAuthenticated: !!token,

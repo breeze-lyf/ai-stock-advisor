@@ -54,10 +54,16 @@ class User(Base):
     
     # 偏好设置：用户可以自定义使用哪里的行情，以及默认喜欢哪个分析师(AI模型)。
     preferred_data_source = Column(String, default=MarketDataSource.ALPHA_VANTAGE.value) 
-    preferred_ai_model = Column(String, default=AIModel.QWEN_3_VL_THINKING.value)        
+    preferred_ai_model = Column(String, default=AIModel.GEMINI_15_FLASH.value)
     timezone = Column(String, default="Asia/Shanghai")
     theme = Column(String, default="light")
     feishu_webhook_url = Column(String, nullable=True) 
+    
+    # --- 增强型 AI 配置 (BYOK & Dispatching) ---
+    # 存储供应商特定的配置，如自定义 base_url。格式: {"provider_key": {"base_url": "..."}}
+    api_configs = Column(String, nullable=True) # 使用 String 存储 JSON，保证兼容性
+    # 当私有 Key 失效或额度用尽时，是否允许自动切换到系统公共 Key
+    fallback_enabled = Column(Boolean, default=True)
     
     # --- 通知精细化控制开关 (Notification Switches) ---
     enable_price_alerts = Column(Boolean, default=True)   # 价格/风险预警 (Price/Risk Alerts)

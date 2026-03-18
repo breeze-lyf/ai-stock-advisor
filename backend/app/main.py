@@ -3,26 +3,28 @@
 import time
 import logging
 import traceback
+import os
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from jose import jwt
 from app.core.config import settings
 from app.core import security
+from app.utils.json_logger import setup_logging
 
 # 1. 全局日志配置 (Global Logging Configuration)
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.FileHandler("app.log"),
-        logging.StreamHandler()
-    ]
-)
-logger = logging.getLogger("api_logger")
+# 支持JSON格式日志，便于Loki聚合分析
+log_format = os.getenv("LOG_FORMAT", "json")
+log_level = os.getenv("LOG_LEVEL", "INFO")
+environment = os.getenv("ENVIRONMENT", "production")
 
-# 降低 SQLAlchemy 日志级别，减少噪音
-logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
+logger = setup_logging(
+    log_format=log_format,
+    log_level=log_level,
+    service_name="ai-stock-advisor",
+    environment=environment,
+    log_file="app.log"
+)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -35,8 +37,13 @@ app = FastAPI(
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(
-        f"Unhandled exception on {request.method} {request.url.path}: "
-        f"{type(exc).__name__}: {exc}\n{traceback.format_exc()}"
+        f"Unhandled exception: {type(exc).__name__}: {exc}",
+        extra={
+            "method": request.method,
+            "path": request.url.path,
+            "error_type": type(exc).__name__,
+            "stack_trace": traceback.format_exc()
+        }
     )
     return JSONResponse(
         status_code=500,
@@ -69,25 +76,39 @@ async def log_requests(request: Request, call_next):
         response = await call_next(request)
     except Exception as exc:
         # 中间件层兜底：即使 call_next 抛出异常也不会让 worker 崩溃
-        logger.error(f"Middleware caught unhandled error: {type(exc).__name__}: {exc}")
+        duration_ms = (time.time() - start_time) * 1000
+        logger.error(
+            f"Middleware caught unhandled error: {type(exc).__name__}: {exc}",
+            extra={
+                "user_id": user_id,
+                "method": request.method,
+                "path": request.url.path,
+                "duration_ms": round(duration_ms, 2),
+                "error_type": type(exc).__name__,
+                "stack_trace": traceback.format_exc()
+            }
+        )
         return JSONResponse(
             status_code=500,
             content={"detail": "Internal server error"}
         )
     
     # 计算并格式化处理时间
-    process_time = (time.time() - start_time) * 1000
-    formatted_process_time = f"{process_time:.2f}ms"
+    duration_ms = (time.time() - start_time) * 1000
     
+    # 结构化日志记录
     logger.info(
-        f"rid={request.scope.get('root_path') or ''}{request.url.path} "
-        f"method={request.method} "
-        f"status_code={response.status_code} "
-        f"user_id={user_id} "
-        f"time={formatted_process_time}"
+        f"Request: {request.method} {request.url.path}",
+        extra={
+            "user_id": user_id,
+            "method": request.method,
+            "path": request.url.path,
+            "status_code": response.status_code,
+            "duration_ms": round(duration_ms, 2)
+        }
     )
     
-    response.headers["X-Process-Time"] = formatted_process_time
+    response.headers["X-Process-Time"] = f"{duration_ms:.2f}ms"
     return response
 
 # 4. 跨域资源共享配置 (CORS Configuration)
@@ -122,7 +143,7 @@ app.include_router(api_router, prefix="/api/v1")
 @app.on_event("startup")
 async def startup_event():
     # 自动创建缺失的数据库表 (包括 notification_logs)
-    from app.core.database import engine, Base
+    from app.core.database import engine, Base, SessionLocal
     from app.models.notification import NotificationLog
     from app.services.system_ai_registry import ensure_system_ai_registry
     async with engine.begin() as conn:

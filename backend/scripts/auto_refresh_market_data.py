@@ -26,8 +26,8 @@ async def auto_refresh_job():
     logger.info("🚀 Starting auto-refresh background job...")
     
     while True:
-        async with SessionLocal() as db:
-            try:
+        try:
+            async with SessionLocal() as db:
                 # Query to find the stock with the oldest update time (or NULL if never updated)
                 # Logic: Left Join Stock -> MarketDataCache, Order by last_updated ASC NULLS FIRST
                 stmt = select(Stock.ticker).outerjoin(
@@ -39,9 +39,11 @@ async def auto_refresh_job():
                 result = await db.execute(stmt)
                 tickers = result.scalars().all()
                 
-                if tickers:
-                    logger.info(f"🔄 Refreshing stalest {len(tickers)} stocks: {', '.join(tickers)}...")
-                    for ticker in tickers:
+            if tickers:
+                logger.info(f"🔄 Refreshing stalest {len(tickers)} stocks: {', '.join(tickers)}...")
+                for ticker in tickers:
+                    # Each ticker gets its own session to be super safe and release fast
+                    async with SessionLocal() as db:
                         try:
                             updated_cache = await MarketDataService.get_real_time_data(ticker, db, force_refresh=True)
                             if updated_cache:
@@ -50,16 +52,16 @@ async def auto_refresh_job():
                                 logger.warning(f"⚠️ Failed to refresh data for {ticker}.")
                         except Exception as fetch_error:
                             logger.error(f"❌ Error fetching data for {ticker}: {fetch_error}")
-                        
-                        # 休眠 2 秒，避免短时间内突然发出大量请求导致 IP 被封
-                        await asyncio.sleep(2)
-                else:
-                    logger.info("ℹ️ No stocks found in database to refresh.")
                     
-            except Exception as e:
-                logger.error(f"💥 Critical error in auto-refresh loop: {e}")
+                    # 休眠 2 秒，避免短时间内突然发出大量请求导致 IP 被封
+                    await asyncio.sleep(2)
+            else:
+                logger.info("ℹ️ No stocks found in database to refresh.")
+                    
+        except Exception as e:
+            logger.error(f"💥 Critical error in auto-refresh loop: {e}")
         
-        # Sleep for 5 minutes (300 seconds)
+        # Sleep for 5 minutes (300 seconds) - OUTSIDE the session context
         logger.info("💤 Sleeping for 5 minutes...")
         await asyncio.sleep(300)
 

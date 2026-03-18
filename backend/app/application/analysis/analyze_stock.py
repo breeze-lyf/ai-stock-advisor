@@ -1,4 +1,5 @@
 import logging
+import asyncio
 from datetime import datetime
 from typing import Any, Optional
 
@@ -36,13 +37,32 @@ class AnalyzeStockUseCase:
 
         await self._check_free_tier_limit()
 
-        stock_obj = await self._get_stock(ticker)
-        market_data_obj = await MarketDataService.get_real_time_data(ticker, self.db, force_refresh=force)
+        # Step 1: Parallel data fetching for all components
+        logger.info(f"Starting parallel data fetching for {ticker}...")
+        results = await asyncio.gather(
+            self._get_stock(ticker),
+            MarketDataService.get_real_time_data(ticker, self.db, force_refresh=force),
+            self._get_news_data(ticker),
+            self._get_macro_context(),
+            return_exceptions=True
+        )
+        
+        # Unpack results with error handling
+        stock_obj = results[0] if not isinstance(results[0], Exception) else None
+        market_data_obj = results[1] if not isinstance(results[1], Exception) else None
+        news_data = results[2] if not isinstance(results[2], Exception) else []
+        macro_context = results[3] if not isinstance(results[3], Exception) else ""
+        
+        if isinstance(results[1], Exception):
+            logger.error(f"Failed to fetch market data for {ticker}: {results[1]}")
+            raise HTTPException(status_code=500, detail=f"Market data fetch error: {str(results[1])}")
+
+        # Step 2: Build derived data objects
         market_data = self._build_market_data(market_data_obj)
-        news_data = await self._get_news_data(ticker)
-        portfolio_data = await self._get_portfolio_data(ticker, market_data)
-        macro_context = await self._get_macro_context()
         fundamental_data = self._build_fundamental_data(stock_obj, market_data_obj)
+        
+        # Step 3: Fetch portfolio data (needs market_data for valuation)
+        portfolio_data = await self._get_portfolio_data(ticker, market_data)
 
         logger.info(f"Preparing AI analysis for {ticker}. Market Data keys present: {list(market_data.keys())}")
         if not market_data.get("rsi_14"):
@@ -55,6 +75,11 @@ class AnalyzeStockUseCase:
             return cached_response
 
         previous_analysis_context = await self._build_previous_analysis_context(ticker)
+
+        # 🚀 重要: 在进入耗时 2分钟+ 的 AI 生成阶段前，提交当前事务。
+        # 这样可以确保在该线程/协程等待 AI 响应期间，数据库连接已经释放回连接池，供其他请求使用。
+        # 防止在高并发或低配置环境下连接池枯竭。
+        await self.db.commit()
 
         ai_raw_response = await AIService.generate_analysis(
             ticker,

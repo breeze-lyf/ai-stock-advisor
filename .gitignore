@@ -56,3 +56,6 @@ coverage/
 backend/test_*.py
 backend/reset_password.py
 backend/seed_stocks.py
+
+# Resume files (personal)
+backend/resume/

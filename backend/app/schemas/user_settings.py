@@ -28,6 +28,7 @@ class AIModelConfigCreate(BaseModel):
     api_key: str | None = None
     base_url: str
     key: str | None = None
+    is_default: bool = False
 
 
 class AIModelConfigResponse(BaseModel):

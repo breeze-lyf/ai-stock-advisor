@@ -126,8 +126,16 @@ start_docker() {
 
     echo "Starting containerized stack with Docker Compose..."
     docker compose up --build -d
-    echo "Frontend: http://localhost:3000"
-    echo "Backend:  http://localhost:8000/docs"
+    echo ""
+    echo "Services started:"
+    echo "  Frontend:  http://localhost:3000"
+    echo "  Backend:   http://localhost:8000/docs"
+    echo ""
+    echo "Optional services (not started by default on low-spec servers):"
+    echo "  Grafana:   http://localhost:3001 (admin/admin123)"
+    echo ""
+    echo "To enable logging stack (Loki+Grafana), run:"
+    echo "  docker compose --profile logging up -d"
 }
 
 case "$MODE" in

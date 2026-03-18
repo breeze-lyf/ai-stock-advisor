@@ -323,7 +323,7 @@ export const StockChart: React.FC<StockChartProps> = ({ data, ticker, showBb = t
     }, [data, showBb, showRsi, showMacd]);
 
     return (
-        <div className="w-full relative bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-2 overflow-hidden shadow-sm flex flex-col gap-1">
+        <div className="w-full relative bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-2 overflow-hidden shadow-sm flex flex-col gap-1" suppressHydrationWarning>
             {/* 叠层水印标题 (Layered Watermark Header) */}
             <div className="absolute top-6 left-8 z-10 flex flex-col pointer-events-none">
                 <span className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] opacity-60">Market Perspective</span>

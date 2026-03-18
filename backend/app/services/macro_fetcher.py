@@ -25,7 +25,11 @@ class MacroFetcher:
             logger.warning("Tavily API key not configured, macro radar update skipped.")
             return []
 
-        # 精确定义的宏观搜索关键词，旨在捕获市场波动源
+        # 【高级数据索引策略】
+        # 为了捕获最具市场杀伤力的宏观信息，我们设计了三个垂直维度的搜索：
+        # 1. 全局宏观层面：寻找影响大盘走势的结构化事件。
+        # 2. 地缘政治：关注能源、避险情绪相关的突发变量。
+        # 3. 联储动作：货币政策是美股最大的定价之源。
         queries = [
             "top global macro economic events moving markets today",
             "major geopolitical conflicts impacting stock market",
@@ -35,7 +39,8 @@ class MacroFetcher:
         all_news_raw = []
         for query in queries:
             try:
-                # 使用信号量控制并发压力
+                # 【并发压力管控】
+                # 使用信号量 (Semaphore) 限制对 Tavily API 的瞬时请求并发数，防止触发 Rate Limit 或浪费额度。
                 async with tavily._semaphore:
                     import httpx
                     async with httpx.AsyncClient(timeout=15.0) as client:
@@ -83,7 +88,10 @@ class MacroFetcher:
             content = str(row.get("内容", ""))
             if not content:
                 continue
-            # 计算内容指纹：用于后续入库时的幂等性校验
+            
+            # 【幂等性指纹逻辑】
+            # 使用“发布时间+内容”计算 MD5 防重，确保即使新闻源因网络波动被重复抓取，
+            # 数据库层面也不会产生脏数据，保证宏观分析的唯一性和精准性。
             fingerprint = hashlib.md5(f"{published_at}{content}".encode()).hexdigest()
             news_items.append(
                 {

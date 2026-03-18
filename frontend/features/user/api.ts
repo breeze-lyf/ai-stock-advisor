@@ -33,6 +33,7 @@ export type CreateAIModelConfigInput = {
   api_key?: string;
   base_url: string;
   key?: string;
+  is_default?: boolean;
 };
 
 export async function getProfile(): Promise<UserProfile> {

@@ -38,7 +38,8 @@ api.interceptors.response.use(
     }
 
     const isRetryable =
-      !error.response || (error.response.status >= 500 && error.response.status < 600);
+      (!error.response || (error.response.status >= 500 && error.response.status < 600)) &&
+      config.method?.toLowerCase() !== "post"; // Skip post requests to avoid double-triggers on slow tasks
 
     if (isRetryable && config && !config.__isRetry) {
       config.__retryCount = config.__retryCount || 0;

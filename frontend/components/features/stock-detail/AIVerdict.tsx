@@ -42,13 +42,20 @@ export const AIVerdict = React.memo(function AIVerdict({
                     <div className="h-8 w-1.5 bg-blue-600 rounded-full shadow-[0_0_12px_rgba(37,99,235,0.5)]" />
                     <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-slate-100 uppercase">AI 智能判研指标</h2>
                 </div>
-                <Button
-                    onClick={() => onAnalyze(true)}
-                    disabled={analyzing}
-                    className="bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-black px-6 h-10 rounded-xl hover:scale-105 transition-transform active:scale-95 mr-4 md:mr-10"
-                >
-                    {analyzing ? "诊断中..." : "开启深度诊断"}
-                </Button>
+                <div className="flex flex-col items-center">
+                    <Button
+                        onClick={() => onAnalyze(true)}
+                        disabled={analyzing}
+                        className="bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-black px-6 h-10 rounded-xl hover:scale-105 transition-transform active:scale-95 mr-4 md:mr-10"
+                    >
+                        {analyzing ? "诊断中..." : "开启深度诊断"}
+                    </Button>
+                    {analyzing && (
+                        <span className="text-[9px] font-bold text-blue-600 animate-pulse mt-1 mr-4 md:mr-10">
+                            深度思考约需 2-3 分钟，请稍后
+                        </span>
+                    )}
+                </div>
             </div>
 
             {/* 内容区：缩进 */}
@@ -352,7 +359,7 @@ function AIVerdictContent({
                     <div className="flex items-center gap-1.5 shrink-0">
                         <ShieldCheck className="h-2.5 w-2.5 text-slate-300 dark:text-slate-600" />
                         <span className="text-[8px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-widest whitespace-nowrap">
-                            AI V4.0 • {(aiData.model_used || "UNKNOWN").toUpperCase()} • {aiData.created_at ? formatDistanceToNow(new Date(aiData.created_at + (aiData.created_at.includes('Z') ? '' : 'Z')), { addSuffix: true, locale: zhCN }) : ''}
+                            AI V4.0 • {(aiData.model_used || "UNKNOWN").toUpperCase()} • <span suppressHydrationWarning>{aiData.created_at ? formatDistanceToNow(new Date(aiData.created_at + (aiData.created_at.includes('Z') ? '' : 'Z')), { addSuffix: true, locale: zhCN }) : ''}</span>
                         </span>
                     </div>
                 </div>
@@ -511,7 +518,7 @@ function TruthTracker({
 
                             <div className="flex justify-between items-start mb-3">
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter" suppressHydrationWarning>
                                         {format(new Date(report.created_at + (report.created_at.includes('Z') ? '' : 'Z')), "MMM dd, yyyy", { locale: zhCN })}
                                     </span>
                                     <span className={clsx(

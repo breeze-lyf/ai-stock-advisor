@@ -10,6 +10,15 @@
 - [backend/app/core/prompts.py](file://backend/app/core/prompts.py)
 - [backend/app/models/analysis.py](file://backend/app/models/analysis.py)
 - [backend/app/api/v1/endpoints/analysis.py](file://backend/app/api/v1/endpoints/analysis.py)
+- [backend/app/application/analysis/analyze_stock.py](file://backend/app/application/analysis/analyze_stock.py)
+- [backend/app/application/analysis/analyze_portfolio.py](file://backend/app/application/analysis/analyze_portfolio.py)
+- [backend/app/application/analysis/helpers.py](file://backend/app/application/analysis/helpers.py)
+- [backend/app/application/analysis/mappers.py](file://backend/app/application/analysis/mappers.py)
+- [backend/app/application/analysis/query_analysis.py](file://backend/app/application/analysis/query_analysis.py)
+- [backend/app/application/portfolio/query_portfolio.py](file://backend/app/application/portfolio/query_portfolio.py)
+- [backend/app/infrastructure/db/repositories/analysis_repository.py](file://backend/app/infrastructure/db/repositories/analysis_repository.py)
+- [backend/app/infrastructure/db/repositories/portfolio_repository.py](file://backend/app/infrastructure/db/repositories/portfolio_repository.py)
+- [backend/app/schemas/analysis.py](file://backend/app/schemas/analysis.py)
 - [backend/app/services/macro_service.py](file://backend/app/services/macro_service.py)
 - [backend/app/services/notification_service.py](file://backend/app/services/notification_service.py)
 - [backend/app/services/scheduler.py](file://backend/app/services/scheduler.py)
@@ -19,16 +28,25 @@
 - [backend/app/utils/ai_response_parser.py](file://backend/app/utils/ai_response_parser.py)
 </cite>
 
+## 更新摘要
+**变更内容**
+- 新增分析应用层架构，包含专门的分析用例和服务
+- 新增投资组合分析功能，支持多资产组合的AI分析
+- 新增分析历史管理和缓存机制
+- 新增分析数据的序列化和映射功能
+- 新增分析辅助工具函数和帮助器模块
+
 ## 目录
 1. [项目概述](#项目概述)
 2. [系统架构](#系统架构)
 3. [核心组件](#核心组件)
 4. [架构概览](#架构概览)
 5. [详细组件分析](#详细组件分析)
-6. [依赖关系分析](#依赖关系分析)
-7. [性能考虑](#性能考虑)
-8. [故障排除指南](#故障排除指南)
-9. [结论](#结论)
+6. [分析应用层架构](#分析应用层架构)
+7. [依赖关系分析](#依赖关系分析)
+8. [性能考虑](#性能考虑)
+9. [故障排除指南](#故障排除指南)
+10. [结论](#结论)
 
 ## 项目概述
 
@@ -74,12 +92,14 @@ subgraph "后端层 (Backend)"
 FastAPI[FastAPI 1.0.0]
 API[REST API]
 Services[业务服务层]
+Application[应用层]
 Utils[工具类]
 end
 subgraph "数据层 (Data Layer)"
 Database[(PostgreSQL/SQLite)]
 Cache[内存缓存]
 Models[ORM模型]
+Repositories[仓储层]
 end
 subgraph "AI引擎 (AI Engine)"
 AIService[AI服务]
@@ -95,7 +115,10 @@ end
 NextJS --> FastAPI
 Components --> API
 UI --> API
+FastAPI --> Application
 FastAPI --> Services
+Application --> AIService
+Application --> Repositories
 Services --> AIService
 Services --> Database
 Services --> Cache
@@ -237,11 +260,23 @@ MarketService[市场数据服务]
 MacroService[宏观服务]
 NotificationService[通知服务]
 Scheduler[调度器]
+AnalysisUseCases[分析用例层]
+end
+subgraph "应用层"
+AnalyzeStockUseCase[股票分析用例]
+AnalyzePortfolioUseCase[组合分析用例]
+GetLatestAnalysisUseCase[最新分析用例]
+GetAnalysisHistoryUseCase[分析历史用例]
+QueryPortfolioUseCase[组合查询用例]
+Helpers[辅助工具]
+Mappers[数据映射器]
 end
 subgraph "数据访问层"
 Database[数据库]
 Cache[缓存]
 Models[ORM模型]
+AnalysisRepository[分析仓储]
+PortfolioRepository[组合仓储]
 end
 subgraph "外部集成"
 Providers[数据提供商]
@@ -252,10 +287,23 @@ Frontend --> Main
 UI --> Main
 Main --> Router
 Router --> Endpoints
+Endpoints --> AnalysisUseCases
 Endpoints --> AIService
 Endpoints --> MarketService
 Endpoints --> MacroService
 Endpoints --> NotificationService
+AnalysisUseCases --> AnalyzeStockUseCase
+AnalysisUseCases --> AnalyzePortfolioUseCase
+AnalysisUseCases --> GetLatestAnalysisUseCase
+AnalysisUseCases --> GetAnalysisHistoryUseCase
+AnalysisUseCases --> QueryPortfolioUseCase
+AnalysisUseCases --> Helpers
+AnalysisUseCases --> Mappers
+AnalyzeStockUseCase --> AnalysisRepository
+AnalyzePortfolioUseCase --> PortfolioRepository
+GetLatestAnalysisUseCase --> AnalysisRepository
+GetAnalysisHistoryUseCase --> AnalysisRepository
+QueryPortfolioUseCase --> PortfolioRepository
 AIService --> AIProviders
 MarketService --> Providers
 MacroService --> AIProviders
@@ -263,8 +311,9 @@ NotificationService --> PushServices
 AIService --> Database
 MarketService --> Database
 MacroService --> Database
-NotificationService --> Database
-Scheduler --> Database
+AnalysisUseCases --> Database
+AnalysisRepository --> Database
+PortfolioRepository --> Database
 Database --> Models
 Cache --> Models
 ```
@@ -373,6 +422,196 @@ Scheduler --> MarketChecker : "检查市场状态"
 - [backend/app/services/macro_service.py:23-442](file://backend/app/services/macro_service.py#L23-L442)
 - [backend/app/services/scheduler.py:1-643](file://backend/app/services/scheduler.py#L1-L643)
 
+## 分析应用层架构
+
+### 分析用例层
+
+分析应用层是新增的核心架构，负责封装具体的业务用例和工作流程：
+
+```mermaid
+classDiagram
+class AnalyzeStockUseCase {
++db : AsyncSession
++current_user : User
++repo : AnalysisRepository
++execute(ticker, force) dict[str, Any]
++_check_free_tier_limit() void
++_get_stock(ticker) Stock
++_build_market_data(market_data_obj) dict[str, Any]
++_get_news_data(ticker) list[dict[str, Any]]
++_get_portfolio_data(ticker, market_data) dict[str, Any]
++_get_macro_context() str
++_build_fundamental_data(stock_obj, market_data_obj) dict[str, Any]
++_get_cached_response(ticker, market_data, model, force) dict[str, Any]
++_build_previous_analysis_context(ticker) dict[str, Any]
++_resolve_rr_ratio(parsed_data, market_data) str
++_persist_report(...) AnalysisReport
++_sync_ai_rrr_to_cache(ticker, market_data, new_report) void
+}
+class AnalyzePortfolioUseCase {
++db : AsyncSession
++current_user : User
++repo : PortfolioRepository
++execute() PortfolioAnalysisResponse
++_build_holdings_data(holdings) list[dict[str, Any]]
++_build_market_news_context(holdings) str
++_build_macro_context() str
++_persist_report(parsed_data, ai_raw_response, model) PortfolioAnalysisReport
+}
+class GetLatestAnalysisUseCase {
++db : AsyncSession
++current_user : User
++repo : AnalysisRepository
++execute(ticker) dict
+}
+class GetAnalysisHistoryUseCase {
++db : AsyncSession
++current_user : User
++repo : AnalysisRepository
++execute(ticker, limit) list[dict]
+}
+class GetLatestPortfolioAnalysisUseCase {
++db : AsyncSession
++current_user : User
++repo : PortfolioRepository
++execute() PortfolioAnalysisResponse
+}
+class GetPortfolioSummaryUseCase {
++db : AsyncSession
++current_user : User
++repo : PortfolioRepository
++execute() PortfolioSummary
+}
+AnalyzeStockUseCase --> AnalysisRepository : "使用"
+AnalyzePortfolioUseCase --> PortfolioRepository : "使用"
+GetLatestAnalysisUseCase --> AnalysisRepository : "使用"
+GetAnalysisHistoryUseCase --> AnalysisRepository : "使用"
+GetLatestPortfolioAnalysisUseCase --> PortfolioRepository : "使用"
+GetPortfolioSummaryUseCase --> PortfolioRepository : "使用"
+```
+
+**图表来源**
+- [backend/app/application/analysis/analyze_stock.py:28-404](file://backend/app/application/analysis/analyze_stock.py#L28-L404)
+- [backend/app/application/analysis/analyze_portfolio.py:23-178](file://backend/app/application/analysis/analyze_portfolio.py#L23-L178)
+- [backend/app/application/analysis/query_analysis.py:17-57](file://backend/app/application/analysis/query_analysis.py#L17-L57)
+- [backend/app/application/portfolio/query_portfolio.py:16-62](file://backend/app/application/portfolio/query_portfolio.py#L16-L62)
+
+### 分析数据模型
+
+分析应用层引入了专门的数据模型来支持结构化的分析结果存储：
+
+```mermaid
+classDiagram
+class AnalysisReport {
++id : String
++user_id : String
++ticker : String
++input_context_snapshot : JSON
++ai_response_markdown : Text
++sentiment_score : String
++summary_status : String
++risk_level : String
++technical_analysis : Text
++fundamental_news : Text
++action_advice : Text
++investment_horizon : String
++confidence_level : Float
++immediate_action : String
++target_price : Float
++stop_loss_price : Float
++entry_zone : String
++entry_price_low : Float
++entry_price_high : Float
++rr_ratio : String
++model_used : String
++max_drawdown : Float
++max_favorable_excursion : Float
++scenario_tags : JSON
++audit_notes : Text
++thought_process : JSON
++created_at : DateTime
++stock : Stock
+}
+class PortfolioAnalysisReport {
++id : String
++user_id : String
++health_score : Float
++risk_level : String
++summary : String
++diversification_analysis : Text
++strategic_advice : Text
++top_risks : JSON
++top_opportunities : JSON
++detailed_report : Text
++model_used : String
++created_at : DateTime
+}
+AnalysisReport --> Stock : "关联"
+```
+
+**图表来源**
+- [backend/app/models/analysis.py:17-92](file://backend/app/models/analysis.py#L17-L92)
+
+### 分析辅助工具
+
+分析应用层包含多个辅助模块来支持数据处理和转换：
+
+```mermaid
+classDiagram
+class Helpers {
++extract_entry_prices_fallback(action_advice) tuple[Optional[float], Optional[float]]
++extract_entry_zone_fallback(action_advice) Optional[str]
++to_str(val) Any
++to_float(val) Any
+}
+class Mappers {
++serialize_analysis_report(report, rr_ratio, history_price) dict[str, Any]
+}
+class AnalysisRepository {
++count_reports_since(user_id, since) int
++get_stock(ticker) Stock
++get_latest_stock_news(ticker, limit) list[StockNews]
++get_portfolio_item(user_id, ticker) Portfolio
++get_latest_report(user_id, ticker) AnalysisReport
++get_report_history(user_id, ticker, limit) list[AnalysisReport]
++get_market_cache(ticker) MarketDataCache
++add_report(report) AnalysisReport
++save_market_cache(cache) MarketDataCache
++rollback() void
+}
+class PortfolioRepository {
++get_summary_rows(user_id) list[tuple]
++get_portfolio_rows(user_id) list[tuple]
++get_portfolio_item(user_id, ticker) Portfolio
++get_max_sort_order(user_id) int
++get_market_cache(ticker) MarketDataCache
++get_stock_news(tickers, limit) list[StockNews]
++add_portfolio_item(item) void
++delete_portfolio_item(item) void
++save_changes() void
++rollback() void
++latest_portfolio_analysis(user_id) PortfolioAnalysisReport
++save_portfolio_analysis(report) PortfolioAnalysisReport
+}
+Helpers --> AnalysisRepository : "被使用"
+Mappers --> AnalysisRepository : "被使用"
+```
+
+**图表来源**
+- [backend/app/application/analysis/helpers.py:4-54](file://backend/app/application/analysis/helpers.py#L4-L54)
+- [backend/app/application/analysis/mappers.py:12-51](file://backend/app/application/analysis/mappers.py#L12-L51)
+- [backend/app/infrastructure/db/repositories/analysis_repository.py:12-80](file://backend/app/infrastructure/db/repositories/analysis_repository.py#L12-L80)
+- [backend/app/infrastructure/db/repositories/portfolio_repository.py:9-91](file://backend/app/infrastructure/db/repositories/portfolio_repository.py#L9-L91)
+
+**章节来源**
+- [backend/app/application/analysis/analyze_stock.py:28-404](file://backend/app/application/analysis/analyze_stock.py#L28-L404)
+- [backend/app/application/analysis/analyze_portfolio.py:23-178](file://backend/app/application/analysis/analyze_portfolio.py#L23-L178)
+- [backend/app/application/analysis/query_analysis.py:17-57](file://backend/app/application/analysis/query_analysis.py#L17-L57)
+- [backend/app/application/analysis/helpers.py:4-54](file://backend/app/application/analysis/helpers.py#L4-L54)
+- [backend/app/application/analysis/mappers.py:12-51](file://backend/app/application/analysis/mappers.py#L12-L51)
+- [backend/app/infrastructure/db/repositories/analysis_repository.py:12-80](file://backend/app/infrastructure/db/repositories/analysis_repository.py#L12-L80)
+- [backend/app/infrastructure/db/repositories/portfolio_repository.py:9-91](file://backend/app/infrastructure/db/repositories/portfolio_repository.py#L9-L91)
+
 ## 依赖关系分析
 
 系统采用模块化设计，各组件之间通过清晰的接口进行通信：
@@ -402,6 +641,14 @@ Feishu[飞书Webhook]
 HMAC[HMAC签名]
 MD5[MD5去重]
 end
+subgraph "分析应用层"
+AnalyzeStockUseCase[股票分析用例]
+AnalyzePortfolioUseCase[组合分析用例]
+AnalysisRepository[分析仓储]
+PortfolioRepository[组合仓储]
+Helpers[辅助工具]
+Mappers[数据映射]
+end
 subgraph "工具库"
 Pytz[时区处理]
 Asyncio[异步处理]
@@ -421,6 +668,12 @@ MarketDataService --> NetEase
 NotificationService --> Feishu
 NotificationService --> HMAC
 NotificationService --> MD5
+AnalyzeStockUseCase --> AnalysisRepository
+AnalyzePortfolioUseCase --> PortfolioRepository
+AnalysisRepository --> AnalysisReport
+PortfolioRepository --> PortfolioAnalysisReport
+Helpers --> AnalysisRepository
+Mappers --> AnalysisRepository
 Scheduler --> Pytz
 Scheduler --> Asyncio
 Scheduler --> Logging
@@ -444,6 +697,7 @@ Scheduler --> Logging
 2. **供应商配置缓存**：供应商列表缓存10分钟，支持动态更新
 3. **市场数据缓存**：行情数据缓存1分钟，支持价格模式和完整模式
 4. **响应解析缓存**：解析器结果缓存，避免重复解析
+5. **分析结果缓存**：分析报告缓存，支持快速响应和历史查询
 
 ### 异步处理
 
@@ -452,12 +706,21 @@ Scheduler --> Logging
 - **并发抓取**：多个数据源并行抓取，使用信号量控制并发度
 - **异步通知**：飞书推送使用异步客户端，避免阻塞主线程
 - **后台任务**：定时任务使用独立协程，不影响主服务响应
+- **并行分析**：投资组合中的多个标的并行分析，提升整体性能
 
 ### 数据库优化
 
 - **批量操作**：新闻数据批量插入，减少数据库往返
 - **原子操作**：使用PostgreSQL的ON CONFLICT DO UPDATE减少查询次数
 - **索引优化**：关键查询字段建立索引，如用户邮箱、股票代码等
+- **分析报告索引**：分析报告按用户ID和创建时间建立复合索引
+
+### 分析应用层优化
+
+- **并发限制**：分析用例使用信号量控制并发，避免过度消耗资源
+- **缓存优先**：优先返回缓存的分析结果，减少AI调用次数
+- **增量更新**：只更新必要的字段，避免全量更新
+- **错误恢复**：分析失败时自动回滚，保证数据一致性
 
 ## 故障排除指南
 
@@ -478,10 +741,16 @@ Scheduler --> Logging
 - 检查签名密钥设置
 - 查看通知日志了解具体错误
 
+**分析结果异常**
+- 检查AI模型配置和可用性
+- 验证输入数据的完整性和准确性
+- 查看分析日志和错误信息
+
 **性能问题**
 - 检查数据库连接池配置
 - 监控CPU和内存使用情况
 - 优化查询语句和索引
+- 调整并发限制参数
 
 **章节来源**
 - [backend/app/services/ai_service.py:140-159](file://backend/app/services/ai_service.py#L140-L159)
@@ -498,6 +767,9 @@ Scheduler --> Logging
 3. **可解释性AI**：提供完整的分析逻辑溯源，增强用户信任度
 4. **自动化程度高**：完善的调度系统，支持定时任务和实时监控
 5. **用户体验优秀**：直观的可视化界面和丰富的通知功能
+6. **分析应用层**：新增的专业分析架构，提供更强大的分析能力
+7. **投资组合分析**：支持多资产组合的综合分析和风险管理
+8. **历史数据分析**：完整的分析历史记录和回测功能
 
 ### 技术亮点
 
@@ -505,5 +777,7 @@ Scheduler --> Logging
 - **缓存策略**：多层次缓存机制，优化响应时间和资源使用
 - **监控告警**：完善的日志记录和错误处理机制
 - **安全设计**：API密钥加密存储和传输，确保数据安全
+- **分析用例层**：专业的分析业务逻辑封装，提升代码可维护性
+- **数据模型设计**：结构化的分析数据存储，支持复杂的分析需求
 
 该系统为用户提供了一个强大而可靠的AI分析平台，能够有效辅助投资决策，提升投资效率和成功率。

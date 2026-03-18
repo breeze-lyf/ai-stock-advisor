@@ -1,0 +1,141 @@
+# Promtail 配置文件 (Promtail Configuration)
+# 日志采集代理，负责收集容器日志并发送到Loki
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+    tenant_id: ai-stock-advisor
+
+scrape_configs:
+  # ========================================
+  # 1. Docker容器日志采集 (Docker Container Logs)
+  # ========================================
+  - job_name: docker
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+        filters:
+          - name: label
+            values: ["com.docker.compose.service"]
+    relabel_configs:
+      # 保留容器名称作为标签
+      - source_labels: [__meta_docker_container_name]
+        regex: '/(.*)'
+        target_label: container_name
+      # 保留compose服务名
+      - source_labels: [__meta_docker_compose_service]
+        target_label: service
+      # 保留compose项目名
+      - source_labels: [__meta_docker_compose_project]
+        target_label: project
+      # 设置日志路径
+      - source_labels: [__meta_docker_container_id]
+        target_label: __path__
+        regex: '(.*)'
+        replacement: '/var/lib/docker/containers/$1/$1-json.log'
+
+  # ========================================
+  # 2. 后端应用日志文件采集 (Backend Application Logs)
+  # ========================================
+  - job_name: backend_logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: backend
+          service: ai-stock-advisor
+          __path__: /var/log/app/*.log
+    pipeline_stages:
+      # 解析JSON格式日志
+      - json:
+          expressions:
+            timestamp: timestamp
+            level: level
+            logger: logger
+            message: message
+            request_id: request_id
+            user_id: user_id
+            duration_ms: duration_ms
+            status_code: status_code
+            method: method
+            path: path
+      # 设置日志级别标签
+      - labels:
+          level:
+          logger:
+          request_id:
+          user_id:
+      # 设置时间戳
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano
+
+  # ========================================
+  # 3. 前端日志采集 (Frontend Logs)
+  # ========================================
+  - job_name: frontend_logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: frontend
+          service: ai-stock-advisor
+          __path__: /var/log/frontend/*.log
+
+  # ========================================
+  # 4. 系统级日志采集 (System Logs)
+  # ========================================
+  - job_name: system
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: system
+          host: ai-stock-server
+          __path__: /var/log/syslog
+
+  # ========================================
+  # 5. 调度器任务日志 (Scheduler Logs)
+  # ========================================
+  - job_name: scheduler
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: scheduler
+          component: background-tasks
+          __path__: /var/log/app/scheduler*.log
+    pipeline_stages:
+      - regex:
+          expression: '^\[(?P<timestamp>[\d\-: ]+)\] \[(?P<level>\w+)\] (?P<message>.*)$'
+      - labels:
+          level:
+      - timestamp:
+          source: timestamp
+          format: "2006-01-02 15:04:05"
+
+  # ========================================
+  # 6. 数据库日志采集 (Database Logs)
+  # ========================================
+  - job_name: postgres
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: postgres
+          service: database
+          __path__: /var/log/postgresql/*.log
+    pipeline_stages:
+      - regex:
+          expression: '^(?P<timestamp>[\d\-: ]+) \[\d+\] (?P<level>\w+):\s*(?P<message>.*)$'
+      - labels:
+          level:
+      - timestamp:
+          source: timestamp
+          format: "2006-01-02 15:04:05"

@@ -36,6 +36,7 @@ import {
   testAIConnection,
   updateSettings,
   type AIModelConfigItem,
+  type CreateAIModelConfigInput,
 } from "@/features/user/api";
 import type { UserProfile } from "@/types";
 
@@ -95,7 +96,7 @@ export default function SettingsPage() {
     model_id: "",
     api_key: "",
     base_url: "",
-    is_default: true,
+    is_default: false,
   });
 
   const [feishuUrl, setFeishuUrl] = useState("");
@@ -175,13 +176,14 @@ export default function SettingsPage() {
     setAddingModel(true);
     setMessage(null);
 
-    const payload = {
+    const payload: CreateAIModelConfigInput = {
       key: customModel.key.trim() || undefined,
       display_name: customModel.display_name.trim(),
       provider_note: customModel.provider_note.trim() || undefined,
       model_id: customModel.model_id.trim(),
       api_key: customModel.api_key.trim() || undefined,
       base_url: normalizeBaseUrl(customModel.base_url),
+      is_default: customModel.is_default,
     };
 
     if (!payload.display_name || !payload.model_id || !payload.base_url) {
@@ -224,7 +226,7 @@ export default function SettingsPage() {
         model_id: "",
         api_key: "",
         base_url: "",
-        is_default: true,
+        is_default: false,
       });
       setEditingModelKey(null);
       setModelTestMessage(null);
@@ -291,7 +293,7 @@ export default function SettingsPage() {
       model_id: "",
       api_key: "",
       base_url: "",
-      is_default: true,
+      is_default: false,
     });
     setEditingModelKey(null);
     setModelTestMessage(null);

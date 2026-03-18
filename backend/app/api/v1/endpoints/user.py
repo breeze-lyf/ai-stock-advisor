@@ -332,6 +332,16 @@ async def upsert_ai_model(
             config.is_active = True
 
         saved = await repo.save(config, refresh=False)
+        
+        # 如果勾选了设为默认，同步更新用户偏好
+        if payload.is_default:
+            current_user.preferred_ai_model = saved.key
+            # 这里 repo.save(config) 已经 commit 了吗？
+            # 实际上 repo.save 内部通常会 commit。
+            # 为了保险，我们需要确保 User 对象的修改也被持久化。
+            db.add(current_user)
+            await db.commit()
+
         return AIModelConfigResponse(
             key=saved.key,
             display_name=saved.display_name,

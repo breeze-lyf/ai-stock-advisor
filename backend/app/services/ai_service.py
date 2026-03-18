@@ -67,7 +67,7 @@ class AIService:
             {
                 "provider_key": "gemini" if is_gemini else "custom",
                 "base_url": base_url,
-                "timeout_seconds": 30,
+                "timeout_seconds": 180,
             },
         )()
         return await cls.call_provider(provider_config, model.model_id, prompt, api_key, base_url)

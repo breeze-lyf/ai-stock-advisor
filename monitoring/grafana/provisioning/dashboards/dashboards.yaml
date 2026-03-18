@@ -1,0 +1,15 @@
+# Grafana Dashboard 自动配置 (Grafana Dashboard Provisioning)
+
+apiVersion: 1
+
+providers:
+  - name: 'AI Stock Advisor'
+    orgId: 1
+    folder: 'AI-Stock-Advisor'
+    folderUid: 'ai-stock-advisor'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/json

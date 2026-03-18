@@ -1,4 +1,4 @@
-# 调试日志增强文档
+# 调试日志增强
 
 <cite>
 **本文档引用的文件**
@@ -17,6 +17,13 @@
 - [backend/app/models/user.py](file://backend/app/models/user.py)
 </cite>
 
+## 更新摘要
+**所做更改**
+- 移除了所有print调试语句和AI调试日志功能
+- 更新了相关章节以反映调试日志增强功能的移除
+- 删除了AI调试输出相关的代码示例和说明
+- 更新了故障排除指南以移除调试日志相关内容
+
 ## 目录
 1. [简介](#简介)
 2. [项目结构](#项目结构)
@@ -31,6 +38,8 @@
 ## 简介
 
 本文档详细分析了AI股票顾问项目中的调试日志增强功能。该项目是一个基于FastAPI的智能投资助手，集成了多源数据和LLM分析能力。本文档重点分析了系统的日志配置、中间件日志记录、异常处理机制以及各个服务模块的日志实现。
+
+**更新** 系统现已移除所有调试日志增强功能，包括print调试语句和AI调试输出。当前版本采用标准化的日志记录策略，确保系统在开发和生产环境中都能提供充分的调试信息和运行状态监控。
 
 系统采用多层次的日志记录策略，包括全局HTTP请求日志、服务层详细日志、异常捕获日志和后台任务监控日志。这种设计确保了系统在开发和生产环境中都能提供充分的调试信息和运行状态监控。
 
@@ -77,11 +86,11 @@ AIService --> Parser
 ```
 
 **图表来源**
-- [backend/app/main.py:1-146](file://backend/app/main.py#L1-L146)
+- [backend/app/main.py:1-149](file://backend/app/main.py#L1-L149)
 - [backend/app/api/v1/api.py:1-33](file://backend/app/api/v1/api.py#L1-L33)
 
 **章节来源**
-- [backend/app/main.py:1-146](file://backend/app/main.py#L1-L146)
+- [backend/app/main.py:1-149](file://backend/app/main.py#L1-L149)
 - [backend/app/api/v1/api.py:1-33](file://backend/app/api/v1/api.py#L1-L33)
 
 ## 核心组件
@@ -449,13 +458,15 @@ LoggerFactory --> SecurityLogger
 3. **时间戳分析**：利用精确的时间戳分析系统性能瓶颈
 4. **异常堆栈分析**：通过完整的异常堆栈定位问题根源
 
+**更新** 由于系统已移除调试日志增强功能，当前版本不再包含print调试语句和AI调试输出。所有调试信息都通过标准日志记录机制提供。
+
 **章节来源**
 - [backend/app/main.py:35-47](file://backend/app/main.py#L35-L47)
 - [backend/app/services/market_data.py:14-407](file://backend/app/services/market_data.py#L14-L407)
 
 ## 结论
 
-AI股票顾问项目的调试日志增强功能体现了现代Web应用的最佳实践。通过多层次的日志记录策略、完善的异常处理机制和智能化的监控告警，系统能够在复杂的数据处理和AI分析场景中提供充分的可观测性和可维护性。
+AI股票顾问项目的调试日志增强功能已完全移除，当前版本采用标准化的日志记录策略。通过多层次的日志记录策略、完善的异常处理机制和智能化的监控告警，系统能够在复杂的数据处理和AI分析场景中提供充分的可观测性和可维护性。
 
 该系统的日志设计具有以下优势：
 

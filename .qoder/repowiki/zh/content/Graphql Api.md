@@ -16,7 +16,18 @@
 - [backend/app/core/security.py](file://backend/app/core/security.py)
 - [backend/app/services/ai_service.py](file://backend/app/services/ai_service.py)
 - [backend/app/schemas/analysis.py](file://backend/app/schemas/analysis.py)
+- [frontend/features/analysis/api.ts](file://frontend/features/analysis/api.ts)
+- [frontend/features/portfolio/api.ts](file://frontend/features/portfolio/api.ts)
+- [frontend/features/market/api.ts](file://frontend/features/market/api.ts)
 </cite>
+
+## 更新摘要
+**所做更改**
+- 删除了所有GraphQL相关内容和架构描述
+- 更新了API实现为纯RESTful API架构
+- 移除了GraphQL查询、变更和订阅相关的文档内容
+- 更新了前端API调用示例为标准RESTful请求
+- 重新组织了架构图以反映RESTful设计
 
 ## 目录
 1. [简介](#简介)
@@ -24,17 +35,19 @@
 3. [核心组件](#核心组件)
 4. [架构概览](#架构概览)
 5. [详细组件分析](#详细组件分析)
-6. [依赖关系分析](#依赖关系分析)
-7. [性能考虑](#性能考虑)
-8. [故障排除指南](#故障排除指南)
-9. [结论](#结论)
+6. [RESTful API 设计](#restful-api-设计)
+7. [前端集成指南](#前端集成指南)
+8. [依赖关系分析](#依赖关系分析)
+9. [性能考虑](#性能考虑)
+10. [故障排除指南](#故障排除指南)
+11. [结论](#结论)
 
 ## 简介
 
-这是一个基于 FastAPI 构建的 AI 股票顾问 GraphQL API 服务。该系统集成了多源市场数据、AI 分析能力和实时通知功能，为用户提供智能化的投资决策支持。
+这是一个基于 FastAPI 构建的 RESTful API 服务，专门为AI股票顾问应用提供后端支持。该系统集成了多源市场数据、AI分析能力和实时通知功能，为用户提供智能化的投资决策支持。
 
 **章节来源**
-- [backend/app/main.py:1-146](file://backend/app/main.py#L1-L146)
+- [backend/app/main.py:1-149](file://backend/app/main.py#L1-L149)
 
 ## 项目结构
 
@@ -91,23 +104,23 @@ PaperTrading --> AIService
 - [backend/app/api/v1/api.py:1-33](file://backend/app/api/v1/api.py#L1-L33)
 
 **章节来源**
-- [backend/app/main.py:1-146](file://backend/app/main.py#L1-L146)
+- [backend/app/main.py:1-149](file://backend/app/main.py#L1-L149)
 - [backend/app/api/v1/api.py:1-33](file://backend/app/api/v1/api.py#L1-L33)
 
 ## 核心组件
 
-### API 路由系统
+### RESTful API 路由系统
 
-系统采用 FastAPI 的模块化路由设计，每个业务模块都有独立的路由处理器：
+系统采用 FastAPI 的模块化路由设计，每个业务模块都有独立的RESTful端点：
 
-- **认证模块** (`/api/auth`)：处理用户登录、注册和令牌管理
-- **投资组合模块** (`/api/portfolio`)：管理用户自选股和持仓
-- **股票模块** (`/api/stocks`)：提供股票历史数据和实时行情
-- **分析模块** (`/api/analysis`)：AI 驱动的股票和技术分析
-- **宏观模块** (`/api/macro`)：全球宏观市场雷达和新闻
-- **用户模块** (`/api/user`)：用户设置和个人信息管理
-- **通知模块** (`/api/notifications`)：飞书推送历史记录
-- **模拟交易模块** (`/api/paper-trading`)：纸面交易功能
+- **认证模块** (`/api/v1/auth`)：处理用户登录、注册和令牌管理
+- **投资组合模块** (`/api/v1/portfolio`)：管理用户自选股和持仓
+- **股票模块** (`/api/v1/stocks`)：提供股票历史数据和实时行情
+- **分析模块** (`/api/v1/analysis`)：AI 驱动的股票和技术分析
+- **宏观模块** (`/api/v1/macro`)：全球宏观市场雷达和新闻
+- **用户模块** (`/api/v1/user`)：用户设置和个人信息管理
+- **通知模块** (`/api/v1/notifications`)：飞书推送历史记录
+- **模拟交易模块** (`/api/v1/paper-trading`)：纸面交易功能
 
 ### 安全认证机制
 
@@ -120,7 +133,7 @@ participant Auth as 认证接口
 participant DB as 数据库
 participant Security as 安全模块
 participant Token as JWT令牌
-Client->>Auth : POST /api/auth/login
+Client->>Auth : POST /api/v1/auth/login
 Auth->>DB : 查询用户信息
 DB-->>Auth : 返回用户数据
 Auth->>Security : 验证密码
@@ -136,7 +149,7 @@ Note over Client,Token : 后续请求携带 Authorization : Bearer token
 - [backend/app/api/deps.py:17-44](file://backend/app/api/deps.py#L17-L44)
 
 **章节来源**
-- [backend/app/api/v1/endpoints/auth.py:1-88](file://backend/app/api/v1/endpoints/auth.py#L1-L88)
+- [backend/app/api/v1/endpoints/auth.py:1-83](file://backend/app/api/v1/endpoints/auth.py#L1-L83)
 - [backend/app/api/deps.py:1-45](file://backend/app/api/deps.py#L1-L45)
 
 ## 架构概览
@@ -146,7 +159,7 @@ Note over Client,Token : 后续请求携带 Authorization : Bearer token
 ```mermaid
 graph TB
 subgraph "表现层"
-GraphQL[GraphQL API<br/>RESTful 接口]
+REST[RESTful API<br/>HTTP 接口]
 Frontend[前端应用<br/>Next.js]
 end
 subgraph "应用层"
@@ -164,8 +177,8 @@ Database[(数据库)]
 Cache[(缓存)]
 ExternalAPIs[外部API<br/>yfinance, AlphaVantage]
 end
-Frontend --> GraphQL
-GraphQL --> Controllers
+Frontend --> REST
+REST --> Controllers
 Controllers --> Services
 Services --> AIService
 Services --> MarketData
@@ -245,7 +258,7 @@ Portfolio --> PortfolioItem : "映射"
 4. **后台任务**：异步数据补全和缓存更新
 
 **章节来源**
-- [backend/app/api/v1/endpoints/portfolio.py:1-513](file://backend/app/api/v1/endpoints/portfolio.py#L1-L513)
+- [backend/app/api/v1/endpoints/portfolio.py:1-141](file://backend/app/api/v1/endpoints/portfolio.py#L1-L141)
 
 ### AI 分析引擎
 
@@ -258,7 +271,7 @@ participant Analysis as 分析接口
 participant AIService as AI服务
 participant Provider as LLM提供商
 participant Parser as 解析器
-Client->>Analysis : POST /api/analysis/{ticker}
+Client->>Analysis : POST /api/v1/analysis/{ticker}
 Analysis->>AIService : generate_analysis()
 AIService->>Parser : 构建提示词
 AIService->>Provider : 调用 LLM API
@@ -281,7 +294,7 @@ Analysis-->>Client : 分析报告
 4. **结构化解析**：统一的 JSON 解析器
 
 **章节来源**
-- [backend/app/api/v1/endpoints/analysis.py:1-745](file://backend/app/api/v1/endpoints/analysis.py#L1-L745)
+- [backend/app/api/v1/endpoints/analysis.py:1-70](file://backend/app/api/v1/endpoints/analysis.py#L1-L70)
 - [backend/app/services/ai_service.py:1-254](file://backend/app/services/ai_service.py#L1-L254)
 
 ### 市场数据服务
@@ -351,6 +364,125 @@ MacroService --> GlobalNews : "管理"
 **章节来源**
 - [backend/app/api/v1/endpoints/macro.py:1-79](file://backend/app/api/v1/endpoints/macro.py#L1-L79)
 
+## RESTful API 设计
+
+### API 设计原则
+
+系统遵循 RESTful 架构原则，每个资源都有明确的URL端点：
+
+- **资源命名**：使用名词复数形式（/users, /stocks, /portfolios）
+- **HTTP 方法**：GET（查询）、POST（创建）、PUT/PATCH（更新）、DELETE（删除）
+- **状态码**：遵循标准HTTP状态码语义
+- **错误处理**：统一的JSON错误响应格式
+
+### 认证 API
+
+```mermaid
+sequenceDiagram
+participant Client as 客户端
+participant Auth as 认证端点
+participant UserRepo as 用户仓库
+participant Security as 安全模块
+Client->>Auth : POST /api/v1/auth/login
+Auth->>UserRepo : 查询用户
+UserRepo-->>Auth : 返回用户数据
+Auth->>Security : 验证密码
+Security-->>Auth : 验证结果
+Auth-->>Client : {access_token, token_type}
+```
+
+**图表来源**
+- [backend/app/api/v1/endpoints/auth.py:24-50](file://backend/app/api/v1/endpoints/auth.py#L24-L50)
+
+### 投资组合 API
+
+| 端点 | 方法 | 描述 | 请求体 | 响应 |
+|------|------|------|--------|------|
+| `/api/v1/portfolio/` | GET | 获取投资组合 | 无 | PortfolioItem[] |
+| `/api/v1/portfolio/` | POST | 添加股票到投资组合 | PortfolioCreate | 无 |
+| `/api/v1/portfolio/{ticker}` | DELETE | 从投资组合移除股票 | 无 | 无 |
+| `/api/v1/portfolio/search` | GET | 搜索股票 | query, remote | SearchResult[] |
+| `/api/v1/portfolio/{ticker}/refresh` | POST | 刷新股票数据 | price_only | Partial<PortfolioItem> |
+
+**章节来源**
+- [backend/app/api/v1/endpoints/portfolio.py:71-141](file://backend/app/api/v1/endpoints/portfolio.py#L71-L141)
+
+### 股票数据 API
+
+| 端点 | 方法 | 描述 | 请求参数 | 响应 |
+|------|------|------|----------|------|
+| `/api/v1/stocks/{ticker}/history` | GET | 获取股票历史数据 | period, interval | OHLCVItem[] |
+| `/api/v1/stocks/refresh_all` | POST | 批量刷新所有股票 | price_only | 刷新结果 |
+
+**章节来源**
+- [backend/app/api/v1/endpoints/stock.py:42-123](file://backend/app/api/v1/endpoints/stock.py#L42-L123)
+
+## 前端集成指南
+
+### 前端 API 客户端
+
+前端使用标准的HTTP请求与后端交互，所有API调用都通过统一的客户端封装：
+
+```mermaid
+graph TB
+subgraph "前端应用"
+AnalysisAPI[analysis/api.ts<br/>分析API]
+PortfolioAPI[portfolio/api.ts<br/>投资组合API]
+MarketAPI[market/api.ts<br/>市场API]
+UserAPI[user/api.ts<br/>用户API]
+end
+subgraph "后端服务"
+REST[RESTful API<br/>FastAPI]
+Auth[认证服务]
+Portfolio[投资组合服务]
+Analysis[分析服务]
+end
+AnalysisAPI --> REST
+PortfolioAPI --> REST
+MarketAPI --> REST
+UserAPI --> REST
+REST --> Auth
+REST --> Portfolio
+REST --> Analysis
+```
+
+**图表来源**
+- [frontend/features/analysis/api.ts:92-130](file://frontend/features/analysis/api.ts#L92-L130)
+- [frontend/features/portfolio/api.ts:1-43](file://frontend/features/portfolio/api.ts#L1-L43)
+- [frontend/features/market/api.ts:1-12](file://frontend/features/market/api.ts#L1-L12)
+
+### 前端调用示例
+
+#### 分析API调用
+
+```typescript
+// 获取股票分析
+const analysis = await analyzeStock('AAPL', true);
+
+// 获取投资组合分析
+const portfolioAnalysis = await analyzePortfolio();
+
+// 获取分析历史
+const history = await getAnalysisHistory('AAPL');
+```
+
+#### 投资组合API调用
+
+```typescript
+// 获取投资组合
+const portfolio = await getPortfolio(true, false);
+
+// 搜索股票
+const results = await searchStocks('AAPL', true);
+
+// 刷新股票数据
+const refreshed = await refreshStock('AAPL', true);
+```
+
+**章节来源**
+- [frontend/features/analysis/api.ts:92-130](file://frontend/features/analysis/api.ts#L92-L130)
+- [frontend/features/portfolio/api.ts:4-42](file://frontend/features/portfolio/api.ts#L4-L42)
+
 ## 依赖关系分析
 
 系统采用了清晰的依赖注入和模块化设计：
@@ -409,11 +541,11 @@ PaperTrading --> Database
 ```
 
 **图表来源**
-- [backend/app/main.py:1-146](file://backend/app/main.py#L1-L146)
+- [backend/app/main.py:1-149](file://backend/app/main.py#L1-L149)
 - [backend/app/api/v1/api.py:1-33](file://backend/app/api/v1/api.py#L1-L33)
 
 **章节来源**
-- [backend/app/main.py:1-146](file://backend/app/main.py#L1-L146)
+- [backend/app/main.py:1-149](file://backend/app/main.py#L1-L149)
 - [backend/app/api/v1/api.py:1-33](file://backend/app/api/v1/api.py#L1-L33)
 
 ## 性能考虑
@@ -499,7 +631,7 @@ ReturnData --> End
 
 ## 结论
 
-该 GraphQL API 服务展现了现代 Web 应用的最佳实践：
+该 RESTful API 服务展现了现代Web应用的最佳实践：
 
 ### 主要优势
 

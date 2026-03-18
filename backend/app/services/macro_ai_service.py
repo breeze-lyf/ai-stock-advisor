@@ -65,7 +65,10 @@ class MacroAIService:
             logger.error("No SiliconFlow API key provided for macro update.")
             return []
 
-        # 调用通用 AI 调度服务
+        # 【量化决策逻辑】调用 AI 进行宏观传导分析：
+        # 1. 角色设定：要求 AI 扮演顶级对冲基金策略师。
+        # 2. 逻辑闭环：不仅仅列出新闻，更要求 AI 推导出“因为 A 事件 -> 导致 B 板块 -> 影响 C 标的”的逻辑链。
+        # 3. 结果量化：输出的热度评分 (Heat Score) 辅助用户快速筛选信息权重。
         ai_response = await AIService.call_siliconflow(
             prompt=prompt,
             api_key=final_api_key,
@@ -74,11 +77,14 @@ class MacroAIService:
         )
         
         # 鲁棒性处理：提取并解析 JSON 数据块
+        # 使用正则表达式确保在 AI 输出包含思考过程（Thought）或其他杂质时，仍能精准提取 JSON。
         json_match = re.search(r"(\{.*\})", ai_response, re.DOTALL)
         if not json_match:
             logger.error("Failed to extract JSON from AI macro response")
             return []
         data = json.loads(json_match.group(1))
+        
+        # 返回结构化的主题列表，供持久化层使用
         return data.get("topics", [])
 
     @staticmethod
@@ -118,7 +124,10 @@ class MacroAIService:
             api_key=settings.SILICONFLOW_API_KEY,
             db=db,
         )
-        # 解析返回结果
+        # 【多轮决策支持】AI 总结后的解析步骤：
+        # 1. 使用正则表达式匹配 JSON，防止 AI 自言自语或输出 Markdown 代码块。
+        # 2. 将全局“核心综述”与具体的“标的影响图谱”分离。
+        # 3. 影响图谱 (Impact Map) 的设计初衷是为了实现后续的“持仓穿透”，即通过 Ticker 匹配直接定位用户关注的风险。
         json_match = re.search(r"(\{.*\})", ai_response, re.DOTALL)
         if not json_match:
             return None

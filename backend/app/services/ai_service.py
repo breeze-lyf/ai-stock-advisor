@@ -5,8 +5,6 @@ if settings.HTTP_PROXY:
     os.environ.setdefault("HTTP_PROXY", settings.HTTP_PROXY)
     os.environ.setdefault("HTTPS_PROXY", settings.HTTP_PROXY)
 
-from google import genai
-from google.genai import types
 from app.core import security
 from app.core.prompts import build_stock_analysis_prompt, build_portfolio_analysis_prompt
 import logging
@@ -23,6 +21,7 @@ from app.models.provider_config import ProviderConfig
 from app.models.user import User
 from app.models.user_ai_model import UserAIModel
 from app.models.user_provider_credential import UserProviderCredential
+from app.schemas.ai_config import AIModelRuntimeConfig, ProviderRuntimeConfig
 
 # 配置日志
 logger = logging.getLogger(__name__)
@@ -100,18 +99,17 @@ class AIService:
         provider_defaults = {
             "siliconflow": "deepseek-ai/DeepSeek-V3",
             "deepseek": "deepseek-chat",
-            "gemini": "gemini-1.5-flash",
             "dashscope": "qwen3.5-plus",
         }
         return provider_defaults.get(provider_key, "gpt-4o-mini")
 
     @classmethod
-    async def get_model_config(cls, model_key: str, db: AsyncSession = None) -> AIModelConfig:
-        """获取模型配置的阶梯式查找"""
+    async def get_model_config(cls, model_key: str, db: AsyncSession = None) -> AIModelRuntimeConfig:
+        """获取模型配置的阶梯式查找，返回解耦的 Pydantic 模型"""
         if model_key in cls._model_config_cache:
-            config, timestamp = cls._model_config_cache[model_key]
+            config_data, timestamp = cls._model_config_cache[model_key]
             if time.time() - timestamp < cls.CACHE_TTL:
-                return config
+                return AIModelRuntimeConfig(**config_data)
 
         if db:
             try:
@@ -119,8 +117,15 @@ class AIService:
                 result = await db.execute(stmt)
                 config = result.scalar_one_or_none()
                 if config:
-                    cls._model_config_cache[model_key] = (config, time.time())
-                    return config
+                    # 立即转换为字典保存到缓存，避免 Session 关闭后无法访问
+                    config_data = {
+                        "key": config.key,
+                        "provider": config.provider,
+                        "model_id": config.model_id,
+                        "description": config.description
+                    }
+                    cls._model_config_cache[model_key] = (config_data, time.time())
+                    return AIModelRuntimeConfig(**config_data)
             except Exception as e:
                 logger.error(f"查询 AI 模型配置失败: {e}")
 
@@ -129,12 +134,10 @@ class AIService:
             "deepseek-v3": "Pro/deepseek-ai/DeepSeek-V3.2",
             "deepseek-r1": "Pro/deepseek-ai/DeepSeek-R1",
             "qwen-3-vl-thinking": "Qwen/Qwen3-VL-235B-A22B-Thinking",
-            "gemini-1.5-flash": "gemini-1.5-flash",
-            "qwen3.5-plus": "qwen3.5-plus",
         }
         fallback_id = fallback_map.get(model_key, "Pro/deepseek-ai/DeepSeek-V3.2")
-        provider = "dashscope" if ("qwen" in model_key or "dashscope" in model_key) else ("gemini" if "gemini" in model_key else "siliconflow")
-        return AIModelConfig(key=model_key, provider=provider, model_id=fallback_id)
+        provider = "dashscope" if ("qwen" in model_key or "dashscope" in model_key) else "siliconflow"
+        return AIModelRuntimeConfig(key=model_key, provider=provider, model_id=fallback_id)
 
     @staticmethod
     async def _resolve_api_key(
@@ -193,7 +196,6 @@ class AIService:
         # 3. 降级到系统环境变量
         env_key_map = {
             "siliconflow": settings.SILICONFLOW_API_KEY,
-            "gemini": settings.GEMINI_API_KEY,
             "deepseek": settings.DEEPSEEK_API_KEY,
             "dashscope": settings.DASHSCOPE_API_KEY,
         }
@@ -229,43 +231,7 @@ class AIService:
         # 移除硬编码的 60s 限制，推理模型建议 300s
         timeout = provider_config.timeout_seconds or 300
 
-        if provider_key == "gemini":
-            try:
-                t0 = time.monotonic()
-                client = genai.Client(api_key=api_key)
-                config_params = {}
-                if require_json:
-                    config_params['response_mime_type'] = 'application/json'
-                response = await client.aio.models.generate_content(
-                    model=model_id,
-                    contents=prompt,
-                    config=types.GenerateContentConfig(**config_params)
-                )
-                elapsed = time.monotonic() - call_start
-                ai_call_logger.info(
-                    f"[DONE] {provider_key}/{model_id}",
-                    extra={
-                        "provider": provider_key,
-                        "model": model_id,
-                        "phase": "done",
-                        "total_s": round(elapsed, 3),
-                        "response_len": len(response.text),
-                        "response": response.text,  # 记录完整回答
-                    }
-                )
-                logger.info(f"[AI] Gemini 完成 ✔  {elapsed:.1f}s | {len(response.text)}字符")
-                return response.text
-            except Exception as e:
-                elapsed = time.monotonic() - call_start
-                ai_call_logger.error(
-                    f"[FAIL] {provider_key}/{model_id}: {e}",
-                    extra={"provider": provider_key, "model": model_id, "phase": "error",
-                           "total_s": round(elapsed, 3), "error": str(e)}
-                )
-                logger.warning(f"[AI] Gemini 失败 ✖  {elapsed:.1f}s | {e}")
-                raise
-
-        # OpenAI 兑容接口
+        # OpenAI 兼容接口
         url = f"{base_url.rstrip('/')}/chat/completions"
         headers = {
             "Authorization": f"Bearer {api_key}",
@@ -366,15 +332,11 @@ class AIService:
     ) -> str:
         """兼容现有宏观服务调用的 SiliconFlow 快捷入口。"""
         model_config = await cls.get_model_config(model, db)
-        provider_config = type(
-            "TempProvider",
-            (),
-            {
-                "provider_key": "siliconflow",
-                "base_url": base_url or "https://api.siliconflow.cn/v1",
-                "timeout_seconds": 30,
-            },
-        )()
+        provider_config = ProviderRuntimeConfig(
+            provider_key="siliconflow",
+            base_url=base_url or "https://api.siliconflow.cn/v1",
+            timeout_seconds=300,
+        )
         return await cls.call_provider(
             provider_config,
             model_config.model_id,
@@ -409,11 +371,11 @@ class AIService:
             if not default_url:
                 default_url = "https://api.siliconflow.cn/v1" if provider_key == "siliconflow" else ""
 
-            provider_config = type('TempProvider', (), {
-                'provider_key': provider_key,
-                'base_url': default_url,
-                'timeout_seconds': 10
-            })()
+            provider_config = ProviderRuntimeConfig(
+                provider_key=provider_key,
+                base_url=default_url,
+                timeout_seconds=10
+            )
             
             test_prompt = "Say ok"
             # 根据供应商选择一个轻量模型进行测试
@@ -454,7 +416,7 @@ class AIService:
         return "openai-compatible"
 
     @classmethod
-    async def _dispatch_with_fallback(cls, prompt: str, model_config: AIModelConfig, user: Optional[User], db: AsyncSession) -> str:
+    async def _dispatch_with_fallback(cls, prompt: str, model_config: AIModelRuntimeConfig, user: Optional[User], db: AsyncSession) -> str:
         """核心路由：带故障转移的提供商分发"""
         
         # 1. 获取所有可用的供应商列表，按优先级排序
@@ -507,12 +469,12 @@ class AIService:
 
             logger.info(f"使用供应商 {provider['provider_key']} (Model: {current_model_id}) URL: {custom_url or 'default'}")
             
-            # 构造临时供应商配置对象
-            provider_config = type('TempProvider', (), {
-                'provider_key': provider['provider_key'],
-                'base_url': custom_url or provider['base_url'],
-                'timeout_seconds': provider.get('timeout_seconds', 300),
-            })()
+            # 使用 Pydantic 模型传递配置
+            provider_config = ProviderRuntimeConfig(
+                provider_key=provider['provider_key'],
+                base_url=custom_url or provider['base_url'],
+                timeout_seconds=provider.get('timeout_seconds', 300),
+            )
             
             return await cls.call_provider(provider_config, current_model_id, prompt, api_key, custom_url)
 
@@ -523,7 +485,7 @@ class AIService:
     @classmethod
     async def generate_analysis(cls, ticker: str, market_data: dict, news_data: list = None, 
                                 macro_context: str = None, fundamental_data: dict = None, previous_analysis: dict = None, 
-                                model: str = "gemini-1.5-flash", db: AsyncSession = None, user_id: str = None) -> str:
+                                model: str = "deepseek-v3", db: AsyncSession = None, user_id: str = None) -> str:
         """主方法：生成个股深度诊断"""
         
         user = None
@@ -553,7 +515,7 @@ class AIService:
                     logger.warning(f"用户自定义模型 {model} 调用失败: {e}")
                     if not user:
                         return f"**Error**: AI 调用失败。错误: {e}"
-                    # 即使失败也不再回滚到 Gemini 或其他模型
+                    # 即使失败也不再回滚
                     return f"**Error**: 用户自定义模型 {model} 调用失败。错误: {e}"
 
         model_config = await cls.get_model_config(model, db)
@@ -561,7 +523,7 @@ class AIService:
 
     @classmethod
     async def generate_portfolio_analysis(cls, portfolio_items: list, market_news: str = None, macro_context: str = None, 
-                                          model: str = "gemini-1.5-flash", db: AsyncSession = None, user_id: str = None) -> str:
+                                          model: str = "deepseek-v3", db: AsyncSession = None, user_id: str = None) -> str:
         """生成全量持仓健康诊断报告"""
         if not portfolio_items:
             return json.dumps({"error": "暂无持仓数据"})
@@ -581,10 +543,7 @@ class AIService:
                     return await cls.call_user_ai_model(user_model, prompt)
                 except Exception as e:
                     logger.warning(f"用户自定义组合模型 {model} 调用失败: {e}")
-                    if not user.fallback_enabled:
-                        return json.dumps({"error": f"AI 服务暂时不可用: {e}"})
-                    fallback_model = await cls.get_model_config("gemini-1.5-flash", db)
-                    return await cls._dispatch_with_fallback(prompt, fallback_model, user, db)
+                    return json.dumps({"error": f"AI 服务暂时不可用: {e}"})
 
         model_config = await cls.get_model_config(model, db)
         return await cls._dispatch_with_fallback(prompt, model_config, user, db)

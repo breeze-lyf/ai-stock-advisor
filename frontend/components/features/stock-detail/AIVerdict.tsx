@@ -16,7 +16,8 @@ import { Button } from "@/components/ui/button";
 import {
     TrendingUp, Target, Activity,
     BarChart3, Zap, AlertCircle,
-    Clock, ShieldCheck
+    Clock, ShieldCheck, ChevronDown, ChevronUp,
+    LayoutDashboard
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { zhCN } from "date-fns/locale";
@@ -89,6 +90,50 @@ export const AIVerdict = React.memo(function AIVerdict({
     );
 });
 
+function splitHeroTitle(immediateAction?: string, triggerCondition?: string) {
+    const raw = (immediateAction || "观望").trim();
+    const parts = raw
+        .split(/[，,；;。]/)
+        .map((part) => part.trim())
+        .filter(Boolean);
+
+    const title = parts[0] || raw;
+    const subtitle = parts.slice(1).join("，") || triggerCondition || "";
+
+    return { title, subtitle };
+}
+
+function compactSentence(value?: string, maxLength = 38) {
+    if (!value) return "";
+    const normalized = value.replace(/\s+/g, " ").trim();
+    if (normalized.length <= maxLength) return normalized;
+    return `${normalized.slice(0, maxLength).trim()}...`;
+}
+
+function splitScenario(value?: string) {
+    if (!value) {
+        return { trigger: "", action: "" };
+    }
+
+    const triggerMatch = value.match(/(?:触发条件[:：]\s*)([^。；;]+)/);
+    const actionMatch = value.match(/(?:操作[:：]\s*)([^。；;]+)/);
+    if (triggerMatch || actionMatch) {
+        return {
+            trigger: triggerMatch?.[1]?.trim() || "",
+            action: actionMatch?.[1]?.trim() || "",
+        };
+    }
+
+    const parts = value
+        .split(/[。；;]/)
+        .map((part) => part.trim())
+        .filter(Boolean);
+    return {
+        trigger: parts[0] || "",
+        action: parts[1] || "",
+    };
+}
+
 // ========================================
 // AI 判研内容主体（含交易轴、情绪偏差、研判逻辑）
 // ========================================
@@ -137,6 +182,8 @@ function AIVerdictContent({
      * 交易轴算法逻辑 (Trade Axis Algorithm)
      * 职责：将 AI 提供的 止损/建仓/目标价 映射到一个线性坐标轴上
      */
+    const [isExpanded, setIsExpanded] = React.useState(false);
+    
     const stop = aiData.stop_loss_price || 0;
     const target = aiData.target_price || 0;
     const current = selectedItem.current_price;
@@ -166,6 +213,12 @@ function AIVerdictContent({
         (current < axisMin ? zones[0] : zones[zones.length - 1]);
 
     const effectiveRR = aiData.rr_ratio;
+    const { title: heroTitle, subtitle: heroSubtitle } = splitHeroTitle(aiData.immediate_action, aiData.trigger_condition);
+    const actionReason = aiData.trade_setup_status === "接近触发"
+        ? `当前不直接执行：${compactSentence(aiData.trigger_condition || aiData.core_logic_summary, 42)}`
+        : aiData.trade_setup_status === "未触发"
+            ? `当前先观察：${compactSentence(aiData.trigger_condition || aiData.core_logic_summary, 42)}`
+            : "";
 
     return (
         <div className="space-y-0 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none animate-in fade-in slide-in-from-bottom-2 duration-700">
@@ -182,7 +235,7 @@ function AIVerdictContent({
                                     aiData.immediate_action?.includes("卖") || aiData.immediate_action?.includes("减") ? "text-rose-600 dark:text-rose-400" :
                                         "text-slate-900 dark:text-white"
                             )}>
-                                {aiData.immediate_action || "观望"}
+                                {heroTitle}
                             </h3>
                             <span className={clsx(
                                 "text-[9px] font-black px-2 py-0.5 rounded-md border uppercase whitespace-nowrap",
@@ -201,6 +254,16 @@ function AIVerdictContent({
                                 <span className="text-[8px] font-bold uppercase tracking-tighter opacity-70">盈亏比 R/R</span>
                                 <span className="text-[10px] font-black tabular-nums">{effectiveRR || "--"}</span>
                             </div>
+                            {aiData.dominant_driver && (
+                                <span className="text-[9px] font-black px-2 py-0.5 rounded-md border uppercase whitespace-nowrap bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-600/10 dark:text-blue-400 dark:border-blue-600/20">
+                                    主驱动 {aiData.dominant_driver}
+                                </span>
+                            )}
+                            {aiData.trade_setup_status && (
+                                <span className="text-[9px] font-black px-2 py-0.5 rounded-md border uppercase whitespace-nowrap bg-violet-50 text-violet-600 border-violet-200 dark:bg-violet-600/10 dark:text-violet-400 dark:border-violet-600/20">
+                                    {aiData.trade_setup_status}
+                                </span>
+                            )}
                             {selectedItem.market_status === "PRE_MARKET" && (
                                 <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-orange-200 bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20 ml-1">
                                     <span className="text-[8px] font-bold uppercase tracking-tighter opacity-70 italic">盘前 PRE</span>
@@ -213,7 +276,9 @@ function AIVerdictContent({
                             )}
                         </div>
                         <div className="flex items-center gap-3">
-                            <span className="text-sm font-semibold text-blue-600 dark:text-blue-600 opacity-90">{aiData.summary_status || "技术修复中"}</span>
+                            <span className="text-sm font-semibold text-blue-600 dark:text-blue-600 opacity-90">
+                                {heroSubtitle || aiData.summary_status || "技术修复中"}
+                            </span>
                             
                             {/* 加入模拟交易按钮 */}
                             {(aiData.immediate_action?.includes("买") || aiData.immediate_action?.includes("多")) && (
@@ -238,6 +303,13 @@ function AIVerdictContent({
                                 </Button>
                             )}
                         </div>
+                        {actionReason && (
+                            <div className="rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 px-3 py-2">
+                                <p className="text-[11px] font-medium leading-relaxed text-slate-600 dark:text-slate-300">
+                                    {actionReason}
+                                </p>
+                            </div>
+                        )}
 
                         <div className="flex flex-wrap items-center gap-2 pt-1">
                             <div className="flex items-center gap-1.5 text-[9px] font-bold text-slate-500 uppercase tracking-tighter border-2 border-slate-100 dark:border-slate-800 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-950 shadow-sm">
@@ -338,18 +410,99 @@ function AIVerdictContent({
                 </div>
             </div>
 
-            {/* 4. Logical Breakdown */}
-            <div className="pt-4 px-6 pb-3 bg-slate-50/10 dark:bg-white/5 border-t border-slate-100 dark:border-white/5 space-y-1">
-                <div className="text-sm font-black uppercase text-blue-600 dark:text-blue-600 tracking-[0.1em] flex items-center gap-2">
-                    <Activity className="h-4 w-4 text-blue-600" />
-                    <span>诊断研判逻辑</span>
+            {/* 3. Core Logic Summary (NEW) */}
+            {aiData.core_logic_summary && (
+                <div className="py-2 px-6">
+                    <div className="bg-blue-50/30 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-900/20 rounded-2xl p-4 space-y-2">
+                        <div className="flex items-center gap-2 text-[11px] font-black uppercase text-blue-600/80 tracking-wider">
+                            <LayoutDashboard className="h-3.5 w-3.5" />
+                            <span>核心研判摘要</span>
+                        </div>
+                        <p className="text-[13px] font-medium leading-relaxed text-slate-700 dark:text-slate-300">
+                            {aiData.core_logic_summary}
+                        </p>
+                    </div>
                 </div>
-                <div className="prose dark:prose-invert max-w-none text-[13px] font-normal leading-relaxed text-slate-500 dark:text-slate-400 [&>p]:m-0">
-                    <MarkdownWithRefs content={aiData.action_advice || ""} />
+            )}
+
+            {/* 4. Decision Brief */}
+            {(aiData.trigger_condition || aiData.invalidation_condition || aiData.next_review_point || aiData.add_on_trigger || aiData.max_position_pct != null) && (
+                <div className="px-6 py-2">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                        <DecisionBriefCard
+                            title="计划生效"
+                            value={aiData.trigger_condition}
+                            icon={<Target className="h-3.5 w-3.5" />}
+                            tone="blue"
+                        />
+                        <DecisionBriefCard
+                            title="计划失效"
+                            value={aiData.invalidation_condition}
+                            icon={<AlertCircle className="h-3.5 w-3.5" />}
+                            tone="rose"
+                        />
+                        <DecisionBriefCard
+                            title="加仓触发"
+                            value={aiData.add_on_trigger}
+                            icon={<TrendingUp className="h-3.5 w-3.5" />}
+                            tone="emerald"
+                        />
+                        <DecisionBriefCard
+                            title="复核点"
+                            value={aiData.next_review_point}
+                            icon={<Clock className="h-3.5 w-3.5" />}
+                            tone="slate"
+                        />
+                    </div>
+                    {aiData.max_position_pct != null && (
+                        <div className="mt-3 flex items-center gap-2 text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+                            <ShieldCheck className="h-3.5 w-3.5 text-blue-600" />
+                            <span>最大仓位建议</span>
+                            <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 tabular-nums">
+                                {aiData.max_position_pct.toFixed(0)}%
+                            </span>
+                        </div>
+                    )}
                 </div>
+            )}
+
+            {/* 5. Scenario Panel */}
+            {(aiData.bull_case || aiData.base_case || aiData.bear_case) && (
+                <div className="px-6 py-2">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                        <ScenarioCard title="乐观情景" value={aiData.bull_case} tone="emerald" />
+                        <ScenarioCard title="基准情景" value={aiData.base_case} tone="blue" />
+                        <ScenarioCard title="悲观情景" value={aiData.bear_case} tone="rose" />
+                    </div>
+                </div>
+            )}
+
+            {/* 6. Logical Breakdown - Collapsable */}
+            <div className="border-t border-slate-100 dark:border-white/5">
+                <button 
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="w-full py-4 px-6 flex items-center justify-between group hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors"
+                >
+                    <div className="text-sm font-black uppercase text-blue-600 dark:text-blue-600 tracking-[0.1em] flex items-center gap-2">
+                        <Activity className="h-4 w-4 text-blue-600" />
+                        <span>详细诊断研判逻辑</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 group-hover:text-blue-500 transition-colors uppercase tracking-widest">
+                        {isExpanded ? "收起详情" : "查看完整分析"}
+                        {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    </div>
+                </button>
+                
+                {isExpanded && (
+                    <div className="px-6 pb-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div className="prose dark:prose-invert max-w-none text-[13px] font-normal leading-relaxed text-slate-500 dark:text-slate-400 [&>p]:m-0">
+                            <MarkdownWithRefs content={aiData.action_advice || ""} />
+                        </div>
+                    </div>
+                )}
             </div>
 
-            {/* 5. Footer: Disclaimer + Version */}
+            {/* 7. Footer: Disclaimer + Version */}
             <div className="px-6 py-2.5 bg-slate-50/80 dark:bg-zinc-900/80 rounded-b-3xl">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-1.5">
                     <div className="flex items-center gap-1.5 text-[8px] leading-relaxed text-slate-300 dark:text-slate-600 font-medium">
@@ -363,6 +516,104 @@ function AIVerdictContent({
                         </span>
                     </div>
                 </div>
+            </div>
+        </div>
+    );
+}
+
+function DecisionBriefCard({
+    title,
+    value,
+    icon,
+    tone,
+}: {
+    title: string;
+    value?: string;
+    icon: React.ReactNode;
+    tone: "blue" | "rose" | "emerald" | "slate";
+}) {
+    if (!value) {
+        return null;
+    }
+
+    const toneClass = {
+        blue: "border-blue-100 bg-blue-50/40 text-blue-600 dark:border-blue-900/20 dark:bg-blue-900/10 dark:text-blue-400",
+        rose: "border-rose-100 bg-rose-50/40 text-rose-600 dark:border-rose-900/20 dark:bg-rose-900/10 dark:text-rose-400",
+        emerald: "border-emerald-100 bg-emerald-50/40 text-emerald-600 dark:border-emerald-900/20 dark:bg-emerald-900/10 dark:text-emerald-400",
+        slate: "border-slate-100 bg-slate-50/60 text-slate-600 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-300",
+    }[tone];
+
+    return (
+        <div className={clsx("rounded-2xl border px-4 py-3 space-y-2", toneClass)}>
+            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.18em]">
+                {icon}
+                <span>{title}</span>
+            </div>
+            <p className="text-[13px] leading-relaxed font-medium text-slate-700 dark:text-slate-200">
+                {compactSentence(value, 44)}
+            </p>
+        </div>
+    );
+}
+
+function ScenarioCard({
+    title,
+    value,
+    tone,
+}: {
+    title: string;
+    value?: string;
+    tone: "emerald" | "blue" | "rose";
+}) {
+    if (!value) {
+        return null;
+    }
+
+    const toneClass = {
+        emerald: "border-emerald-100 bg-emerald-50/30 dark:border-emerald-900/20 dark:bg-emerald-900/10",
+        blue: "border-blue-100 bg-blue-50/30 dark:border-blue-900/20 dark:bg-blue-900/10",
+        rose: "border-rose-100 bg-rose-50/30 dark:border-rose-900/20 dark:bg-rose-900/10",
+    }[tone];
+
+    const titleClass = {
+        emerald: "text-emerald-600 dark:text-emerald-400",
+        blue: "text-blue-600 dark:text-blue-400",
+        rose: "text-rose-600 dark:text-rose-400",
+    }[tone];
+
+    const { trigger, action } = splitScenario(value);
+
+    return (
+        <div className={clsx("rounded-2xl border px-4 py-3 space-y-2", toneClass)}>
+            <div className={clsx("text-[10px] font-black uppercase tracking-[0.18em]", titleClass)}>
+                {title}
+            </div>
+            <div className="space-y-2">
+                {trigger && (
+                    <div className="space-y-1">
+                        <div className="text-[9px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">
+                            触发条件
+                        </div>
+                        <p className="text-[13px] leading-relaxed font-medium text-slate-700 dark:text-slate-200">
+                            {compactSentence(trigger, 52)}
+                        </p>
+                    </div>
+                )}
+                {action && (
+                    <div className="space-y-1">
+                        <div className="text-[9px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">
+                            对应动作
+                        </div>
+                        <p className="text-[13px] leading-relaxed font-medium text-slate-700 dark:text-slate-200">
+                            {compactSentence(action, 52)}
+                        </p>
+                    </div>
+                )}
+                {!trigger && !action && (
+                    <p className="text-[13px] leading-relaxed font-medium text-slate-700 dark:text-slate-200">
+                        {compactSentence(value, 64)}
+                    </p>
+                )}
             </div>
         </div>
     );

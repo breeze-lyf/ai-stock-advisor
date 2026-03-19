@@ -24,6 +24,7 @@ import { StickyBar } from "./stock-detail/StickyBar";
 import { HeaderIdentity } from "./stock-detail/HeaderIdentity";
 import { MarketAnalysis } from "./stock-detail/MarketAnalysis";
 import { AIVerdict } from "./stock-detail/AIVerdict";
+import { PositionOverlay } from "./stock-detail/PositionOverlay";
 import { TechnicalInsights } from "./stock-detail/TechnicalInsights";
 import { FundamentalCard } from "./stock-detail/FundamentalCard";
 import { NewsFeed } from "./stock-detail/NewsFeed";
@@ -159,6 +160,13 @@ export function StockDetail({
                 analysisHistory={analysisHistory}
                 analyzing={analyzing}
                 onAnalyze={onAnalyze}
+                currency={currency}
+                sanitizePrice={sanitizePrice}
+            />
+
+            <PositionOverlay
+                selectedItem={selectedItem}
+                aiData={aiData}
                 currency={currency}
                 sanitizePrice={sanitizePrice}
             />

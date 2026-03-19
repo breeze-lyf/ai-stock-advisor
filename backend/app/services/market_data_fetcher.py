@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import time
 from datetime import datetime
 from typing import Optional
 
@@ -7,6 +8,13 @@ from app.schemas.market_data import FullMarketData, ProviderFundamental, Provide
 from app.services.market_providers import ProviderFactory
 
 logger = logging.getLogger(__name__)
+
+
+def _log_duration(label: str, start: float) -> float:
+    """打印耗时并返回当前时间戳"""
+    elapsed = time.time() - start
+    logger.info(f"⏱️ [MarketDataFetcher] {label}: {elapsed:.2f}秒")
+    return time.time()
 
 
 class MarketDataFetcher:
@@ -17,11 +25,15 @@ class MarketDataFetcher:
         price_only: bool = False,
         skip_news: bool = False,
     ) -> Optional[FullMarketData]:
+        total_start = time.time()
         provider = ProviderFactory.get_provider(ticker, preferred_source)
+        logger.info(f"📊 [MarketDataFetcher] 开始获取 {ticker} 数据 (provider: {type(provider).__name__})")
 
         if price_only:
             try:
+                quote_start = time.time()
                 quote = await provider.get_quote(ticker)
+                _log_duration(f"{ticker} get_quote", quote_start)
                 if quote:
                     return FullMarketData(quote=quote)
             except Exception as exc:
@@ -30,9 +42,11 @@ class MarketDataFetcher:
 
         result = await provider.get_full_data(ticker)
         if result:
+            _log_duration(f"{ticker} get_full_data", total_start)
             return result
 
         try:
+            logger.info(f"🔄 [MarketDataFetcher] 使用并行抓取模式...")
             quote_task = asyncio.create_task(provider.get_quote(ticker))
             fundamental_task = None
             indicator_task = None
@@ -61,6 +75,7 @@ class MarketDataFetcher:
                     asyncio.gather(*core_tasks, return_exceptions=True),
                     timeout=15.0,
                 )
+                _log_duration(f"{ticker} 核心数据(报价+指标)", total_start)
                 if len(core_tasks) == 2:
                     quote, indicators = core_res
                 else:
@@ -76,21 +91,22 @@ class MarketDataFetcher:
             if fundamental_task:
                 fundamental = await MarketDataFetcher._build_fundamental(provider, ticker, fundamental_task)
 
-            news = await MarketDataFetcher._collect_news(ticker, news_tasks)
+            if news_tasks:
+                await MarketDataFetcher._collect_news(ticker, news_tasks)
 
             if quote and not isinstance(quote, Exception):
+                _log_duration(f"{ticker} 全量数据获取", total_start)
                 return FullMarketData(
                     quote=quote,
                     fundamental=fundamental if not isinstance(fundamental, Exception) else None,
                     technical=ProviderTechnical(indicators=indicators)
                     if not isinstance(indicators, Exception) and indicators
                     else None,
-                    news=news,
                 )
         except Exception as exc:
             logger.error(f"从 {type(provider).__name__} 获取 {ticker} 数据时发生错误: {exc}")
 
-
+        _log_duration(f"{ticker} 数据获取(失败)", total_start)
         return None
 
     @staticmethod

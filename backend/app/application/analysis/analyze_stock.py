@@ -1,5 +1,6 @@
 import logging
 import asyncio
+import time
 from datetime import datetime
 from typing import Any, Optional
 
@@ -26,6 +27,13 @@ from app.utils.ai_response_parser import parse_ai_json
 logger = logging.getLogger(__name__)
 
 
+def _log_duration(label: str, start: float) -> float:
+    """打印耗时并返回当前时间戳"""
+    elapsed = time.time() - start
+    logger.info(f"⏱️ [{label}] 耗时: {elapsed:.2f}秒")
+    return time.time()
+
+
 class AnalyzeStockUseCase:
     def __init__(self, db: AsyncSession, current_user: User):
         self.db = db
@@ -33,12 +41,16 @@ class AnalyzeStockUseCase:
         self.repo = AnalysisRepository(db)
 
     async def execute(self, ticker: str, force: bool = False) -> dict[str, Any]:
+        total_start = time.time()
         ticker = ticker.upper().strip()
+        logger.info(f"🚀 开始分析股票: {ticker}")
 
-        await self._check_free_tier_limit()
+        preferred_model = self.current_user.preferred_ai_model or "gemini-1.5-flash"
+        step_start = _log_duration("Step 1: 初始化分析参数", total_start)
 
-        # Step 1: Parallel data fetching for all components
+        # Step 2: Parallel data fetching for all components
         logger.info(f"Starting parallel data fetching for {ticker}...")
+        fetch_start = time.time()
         results = await asyncio.gather(
             self._get_stock(ticker),
             MarketDataService.get_real_time_data(ticker, self.db, force_refresh=force),
@@ -46,6 +58,8 @@ class AnalyzeStockUseCase:
             self._get_macro_context(),
             return_exceptions=True
         )
+        fetch_elapsed = time.time() - fetch_start
+        logger.info(f"⏱️ [Step 2: 并行数据获取] 总耗时: {fetch_elapsed:.2f}秒")
         
         # Unpack results with error handling
         stock_obj = results[0] if not isinstance(results[0], Exception) else None
@@ -53,81 +67,144 @@ class AnalyzeStockUseCase:
         news_data = results[2] if not isinstance(results[2], Exception) else []
         macro_context = results[3] if not isinstance(results[3], Exception) else ""
         
+        # 打印各子任务的耗时
+        logger.info(f"   - 股票基础信息: {'✅ 成功' if stock_obj else '❌ 失败'}")
+        logger.info(f"   - 实时行情数据: {'✅ 成功' if market_data_obj else '❌ 失败'}")
+        logger.info(f"   - 新闻数据: {'✅ 成功' if news_data else '❌ 失败'} ({len(news_data)}条)")
+        logger.info(f"   - 宏观上下文: {'✅ 成功' if macro_context else '❌ 失败'} ({len(macro_context) if macro_context else 0}字符)")
+        
         if isinstance(results[1], Exception):
             logger.error(f"Failed to fetch market data for {ticker}: {results[1]}")
             raise HTTPException(status_code=500, detail=f"Market data fetch error: {str(results[1])}")
-
-        # Step 2: Build derived data objects
+        
+        # Step 3: Build derived data objects
+        build_start = time.time()
         market_data = self._build_market_data(market_data_obj)
         fundamental_data = self._build_fundamental_data(stock_obj, market_data_obj)
+        _log_duration("Step 3: 数据构建", build_start)
         
-        # Step 3: Fetch portfolio data (needs market_data for valuation)
-        portfolio_data = await self._get_portfolio_data(ticker, market_data)
-
         logger.info(f"Preparing AI analysis for {ticker}. Market Data keys present: {list(market_data.keys())}")
         if not market_data.get("rsi_14"):
             logger.warning(f"Technical indicators missing for {ticker}, prompt may be low quality.")
 
-        preferred_model = self.current_user.preferred_ai_model or "gemini-1.5-flash"
+        logger.info(f"📌 使用 AI 模型: {preferred_model}")
 
+        # 检查缓存
+        cache_start = time.time()
         cached_response = await self._get_cached_response(ticker, market_data, preferred_model, force)
         if cached_response:
+            _log_duration("Step 5: 缓存命中（跳过AI调用）", cache_start)
+            total_elapsed = time.time() - total_start
+            logger.info(f"🎉 总耗时: {total_elapsed:.2f}秒 (从缓存返回)")
+            cached_response["total_duration"] = total_elapsed
             return cached_response
+        _log_duration("Step 5: 缓存检查", cache_start)
+
+        await self._check_free_tier_limit()
+        _log_duration("Step 5.1: 免费用户检查", cache_start)
 
         previous_analysis_context = await self._build_previous_analysis_context(ticker)
 
         # 🚀 重要: 在进入耗时 2分钟+ 的 AI 生成阶段前，提交当前事务。
         # 这样可以确保在该线程/协程等待 AI 响应期间，数据库连接已经释放回连接池，供其他请求使用。
         # 防止在高并发或低配置环境下连接池枯竭。
-        await self.db.commit()
+        try:
+            await self.db.commit()
+        except Exception as e:
+            logger.warning(f"数据库提交失败: {e}，继续执行")
+            try:
+                await self.db.rollback()
+            except Exception:
+                pass
 
-        ai_raw_response = await AIService.generate_analysis(
-            ticker,
-            market_data,
-            portfolio_data,
-            news_data,
-            macro_context=macro_context,
-            fundamental_data=fundamental_data,
-            previous_analysis=previous_analysis_context,
-            model=preferred_model,
-            db=self.db,
-            user_id=self.current_user.id,
-        )
-        logger.info(f"AI Response for {ticker}: {ai_raw_response}")
+        # 🚨 AI 分析阶段 - 这是最耗时的部分
+        ai_start = time.time()
+        logger.info(f"🤖 开始调用 AI (预计 60-180 秒)...")
+        
+        try:
+            ai_raw_response = await AIService.generate_analysis(
+                ticker,
+                market_data,
+                news_data,
+                macro_context=macro_context,
+                fundamental_data=fundamental_data,
+                previous_analysis=previous_analysis_context,
+                model=preferred_model,
+                db=self.db,
+                user_id=self.current_user.id,
+            )
+        except Exception as ai_error:
+            logger.error(f"AI 分析调用失败: {ai_error}")
+            # 尝试回滚事务
+            try:
+                await self.db.rollback()
+            except Exception:
+                pass
+            raise HTTPException(
+                status_code=503, 
+                detail=f"AI 服务暂时不可用: {str(ai_error)[:200]}"
+            )
+        
+        ai_elapsed = time.time() - ai_start
+        logger.info(f"⏱️ [Step 6: AI 分析调用] 耗时: {ai_elapsed:.2f}秒 ({ai_elapsed/60:.1f}分钟)")
+        logger.info(f"AI Response length: {len(ai_raw_response)} 字符")
 
+        # 解析 AI 响应
+        parse_start = time.time()
         parsed_data = parse_ai_json(ai_raw_response, context=f"stock_{ticker}")
+        _log_duration("Step 7: AI 响应解析", parse_start)
+
         final_rr_str = self._resolve_rr_ratio(parsed_data, market_data)
+        
+        # 持久化报告
+        persist_start = time.time()
         new_report = await self._persist_report(
             ticker=ticker,
             preferred_model=preferred_model,
             ai_raw_response=ai_raw_response,
             parsed_data=parsed_data,
             market_data=market_data,
-            portfolio_data=portfolio_data,
             final_rr_str=final_rr_str,
         )
         await self._sync_ai_rrr_to_cache(ticker, market_data, new_report)
+        _log_duration("Step 8: 报告持久化", persist_start)
+
+        total_elapsed = time.time() - total_start
+        logger.info(f"🎉🎉🎉 分析完成! 总耗时: {total_elapsed:.2f}秒 ({total_elapsed/60:.1f}分钟)")
 
         return {
             "ticker": ticker,
+            "decision_mode": to_str(parsed_data.get("decision_mode")),
+            "dominant_driver": to_str(parsed_data.get("dominant_driver")),
+            "trade_setup_status": to_str(parsed_data.get("trade_setup_status")),
             "sentiment_score": to_float(parsed_data.get("sentiment_score")),
             "summary_status": to_str(parsed_data.get("summary_status")),
             "risk_level": to_str(parsed_data.get("risk_level")),
+            "trigger_condition": to_str(parsed_data.get("trigger_condition")),
+            "invalidation_condition": to_str(parsed_data.get("invalidation_condition")),
+            "next_review_point": to_str(parsed_data.get("next_review_point")),
             "technical_analysis": to_str(parsed_data.get("technical_analysis")),
             "fundamental_news": to_str(parsed_data.get("fundamental_news")),
             "news_summary": to_str(parsed_data.get("news_summary")) or to_str(parsed_data.get("fundamental_news")),
             "fundamental_analysis": to_str(parsed_data.get("fundamental_analysis")),
             "macro_risk_note": to_str(parsed_data.get("macro_risk_note")),
+            "add_on_trigger": to_str(parsed_data.get("add_on_trigger")),
             "action_advice": to_str(parsed_data.get("action_advice")),
             "investment_horizon": to_str(parsed_data.get("investment_horizon")),
             "confidence_level": to_float(parsed_data.get("confidence_level")),
             "immediate_action": to_str(parsed_data.get("immediate_action")),
             "target_price": to_float(parsed_data.get("target_price")),
+            "target_price_1": to_float(parsed_data.get("target_price_1")),
+            "target_price_2": to_float(parsed_data.get("target_price_2")),
             "stop_loss_price": to_float(parsed_data.get("stop_loss_price")),
+            "max_position_pct": to_float(parsed_data.get("max_position_pct")),
             "entry_zone": new_report.entry_zone if new_report else to_str(parsed_data.get("entry_zone")),
             "entry_price_low": new_report.entry_price_low if new_report else to_float(parsed_data.get("entry_price_low")),
             "entry_price_high": new_report.entry_price_high if new_report else to_float(parsed_data.get("entry_price_high")),
             "rr_ratio": final_rr_str,
+            "bull_case": to_str(parsed_data.get("bull_case")),
+            "base_case": to_str(parsed_data.get("base_case")),
+            "bear_case": to_str(parsed_data.get("bear_case")),
             "scenario_tags": parsed_data.get("scenario_tags"),
             "thought_process": parsed_data.get("thought_process"),
             "is_cached": False,
@@ -191,25 +268,6 @@ class AnalyzeStockUseCase:
             for n in news_articles
         ]
 
-    async def _get_portfolio_data(self, ticker: str, market_data: dict[str, Any]) -> dict[str, Any]:
-        portfolio_item = await self.repo.get_portfolio_item(self.current_user.id, ticker)
-        if not portfolio_item:
-            return {}
-
-        current_price = market_data["current_price"] or 0
-        unrealized_pl = (current_price - portfolio_item.avg_cost) * portfolio_item.quantity
-        pl_percent = (
-            (unrealized_pl / (portfolio_item.avg_cost * portfolio_item.quantity) * 100)
-            if (portfolio_item.avg_cost > 0 and portfolio_item.quantity > 0)
-            else 0
-        )
-        return {
-            "avg_cost": portfolio_item.avg_cost,
-            "quantity": portfolio_item.quantity,
-            "unrealized_pl": unrealized_pl,
-            "pl_percent": pl_percent,
-        }
-
     async def _get_macro_context(self) -> str:
         macro_context = ""
         try:
@@ -261,7 +319,7 @@ class AnalyzeStockUseCase:
         if force:
             return None
 
-        cached_report = await self.repo.get_latest_report(self.current_user.id, ticker)
+        cached_report = await self._get_latest_shared_report(ticker, preferred_model)
 
         if not cached_report or not cached_report.technical_analysis:
             return None
@@ -283,7 +341,7 @@ class AnalyzeStockUseCase:
         return serialize_analysis_report(cached_report, rr_ratio=final_rr)
 
     async def _build_previous_analysis_context(self, ticker: str) -> Optional[dict[str, Any]]:
-        last_report = await self.repo.get_latest_report(self.current_user.id, ticker)
+        last_report = await self._get_latest_shared_report(ticker, self.current_user.preferred_ai_model)
         if not last_report:
             return None
 
@@ -310,6 +368,31 @@ class AnalyzeStockUseCase:
             "confidence_level": last_report.confidence_level,
             "action_advice_short": last_report.action_advice[:200] if last_report.action_advice else "",
         }
+
+    async def _get_latest_shared_report(self, ticker: str, preferred_model: str | None) -> Optional[AnalysisReport]:
+        candidates = await self.repo.get_latest_reports_for_ticker(ticker, limit=10, model_used=preferred_model)
+        shared_report = self._pick_shared_scope_report(candidates)
+        if shared_report:
+            return shared_report
+
+        if preferred_model:
+            fallback_candidates = await self.repo.get_latest_reports_for_ticker(ticker, limit=10)
+            return self._pick_shared_scope_report(fallback_candidates)
+
+        return None
+
+    @staticmethod
+    def _pick_shared_scope_report(reports: list[AnalysisReport]) -> Optional[AnalysisReport]:
+        if not reports:
+            return None
+
+        for report in reports:
+            if getattr(report, "report_scope", None) == AnalysisRepository.SHARED_SCOPE:
+                return report
+            snapshot = report.input_context_snapshot or {}
+            if isinstance(snapshot, dict) and snapshot.get("analysis_scope") == "stock_shared":
+                return report
+        return None
 
     def _resolve_rr_ratio(self, parsed_data: dict[str, Any], market_data: dict[str, Any]) -> Optional[str]:
         final_rr_str = to_str(parsed_data.get("rr_ratio"))
@@ -341,14 +424,14 @@ class AnalyzeStockUseCase:
         ai_raw_response: str,
         parsed_data: dict[str, Any],
         market_data: dict[str, Any],
-        portfolio_data: dict[str, Any],
         final_rr_str: Optional[str],
     ) -> Optional[AnalysisReport]:
         new_report = None
         try:
             new_report = AnalysisReport(
-                user_id=self.current_user.id,
+                user_id=None,
                 ticker=ticker,
+                report_scope=AnalysisRepository.SHARED_SCOPE,
                 model_used=preferred_model,
                 ai_response_markdown=ai_raw_response,
                 sentiment_score=to_str(parsed_data.get("sentiment_score")),
@@ -370,7 +453,7 @@ class AnalyzeStockUseCase:
                 thought_process=parsed_data.get("thought_process"),
                 input_context_snapshot={
                     "market_data": market_data,
-                    "portfolio_data": portfolio_data,
+                    "analysis_scope": "stock_shared",
                 },
             )
             if new_report.entry_price_low is None and new_report.entry_price_high is None:
@@ -381,10 +464,41 @@ class AnalyzeStockUseCase:
                 new_report.entry_zone = extract_entry_zone_fallback(new_report.action_advice)
 
             new_report = await self.repo.add_report(new_report)
+            await self._persist_user_interaction_record(ticker, preferred_model, new_report)
         except Exception as exc:
             logger.error(f"Failed to persist structured analysis report: {exc}")
             await self.repo.rollback()
         return new_report
+
+    async def _persist_user_interaction_record(
+        self,
+        ticker: str,
+        preferred_model: str,
+        shared_report: AnalysisReport,
+    ) -> None:
+        interaction_record = AnalysisReport(
+            user_id=self.current_user.id,
+            ticker=ticker,
+            report_scope=AnalysisRepository.USER_INTERACTION_SCOPE,
+            model_used=preferred_model,
+            summary_status=shared_report.summary_status,
+            risk_level=shared_report.risk_level,
+            confidence_level=shared_report.confidence_level,
+            immediate_action=shared_report.immediate_action,
+            investment_horizon=shared_report.investment_horizon,
+            target_price=shared_report.target_price,
+            stop_loss_price=shared_report.stop_loss_price,
+            entry_zone=shared_report.entry_zone,
+            entry_price_low=shared_report.entry_price_low,
+            entry_price_high=shared_report.entry_price_high,
+            rr_ratio=shared_report.rr_ratio,
+            input_context_snapshot={
+                "analysis_scope": "user_interaction",
+                "interaction_type": "stock_analysis_request",
+                "shared_report_id": shared_report.id,
+            },
+        )
+        await self.repo.add_report(interaction_record)
 
     async def _sync_ai_rrr_to_cache(
         self,

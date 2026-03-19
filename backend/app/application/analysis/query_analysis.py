@@ -21,7 +21,7 @@ class GetLatestAnalysisUseCase:
         self.repo = AnalysisRepository(db)
 
     async def execute(self, ticker: str) -> dict:
-        report = await self.repo.get_latest_report(self.current_user.id, ticker)
+        report = await self._get_latest_shared_report(ticker)
         if not report:
             raise HTTPException(status_code=404, detail="No analysis found for this stock and model")
 
@@ -32,6 +32,29 @@ class GetLatestAnalysisUseCase:
 
         return serialize_analysis_report(report, rr_ratio=realtime_rr)
 
+    async def _get_latest_shared_report(self, ticker: str):
+        preferred_model = self.current_user.preferred_ai_model or None
+        candidates = await self.repo.get_latest_reports_for_ticker(ticker, limit=10, model_used=preferred_model)
+        report = self._pick_shared_scope_report(candidates)
+        if report:
+            return report
+
+        if preferred_model:
+            fallback_candidates = await self.repo.get_latest_reports_for_ticker(ticker, limit=10)
+            return self._pick_shared_scope_report(fallback_candidates)
+
+        return None
+
+    @staticmethod
+    def _pick_shared_scope_report(reports):
+        for report in reports:
+            if getattr(report, "report_scope", None) == AnalysisRepository.SHARED_SCOPE:
+                return report
+            snapshot = report.input_context_snapshot or {}
+            if isinstance(snapshot, dict) and snapshot.get("analysis_scope") == "stock_shared":
+                return report
+        return None
+
 
 class GetAnalysisHistoryUseCase:
     def __init__(self, db: AsyncSession, current_user: User):
@@ -41,9 +64,33 @@ class GetAnalysisHistoryUseCase:
 
     async def execute(self, ticker: str, limit: int = 20) -> list[dict]:
         try:
-            reports = await self.repo.get_report_history(self.current_user.id, ticker, limit)
-            response = []
+            preferred_model = self.current_user.preferred_ai_model or None
+            reports = await self.repo.get_report_history_for_ticker(ticker, limit * 3, model_used=preferred_model)
+            shared_reports = []
             for report in reports:
+                if getattr(report, "report_scope", None) == AnalysisRepository.SHARED_SCOPE:
+                    shared_reports.append(report)
+                else:
+                    snapshot = report.input_context_snapshot or {}
+                    if isinstance(snapshot, dict) and snapshot.get("analysis_scope") == "stock_shared":
+                        shared_reports.append(report)
+                if len(shared_reports) >= limit:
+                    break
+
+            if not shared_reports and preferred_model:
+                fallback_reports = await self.repo.get_report_history_for_ticker(ticker, limit * 3)
+                for report in fallback_reports:
+                    if getattr(report, "report_scope", None) == AnalysisRepository.SHARED_SCOPE:
+                        shared_reports.append(report)
+                    else:
+                        snapshot = report.input_context_snapshot or {}
+                        if isinstance(snapshot, dict) and snapshot.get("analysis_scope") == "stock_shared":
+                            shared_reports.append(report)
+                    if len(shared_reports) >= limit:
+                        break
+
+            response = []
+            for report in shared_reports:
                 snapshot = report.input_context_snapshot or {}
                 market_data_snap = snapshot.get("market_data", {}) if isinstance(snapshot, dict) else {}
                 snap_price = market_data_snap.get("current_price") if isinstance(market_data_snap, dict) else None

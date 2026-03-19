@@ -11,6 +11,8 @@ from app.models.user import User
 
 
 class SchedulerRepository:
+    SHARED_SCOPE = "shared_stock_analysis"
+
     def __init__(self, db: AsyncSession):
         self.db = db
 
@@ -48,10 +50,13 @@ class SchedulerRepository:
         res = await self.db.execute(select(Stock.name).where(Stock.ticker == ticker))
         return res.scalar_one_or_none() or ticker
 
-    async def get_latest_analysis_report(self, user_id: str, ticker: str):
+    async def get_latest_shared_analysis_report(self, ticker: str):
         stmt = (
             select(AnalysisReport)
-            .where(AnalysisReport.ticker == ticker, AnalysisReport.user_id == user_id)
+            .where(
+                AnalysisReport.ticker == ticker,
+                AnalysisReport.report_scope == self.SHARED_SCOPE,
+            )
             .order_by(AnalysisReport.created_at.desc())
             .limit(1)
         )

@@ -68,6 +68,7 @@ export const MarketAnalysis = React.memo(function MarketAnalysis({
                 {/* 内容区：保持缩进 */}
                 <div className="relative group px-4 md:px-10">
                     <StockChart 
+                        key={ticker}
                         data={historyData} 
                         ticker={ticker} 
                         showBb={showBb}

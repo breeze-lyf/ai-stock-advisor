@@ -5,14 +5,27 @@ from typing import Optional, List
 class AnalysisResponse(BaseModel):
     ticker: str
     analysis: Optional[str] = None
+    decision_mode: Optional[str] = None
+    dominant_driver: Optional[str] = None
+    trade_setup_status: Optional[str] = None
     sentiment_score: Optional[float] = None
     summary_status: Optional[str] = None
     risk_level: Optional[str] = None
+    trigger_condition: Optional[str] = None
+    invalidation_condition: Optional[str] = None
+    next_review_point: Optional[str] = None
     technical_analysis: Optional[str] = None
     fundamental_news: Optional[str] = None
     news_summary: Optional[str] = None
     fundamental_analysis: Optional[str] = None
     macro_risk_note: Optional[str] = None
+    add_on_trigger: Optional[str] = None
+    target_price_1: Optional[float] = None
+    target_price_2: Optional[float] = None
+    max_position_pct: Optional[float] = None
+    bull_case: Optional[str] = None
+    base_case: Optional[str] = None
+    bear_case: Optional[str] = None
     action_advice: Optional[str] = None
     investment_horizon: Optional[str] = None
     confidence_level: Optional[float] = None
@@ -25,6 +38,7 @@ class AnalysisResponse(BaseModel):
     rr_ratio: Optional[str] = None
     is_cached: bool = False
     model_used: Optional[str] = None
+    report_scope: Optional[str] = None
     created_at: Optional[datetime] = None
     history_price: Optional[float] = None
     # Truth Tracker 2.0 & Phase 2

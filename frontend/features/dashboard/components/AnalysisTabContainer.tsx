@@ -39,7 +39,22 @@ export function AnalysisTabContainer({
   refreshTimestamp,
   selectedTicker,
 }: AnalysisTabContainerProps) {
-  const selectedItem = portfolio.find((item) => item.ticker === selectedTicker) || null;
+  let selectedItem = portfolio.find((item) => item.ticker === selectedTicker) || null;
+
+  // 如果 selectedTicker 存在但不在组合中，创建一个基础对象以便渲染详情页
+  if (!selectedItem && selectedTicker) {
+    selectedItem = {
+      ticker: selectedTicker,
+      name: selectedTicker,
+      current_price: 0,
+      change_percent: 0,
+      avg_cost: 0,
+      quantity: 0,
+      unrealized_pl: 0,
+      pl_percent: 0,
+      market_value: 0,
+    } as any;
+  }
 
   return (
     <div className="flex h-full overflow-hidden">

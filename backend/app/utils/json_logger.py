@@ -52,25 +52,18 @@ class JSONFormatter(logging.Formatter):
         log_data["line"] = record.lineno
         log_data["function"] = record.funcName
         
-        # 如果有额外字段，添加到日志中
-        if hasattr(record, "request_id"):
-            log_data["request_id"] = record.request_id
-        if hasattr(record, "user_id"):
-            log_data["user_id"] = record.user_id
-        if hasattr(record, "duration_ms"):
-            log_data["duration_ms"] = record.duration_ms
-        if hasattr(record, "status_code"):
-            log_data["status_code"] = record.status_code
-        if hasattr(record, "method"):
-            log_data["method"] = record.method
-        if hasattr(record, "path"):
-            log_data["path"] = record.path
-        if hasattr(record, "ticker"):
-            log_data["ticker"] = record.ticker
-        if hasattr(record, "error_type"):
-            log_data["error_type"] = record.error_type
-        if hasattr(record, "stack_trace"):
-            log_data["stack_trace"] = record.stack_trace
+        # 排除标准属性，将所有额外的 (extra) 字段动态添加到 log_data
+        # 标准属性列表参考：https://docs.python.org/3/library/logging.html#logrecord-attributes
+        standard_attrs = {
+            'args', 'asctime', 'created', 'exc_info', 'exc_text', 'filename',
+            'funcName', 'levelname', 'levelno', 'lineno', 'module', 'msecs',
+            'msg', 'name', 'pathname', 'process', 'processName',
+            'relativeCreated', 'stack_info', 'thread', 'threadName'
+        }
+        
+        for key, value in record.__dict__.items():
+            if key not in standard_attrs and not key.startswith('_'):
+                log_data[key] = value
         
         # 异常信息
         if record.exc_info:
@@ -117,52 +110,58 @@ def setup_logging(
 ) -> logging.Logger:
     """
     配置日志系统
-    
-    Args:
-        log_format: 日志格式 ("json" 或 "standard")
-        log_level: 日志级别
-        service_name: 服务名称
-        environment: 环境标识
-        log_file: 日志文件路径
-    
-    Returns:
-        配置好的Logger实例
+
+    策略：
+    - 控制台 (stderr): 仅显示 WARNING 及以上，使用简洁文本格式，减少终端噪音
+    - 文件 (app.log): 所有 INFO+ 日志，保留完整 JSON 格式，供 Loki/Grafana 聚合
+    - 文件 (ai_calls.log): AI 调用专用日志，包含完整 prompt 和分段计时
     """
-    # 获取根日志器
     root_logger = logging.getLogger()
     root_logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
-    
-    # 清除现有处理器
     root_logger.handlers.clear()
-    
-    # 选择格式化器
-    if log_format.lower() == "json":
-        formatter = JSONFormatter(service_name, environment)
-    else:
-        formatter = StandardFormatter(
-            fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S"
-        )
-    
-    # 控制台处理器
+
+    json_formatter = JSONFormatter(service_name, environment)
+    text_formatter = StandardFormatter(
+        fmt="%(asctime)s  %(levelname)-8s  %(name)s  %(message)s",
+        datefmt="%H:%M:%S"
+    )
+
+    # ── 控制台：仅 WARNING+ 使用简洁文本 ──────────────────────────────
     console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
+    console_handler.setLevel(logging.WARNING)
+    console_handler.setFormatter(text_formatter)
     root_logger.addHandler(console_handler)
-    
-    # 文件处理器
+
+    # ── 主文件：INFO+ 完整 JSON，供 Loki ────────────────────────────
     try:
         file_handler = logging.FileHandler(log_file, encoding="utf-8")
-        file_handler.setFormatter(formatter)
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(json_formatter)
         root_logger.addHandler(file_handler)
     except Exception as e:
         root_logger.warning(f"Failed to setup file logging: {e}")
-    
-    # 降低第三方库的日志级别
+
+    # ── AI 调用专用日志文件 ───────────────────────────────────────────
+    ai_log_path = os.path.join(os.path.dirname(log_file) or ".", "ai_calls.log")
+    try:
+        ai_file_handler = logging.FileHandler(ai_log_path, encoding="utf-8")
+        ai_file_handler.setLevel(logging.DEBUG)
+        ai_file_handler.setFormatter(json_formatter)
+        ai_logger = logging.getLogger("app.ai_calls")
+        ai_logger.addHandler(ai_file_handler)
+        ai_logger.propagate = False  # 不向上传播，避免写入 app.log
+    except Exception as e:
+        root_logger.warning(f"Failed to setup AI call logging: {e}")
+
+    # ── 第三方库降噪 ──────────────────────────────────────────────────
     logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
     logging.getLogger("httpx").setLevel(logging.WARNING)
     logging.getLogger("httpcore").setLevel(logging.WARNING)
     logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
-    
+    # 调度器心跳日志只写文件，不打终端
+    logging.getLogger("app.services.scheduler_jobs").setLevel(logging.INFO)
+    logging.getLogger("app.services.market_data_fetcher").setLevel(logging.INFO)
+
     return logging.getLogger("api_logger")
 
 

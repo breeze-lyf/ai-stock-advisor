@@ -3,6 +3,7 @@
 <cite>
 **本文档引用的文件**
 - [backend/app/main.py](file://backend/app/main.py)
+- [backend/app/utils/json_logger.py](file://backend/app/utils/json_logger.py)
 - [backend/app/core/config.py](file://backend/app/core/config.py)
 - [backend/app/core/database.py](file://backend/app/core/database.py)
 - [backend/app/api/v1/api.py](file://backend/app/api/v1/api.py)
@@ -15,14 +16,19 @@
 - [backend/app/core/security.py](file://backend/app/core/security.py)
 - [backend/app/models/notification.py](file://backend/app/models/notification.py)
 - [backend/app/models/user.py](file://backend/app/models/user.py)
+- [monitoring/loki/loki-config.yaml](file://monitoring/loki/loki-config.yaml)
+- [monitoring/promtail/promtail-config.yaml](file://monitoring/promtail/promtail-config.yaml)
+- [monitoring/grafana/provisioning/datasources/datasources.yaml](file://monitoring/grafana/provisioning/datasources/datasources.yaml)
+- [docker-compose.yml](file://docker-compose.yml)
 </cite>
 
 ## 更新摘要
 **所做更改**
-- 移除了所有print调试语句和AI调试日志功能
-- 更新了相关章节以反映调试日志增强功能的移除
-- 删除了AI调试输出相关的代码示例和说明
-- 更新了故障排除指南以移除调试日志相关内容
+- 新增了结构化JSON日志系统的完整实现
+- 集成了Loki日志聚合和Grafana可视化监控
+- 更新了日志格式化器和日志上下文管理器
+- 增强了异常处理和调试能力
+- 添加了完整的日志监控基础设施
 
 ## 目录
 1. [简介](#简介)
@@ -37,9 +43,9 @@
 
 ## 简介
 
-本文档详细分析了AI股票顾问项目中的调试日志增强功能。该项目是一个基于FastAPI的智能投资助手，集成了多源数据和LLM分析能力。本文档重点分析了系统的日志配置、中间件日志记录、异常处理机制以及各个服务模块的日志实现。
+本文档详细分析了AI股票顾问项目中的结构化JSON日志增强功能。该项目是一个基于FastAPI的智能投资助手，集成了多源数据和LLM分析能力。本文档重点分析了系统的日志配置、中间件日志记录、异常处理机制以及各个服务模块的日志实现。
 
-**更新** 系统现已移除所有调试日志增强功能，包括print调试语句和AI调试输出。当前版本采用标准化的日志记录策略，确保系统在开发和生产环境中都能提供充分的调试信息和运行状态监控。
+**更新** 系统现已集成了全新的结构化JSON日志系统，提供更好的调试和监控能力。该系统采用Loki日志聚合、Promtail日志采集和Grafana可视化监控的完整解决方案，支持实时日志分析、异常检测和性能监控。
 
 系统采用多层次的日志记录策略，包括全局HTTP请求日志、服务层详细日志、异常捕获日志和后台任务监控日志。这种设计确保了系统在开发和生产环境中都能提供充分的调试信息和运行状态监控。
 
@@ -65,10 +71,16 @@ Config[config.py<br/>配置管理]
 Database[database.py<br/>数据库连接]
 Security[security.py<br/>安全工具]
 Parser[ai_response_parser.py<br/>AI响应解析]
+JSONLogger[json_logger.py<br/>JSON日志系统]
 end
 subgraph "数据模型层"
 UserModel[user.py<br/>用户模型]
 NotificationModel[notification.py<br/>通知模型]
+end
+subgraph "日志监控层"
+Loki[loki-config.yaml<br/>日志聚合]
+Promtail[promtail-config.yaml<br/>日志采集]
+Grafana[datasources.yaml<br/>可视化监控]
 end
 Main --> APIRouter
 APIRouter --> MarketData
@@ -83,40 +95,71 @@ Main --> Config
 Main --> Database
 Main --> Security
 AIService --> Parser
+Main --> JSONLogger
+JSONLogger --> Loki
+Loki --> Promtail
+Promtail --> Grafana
 ```
 
 **图表来源**
-- [backend/app/main.py:1-149](file://backend/app/main.py#L1-L149)
+- [backend/app/main.py:1-170](file://backend/app/main.py#L1-L170)
 - [backend/app/api/v1/api.py:1-33](file://backend/app/api/v1/api.py#L1-L33)
+- [backend/app/utils/json_logger.py:1-203](file://backend/app/utils/json_logger.py#L1-L203)
+- [monitoring/loki/loki-config.yaml:1-63](file://monitoring/loki/loki-config.yaml#L1-L63)
+- [monitoring/promtail/promtail-config.yaml:1-142](file://monitoring/promtail/promtail-config.yaml#L1-L142)
+- [monitoring/grafana/provisioning/datasources/datasources.yaml:1-21](file://monitoring/grafana/provisioning/datasources/datasources.yaml#L1-L21)
 
 **章节来源**
-- [backend/app/main.py:1-149](file://backend/app/main.py#L1-L149)
+- [backend/app/main.py:1-170](file://backend/app/main.py#L1-L170)
 - [backend/app/api/v1/api.py:1-33](file://backend/app/api/v1/api.py#L1-L33)
+- [backend/app/utils/json_logger.py:1-203](file://backend/app/utils/json_logger.py#L1-L203)
 
 ## 核心组件
 
-### 全局日志配置
+### 结构化JSON日志系统
 
-系统在主应用入口处配置了全局日志系统，采用结构化的日志格式：
+系统在主应用入口处配置了全局结构化JSON日志系统，采用统一的JSON格式输出：
 
 ```mermaid
 classDiagram
-class GlobalLogger {
-+format : "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-+handlers : [FileHandler, StreamHandler]
-+level : INFO
-+logger : api_logger
+class JSONFormatter {
++service_name : str
++environment : str
++format(record) str
++formatException(record) str
+}
+class StandardFormatter {
++format(record) str
+}
+class LogContext {
++logger : logging.Logger
++extra : dict
++info(msg, **kwargs)
++warning(msg, **kwargs)
++error(msg, **kwargs)
++debug(msg, **kwargs)
 }
 class LoggingConfig {
++setup_logging(format, level, service, env, file) Logger
 +basicConfig(config)
 +setLevel(logger, level)
 +getLogger(name)
 }
-GlobalLogger --> LoggingConfig : uses
+JSONFormatter --> LogContext : uses
+StandardFormatter --> LogContext : uses
+LoggingConfig --> JSONFormatter : creates
+LoggingConfig --> StandardFormatter : creates
 ```
 
 **图表来源**
-- [backend/app/main.py:14-22](file://backend/app/main.py#L14-L22)
+- [backend/app/utils/json_logger.py:11-203](file://backend/app/utils/json_logger.py#L11-L203)
+
+JSON日志格式化器支持以下字段：
+- **基础字段**：timestamp、level、logger、message、service、environment
+- **位置信息**：file、line、function
+- **请求上下文**：request_id、user_id、duration_ms、status_code
+- **HTTP信息**：method、path
+- **异常信息**：error_type、stack_trace、exception、exception_type
 
 ### HTTP请求中间件
 
@@ -128,7 +171,7 @@ participant Client as 客户端
 participant Middleware as 请求中间件
 participant Auth as 认证处理
 participant Handler as 请求处理器
-participant Logger as 日志系统
+participant Logger as JSON日志系统
 Client->>Middleware : HTTP请求
 Middleware->>Middleware : 记录开始时间
 Middleware->>Auth : 解析JWT令牌
@@ -136,13 +179,14 @@ Auth-->>Middleware : 用户ID
 Middleware->>Handler : 调用下一个处理器
 Handler-->>Middleware : 响应
 Middleware->>Middleware : 计算处理时间
-Middleware->>Logger : 记录请求日志
+Middleware->>Logger : 记录结构化JSON日志
+Logger-->>Logger : 格式化为JSON
 Middleware-->>Client : 响应
-Note over Middleware,Logger : 包含用户ID、状态码、处理时间等信息
+Note over Middleware,Logger : 包含用户ID、状态码、处理时间等结构化信息
 ```
 
 **图表来源**
-- [backend/app/main.py:51-91](file://backend/app/main.py#L51-L91)
+- [backend/app/main.py:58-112](file://backend/app/main.py#L58-L112)
 
 ### 全局异常处理器
 
@@ -153,7 +197,7 @@ flowchart TD
 Start([请求到达]) --> Process[处理请求]
 Process --> HasError{是否发生异常?}
 HasError --> |否| ReturnSuccess[返回成功响应]
-HasError --> |是| LogError[记录异常日志]
+HasError --> |是| LogError[记录结构化JSON异常日志]
 LogError --> CaptureError[捕获异常信息]
 CaptureError --> ReturnError[返回500错误]
 ReturnSuccess --> End([结束])
@@ -161,14 +205,15 @@ ReturnError --> End
 ```
 
 **图表来源**
-- [backend/app/main.py:35-47](file://backend/app/main.py#L35-L47)
+- [backend/app/main.py:37-54](file://backend/app/main.py#L37-L54)
 
 **章节来源**
-- [backend/app/main.py:14-91](file://backend/app/main.py#L14-L91)
+- [backend/app/utils/json_logger.py:11-203](file://backend/app/utils/json_logger.py#L11-L203)
+- [backend/app/main.py:17-112](file://backend/app/main.py#L17-L112)
 
 ## 架构概览
 
-系统采用事件驱动的异步架构，结合多种日志记录策略：
+系统采用事件驱动的异步架构，结合Loki日志聚合和Promtail日志采集的完整监控体系：
 
 ```mermaid
 graph TB
@@ -181,6 +226,7 @@ subgraph "FastAPI应用"
 HTTPMiddleware[HTTP中间件]
 GlobalExceptionHandler[全局异常处理器]
 Routers[API路由器]
+JSONLogger[JSON日志系统]
 end
 subgraph "服务层"
 MarketDataService[市场数据服务]
@@ -192,11 +238,10 @@ subgraph "数据层"
 Database[数据库引擎]
 Cache[缓存系统]
 end
-subgraph "日志系统"
-RequestLogger[请求日志]
-ErrorLogger[错误日志]
-InfoLogger[信息日志]
-DebugLogger[调试日志]
+subgraph "日志监控层"
+Loki[日志聚合服务器]
+Promtail[日志采集代理]
+Grafana[可视化面板]
 end
 Clients --> HTTPMiddleware
 HTTPMiddleware --> GlobalExceptionHandler
@@ -210,15 +255,22 @@ MarketDataService --> Database
 AIService --> Database
 NotificationService --> Database
 Scheduler --> Database
-HTTPMiddleware --> RequestLogger
-GlobalExceptionHandler --> ErrorLogger
-MarketDataService --> InfoLogger
-AIService --> DebugLogger
+HTTPMiddleware --> JSONLogger
+GlobalExceptionHandler --> JSONLogger
+MarketDataService --> JSONLogger
+AIService --> JSONLogger
+NotificationService --> JSONLogger
+Scheduler --> JSONLogger
+JSONLogger --> Promtail
+Promtail --> Loki
+Loki --> Grafana
 ```
 
 **图表来源**
-- [backend/app/main.py:27-134](file://backend/app/main.py#L27-L134)
-- [backend/app/services/scheduler.py:566-643](file://backend/app/services/scheduler.py#L566-L643)
+- [backend/app/main.py:21-112](file://backend/app/main.py#L21-L112)
+- [backend/app/services/scheduler.py:189-200](file://backend/app/services/scheduler.py#L189-L200)
+- [monitoring/loki/loki-config.yaml:1-63](file://monitoring/loki/loki-config.yaml#L1-L63)
+- [monitoring/promtail/promtail-config.yaml:1-142](file://monitoring/promtail/promtail-config.yaml#L1-L142)
 
 ## 详细组件分析
 
@@ -252,7 +304,7 @@ ProviderFactory --> ProviderInterface : creates
 ```
 
 **图表来源**
-- [backend/app/services/market_data.py:19-407](file://backend/app/services/market_data.py#L19-L407)
+- [backend/app/services/market_data.py:17-100](file://backend/app/services/market_data.py#L17-L100)
 
 市场数据服务的关键日志记录点：
 
@@ -271,7 +323,7 @@ participant Client as 客户端
 participant AIService as AI服务
 participant ProviderResolver as 供应商解析器
 participant Provider as 供应商
-participant Logger as 日志系统
+participant Logger as JSON日志系统
 Client->>AIService : 生成分析请求
 AIService->>ProviderResolver : 解析API密钥
 ProviderResolver->>Logger : 记录密钥解析过程
@@ -284,7 +336,7 @@ AIService-->>Client : 返回分析结果
 ```
 
 **图表来源**
-- [backend/app/services/ai_service.py:58-235](file://backend/app/services/ai_service.py#L58-L235)
+- [backend/app/services/ai_service.py:132-200](file://backend/app/services/ai_service.py#L132-L200)
 
 AI服务的关键日志特性：
 
@@ -309,14 +361,14 @@ HourlySummary --> DailyReport[发送日报]
 DailyReport --> PostMarketAnalysis[盘后分析]
 PostMarketAnalysis --> TaskLoop
 TaskLoop --> ErrorHandling{发生异常?}
-ErrorHandling --> |是| LogError[记录错误日志]
+ErrorHandling --> |是| LogError[记录结构化JSON错误日志]
 ErrorHandling --> |否| Sleep[等待60秒]
 LogError --> Sleep
 Sleep --> TaskLoop
 ```
 
 **图表来源**
-- [backend/app/services/scheduler.py:566-643](file://backend/app/services/scheduler.py#L566-L643)
+- [backend/app/services/scheduler.py:189-200](file://backend/app/services/scheduler.py#L189-L200)
 
 调度器的关键日志记录：
 
@@ -362,7 +414,7 @@ NotificationService --> NotificationLog : persists
 ```
 
 **图表来源**
-- [backend/app/services/notification_service.py:14-410](file://backend/app/services/notification_service.py#L14-L410)
+- [backend/app/services/notification_service.py:14-200](file://backend/app/services/notification_service.py#L14-L200)
 
 通知服务的日志特点：
 
@@ -372,10 +424,10 @@ NotificationService --> NotificationLog : persists
 4. **数据库操作日志**：记录通知历史的持久化过程
 
 **章节来源**
-- [backend/app/services/market_data.py:19-407](file://backend/app/services/market_data.py#L19-L407)
-- [backend/app/services/ai_service.py:22-254](file://backend/app/services/ai_service.py#L22-L254)
-- [backend/app/services/scheduler.py:14-643](file://backend/app/services/scheduler.py#L14-L643)
-- [backend/app/services/notification_service.py:14-410](file://backend/app/services/notification_service.py#L14-L410)
+- [backend/app/services/market_data.py:17-100](file://backend/app/services/market_data.py#L17-L100)
+- [backend/app/services/ai_service.py:132-200](file://backend/app/services/ai_service.py#L132-L200)
+- [backend/app/services/scheduler.py:189-200](file://backend/app/services/scheduler.py#L189-L200)
+- [backend/app/services/notification_service.py:14-200](file://backend/app/services/notification_service.py#L14-L200)
 
 ## 依赖关系分析
 
@@ -384,8 +436,11 @@ NotificationService --> NotificationLog : persists
 ```mermaid
 graph TB
 subgraph "日志基础设施"
-GlobalLogger[全局日志配置]
-LoggerFactory[日志工厂]
+JSONLogger[JSON日志系统]
+JSONFormatter[JSON格式化器]
+StandardFormatter[标准格式化器]
+LogContext[日志上下文管理器]
+LogSetup[日志配置]
 end
 subgraph "应用层日志"
 APILogger[API日志]
@@ -397,30 +452,49 @@ MarketDataLogger[市场数据日志]
 AILogger[AI服务日志]
 NotificationLogger[通知日志]
 SchedulerLogger[调度器日志]
-end
-subgraph "工具层日志"
 ParserLogger[解析器日志]
 SecurityLogger[安全日志]
 end
-GlobalLogger --> LoggerFactory
-LoggerFactory --> APILogger
-LoggerFactory --> AuthLogger
-LoggerFactory --> ExceptionLogger
-LoggerFactory --> MarketDataLogger
-LoggerFactory --> AILogger
-LoggerFactory --> NotificationLogger
-LoggerFactory --> SchedulerLogger
-LoggerFactory --> ParserLogger
-LoggerFactory --> SecurityLogger
+subgraph "监控层"
+Loki[Loki日志聚合]
+Promtail[Promtail日志采集]
+Grafana[Grafana可视化]
+end
+JSONLogger --> JSONFormatter
+JSONLogger --> StandardFormatter
+JSONLogger --> LogContext
+JSONLogger --> LogSetup
+LogContext --> APILogger
+LogContext --> AuthLogger
+LogContext --> ExceptionLogger
+LogContext --> MarketDataLogger
+LogContext --> AILogger
+LogContext --> NotificationLogger
+LogContext --> SchedulerLogger
+LogContext --> ParserLogger
+LogContext --> SecurityLogger
+APILogger --> Loki
+AuthLogger --> Loki
+ExceptionLogger --> Loki
+MarketDataLogger --> Loki
+AILogger --> Loki
+NotificationLogger --> Loki
+SchedulerLogger --> Loki
+ParserLogger --> Loki
+SecurityLogger --> Loki
+Loki --> Promtail
+Promtail --> Grafana
 ```
 
 **图表来源**
-- [backend/app/main.py:14-22](file://backend/app/main.py#L14-L22)
-- [backend/app/utils/ai_response_parser.py:12](file://backend/app/utils/ai_response_parser.py#L12)
+- [backend/app/utils/json_logger.py:11-203](file://backend/app/utils/json_logger.py#L11-L203)
+- [backend/app/main.py:21-27](file://backend/app/main.py#L21-L27)
+- [monitoring/loki/loki-config.yaml:1-63](file://monitoring/loki/loki-config.yaml#L1-L63)
+- [monitoring/promtail/promtail-config.yaml:1-142](file://monitoring/promtail/promtail-config.yaml#L1-L142)
 
 **章节来源**
-- [backend/app/main.py:14-22](file://backend/app/main.py#L14-L22)
-- [backend/app/utils/ai_response_parser.py:12](file://backend/app/utils/ai_response_parser.py#L12)
+- [backend/app/utils/json_logger.py:11-203](file://backend/app/utils/json_logger.py#L11-L203)
+- [backend/app/main.py:21-27](file://backend/app/main.py#L21-L27)
 
 ## 性能考虑
 
@@ -431,48 +505,70 @@ LoggerFactory --> SecurityLogger
 3. **条件日志记录**：根据日志级别和上下文决定是否记录详细信息
 4. **日志级别控制**：合理设置不同模块的日志级别，平衡信息量和性能
 5. **批量日志处理**：对于高频日志事件，采用批量处理减少I/O开销
+6. **日志轮转**：配置文件大小限制和轮转策略，避免磁盘空间占用过多
+7. **第三方库降噪**：降低SQLAlchemy、HTTPX等第三方库的日志级别
 
 ## 故障排除指南
 
-### 常见日志问题
+### 日志系统故障排除
 
-1. **日志文件过大**
-   - 检查日志轮转配置
-   - 调整日志级别为INFO或WARNING
-   - 实施日志清理策略
+1. **日志格式异常**
+   - 检查JSON格式化器配置
+   - 验证日志字段映射关系
+   - 确认环境变量设置正确
 
-2. **日志丢失**
-   - 检查文件权限和磁盘空间
-   - 验证日志处理器配置
-   - 确认异步日志队列正常工作
+2. **日志采集失败**
+   - 检查Promtail服务状态
+   - 验证日志文件路径配置
+   - 确认Loki服务可用性
 
-3. **性能影响**
-   - 评估日志记录频率
-   - 优化日志格式和内容
-   - 考虑使用采样日志
+3. **日志聚合问题**
+   - 检查Loki索引配置
+   - 验证日志标签匹配规则
+   - 确认查询语法正确
+
+### 监控系统故障排除
+
+1. **Grafana仪表板空白**
+   - 检查Loki数据源配置
+   - 验证查询语句和标签过滤
+   - 确认时间范围设置正确
+
+2. **日志延迟**
+   - 检查Promtail管道配置
+   - 验证日志文件权限
+   - 确认网络连接正常
+
+3. **性能问题**
+   - 优化日志级别设置
+   - 检查磁盘空间和I/O性能
+   - 调整日志轮转策略
 
 ### 调试技巧
 
-1. **使用调试日志级别**：在开发环境中使用DEBUG级别获取详细信息
+1. **使用结构化日志**：在开发环境中使用DEBUG级别获取详细信息
 2. **关联ID追踪**：为每个请求分配唯一ID，便于跨模块追踪
 3. **时间戳分析**：利用精确的时间戳分析系统性能瓶颈
 4. **异常堆栈分析**：通过完整的异常堆栈定位问题根源
+5. **日志聚合查询**：使用Grafana查询语言进行复杂日志分析
 
-**更新** 由于系统已移除调试日志增强功能，当前版本不再包含print调试语句和AI调试输出。所有调试信息都通过标准日志记录机制提供。
+**更新** 系统已完全集成结构化JSON日志系统，提供更好的调试和监控能力。新系统支持实时日志分析、异常检测和性能监控，为开发者提供了强大的调试工具。
 
 **章节来源**
-- [backend/app/main.py:35-47](file://backend/app/main.py#L35-L47)
-- [backend/app/services/market_data.py:14-407](file://backend/app/services/market_data.py#L14-L407)
+- [backend/app/main.py:37-54](file://backend/app/main.py#L37-L54)
+- [backend/app/utils/json_logger.py:111-166](file://backend/app/utils/json_logger.py#L111-L166)
+- [monitoring/promtail/promtail-config.yaml:54-78](file://monitoring/promtail/promtail-config.yaml#L54-L78)
 
 ## 结论
 
-AI股票顾问项目的调试日志增强功能已完全移除，当前版本采用标准化的日志记录策略。通过多层次的日志记录策略、完善的异常处理机制和智能化的监控告警，系统能够在复杂的数据处理和AI分析场景中提供充分的可观测性和可维护性。
+AI股票顾问项目的结构化JSON日志增强功能已完全集成，采用Loki日志聚合、Promtail日志采集和Grafana可视化监控的完整解决方案。通过多层次的日志记录策略、完善的异常处理机制和智能化的监控告警，系统能够在复杂的数据处理和AI分析场景中提供充分的可观测性和可维护性。
 
 该系统的日志设计具有以下优势：
 
-1. **全面性**：覆盖从API入口到数据持久化的全流程日志
-2. **结构化**：统一的日志格式便于自动化处理和分析
-3. **智能化**：具备异常检测、性能监控和业务逻辑追踪能力
-4. **可扩展**：模块化的日志架构支持未来功能扩展
+1. **结构化输出**：统一的JSON格式便于自动化处理和分析
+2. **完整监控**：从API入口到数据持久化的全流程日志覆盖
+3. **智能分析**：支持实时日志聚合、异常检测和性能监控
+4. **可视化展示**：Grafana仪表板提供直观的日志分析界面
+5. **可扩展性**：模块化的日志架构支持未来功能扩展
 
-这些日志增强功能为系统的稳定运行和持续改进提供了坚实的基础，也为开发者提供了强大的调试和监控工具。
+这些日志增强功能为系统的稳定运行和持续改进提供了坚实的基础，也为开发者提供了强大的调试和监控工具。新的日志系统显著提升了系统的可观测性和可维护性，为AI股票顾问项目的长期发展奠定了良好的技术基础。

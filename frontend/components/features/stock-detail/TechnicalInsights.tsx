@@ -21,6 +21,12 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
     aiData,
     analyzing
 }: TechnicalInsightsProps) {
+    const [isMounted, setIsMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
     return (
         <div className="space-y-4 relative">
             {/* 标题栏：顶格对齐 */}
@@ -112,7 +118,7 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
 
                         {/* Mini MACD Visualizer */}
                         <div className="absolute bottom-0 left-0 w-full h-8 flex items-end gap-[1px] px-1 opacity-20 group-hover:opacity-40 transition-opacity">
-                            {[...Array(24)].map((_, i) => {
+                            {isMounted && [...Array(24)].map((_, i) => {
                                 const h = Math.random() * 20 + 5;
                                 const isPos = Math.random() > 0.4;
                                 return (

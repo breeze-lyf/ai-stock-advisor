@@ -10,6 +10,9 @@ from app.services.scheduler_jobs import (
     run_refresh_simulated_trades_job,
 )
 
+from app.infrastructure.db.repositories.scheduler_repository import SchedulerRepository
+from app.services.notification_service import NotificationService
+
 logger = logging.getLogger(__name__)
 
 async def refresh_simulated_trades():

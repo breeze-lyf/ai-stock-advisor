@@ -23,18 +23,25 @@
 - [backend/app/services/notification_service.py](file://backend/app/services/notification_service.py)
 - [backend/app/services/scheduler.py](file://backend/app/services/scheduler.py)
 - [backend/app/services/market_data.py](file://backend/app/services/market_data.py)
+- [backend/app/services/market_data_fetcher.py](file://backend/app/services/market_data_fetcher.py)
+- [backend/app/services/market_providers/ibkr.py](file://backend/app/services/market_providers/ibkr.py)
 - [backend/app/models/macro.py](file://backend/app/models/macro.py)
 - [backend/app/models/user.py](file://backend/app/models/user.py)
 - [backend/app/utils/ai_response_parser.py](file://backend/app/utils/ai_response_parser.py)
+- [backend/app/utils/json_logger.py](file://backend/app/utils/json_logger.py)
+- [frontend/features/dashboard/hooks/useDashboardStockDetailData.ts](file://frontend/features/dashboard/hooks/useDashboardStockDetailData.ts)
+- [frontend/features/macro/api.ts](file://frontend/features/macro/api.ts)
+- [frontend/shared/api/client.ts](file://frontend/shared/api/client.ts)
+- [scripts/start.sh](file://scripts/start.sh)
 </cite>
 
 ## 更新摘要
 **变更内容**
-- 新增分析应用层架构，包含专门的分析用例和服务
-- 新增投资组合分析功能，支持多资产组合的AI分析
-- 新增分析历史管理和缓存机制
-- 新增分析数据的序列化和映射功能
-- 新增分析辅助工具函数和帮助器模块
+- 新增并行数据获取架构，支持多数据源并行抓取和处理
+- 改进宏观分析服务，增强AI分析能力和性能监控
+- 新增结构化JSON日志系统，提供完整的性能监控能力
+- 优化前端并行加载机制，提升用户体验
+- 增强AI响应解析和错误处理机制
 
 ## 目录
 1. [项目概述](#项目概述)
@@ -43,10 +50,12 @@
 4. [架构概览](#架构概览)
 5. [详细组件分析](#详细组件分析)
 6. [分析应用层架构](#分析应用层架构)
-7. [依赖关系分析](#依赖关系分析)
-8. [性能考虑](#性能考虑)
-9. [故障排除指南](#故障排除指南)
-10. [结论](#结论)
+7. [并行数据获取架构](#并行数据获取架构)
+8. [性能监控系统](#性能监控系统)
+9. [依赖关系分析](#依赖关系分析)
+10. [性能考虑](#性能考虑)
+11. [故障排除指南](#故障排除指南)
+12. [结论](#结论)
 
 ## 项目概述
 
@@ -87,6 +96,7 @@ subgraph "前端层 (Frontend)"
 NextJS[Next.js 14 App Router]
 Components[React组件]
 UI[Tailwind CSS]
+ParallelLoad[并行加载机制]
 end
 subgraph "后端层 (Backend)"
 FastAPI[FastAPI 1.0.0]
@@ -94,6 +104,8 @@ API[REST API]
 Services[业务服务层]
 Application[应用层]
 Utils[工具类]
+ParallelFetch[并行数据获取]
+PerformanceMonitor[性能监控]
 end
 subgraph "数据层 (Data Layer)"
 Database[(PostgreSQL/SQLite)]
@@ -105,24 +117,30 @@ subgraph "AI引擎 (AI Engine)"
 AIService[AI服务]
 Providers[多家供应商]
 Prompts[提示词模板]
+JSONParser[JSON解析器]
 end
 subgraph "外部服务 (External Services)"
 AkShare[AkShare数据源]
 Tavily[Tavily API]
 Feishu[飞书Webhook]
 SiliconFlow[SiliconFlow API]
+LoggingStack[日志监控栈]
 end
 NextJS --> FastAPI
 Components --> API
 UI --> API
+ParallelLoad --> API
 FastAPI --> Application
 FastAPI --> Services
+FastAPI --> ParallelFetch
+FastAPI --> PerformanceMonitor
 Application --> AIService
 Application --> Repositories
 Services --> AIService
 Services --> Database
 Services --> Cache
 AIService --> Providers
+AIService --> JSONParser
 Providers --> AkShare
 Providers --> Tavily
 Providers --> SiliconFlow
@@ -131,12 +149,15 @@ Cache --> Models
 AIService --> Prompts
 Services --> Utils
 Services --> Feishu
+ParallelFetch --> LoggingStack
+PerformanceMonitor --> LoggingStack
 ```
 
 **图表来源**
 - [backend/app/main.py:27-31](file://backend/app/main.py#L27-L31)
 - [backend/app/api/v1/api.py:1-33](file://backend/app/api/v1/api.py#L1-L33)
 - [backend/app/services/ai_service.py:22-56](file://backend/app/services/ai_service.py#L22-L56)
+- [backend/app/utils/json_logger.py:11-80](file://backend/app/utils/json_logger.py#L11-L80)
 
 ## 核心组件
 
@@ -189,8 +210,10 @@ class MarketDataService {
 +_update_database(ticker, data, cache, db, now) MarketDataCache
 +_handle_simulation(ticker, cache, now) MarketDataCache
 }
-class ProviderFactory {
-+get_provider(ticker, preferred_source) MarketDataProvider
+class MarketDataFetcher {
++fetch_from_providers(ticker, preferred_source, ...) FullMarketData
++_build_fundamental(provider, ticker, fundamental_task) ProviderFundamental
++_collect_news(ticker, news_tasks) list
 }
 class MarketDataCache {
 +ticker : str
@@ -200,12 +223,13 @@ class MarketDataCache {
 +last_updated : datetime
 +risk_reward_ratio : float
 }
-MarketDataService --> ProviderFactory : "使用"
+MarketDataService --> MarketDataFetcher : "使用"
 MarketDataService --> MarketDataCache : "管理"
 ```
 
 **图表来源**
 - [backend/app/services/market_data.py:19-407](file://backend/app/services/market_data.py#L19-L407)
+- [backend/app/services/market_data_fetcher.py:12-165](file://backend/app/services/market_data_fetcher.py#L12-L165)
 
 ### 宏观服务层 (MacroService)
 
@@ -217,6 +241,8 @@ class MacroService {
 +update_global_radar(db, api_key_siliconflow) List[MacroTopic]
 +get_latest_radar(db) List[MacroTopic]
 +update_cls_news(db) List[GlobalNews]
++generate_hourly_news_summary(db, user_id) Dict[str, Any]
++generate_global_hourly_report(db) GlobalHourlyReport
 +generate_hourly_news_summary(db, user_id) Dict[str, Any]
 +_update_global_radar_internal(db, api_key_siliconflow) List[MacroTopic]
 +_update_cls_news_internal(db) List[GlobalNews]
@@ -248,6 +274,7 @@ graph TB
 subgraph "表现层"
 Frontend[前端应用]
 UI[用户界面组件]
+ParallelLoader[并行加载器]
 end
 subgraph "API层"
 Main[主应用入口]
@@ -261,6 +288,8 @@ MacroService[宏观服务]
 NotificationService[通知服务]
 Scheduler[调度器]
 AnalysisUseCases[分析用例层]
+ParallelProcessor[并行处理器]
+PerformanceMonitor[性能监控]
 end
 subgraph "应用层"
 AnalyzeStockUseCase[股票分析用例]
@@ -270,6 +299,7 @@ GetAnalysisHistoryUseCase[分析历史用例]
 QueryPortfolioUseCase[组合查询用例]
 Helpers[辅助工具]
 Mappers[数据映射器]
+JSONParser[JSON解析器]
 end
 subgraph "数据访问层"
 Database[数据库]
@@ -282,9 +312,11 @@ subgraph "外部集成"
 Providers[数据提供商]
 AIProviders[AI供应商]
 PushServices[推送服务]
+LogStack[日志监控栈]
 end
 Frontend --> Main
 UI --> Main
+ParallelLoader --> Main
 Main --> Router
 Router --> Endpoints
 Endpoints --> AnalysisUseCases
@@ -299,6 +331,7 @@ AnalysisUseCases --> GetAnalysisHistoryUseCase
 AnalysisUseCases --> QueryPortfolioUseCase
 AnalysisUseCases --> Helpers
 AnalysisUseCases --> Mappers
+AnalysisUseCases --> JSONParser
 AnalyzeStockUseCase --> AnalysisRepository
 AnalyzePortfolioUseCase --> PortfolioRepository
 GetLatestAnalysisUseCase --> AnalysisRepository
@@ -316,6 +349,8 @@ AnalysisRepository --> Database
 PortfolioRepository --> Database
 Database --> Models
 Cache --> Models
+ParallelProcessor --> LogStack
+PerformanceMonitor --> LogStack
 ```
 
 **图表来源**
@@ -338,7 +373,7 @@ participant DB as 数据库
 participant Parser as 解析器
 Client->>API : POST /api/v1/analysis/{ticker}
 API->>Market : 获取实时行情数据
-Market->>Market : 抓取多数据源
+Market->>Market : 并行抓取多数据源
 Market->>DB : 更新缓存数据
 Market-->>API : 返回行情数据
 API->>AI : 调用AI分析服务
@@ -612,6 +647,161 @@ Mappers --> AnalysisRepository : "被使用"
 - [backend/app/infrastructure/db/repositories/analysis_repository.py:12-80](file://backend/app/infrastructure/db/repositories/analysis_repository.py#L12-L80)
 - [backend/app/infrastructure/db/repositories/portfolio_repository.py:9-91](file://backend/app/infrastructure/db/repositories/portfolio_repository.py#L9-L91)
 
+## 并行数据获取架构
+
+### 并行数据获取机制
+
+系统实现了全面的并行数据获取架构，显著提升了数据获取效率：
+
+```mermaid
+sequenceDiagram
+participant MarketDataFetcher as 市场数据获取器
+participant Provider as 数据提供者
+participant CoreTasks as 核心任务
+participant NewsTasks as 新闻任务
+participant FundamentalTask as 基础数据任务
+participant IndicatorTask as 技术指标任务
+MarketDataFetcher->>CoreTasks : 创建报价任务
+MarketDataFetcher->>IndicatorTask : 创建指标任务
+MarketDataFetcher->>NewsTasks : 创建新闻任务
+MarketDataFetcher->>FundamentalTask : 创建基本面任务
+CoreTasks->>Provider : 并行获取报价
+IndicatorTask->>Provider : 并行获取指标
+NewsTasks->>Provider : 并行获取新闻
+FundamentalTask->>Provider : 并行获取基本面
+CoreTasks-->>MarketDataFetcher : 返回报价结果
+IndicatorTask-->>MarketDataFetcher : 返回指标结果
+NewsTasks-->>MarketDataFetcher : 返回新闻结果
+FundamentalTask-->>MarketDataFetcher : 返回基本面结果
+MarketDataFetcher->>MarketDataFetcher : 组合并处理结果
+MarketDataFetcher-->>MarketDataFetcher : 返回完整数据
+```
+
+**图表来源**
+- [backend/app/services/market_data_fetcher.py:35-94](file://backend/app/services/market_data_fetcher.py#L35-L94)
+- [backend/app/services/market_providers/ibkr.py:503-540](file://backend/app/services/market_providers/ibkr.py#L503-L540)
+
+### 并行处理优化
+
+系统在多个层面实现了并行处理优化：
+
+```mermaid
+graph TB
+subgraph "并行处理层次"
+ParallelLayer1[核心数据获取层]
+ParallelLayer2[增强数据获取层]
+ParallelLayer3[新闻聚合层]
+ParallelLayer4[基础数据层]
+end
+subgraph "并行处理机制"
+Gather[asyncio.gather]
+WaitFor[asyncio.wait_for]
+Timeout[超时控制]
+ReturnExceptions[异常处理]
+end
+subgraph "性能优化"
+TimeoutControl[15秒超时控制]
+ExceptionHandling[异常降级]
+ResultAggregation[结果聚合]
+CacheOptimization[缓存优化]
+end
+ParallelLayer1 --> Gather
+ParallelLayer2 --> Gather
+ParallelLayer3 --> Gather
+ParallelLayer4 --> Gather
+Gather --> WaitFor
+WaitFor --> Timeout
+Timeout --> ReturnExceptions
+ReturnExceptions --> ResultAggregation
+ResultAggregation --> CacheOptimization
+```
+
+**图表来源**
+- [backend/app/services/market_data_fetcher.py:59-74](file://backend/app/services/market_data_fetcher.py#L59-L74)
+- [backend/app/services/market_data_fetcher.py:134-138](file://backend/app/services/market_data_fetcher.py#L134-L138)
+
+**章节来源**
+- [backend/app/services/market_data_fetcher.py:12-165](file://backend/app/services/market_data_fetcher.py#L12-L165)
+- [backend/app/services/market_providers/ibkr.py:503-540](file://backend/app/services/market_providers/ibkr.py#L503-L540)
+
+## 性能监控系统
+
+### 结构化JSON日志系统
+
+系统实现了完整的结构化JSON日志监控系统，提供详细的性能监控能力：
+
+```mermaid
+classDiagram
+class JSONFormatter {
++service_name : str
++environment : str
++format(record) str
++format_exception(record) str
+}
+class StandardFormatter {
++format(record) str
+}
+class LogContext {
++logger : logging.Logger
++extra : dict
++__enter__() LogContext
++__exit__(exc_type, exc_val, exc_tb) void
++info(msg, **kwargs) void
++warning(msg, **kwargs) void
++error(msg, **kwargs) void
++debug(msg, **kwargs) void
+}
+class PerformanceMonitor {
++setup_logging(log_format, log_level, service_name, environment, log_file) logging.Logger
++monitor_request_duration(request_id, duration_ms) void
++log_api_call(method, path, status_code, duration_ms, user_id) void
++log_analysis_performance(ticker, analysis_type, duration_ms) void
+}
+JSONFormatter --> LogContext : "使用"
+StandardFormatter --> LogContext : "使用"
+PerformanceMonitor --> JSONFormatter : "配置"
+PerformanceMonitor --> StandardFormatter : "配置"
+```
+
+**图表来源**
+- [backend/app/utils/json_logger.py:11-203](file://backend/app/utils/json_logger.py#L11-L203)
+
+### 性能监控指标
+
+系统监控以下关键性能指标：
+
+1. **API调用性能**：请求处理时间、状态码分布、用户行为跟踪
+2. **AI分析性能**：模型调用耗时、供应商响应时间、故障转移统计
+3. **数据获取性能**：并行抓取耗时、超时率、成功率统计
+4. **系统资源监控**：内存使用、CPU负载、数据库连接数
+
+### 日志结构化
+
+系统输出标准化的JSON日志格式：
+
+```json
+{
+  "timestamp": "2024-01-15T10:30:45.123456Z",
+  "level": "INFO",
+  "logger": "api_logger",
+  "message": "Request completed",
+  "request_id": "abc-123",
+  "user_id": "user-456",
+  "duration_ms": 45.67,
+  "status_code": 200,
+  "method": "GET",
+  "path": "/api/v1/portfolio",
+  "service": "ai-stock-advisor",
+  "environment": "production",
+  "file": "api.py",
+  "line": 123,
+  "function": "handle_request"
+}
+```
+
+**章节来源**
+- [backend/app/utils/json_logger.py:11-203](file://backend/app/utils/json_logger.py#L11-L203)
+
 ## 依赖关系分析
 
 系统采用模块化设计，各组件之间通过清晰的接口进行通信：
@@ -623,11 +813,14 @@ FastAPI[FastAPI框架]
 SQLAlchemy[SQLAlchemy ORM]
 Pydantic[数据验证]
 HTTPX[HTTP客户端]
+asyncio[异步处理]
+logging[日志系统]
 end
 subgraph "AI相关"
 Gemini[Google GenAI]
 SiliconFlow[SiliconFlow API]
 DeepSeek[DeepSeek模型]
+JSONParser[JSON解析器]
 end
 subgraph "数据源"
 AkShare[AkShare库]
@@ -635,6 +828,7 @@ Tavily[Tavily API]
 YFinance[YFinance]
 Tencent[腾讯行情]
 NetEase[网易行情]
+IBKR[Interactive Brokers]
 end
 subgraph "通知服务"
 Feishu[飞书Webhook]
@@ -648,23 +842,33 @@ AnalysisRepository[分析仓储]
 PortfolioRepository[组合仓储]
 Helpers[辅助工具]
 Mappers[数据映射]
+LogContext[日志上下文]
 end
-subgraph "工具库"
-Pytz[时区处理]
-Asyncio[异步处理]
-Logging[日志记录]
+subgraph "前端并行加载"
+ParallelLoader[并行加载器]
+CacheManager[缓存管理器]
+RetryMechanism[重试机制]
+end
+subgraph "监控系统"
+JSONFormatter[JSON格式化器]
+PerformanceMonitor[性能监控]
+LogStack[日志栈]
 end
 FastAPI --> SQLAlchemy
 FastAPI --> Pydantic
 FastAPI --> HTTPX
+FastAPI --> asyncio
+FastAPI --> logging
 AIService --> Gemini
 AIService --> SiliconFlow
 AIService --> DeepSeek
+AIService --> JSONParser
 MarketDataService --> AkShare
 MarketDataService --> Tavily
 MarketDataService --> YFinance
 MarketDataService --> Tencent
 MarketDataService --> NetEase
+MarketDataService --> IBKR
 NotificationService --> Feishu
 NotificationService --> HMAC
 NotificationService --> MD5
@@ -674,9 +878,10 @@ AnalysisRepository --> AnalysisReport
 PortfolioRepository --> PortfolioAnalysisReport
 Helpers --> AnalysisRepository
 Mappers --> AnalysisRepository
-Scheduler --> Pytz
-Scheduler --> Asyncio
-Scheduler --> Logging
+ParallelLoader --> CacheManager
+CacheManager --> RetryMechanism
+JSONFormatter --> LogStack
+PerformanceMonitor --> LogStack
 ```
 
 **图表来源**
@@ -722,6 +927,24 @@ Scheduler --> Logging
 - **增量更新**：只更新必要的字段，避免全量更新
 - **错误恢复**：分析失败时自动回滚，保证数据一致性
 
+### 前端并行加载优化
+
+- **Promise.all并行请求**：前端同时发起多个API请求，提升加载速度
+- **缓存策略**：10分钟缓存策略，平衡数据新鲜度和性能
+- **错误处理**：优雅的错误处理和重试机制
+- **用户体验**：加载状态管理和防抖处理
+
+### 性能监控优化
+
+- **结构化日志**：完整的请求追踪和性能指标收集
+- **异常监控**：自动捕获和上报系统异常
+- **资源监控**：实时监控系统资源使用情况
+- **性能告警**：基于阈值的性能告警机制
+
+**章节来源**
+- [frontend/features/dashboard/hooks/useDashboardStockDetailData.ts:61-76](file://frontend/features/dashboard/hooks/useDashboardStockDetailData.ts#L61-L76)
+- [backend/app/utils/json_logger.py:111-166](file://backend/app/utils/json_logger.py#L111-L166)
+
 ## 故障排除指南
 
 ### 常见问题及解决方案
@@ -752,6 +975,16 @@ Scheduler --> Logging
 - 优化查询语句和索引
 - 调整并发限制参数
 
+**并行处理问题**
+- 检查异步任务的超时设置
+- 验证异常处理机制
+- 监控并行任务的执行状态
+
+**日志监控问题**
+- 检查日志格式配置
+- 验证日志输出路径
+- 确认日志轮转设置
+
 **章节来源**
 - [backend/app/services/ai_service.py:140-159](file://backend/app/services/ai_service.py#L140-L159)
 - [backend/app/services/notification_service.py:19-127](file://backend/app/services/notification_service.py#L19-L127)
@@ -770,6 +1003,8 @@ Scheduler --> Logging
 6. **分析应用层**：新增的专业分析架构，提供更强大的分析能力
 7. **投资组合分析**：支持多资产组合的综合分析和风险管理
 8. **历史数据分析**：完整的分析历史记录和回测功能
+9. **并行数据获取**：全面的并行处理架构，显著提升数据获取效率
+10. **性能监控系统**：完整的结构化日志监控，提供详细的性能洞察
 
 ### 技术亮点
 
@@ -779,5 +1014,7 @@ Scheduler --> Logging
 - **安全设计**：API密钥加密存储和传输，确保数据安全
 - **分析用例层**：专业的分析业务逻辑封装，提升代码可维护性
 - **数据模型设计**：结构化的分析数据存储，支持复杂的分析需求
+- **并行处理**：全面的并行数据获取架构，提升系统整体性能
+- **性能监控**：完整的结构化日志系统，提供实时性能洞察
 
-该系统为用户提供了一个强大而可靠的AI分析平台，能够有效辅助投资决策，提升投资效率和成功率。
+该系统为用户提供了一个强大而可靠的AI分析平台，能够有效辅助投资决策，提升投资效率和成功率。通过持续的性能优化和监控改进，系统能够适应不断增长的用户需求和数据规模。

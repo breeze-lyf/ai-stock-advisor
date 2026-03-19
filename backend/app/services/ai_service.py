@@ -1,6 +1,12 @@
+# 设置代理环境变量（解决 Python 3.14 + httpx 兼容性问题）
+import os
+from app.core.config import settings
+if settings.HTTP_PROXY:
+    os.environ.setdefault("HTTP_PROXY", settings.HTTP_PROXY)
+    os.environ.setdefault("HTTPS_PROXY", settings.HTTP_PROXY)
+
 from google import genai
 from google.genai import types
-from app.core.config import settings
 from app.core import security
 from app.core.prompts import build_stock_analysis_prompt, build_portfolio_analysis_prompt
 import logging
@@ -20,6 +26,8 @@ from app.models.user_provider_credential import UserProviderCredential
 
 # 配置日志
 logger = logging.getLogger(__name__)
+# AI 调用専用 logger：所有 prompt 和计时数据写入 ai_calls.log
+ai_call_logger = logging.getLogger("app.ai_calls")
 
 class AIService:
     _model_config_cache = {}  
@@ -67,7 +75,7 @@ class AIService:
             {
                 "provider_key": "gemini" if is_gemini else "custom",
                 "base_url": base_url,
-                "timeout_seconds": 180,
+                "timeout_seconds": 300,
             },
         )()
         return await cls.call_provider(provider_config, model.model_id, prompt, api_key, base_url)
@@ -201,34 +209,69 @@ class AIService:
         require_json: bool = True
     ) -> str:
         """通用供应商调用器"""
-        # 确定最终基地址
-        base_url = custom_url or provider_config.base_url
+        call_start = time.monotonic()
+        provider_key = provider_config.provider_key
 
-        if provider_config.provider_key == "gemini":
+        # 将完整 prompt 写入专用日志，不打终端
+        ai_call_logger.info(
+            f"[PROMPT] {provider_key}/{model_id}",
+            extra={
+                "provider": provider_key,
+                "model": model_id,
+                "prompt_len": len(prompt),
+                "prompt": prompt,          # 完整 prompt
+                "phase": "request",
+            }
+        )
+        logger.info(f"[AI] 调用 {provider_key}/{model_id} (prompt {len(prompt)}字符)")
+
+        base_url = custom_url or provider_config.base_url
+        # 移除硬编码的 60s 限制，推理模型建议 300s
+        timeout = provider_config.timeout_seconds or 300
+
+        if provider_key == "gemini":
             try:
-                # Gemini SDK 暂时不支持动态 base_url（除非通过环境变量或特殊配置），此处主要适配 Key
+                t0 = time.monotonic()
                 client = genai.Client(api_key=api_key)
                 config_params = {}
                 if require_json:
                     config_params['response_mime_type'] = 'application/json'
-                
                 response = await client.aio.models.generate_content(
                     model=model_id,
                     contents=prompt,
                     config=types.GenerateContentConfig(**config_params)
                 )
+                elapsed = time.monotonic() - call_start
+                ai_call_logger.info(
+                    f"[DONE] {provider_key}/{model_id}",
+                    extra={
+                        "provider": provider_key,
+                        "model": model_id,
+                        "phase": "done",
+                        "total_s": round(elapsed, 3),
+                        "response_len": len(response.text),
+                        "response": response.text,  # 记录完整回答
+                    }
+                )
+                logger.info(f"[AI] Gemini 完成 ✔  {elapsed:.1f}s | {len(response.text)}字符")
                 return response.text
             except Exception as e:
-                logger.error(f"Gemini API Error: {str(e)}")
+                elapsed = time.monotonic() - call_start
+                ai_call_logger.error(
+                    f"[FAIL] {provider_key}/{model_id}: {e}",
+                    extra={"provider": provider_key, "model": model_id, "phase": "error",
+                           "total_s": round(elapsed, 3), "error": str(e)}
+                )
+                logger.warning(f"[AI] Gemini 失败 ✖  {elapsed:.1f}s | {e}")
                 raise
 
-        # OpenAI 兼容接口调用 (SiliconFlow, DeepSeek-Direct 等)
+        # OpenAI 兑容接口
         url = f"{base_url.rstrip('/')}/chat/completions"
         headers = {
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
         }
-        
+
         async def _do_call(use_json: bool):
             payload = {
                 "model": model_id,
@@ -237,38 +280,39 @@ class AIService:
             }
             if use_json:
                 payload["response_format"] = {"type": "json_object"}
-            
+
             client_kwargs = {
-                "timeout": provider_config.timeout_seconds,
+                "timeout": httpx.Timeout(timeout, connect=10.0),
                 "trust_env": True
             }
-            if settings.HTTP_PROXY:
-                client_kwargs["proxy"] = settings.HTTP_PROXY
-            
-            print(f"\n[AI_DEBUG] >>> 发起请求")
-            print(f"[AI_DEBUG] URL: {url}")
-            print(f"[AI_DEBUG] Proxy: {settings.HTTP_PROXY or 'None'}")
-            print(f"[AI_DEBUG] Model: {model_id}")
-            print(f"[AI_DEBUG] Payload: {json.dumps(payload, ensure_ascii=False)}")
-            
-            start_time = time.time()
+            t_send = time.monotonic()
             async with httpx.AsyncClient(**client_kwargs) as client:
                 response = await client.post(url, json=payload, headers=headers)
-            
-            duration = time.time() - start_time
-            print(f"[AI_DEBUG] <<< 收到响应 (耗时: {duration:.2f}s)")
-            print(f"[AI_DEBUG] Status: {response.status_code}")
-            if response.status_code != 200:
-                print(f"[AI_DEBUG] Error Body: {response.text}")
-            
+            t_recv = time.monotonic()
+            ai_call_logger.debug(
+                f"[HTTP] {provider_key} http={response.status_code}",
+                extra={
+                    "provider": provider_key, "phase": "http",
+                    "http_status": response.status_code,
+                    "request_s": round(t_recv - t_send, 3),
+                    "total_s": round(t_recv - call_start, 3),
+                }
+            )
             return response
 
         try:
             response = await _do_call(use_json=require_json)
+        except httpx.TimeoutException as e:
+            elapsed = time.monotonic() - call_start
+            ai_call_logger.error(
+                f"[TIMEOUT] {provider_key}: {e}",
+                extra={"provider": provider_key, "phase": "timeout", "total_s": round(elapsed, 3)}
+            )
+            logger.warning(f"[AI] 请求超时 ({provider_key}, {elapsed:.1f}s)")
+            raise
         except Exception:
             raise
-        
-        # 如果强制 JSON 失败（通常报 400 invalid_parameter），尝试降级
+
         if response.status_code == 400 and require_json:
             error_data = {}
             try:
@@ -276,22 +320,40 @@ class AIService:
                     error_data = response.json()
             except Exception:
                 pass
-            
             error_msg = error_data.get("error", {}).get("message", "").lower()
             if "response_format" in error_msg or "json_object" in error_msg:
-                logger.info(f"Provider {provider_config.provider_key} 不支持 json_object，降级调用...")
+                logger.info(f"[AI] 降级重试 (no json_object)...")
                 response = await _do_call(use_json=False)
 
         if response.status_code != 200:
             error_text = response.text
-            logger.error(f"{provider_config.provider_key} API Error: {response.status_code} | {error_text}")
-            # 针对 401/402 不触发重试/切换，直接抛出业务异常
+            elapsed = time.monotonic() - call_start
+            ai_call_logger.error(
+                f"[FAIL] {provider_key} HTTP {response.status_code}",
+                extra={"provider": provider_key, "phase": "error",
+                       "http_status": response.status_code,
+                       "response_body": error_text[:500],
+                       "total_s": round(elapsed, 3)}
+            )
+            logger.warning(f"[AI] {provider_key} 返回 {response.status_code} ({elapsed:.1f}s)")
             if response.status_code in [401, 402]:
-                raise ValueError(f"Provider Auth/Balance Error: {response.status_code} | {error_text}")
-            response.raise_for_status()
-        
+                raise ValueError(f"Auth Error: {response.status_code}")
+            raise
+
         result = response.json()
-        return result["choices"][0]["message"]["content"]
+        content = result["choices"][0]["message"]["content"]
+        elapsed = time.monotonic() - call_start
+        ai_call_logger.info(
+            f"[DONE] {provider_key}/{model_id}",
+            extra={
+                "provider": provider_key, "model": model_id, "phase": "done",
+                "total_s": round(elapsed, 3),
+                "response_len": len(content),
+                "response": content,  # 记录完整回答
+            }
+        )
+        logger.info(f"[AI] {provider_key} 完成 ✔  {elapsed:.1f}s | {len(content)}字符")
+        return content
 
     @classmethod
     async def call_siliconflow(
@@ -394,72 +456,88 @@ class AIService:
     @classmethod
     async def _dispatch_with_fallback(cls, prompt: str, model_config: AIModelConfig, user: Optional[User], db: AsyncSession) -> str:
         """核心路由：带故障转移的提供商分发"""
-        # 1. 获取所有可用的供应商列表，按优先级排序
-        if time.time() - cls._provider_cache_time > 600 or not cls._provider_cache:
-            stmt = select(ProviderConfig).where(ProviderConfig.is_active == True).order_by(ProviderConfig.priority.asc())
-            result = await db.execute(stmt)
-            cls._provider_cache = result.scalars().all()
-            cls._provider_cache_time = time.time()
-
-        # 2. 确定初始供应商链
-        providers = list(cls._provider_cache)
-        primary_provider = next((p for p in providers if p.provider_key == model_config.provider), None)
         
-        if primary_provider:
-            providers.remove(primary_provider)
-            providers.insert(0, primary_provider)
+        # 1. 获取所有可用的供应商列表，按优先级排序
+        # 注意：缓存时提取属性值，避免 ORM 对象在 session 关闭后无法访问
+        try:
+            if time.time() - cls._provider_cache_time > 600 or not cls._provider_cache:
+                stmt = select(ProviderConfig).where(ProviderConfig.is_active == True).order_by(ProviderConfig.priority.asc())
+                result = await db.execute(stmt)
+                raw_providers = result.scalars().all()
+                # 提取关键属性，避免 ORM 对象在 session 关闭后失效
+                cls._provider_cache = [
+                    {
+                        'provider_key': p.provider_key,
+                        'base_url': p.base_url,
+                        'timeout_seconds': p.timeout_seconds or 120,
+                    }
+                    for p in raw_providers
+                ]
+                cls._provider_cache_time = time.time()
+        except Exception as e:
+            logger.warning(f"获取供应商配置失败: {e}，使用内存缓存的供应商列表")
+            if not cls._provider_cache:
+                return f"**Error**: AI 服务暂时不可用 (无法获取供应商配置: {e})"
+        
+        if not cls._provider_cache:
+            return f"**Error**: AI 服务暂时不可用 (没有可用的 AI 供应商)"
 
-        last_error = "未知错误"
-        for i, provider in enumerate(providers):
-            try:
-                # 解析 API Key & Custom URL
-                api_key, custom_url = await cls._resolve_api_key(provider.provider_key, user, db)
-                
-                # 如果是后续降级链路，且用户关闭了全局 Fallback，则终止（除非该供应商是用户选定的主供应商）
-                is_fallback = i > 0
-                if is_fallback and user and not user.fallback_enabled:
-                    logger.info(f"用户禁用故障转移，停止切换到供应商 {provider.provider_key}")
-                    break
+        # 2. 确定目标供应商
+        provider = next((p for p in cls._provider_cache if p['provider_key'] == model_config.provider), None)
+        
+        if not provider:
+            # 如果没找到匹配的供应商，尝试列表中的第一个（通常是 SiliconFlow）
+            if cls._provider_cache:
+                provider = cls._provider_cache[0]
+            else:
+                return f"**Error**: AI 服务暂时不可用 (没有找到匹配供应商 {model_config.provider})"
 
-                if not api_key:
-                    logger.warning(f"跳过供应商 {provider.provider_key}: 缺少 API Key")
-                    continue
-                
-                current_model_id = (
-                    model_config.model_id
-                    if provider.provider_key == model_config.provider
-                    else await cls.get_default_model_for_provider(provider.provider_key, db)
-                )
+        try:
+            # 解析 API Key & Custom URL
+            api_key, custom_url = await cls._resolve_api_key(provider['provider_key'], user, db)
+            
+            if not api_key:
+                return f"**Error**: 供应商 {provider['provider_key']} 缺少 API Key"
+            
+            current_model_id = (
+                model_config.model_id
+                if provider['provider_key'] == model_config.provider
+                else await cls.get_default_model_for_provider(provider['provider_key'], db)
+            )
 
-                logger.info(f"尝试使用供应商 {provider.provider_key} (Model: {current_model_id}) URL: {custom_url or 'default'}")
-                return await cls.call_provider(provider, current_model_id, prompt, api_key, custom_url)
+            logger.info(f"使用供应商 {provider['provider_key']} (Model: {current_model_id}) URL: {custom_url or 'default'}")
+            
+            # 构造临时供应商配置对象
+            provider_config = type('TempProvider', (), {
+                'provider_key': provider['provider_key'],
+                'base_url': custom_url or provider['base_url'],
+                'timeout_seconds': provider.get('timeout_seconds', 300),
+            })()
+            
+            return await cls.call_provider(provider_config, current_model_id, prompt, api_key, custom_url)
 
-            except ValueError as ve:
-                last_error = str(ve)
-                # 授权错误通常不可重试，但如果有备用供应商，可以尝试备用
-                continue
-            except Exception as e:
-                logger.warning(f"供应商 {provider.provider_key} 调用失败: {e}")
-                last_error = str(e)
-                continue
-
-        return f"**Error**: AI 服务暂时不可用 (尝试了 {len(providers)} 个供应商)。最后错误: {last_error}"
+        except Exception as e:
+            logger.error(f"供应商 {provider['provider_key']} 调用失败: {e}")
+            return f"**Error**: AI 调用失败 ({provider['provider_key']})。错误: {e}"
 
     @classmethod
-    async def generate_analysis(cls, ticker: str, market_data: dict, portfolio_data: dict, news_data: list = None, 
+    async def generate_analysis(cls, ticker: str, market_data: dict, news_data: list = None, 
                                 macro_context: str = None, fundamental_data: dict = None, previous_analysis: dict = None, 
                                 model: str = "gemini-1.5-flash", db: AsyncSession = None, user_id: str = None) -> str:
         """主方法：生成个股深度诊断"""
+        
         user = None
         if user_id and db:
-            user_stmt = select(User).where(User.id == user_id)
-            user_result = await db.execute(user_stmt)
-            user = user_result.scalar_one_or_none()
+            try:
+                user_stmt = select(User).where(User.id == user_id)
+                user_result = await db.execute(user_stmt)
+                user = user_result.scalar_one_or_none()
+            except Exception as e:
+                logger.warning(f"获取用户信息失败: {e}")
 
         prompt = build_stock_analysis_prompt(
             ticker=ticker,
             market_data=market_data,
-            portfolio_data=portfolio_data,
             fundamental_data=fundamental_data or {},
             news_data=news_data or [],
             macro_context=macro_context,
@@ -473,10 +551,10 @@ class AIService:
                     return await cls.call_user_ai_model(user_model, prompt)
                 except Exception as e:
                     logger.warning(f"用户自定义模型 {model} 调用失败: {e}")
-                    if not user.fallback_enabled:
-                        return f"**Error**: AI 服务暂时不可用。错误: {e}"
-                    fallback_model = await cls.get_model_config("gemini-1.5-flash", db)
-                    return await cls._dispatch_with_fallback(prompt, fallback_model, user, db)
+                    if not user:
+                        return f"**Error**: AI 调用失败。错误: {e}"
+                    # 即使失败也不再回滚到 Gemini 或其他模型
+                    return f"**Error**: 用户自定义模型 {model} 调用失败。错误: {e}"
 
         model_config = await cls.get_model_config(model, db)
         return await cls._dispatch_with_fallback(prompt, model_config, user, db)

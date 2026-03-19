@@ -96,7 +96,7 @@ async def check_and_notify_alerts_job(ticker: str, current_data, db):
             if not user.feishu_webhook_url or not user.enable_price_alerts:
                 continue
 
-            report = await repo.get_latest_analysis_report(user.id, ticker)
+            report = await repo.get_latest_shared_analysis_report(ticker)
             curr_price = current_data.current_price
 
             if report and curr_price:
@@ -177,8 +177,8 @@ async def run_refresh_all_stocks_job(db, should_refresh_fn, session_factory) -> 
             except Exception as exc:
                 logger.error(f"[Scheduler] 刷新 {ticker} 失败: {exc}")
 
-    for task in [safe_refresh(ticker) for ticker in active_tickers]:
-        await task
+    # 并行执行刷新任务 (使用信号量控制并发)
+    await asyncio.gather(*[safe_refresh(ticker) for ticker in active_tickers])
 
     logger.info(f"[Scheduler] 本轮后台刷新成功完成，共更新 {len(active_tickers)} 只标的。")
     return len(active_tickers)
@@ -261,7 +261,7 @@ async def run_post_market_analysis_job(db) -> list[str]:
                 continue
 
             logger.info(f"[Scheduler] 正在复盘 {user.email} 的标的: {portfolio.ticker}")
-            old_report = await repo.get_latest_analysis_report(user.id, portfolio.ticker)
+            old_report = await repo.get_latest_shared_analysis_report(portfolio.ticker)
 
             try:
                 analysis_result = await AnalyzeStockUseCase(db, user).execute(portfolio.ticker, force=True)

@@ -14,15 +14,26 @@ logger = logging.getLogger(__name__)
 
 # 默认的降级字典模板，当 AI 返回错误或 JSON 解析失败时使用
 _ERROR_FALLBACK = {
+    "decision_mode": "",
+    "dominant_driver": "",
+    "trade_setup_status": "",
     "sentiment_score": 50,
     "summary_status": "调用失败",
     "risk_level": "未知",
+    "trigger_condition": "",
+    "invalidation_condition": "",
+    "next_review_point": "",
     "technical_analysis": "",
     "fundamental_news": "",
     "news_summary": "",
     "fundamental_analysis": "",
     "macro_risk_note": "",
+    "add_on_trigger": "",
+    "bull_case": "",
+    "base_case": "",
+    "bear_case": "",
     "action_advice": "",
+    "core_logic_summary": "",
 }
 
 _PARSE_FAIL_FALLBACK = {

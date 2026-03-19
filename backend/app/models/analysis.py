@@ -18,8 +18,9 @@ class AnalysisReport(Base):
     __tablename__ = "analysis_reports"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String, ForeignKey("users.id"), nullable=False)
+    user_id = Column(String, ForeignKey("users.id"), nullable=True, index=True)
     ticker = Column(String, ForeignKey("stocks.ticker"), nullable=False) # 关联的股票
+    report_scope = Column(String, nullable=False, default="user_interaction", index=True)
     
     # 原始上下文快照：记录 AI 诊断时那一刻的具体行情，方便溯源 AI 是否看走了眼。
     input_context_snapshot = Column(JSON)

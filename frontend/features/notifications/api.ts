@@ -10,6 +10,6 @@ export interface NotificationLog {
 }
 
 export async function getNotificationHistory(limit = 30): Promise<NotificationLog[]> {
-  const response = await api.get(`/api/notifications/history?limit=${limit}`);
+  const response = await api.get(`/api/v1/notifications/history?limit=${limit}`);
   return response.data;
 }

@@ -2,11 +2,9 @@ from datetime import datetime, timedelta
 import math
 from typing import Any, Union
 from jose import jwt
-from passlib.context import CryptContext
+import bcrypt
 from cryptography.fernet import Fernet
 from app.core.config import settings
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 ALGORITHM = "HS256"
 
@@ -56,7 +54,11 @@ def create_access_token(subject: Union[str, Any], expires_delta: timedelta = Non
     return encoded_jwt
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    # bcrypt 4.x 有 72 字节限制，截断密码
+    truncated = plain_password.encode('utf-8')[:72]
+    return bcrypt.checkpw(truncated, hashed_password.encode('utf-8'))
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    # bcrypt 4.x 有 72 字节限制，截断密码
+    truncated = password.encode('utf-8')[:72]
+    return bcrypt.hashpw(truncated, bcrypt.gensalt()).decode('utf-8')

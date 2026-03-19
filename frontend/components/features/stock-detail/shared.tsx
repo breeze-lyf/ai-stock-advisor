@@ -6,6 +6,7 @@
 
 import React from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Link2 } from "lucide-react";
 
 // ========================================
@@ -86,6 +87,7 @@ export const MarkdownWithRefs = ({ content }: { content: string }) => {
 
     return (
         <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
             components={{
                 h3: ({ node, ...props }) => {
                     const style = h3Styles[Math.min(h3Counter, h3Styles.length - 1)];
@@ -122,7 +124,24 @@ export const MarkdownWithRefs = ({ content }: { content: string }) => {
                         });
                     });
                     return <p className="mt-1.5 text-slate-500 dark:text-slate-400">{processed}</p>;
-                }
+                },
+                table: ({ node, ...props }) => (
+                    <div className="my-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
+                        <table className="w-full border-collapse text-xs" {...props} />
+                    </div>
+                ),
+                thead: ({ node, ...props }) => (
+                    <thead className="bg-slate-50 dark:bg-slate-800/50" {...props} />
+                ),
+                th: ({ node, ...props }) => (
+                    <th className="border-b border-slate-200 dark:border-slate-700 px-3 py-2 text-left font-bold text-slate-900 dark:text-slate-100" {...props} />
+                ),
+                td: ({ node, ...props }) => (
+                    <td className="border-b border-slate-200 dark:border-slate-700 px-3 py-2 text-slate-600 dark:text-slate-400" {...props} />
+                ),
+                tr: ({ node, ...props }) => (
+                    <tr className="last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors" {...props} />
+                )
             }}
         >
             {content}

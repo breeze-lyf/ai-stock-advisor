@@ -13,6 +13,7 @@ COMPLIANCE_DISCLAIMER = (
 
 STOCK_ANALYSIS_PROMPT_TEMPLATE = """
 {compliance_prefix}你是一位资深美股投资顾问和量化策略专家。请基于以下多维数据为代码 [{ticker}] 提供严谨的诊断。
+注意：这是**标的级公共分析**，不面向某个具体用户持仓；禁止根据个体仓位、成本价、盈亏情况输出个性化持仓建议。
 
 **1. 基础面概览 (Fundamental Context)**:
 - [REF_F1] 行业/板块: {sector} / {industry}
@@ -21,10 +22,8 @@ STOCK_ANALYSIS_PROMPT_TEMPLATE = """
 - [REF_F4] 52周波动范围: [{fifty_two_week_low}, {fifty_two_week_high}]
 - [REF_F5] Beta: {beta}
 
-**2. 用户持仓背景 (Portfolio Context)**:
-- [REF_P1] 当前成本价: ${avg_cost}
-- [REF_P2] 持仓数量: {quantity}
-- [REF_P3] 未实现盈亏: ${unrealized_pl} ({pl_percent}%)
+**2. 分析模式 (Analysis Mode)**:
+- [REF_P0] 当前分析模式: {decision_mode}
 
 **3. 实时技术面数据 (Technical Data)**:
 - [REF_T1] 当前价格: ${current_price}
@@ -49,66 +48,72 @@ STOCK_ANALYSIS_PROMPT_TEMPLATE = """
 **6. 历史分析上下文 (Historical Context)**:
 {previous_analysis_context}
 
-**任务 (Core Task)**:
-当前时间: {current_time}
-请执行“逻辑严密”的投资诊断。
-
-**重要准则 (Strict Rules)**:
-- **数据驱动 [CRITICAL]**: 每个关键分析点必须基于提供的数据源。
-- **持仓逻辑**: 如果用户当前持仓为 0，建议应侧重于建仓点位。
-- **仓位管理**: 所有的仓位建议必须基于**总资金的百分比**。
-- `news_summary` 只允许基于 `news_context` 中实际出现的新闻标题/事件，以及 `net_inflow` 这一条资金流数据进行总结。
-- `news_summary` 禁止引入 `macro_context`、估值判断、行业泛化结论、或新闻列表中未出现的事件。
-- `fundamental_analysis` 只允许基于 PE、Forward PE、Beta、行业、估值水位等基础面数据，不要混入新闻和宏观。
-- `macro_risk_note` 只允许基于 `macro_context`，用来解释该股票可能受到的外部宏观/政策/地缘影响。
-- 如果新闻列表中没有与该股票直接相关的事件，`news_summary` 就明确写“暂无直接相关重大消息，消息面中性”，不要自行补充外部话题。
-- 严禁在 `news_summary` 中编造具体事件名称、会议、监管动作或日期；引用事件时必须能在 `news_context` 找到依据。
-
 **返回格式要求**:
 - 使用简洁、专业的中文。
+- 你不是在写研报，而是在生成一份**可执行交易计划**。
+- 必须先判断：当前处于什么交易结构（回踩等待/突破观察/区间震荡/趋势延续）；当前主驱动是什么；当前交易计划是否已触发。
+- **核心逻辑优先**: `core_logic_summary` 必须是 3 句以内的极简总结，用于快速决策。
 - **严谨精度**: 所有数值保留 2 位小数点。
 - 必须返回严格的 JSON 格式。
-- `action_advice` 必须输出为**详细 Markdown**，不能只写 3-4 行摘要。
-- `action_advice` 必须至少包含以下 3 个一级编号章节，并且每节都要有充分内容：
-  1. `1. 建议操作与交易综述`
-  2. `2. 结构化操作计划`
-  3. `3. 多维逻辑支撑`
-- 第 1 节必须说明：建议操作、当前价位所处区间、总体研判。
-- 第 2 节必须明确说明：建仓/加仓/减仓或持仓条件、目标位、止损位、仓位建议。
-- 第 3 节必须分别覆盖：技术面、基本面、消息面/宏观面。
-- `action_advice` 中每个关键点尽量使用项目符号列出，避免只给一句总结。
-- 若当前更适合观望，也必须解释“等待什么条件触发再行动”，而不是只写“观望”。
+- `action_advice` 应输出为**结构化 Markdown**，侧重于深层的逻辑分析和证据支撑。
+- `action_advice` 必须包含以下 3 个章节：
+  1. `1. 研判综述` (简明扼要)
+  2. `2. 结构化操作计划` (关键点位)
+  3. `3. 多维逻辑支撑` (深度证据)
+- **表格渲染规范**: 在“多维逻辑支撑”中，必须使用**标准 Markdown 表格语法**（使用单个 `|` 作为列分隔符），**绝对禁止**使用双竖线 `||`。
+- **表格示例**:
+  | 维度 | 核心数据 | 研判意义 |
+  | :--- | :--- | :--- |
+  | 技术面 | RSI=75 | 进入超买区，需警惕回调 |
+  | 资金面 | 净流入 2.5 亿 | 主力吸筹迹象明显 |
+- 这是标的级公共分析，禁止出现“继续持有”“你当前仓位”“减仓到多少”之类依赖个人持仓的表述。
+- 应聚焦于标的本身是否值得观察、等待、开仓、加仓触发和计划失效条件。
+- 每条关键结论至少绑定 1 个输入证据；若关键数据缺失（N/A），必须明确写“证据不足”，并下调置信度。
+- 严禁在 `news_summary` 中编造具体事件名称、会议、监管动作或日期；引用事件时必须能在 `news_context` 找到依据。
+- `fundamental_analysis` 只允许基于基础面与估值数据，禁止引用新闻与宏观。
+- `macro_risk_note` 只允许基于 `macro_context`，并说明影响传导链，不得伪装成个股新闻结论。
 - `rr_ratio` 只允许返回**纯数字字符串**，例如 `"1.30"`、`"2.15"`。
-- `rr_ratio` 禁止返回 `1:1.3`、`1比1.3`、`中性/偏强/优秀`、括号说明或任何多余文字。
 
 JSON 结果结构:
 {{
+    "decision_mode": "标的通用分析",
+    "dominant_driver": "技术面/消息面/基本面/估值修复/宏观扰动/混合",
+    "trade_setup_status": "已触发/接近触发/未触发/失效",
     "sentiment_score": 0-100, 
     "summary_status": "4-6字定调",
     "immediate_action": "决策建议",
+    "core_logic_summary": "3句以内的核心逻辑精简总结",
+    "trigger_condition": "计划生效条件",
+    "invalidation_condition": "计划失效条件",
+    "next_review_point": "下一次复核价格或时间点",
     "rr_ratio": "纯数字字符串，例如 1.30",
     "entry_price_low": Float,
     "entry_price_high": Float,
+    "add_on_trigger": "加仓触发条件",
     "target_price": Float,
+    "target_price_1": Float,
+    "target_price_2": Float,
     "stop_loss_price": Float,
+    "max_position_pct": Float,
     "risk_level": "低/中/高",
     "investment_horizon": "建议持仓期限",
     "confidence_level": 0-100,
     "thought_process": [
-        {{"step": "观察", "content": "基于数据的发现..."}},
-        {{"step": "推导", "content": "逻辑关联分析..."}},
-        {{"step": "风险评估", "content": "潜在的证伪条件..."}},
-        {{"step": "结论", "content": "最终行动定调..."}}
+        {{"step": "观察", "content": "..."}},
+        {{"step": "推导", "content": "..."}},
+        {{"step": "结论", "content": "..."}}
     ],
     "scenario_tags": [
-        {{"category": "技术形态", "value": "空中加油"}},
-        {{"category": "资金面", "value": "机构持续净流入"}}
+        {{"category": "技术形态", "value": "..."}}
     ],
-    "technical_analysis": "核心技术位解读。使用 Markdown，结论先行。",
-    "news_summary": "只基于 news_context 的消息面综述，禁止混入基本面和宏观面。",
-    "fundamental_analysis": "只基于 PE、Forward PE、Beta、行业、估值水位等基本面数据的解读。",
-    "macro_risk_note": "只基于 macro_context 的宏观风险/政策影响说明。",
-    "action_advice": "详细 Markdown 操作建议。必须严格按 1/2/3 三大章节展开，内容不少于 8 行。"
+    "technical_analysis": "核心技术位解读。结论先行。",
+    "news_summary": "基于消息面的综述。",
+    "fundamental_analysis": "基本面指标解读。",
+    "macro_risk_note": "宏观/政策风险说明。",
+    "bull_case": "乐观情景与触发条件",
+    "base_case": "基准情景与计划执行路径",
+    "bear_case": "悲观情景与风险控制条件",
+    "action_advice": "Markdown 详细操作建议。建议使用表格展示支撑数据。"
 }}
 """
 
@@ -144,7 +149,7 @@ JSON 结构模版:
 }}
 """
 
-def build_stock_analysis_prompt(ticker: str, market_data: dict, portfolio_data: dict, fundamental_data: dict, news_data: list, macro_context: str, previous_analysis: dict = None) -> str:
+def build_stock_analysis_prompt(ticker: str, market_data: dict, fundamental_data: dict, news_data: list, macro_context: str, previous_analysis: dict = None) -> str:
     news_context = "\n".join([f"- {n['title']} ({n['publisher']})" for n in news_data]) if news_data else "暂无重大个股新闻。"
     
     prev_context = "该股票首次进行 AI 分析。"
@@ -152,6 +157,11 @@ def build_stock_analysis_prompt(ticker: str, market_data: dict, portfolio_data: 
         prev_context = f"""- [REF_H1] 上次研判结论: {previous_analysis.get('summary_status', '无')} (评分: {previous_analysis.get('sentiment_score', '无')})
 - [REF_H2] 上次策略建议: {previous_analysis.get('immediate_action', '无')}"""
 
+    # 处理行情数据
+    current_price = market_data.get('current_price', 0)
+    change_percent = market_data.get('change_percent', 0)
+    decision_mode = "标的通用分析"
+    
     return STOCK_ANALYSIS_PROMPT_TEMPLATE.format(
         compliance_prefix=COMPLIANCE_DISCLAIMER,
         ticker=ticker,
@@ -162,20 +172,17 @@ def build_stock_analysis_prompt(ticker: str, market_data: dict, portfolio_data: 
         forward_pe=fundamental_data.get('forward_pe', 'N/A'),
         fifty_two_week_low=fundamental_data.get('fifty_two_week_low', 'N/A'),
         fifty_two_week_high=fundamental_data.get('fifty_two_week_high', 'N/A'),
-        beta=fundamental_data.get('beta', 'N/A'),
-        avg_cost=portfolio_data.get('avg_cost', 0),
-        quantity=portfolio_data.get('quantity', 0),
-        unrealized_pl=portfolio_data.get('unrealized_pl', 0),
-        pl_percent=portfolio_data.get('pl_percent', 0),
-        current_price=market_data.get('current_price', 'N/A'),
-        change_percent=market_data.get('change_percent', 0),
+        beta=fundamental_data.get('beta', '1.0'),
+        decision_mode=decision_mode,
+        current_price=current_price,
+        change_percent=change_percent,
         rsi_14=market_data.get('rsi_14', 'N/A'),
         k_line=market_data.get('k_line', 'N/A'),
         d_line=market_data.get('d_line', 'N/A'),
         j_line=market_data.get('j_line', 'N/A'),
         macd_val=market_data.get('macd_val', 'N/A'),
         macd_hist=market_data.get('macd_hist', 'N/A'),
-        macd_hist_slope=market_data.get('macd_hist_slope', 0),
+        macd_hist_slope=market_data.get('macd_hist_slope', 'N/A'),
         bb_upper=market_data.get('bb_upper', 'N/A'),
         bb_middle=market_data.get('bb_middle', 'N/A'),
         bb_lower=market_data.get('bb_lower', 'N/A'),
@@ -189,23 +196,17 @@ def build_stock_analysis_prompt(ticker: str, market_data: dict, portfolio_data: 
         support_1=market_data.get('support_1', 'N/A'),
         support_2=market_data.get('support_2', 'N/A'),
         news_context=news_context,
-        net_inflow=fundamental_data.get('net_inflow', 'N/A'),
-        pe_percentile=fundamental_data.get('pe_percentile', 'N/A'),
-        pb_percentile=fundamental_data.get('pb_percentile', 'N/A'),
-        macro_context=macro_context or "暂无显著全球宏观波动。",
+        net_inflow=market_data.get('net_inflow', 'N/A'),
+        pe_percentile=market_data.get('pe_percentile', 'N/A'),
+        pb_percentile=market_data.get('pb_percentile', 'N/A'),
+        macro_context=macro_context or "暂无重大宏观指引。",
         previous_analysis_context=prev_context,
         current_time=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     )
 
-def build_portfolio_analysis_prompt(portfolio_items: list, market_news: str, macro_context: str) -> str:
-    holdings_context = ""
-    total_market_value = sum(item.get('market_value', 0) for item in portfolio_items)
-    for item in portfolio_items:
-        weight = (item.get('market_value', 0) / total_market_value * 100) if total_market_value > 0 else 0
-        holdings_context += f"- [{item['ticker']}] {item['name']}: 仓位 {weight:.2f}%, 盈亏 {item['pl_percent']:.2f}%, 行业: {item.get('sector', '未知')}\n"
-    
+def build_portfolio_analysis_prompt(holdings_context: str, macro_context: str, market_news: str) -> str:
     return PORTFOLIO_ANALYSIS_PROMPT_TEMPLATE.format(
         holdings_context=holdings_context,
-        macro_context=macro_context or "当前无显著宏观热点波动。",
-        market_news=market_news or "暂无外部实时新闻。"
+        macro_context=macro_context or "暂无重大宏观指引。",
+        market_news=market_news or "暂无重大市场新闻。"
     )

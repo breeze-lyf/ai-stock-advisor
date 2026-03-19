@@ -81,7 +81,8 @@ class TavilyProvider(MarketDataProvider):
                     return processed_news[:5] # 返回过滤后的前 5 条
             except Exception as e:
                 if "432" in str(e):
-                    logger.warning(f"Tavily API Quota Exceeded for {ticker} (432 Error).")
+                    # 仅在第一次或采样记录，避免日志爆炸
+                    logger.warning(f"Tavily API Quota Exceeded (432 Error). Returning empty news.")
                 else:
                     logger.error(f"Tavily get_news error for {ticker}: {e}")
                 return []

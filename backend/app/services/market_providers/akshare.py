@@ -158,8 +158,19 @@ class AkShareProvider(MarketDataProvider):
         """
         代码归一化: 002050.SZ -> 002050
         注意: 对于美股 (如 BRK.B)，我们要保留点号，因为腾讯接口支持带点的原貌。
+        对于指数 (^GSPC)，我们要将其映射为腾讯支持的格式 (.INX)。
         """
         if not ticker: return ticker
+        
+        # 处理美股指数映射
+        if ticker.startswith('^'):
+            index_map = {
+                "^GSPC": ".INX",
+                "^IXIC": ".IXIC",
+                "^DJI": ".DJI",
+            }
+            return index_map.get(ticker.upper(), ticker.upper())
+
         # 如果是 6 位数字开头且带点，判定为 A 股后缀，进行切分
         if ticker[:6].isdigit() and '.' in ticker:
             return ticker.split('.')[0]
@@ -199,9 +210,12 @@ class AkShareProvider(MarketDataProvider):
         
         # 腾讯格式路由
         if self._is_us_stock(ticker):
-            # 美股格式: usAAPL 或 usBRK.B
-            # 腾讯对带点的代码支持很好
-            tencent_symbol = f"us{symbol}"
+            # 美股格式: usAAPL 或 usBRK.B 或 us.INX
+            # 腾讯支持 us.INX 这种带点的指数代码
+            if symbol.startswith('.'):
+                tencent_symbol = f"us{symbol}"
+            else:
+                tencent_symbol = f"us{symbol}"
         else:
             # A 股格式: sh600519 或 sz000001
             tencent_symbol = self._get_sina_symbol(symbol)
@@ -405,9 +419,14 @@ class AkShareProvider(MarketDataProvider):
             logger.warning(f"Tencent quote fetch failed for {ticker}: {e}")
 
         if self._is_us_stock(ticker):
-            # 美股回退：新浪财经 (国内直连)
-            quote = await self._get_sina_us_quote(ticker)
+            # 1. 优先使用腾讯源 (腾讯源支持美股指数 .INX 等)
+            quote = await self._get_tencent_quote(ticker)
             if quote: return quote
+            
+            # 2. 备选方案：新浪或东财
+            quote = await self._get_us_quote(ticker)
+            if quote: return quote
+            
             return None
             
         symbol = self._normalize_symbol(ticker)
@@ -718,11 +737,30 @@ class AkShareProvider(MarketDataProvider):
             
         try:
             if self._is_us_stock(ticker):
-                df = await self._run_sync(ak.stock_us_daily, symbol=ticker)
-                if df is not None and not df.empty:
-                    df = df.rename(columns={'date': 'Date', 'open': 'Open', 'high': 'High', 'low': 'Low', 'close': 'Close', 'volume': 'Volume'})
-                    df['Date'] = pd.to_datetime(df['Date'])
-                    df.set_index('Date', inplace=True)
+                # 美股指数和个股抓取策略区分
+                is_index = ticker.upper() in ["NDX", "IXIC", "SPX", "DJI", ".NDX", ".IXIC", ".INX", ".DJI", "^GSPC", "^IXIC", "^DJI"]
+                
+                if is_index:
+                    sina_symbol = ticker if ticker.startswith('.') else f".{ticker}"
+                    # 关键映射：新浪中标普 500 使用 .INX
+                    if sina_symbol in [".SPX", ".^GSPC"]: 
+                        sina_symbol = ".INX"
+                    # 使用新浪美股指数接口
+                    df = await self._run_sync(ak.index_us_stock_sina, symbol=sina_symbol)
+                    if df is not None and not df.empty:
+                        # 新浪指数表头通常是 Date, Open, High, Low, Close, Volume
+                        # 确保列名大写
+                        df.columns = [c.capitalize() for c in df.columns]
+                        if 'Date' in df.columns:
+                            df['Date'] = pd.to_datetime(df['Date'])
+                            df.set_index('Date', inplace=True)
+                else:
+                    # 个股原生逻辑
+                    df = await self._run_sync(ak.stock_us_daily, symbol=ticker)
+                    if df is not None and not df.empty:
+                        df = df.rename(columns={'date': 'Date', 'open': 'Open', 'high': 'High', 'low': 'Low', 'close': 'Close', 'volume': 'Volume'})
+                        df['Date'] = pd.to_datetime(df['Date'])
+                        df.set_index('Date', inplace=True)
             else:
                 # A 股改用腾讯源，绕开被封锁的东财/AkShare 原生接口
                 df = await self._get_tencent_hist(ticker, num_days=250)

@@ -248,10 +248,27 @@ export const StockChart: React.FC<StockChartProps> = ({ data, ticker, showBb = t
                 macdChart?.remove();
             } catch (e) {}
         };
-    }, [showBb, showRsi, showMacd]); // 显式依赖切换组件时的重绘
+    }, [ticker, showBb, showRsi, showMacd]); // 切换标的或图层时重建图表实例
 
     // 副作用 2：数据流驱动更新 (Data Stream Updates)
     useEffect(() => {
+        if (!isUnmounted.current && candlestickSeriesRef.current && volumeSeriesRef.current && (!data || data.length === 0)) {
+            try {
+                candlestickSeriesRef.current.setData([]);
+                volumeSeriesRef.current.setData([]);
+                bbUpperSeriesRef.current?.setData([]);
+                bbMiddleSeriesRef.current?.setData([]);
+                bbLowerSeriesRef.current?.setData([]);
+                rsiSeriesRef.current?.setData([]);
+                macdSeriesRef.current?.setData([]);
+                macdSignalSeriesRef.current?.setData([]);
+                macdHistSeriesRef.current?.setData([]);
+            } catch (e) {
+                console.error("Failed to clear chart data", e);
+            }
+            return;
+        }
+
         if (
             !isUnmounted.current &&
             candlestickSeriesRef.current && volumeSeriesRef.current && 

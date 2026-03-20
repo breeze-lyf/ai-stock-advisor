@@ -7576,87 +7576,468 @@ FROM stocks LEFT OUTER JOIN market_data_cache ON stocks.ticker = market_data_cac
 2026-03-20 16:51:31,226 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] SQQQ 全量数据获取: 0.77秒
 2026-03-20 16:51:32,884 - __main__ - INFO - ✅ Successfully refreshed SQQQ. New Price: 75.91
 2026-03-20 16:51:35,034 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-FO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
-2026-03-20 16:47:45,919 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
-2026-03-20 16:47:45,920 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] MA 全量数据获取: 0.87秒
-2026-03-20 16:47:47,592 - __main__ - INFO - ✅ Successfully refreshed MA. New Price: 491.14
-2026-03-20 16:47:50,655 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 AXP 数据 (provider: AkShareProvider)
-2026-03-20 16:47:50,655 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
-2026-03-20 16:47:51,012 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] AXP 核心数据(报价+指标): 0.36秒
-2026-03-20 16:47:51,425 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
-2026-03-20 16:47:51,426 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
-2026-03-20 16:47:51,428 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] AXP 全量数据获取: 0.77秒
-2026-03-20 16:47:53,107 - __main__ - INFO - ✅ Successfully refreshed AXP. New Price: 294.93
-2026-03-20 16:47:55,259 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-2026-03-20 16:52:56,910 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: LITE, WFC, JPM, DJIA, TMO, TXN, JNJ, LLY, LIN, NFLX...
-2026-03-20 16:52:58,269 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 LITE 数据 (provider: AkShareProvider)
-2026-03-20 16:52:58,269 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
-2026-03-20 16:52:58,467 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] LITE 核心数据(报价+指标): 0.20秒
-2026-03-20 16:52:59,020 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
-2026-03-20 16:52:59,022 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
-2026-03-20 16:52:59,024 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] LITE 全量数据获取: 0.76秒
-2026-03-20 16:53:01,156 - __main__ - INFO - ✅ Successfully refreshed LITE. New Price: 772.13
-2026-03-20 16:53:04,237 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 WFC 数据 (provider: AkShareProvider)
-2026-03-20 16:53:04,238 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
-2026-03-20 16:53:04,669 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] WFC 核心数据(报价+指标): 0.43秒
-2026-03-20 16:53:05,003 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
-2026-03-20 16:53:05,004 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
-2026-03-20 16:53:05,006 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] WFC 全量数据获取: 0.77秒
-2026-03-20 16:53:06,829 - __main__ - INFO - ✅ Successfully refreshed WFC. New Price: 76.39
-2026-03-20 16:53:09,899 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 JPM 数据 (provider: AkShareProvider)
-2026-03-20 16:53:09,900 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
-2026-03-20 16:53:10,385 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] JPM 核心数据(报价+指标): 0.49秒
-2026-03-20 16:53:10,663 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
-2026-03-20 16:53:10,666 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
-2026-03-20 16:53:10,667 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] JPM 全量数据获取: 0.77秒
-2026-03-20 16:53:12,352 - __main__ - INFO - ✅ Successfully refreshed JPM. New Price: 287.97
-2026-03-20 16:53:15,424 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 DJIA 数据 (provider: AkShareProvider)
-2026-03-20 16:53:15,424 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
-2026-03-20 16:53:15,678 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] DJIA 核心数据(报价+指标): 0.25秒
-2026-03-20 16:53:16,186 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
-2026-03-20 16:53:16,187 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
-2026-03-20 16:53:16,189 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] DJIA 全量数据获取: 0.76秒
-2026-03-20 16:53:18,168 - __main__ - INFO - ✅ Successfully refreshed DJIA. New Price: 21.16
-2026-03-20 16:53:21,222 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 TMO 数据 (provider: AkShareProvider)
-2026-03-20 16:53:21,223 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
-2026-03-20 16:53:21,545 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] TMO 核心数据(报价+指标): 0.32秒
-2026-03-20 16:53:22,201 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
-2026-03-20 16:53:22,202 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
-2026-03-20 16:53:22,204 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] TMO 全量数据获取: 0.98秒
-2026-03-20 16:53:23,870 - __main__ - INFO - ✅ Successfully refreshed TMO. New Price: 470.21
-2026-03-20 16:53:26,922 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 TXN 数据 (provider: AkShareProvider)
-2026-03-20 16:53:26,923 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
-2026-03-20 16:53:27,195 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] TXN 核心数据(报价+指标): 0.27秒
-2026-03-20 16:53:28,209 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
-2026-03-20 16:53:28,210 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
-2026-03-20 16:53:28,211 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] TXN 全量数据获取: 1.29秒
-2026-03-20 16:53:30,030 - __main__ - INFO - ✅ Successfully refreshed TXN. New Price: 188.29
-2026-03-20 16:53:33,091 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 JNJ 数据 (provider: AkShareProvider)
-2026-03-20 16:53:33,091 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
-2026-03-20 16:53:33,537 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] JNJ 核心数据(报价+指标): 0.45秒
-2026-03-20 16:53:33,869 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
-2026-03-20 16:53:33,870 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
-2026-03-20 16:53:33,872 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] JNJ 全量数据获取: 0.78秒
-2026-03-20 16:53:35,537 - __main__ - INFO - ✅ Successfully refreshed JNJ. New Price: 237.6
-2026-03-20 16:53:38,600 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 LLY 数据 (provider: AkShareProvider)
-2026-03-20 16:53:38,600 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
-2026-03-20 16:53:38,939 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] LLY 核心数据(报价+指标): 0.34秒
-2026-03-20 16:53:39,436 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
-2026-03-20 16:53:39,437 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
-2026-03-20 16:53:39,438 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] LLY 全量数据获取: 0.84秒
-2026-03-20 16:53:41,095 - __main__ - INFO - ✅ Successfully refreshed LLY. New Price: 917.5
-2026-03-20 16:53:44,153 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 LIN 数据 (provider: AkShareProvider)
-2026-03-20 16:53:44,153 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
-2026-03-20 16:53:44,689 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] LIN 核心数据(报价+指标): 0.54秒
-2026-03-20 16:53:44,930 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
-2026-03-20 16:53:44,932 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
-2026-03-20 16:53:44,934 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] LIN 全量数据获取: 0.78秒
-2026-03-20 16:53:46,607 - __main__ - INFO - ✅ Successfully refreshed LIN. New Price: 489.8
-2026-03-20 16:53:49,671 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 NFLX 数据 (provider: AkShareProvider)
-2026-03-20 16:53:49,672 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
-2026-03-20 16:53:49,954 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] NFLX 核心数据(报价+指标): 0.28秒
-2026-03-20 16:53:50,683 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
-2026-03-20 16:53:50,684 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
-2026-03-20 16:53:50,685 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] NFLX 全量数据获取: 1.01秒
-2026-03-20 16:53:52,357 - __main__ - INFO - ✅ Successfully refreshed NFLX. New Price: 91.74
-2026-03-20 16:53:54,509 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-20 16:56:36,670 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: META, CR, COST, DHR, HD, IREN, TMUS, AVGO, CVX, VZ...
+2026-03-20 16:56:38,019 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 META 数据 (provider: AkShareProvider)
+2026-03-20 16:56:38,020 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 16:56:38,236 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] META 核心数据(报价+指标): 0.22秒
+2026-03-20 16:56:38,758 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 16:56:38,760 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 16:56:38,762 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] META 全量数据获取: 0.74秒
+2026-03-20 16:56:40,867 - __main__ - INFO - ✅ Successfully refreshed META. New Price: 606.7
+2026-03-20 16:56:43,921 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 CR 数据 (provider: AkShareProvider)
+2026-03-20 16:56:43,921 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 16:56:44,258 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] CR 核心数据(报价+指标): 0.34秒
+2026-03-20 16:56:44,765 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 16:56:44,766 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 16:56:44,768 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] CR 全量数据获取: 0.85秒
+2026-03-20 16:56:46,574 - __main__ - INFO - ✅ Successfully refreshed CR. New Price: 174.28
+2026-03-20 16:56:49,629 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 COST 数据 (provider: AkShareProvider)
+2026-03-20 16:56:49,629 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 16:56:50,006 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] COST 核心数据(报价+指标): 0.38秒
+2026-03-20 16:56:50,350 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 16:56:50,351 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 16:56:50,352 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] COST 全量数据获取: 0.72秒
+2026-03-20 16:56:52,017 - __main__ - INFO - ✅ Successfully refreshed COST. New Price: 974.78
+2026-03-20 16:56:55,082 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 DHR 数据 (provider: AkShareProvider)
+2026-03-20 16:56:55,082 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 16:56:55,448 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] DHR 核心数据(报价+指标): 0.37秒
+2026-03-20 16:56:55,804 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 16:56:55,806 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 16:56:55,808 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] DHR 全量数据获取: 0.73秒
+2026-03-20 16:56:58,004 - __main__ - INFO - ✅ Successfully refreshed DHR. New Price: 190.11
+2026-03-20 16:57:01,067 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 HD 数据 (provider: AkShareProvider)
+2026-03-20 16:57:01,067 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 16:57:01,398 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] HD 核心数据(报价+指标): 0.33秒
+2026-03-20 16:57:01,802 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 16:57:01,803 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 16:57:01,804 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] HD 全量数据获取: 0.74秒
+2026-03-20 16:57:03,459 - __main__ - INFO - ✅ Successfully refreshed HD. New Price: 328.21
+2026-03-20 16:57:06,505 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 IREN 数据 (provider: AkShareProvider)
+2026-03-20 16:57:06,505 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 16:57:06,795 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] IREN 核心数据(报价+指标): 0.29秒
+2026-03-20 16:57:07,236 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 16:57:07,237 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 16:57:07,239 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] IREN 全量数据获取: 0.73秒
+2026-03-20 16:57:08,982 - __main__ - INFO - ✅ Successfully refreshed IREN. New Price: 41.66
+2026-03-20 16:57:12,217 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 TMUS 数据 (provider: AkShareProvider)
+2026-03-20 16:57:12,217 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 16:57:12,477 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] TMUS 核心数据(报价+指标): 0.26秒
+2026-03-20 16:57:12,957 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 16:57:12,959 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 16:57:12,961 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] TMUS 全量数据获取: 0.74秒
+2026-03-20 16:57:14,626 - __main__ - INFO - ✅ Successfully refreshed TMUS. New Price: 206.59
+2026-03-20 16:57:17,682 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 AVGO 数据 (provider: AkShareProvider)
+2026-03-20 16:57:17,682 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 16:57:17,937 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] AVGO 核心数据(报价+指标): 0.26秒
+2026-03-20 16:57:18,466 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 16:57:18,467 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 16:57:18,469 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] AVGO 全量数据获取: 0.79秒
+2026-03-20 16:57:20,150 - __main__ - INFO - ✅ Successfully refreshed AVGO. New Price: 319.84
+2026-03-20 16:57:23,210 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 CVX 数据 (provider: AkShareProvider)
+2026-03-20 16:57:23,210 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 16:57:23,589 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] CVX 核心数据(报价+指标): 0.38秒
+2026-03-20 16:57:23,936 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 16:57:23,937 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 16:57:23,938 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] CVX 全量数据获取: 0.73秒
+2026-03-20 16:57:25,601 - __main__ - INFO - ✅ Successfully refreshed CVX. New Price: 201.44
+2026-03-20 16:57:28,650 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 VZ 数据 (provider: AkShareProvider)
+2026-03-20 16:57:28,651 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 16:57:28,947 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] VZ 核心数据(报价+指标): 0.30秒
+2026-03-20 16:57:29,405 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 16:57:29,406 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 16:57:29,408 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] VZ 全量数据获取: 0.76秒
+2026-03-20 16:57:31,081 - __main__ - INFO - ✅ Successfully refreshed VZ. New Price: 49.48
+2026-03-20 16:57:33,231 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-20 17:02:34,891 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: MU, NET, PLTR, FRO, 601138, NBIS, 002970, BA, DIS, CRCL...
+2026-03-20 17:02:36,268 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 MU 数据 (provider: AkShareProvider)
+2026-03-20 17:02:36,268 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 17:02:36,591 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] MU 核心数据(报价+指标): 0.32秒
+2026-03-20 17:02:36,996 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 17:02:36,997 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 17:02:36,999 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] MU 全量数据获取: 0.73秒
+2026-03-20 17:02:39,123 - __main__ - INFO - ✅ Successfully refreshed MU. New Price: 444.27
+2026-03-20 17:02:42,192 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 NET 数据 (provider: AkShareProvider)
+2026-03-20 17:02:42,193 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 17:02:42,850 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] NET 核心数据(报价+指标): 0.66秒
+2026-03-20 17:02:42,947 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 17:02:42,949 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 17:02:42,951 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] NET 全量数据获取: 0.76秒
+2026-03-20 17:02:44,637 - __main__ - INFO - ✅ Successfully refreshed NET. New Price: 221.36
+2026-03-20 17:02:47,700 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 PLTR 数据 (provider: AkShareProvider)
+2026-03-20 17:02:47,700 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 17:02:48,155 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] PLTR 核心数据(报价+指标): 0.45秒
+2026-03-20 17:02:48,441 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 17:02:48,443 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 17:02:48,445 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] PLTR 全量数据获取: 0.74秒
+2026-03-20 17:02:50,130 - __main__ - INFO - ✅ Successfully refreshed PLTR. New Price: 155.68
+2026-03-20 17:02:53,193 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 FRO 数据 (provider: AkShareProvider)
+2026-03-20 17:02:53,193 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 17:02:53,541 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] FRO 核心数据(报价+指标): 0.35秒
+2026-03-20 17:02:53,931 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 17:02:53,932 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 17:02:53,934 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] FRO 全量数据获取: 0.74秒
+2026-03-20 17:02:55,615 - __main__ - INFO - ✅ Successfully refreshed FRO. New Price: 32.88
+2026-03-20 17:02:58,685 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 601138 数据 (provider: AkShareProvider)
+2026-03-20 17:02:58,685 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 17:02:58,859 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601138 核心数据(报价+指标): 0.17秒
+  0%|          | 0/53 [00:00<?, ?it/s]  6%|▌         | 3/53 [00:00<00:02, 23.69it/s] 11%|█▏        | 6/53 [00:00<00:01, 23.55it/s] 17%|█▋        | 9/53 [00:00<00:01, 26.06it/s] 23%|██▎       | 12/53 [00:00<00:01, 25.18it/s]2026-03-20 17:02:59,416 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 17:02:59,418 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+ 28%|██▊       | 15/53 [00:00<00:01, 24.43it/s] 34%|███▍      | 18/53 [00:00<00:01, 23.27it/s] 40%|███▉      | 21/53 [00:00<00:01, 22.98it/s] 45%|████▌     | 24/53 [00:00<00:01, 23.92it/s] 51%|█████     | 27/53 [00:01<00:01, 24.51it/s] 57%|█████▋    | 30/53 [00:01<00:00, 24.97it/s] 62%|██████▏   | 33/53 [00:01<00:00, 22.62it/s]                                               2026-03-20 17:03:00,316 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601138 全量数据获取: 1.63秒
+2026-03-20 17:03:02,159 - __main__ - INFO - ✅ Successfully refreshed 601138. New Price: 50.3
+2026-03-20 17:03:05,230 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 NBIS 数据 (provider: AkShareProvider)
+2026-03-20 17:03:05,230 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 17:03:05,555 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] NBIS 核心数据(报价+指标): 0.33秒
+2026-03-20 17:03:05,965 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 17:03:05,966 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 17:03:05,968 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] NBIS 全量数据获取: 0.74秒
+2026-03-20 17:03:07,654 - __main__ - INFO - ✅ Successfully refreshed NBIS. New Price: 121.52
+2026-03-20 17:03:10,739 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002970 数据 (provider: AkShareProvider)
+2026-03-20 17:03:10,739 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 17:03:10,840 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002970 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-20 17:03:10,925 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002970 核心数据(报价+指标): 0.19秒
+2026-03-20 17:03:11,478 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 17:03:11,479 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 17:03:11,481 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002970 全量数据获取: 0.74秒
+2026-03-20 17:03:13,317 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 66.0
+2026-03-20 17:03:16,382 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 BA 数据 (provider: AkShareProvider)
+2026-03-20 17:03:16,382 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 17:03:16,747 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] BA 核心数据(报价+指标): 0.36秒
+2026-03-20 17:03:17,130 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 17:03:17,140 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 17:03:17,142 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] BA 全量数据获取: 0.76秒
+2026-03-20 17:03:18,975 - __main__ - INFO - ✅ Successfully refreshed BA. New Price: 201.18
+2026-03-20 17:03:22,044 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 DIS 数据 (provider: AkShareProvider)
+2026-03-20 17:03:22,045 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 17:03:22,522 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] DIS 核心数据(报价+指标): 0.48秒
+2026-03-20 17:03:22,791 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 17:03:22,792 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 17:03:22,793 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] DIS 全量数据获取: 0.75秒
+2026-03-20 17:03:24,665 - __main__ - INFO - ✅ Successfully refreshed DIS. New Price: 99.2
+2026-03-20 17:03:27,734 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 CRCL 数据 (provider: AkShareProvider)
+2026-03-20 17:03:27,734 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 17:03:28,042 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] CRCL 核心数据(报价+指标): 0.31秒
+2026-03-20 17:03:28,481 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 17:03:28,483 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 17:03:28,485 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] CRCL 全量数据获取: 0.75秒
+2026-03-20 17:03:30,162 - __main__ - INFO - ✅ Successfully refreshed CRCL. New Price: 128.33
+2026-03-20 17:03:32,315 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-20 17:43:41,653 - __main__ - ERROR - 💥 Critical error in auto-refresh loop: [Errno 8] nodename nor servname provided, or not known
+2026-03-20 17:43:41,654 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-20 20:09:41,438 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: 600845, AMGN, SIDU, NDX, ASTS, AMD, INTU, MCD, ORCL, AMZN...
+2026-03-20 20:09:42,803 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600845 数据 (provider: AkShareProvider)
+2026-03-20 20:09:42,803 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:09:42,951 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600845 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-20 20:09:42,979 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600845 核心数据(报价+指标): 0.18秒
+2026-03-20 20:09:43,545 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:09:43,546 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:09:43,547 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600845 全量数据获取: 0.74秒
+2026-03-20 20:09:45,703 - __main__ - INFO - ✅ Successfully refreshed 600845. New Price: 21.69
+2026-03-20 20:09:48,753 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 AMGN 数据 (provider: AkShareProvider)
+2026-03-20 20:09:48,753 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:09:49,266 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] AMGN 核心数据(报价+指标): 0.51秒
+2026-03-20 20:09:49,496 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:09:49,497 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:09:49,499 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] AMGN 全量数据获取: 0.75秒
+2026-03-20 20:09:51,520 - __main__ - INFO - ✅ Successfully refreshed AMGN. New Price: 349.92
+2026-03-20 20:09:54,579 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 SIDU 数据 (provider: AkShareProvider)
+2026-03-20 20:09:54,579 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:09:54,849 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] SIDU 核心数据(报价+指标): 0.27秒
+2026-03-20 20:09:55,353 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:09:55,355 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:09:55,356 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] SIDU 全量数据获取: 0.78秒
+2026-03-20 20:09:57,173 - __main__ - INFO - ✅ Successfully refreshed SIDU. New Price: 2.29
+2026-03-20 20:10:00,221 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 NDX 数据 (provider: AkShareProvider)
+2026-03-20 20:10:00,221 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:10:00,406 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] NDX 核心数据(报价+指标): 0.18秒
+2026-03-20 20:10:01,034 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:10:01,036 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:10:01,038 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] NDX 全量数据获取: 0.82秒
+2026-03-20 20:10:03,029 - __main__ - INFO - ✅ Successfully refreshed NDX. New Price: 24355.28
+2026-03-20 20:10:06,088 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 ASTS 数据 (provider: AkShareProvider)
+2026-03-20 20:10:06,088 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:10:06,532 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] ASTS 核心数据(报价+指标): 0.44秒
+2026-03-20 20:10:06,864 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:10:06,866 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:10:06,868 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] ASTS 全量数据获取: 0.78秒
+2026-03-20 20:10:08,544 - __main__ - INFO - ✅ Successfully refreshed ASTS. New Price: 94.09
+2026-03-20 20:10:11,600 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 AMD 数据 (provider: AkShareProvider)
+2026-03-20 20:10:11,600 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:10:11,819 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] AMD 核心数据(报价+指标): 0.22秒
+2026-03-20 20:10:12,370 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:10:12,371 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:10:12,373 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] AMD 全量数据获取: 0.77秒
+2026-03-20 20:10:14,055 - __main__ - INFO - ✅ Successfully refreshed AMD. New Price: 205.27
+2026-03-20 20:10:17,110 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 INTU 数据 (provider: AkShareProvider)
+2026-03-20 20:10:17,110 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:10:17,626 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] INTU 核心数据(报价+指标): 0.52秒
+2026-03-20 20:10:17,890 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:10:17,891 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:10:17,892 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] INTU 全量数据获取: 0.78秒
+2026-03-20 20:10:19,561 - __main__ - INFO - ✅ Successfully refreshed INTU. New Price: 455.24
+2026-03-20 20:10:22,633 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 MCD 数据 (provider: AkShareProvider)
+2026-03-20 20:10:22,633 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:10:23,135 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] MCD 核心数据(报价+指标): 0.50秒
+2026-03-20 20:10:23,409 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:10:23,411 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:10:23,413 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] MCD 全量数据获取: 0.78秒
+2026-03-20 20:10:25,479 - __main__ - INFO - ✅ Successfully refreshed MCD. New Price: 309.58
+2026-03-20 20:10:28,627 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 ORCL 数据 (provider: AkShareProvider)
+2026-03-20 20:10:28,627 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:10:29,412 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] ORCL 核心数据(报价+指标): 0.78秒
+2026-03-20 20:10:29,421 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:10:29,421 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:10:29,422 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] ORCL 全量数据获取: 0.79秒
+2026-03-20 20:10:31,095 - __main__ - INFO - ✅ Successfully refreshed ORCL. New Price: 155.52
+2026-03-20 20:10:34,145 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 AMZN 数据 (provider: AkShareProvider)
+2026-03-20 20:10:34,145 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:10:34,489 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] AMZN 核心数据(报价+指标): 0.34秒
+2026-03-20 20:10:34,928 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:10:34,929 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:10:34,931 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] AMZN 全量数据获取: 0.79秒
+2026-03-20 20:10:36,601 - __main__ - INFO - ✅ Successfully refreshed AMZN. New Price: 208.76
+2026-03-20 20:10:38,753 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-20 20:15:40,540 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: PEP, KO, MA, AXP, CAT, ABBV, BRK.B, MRK, XOM, TSLA...
+2026-03-20 20:15:42,110 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 PEP 数据 (provider: AkShareProvider)
+2026-03-20 20:15:42,110 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:15:42,572 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] PEP 核心数据(报价+指标): 0.46秒
+2026-03-20 20:15:42,859 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:15:42,861 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:15:42,863 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] PEP 全量数据获取: 0.75秒
+2026-03-20 20:15:45,251 - __main__ - INFO - ✅ Successfully refreshed PEP. New Price: 152.74
+2026-03-20 20:15:48,396 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 KO 数据 (provider: AkShareProvider)
+2026-03-20 20:15:48,396 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:15:48,908 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] KO 核心数据(报价+指标): 0.51秒
+2026-03-20 20:15:49,166 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:15:49,167 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:15:49,169 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] KO 全量数据获取: 0.77秒
+2026-03-20 20:15:51,023 - __main__ - INFO - ✅ Successfully refreshed KO. New Price: 75.55
+2026-03-20 20:15:54,439 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 MA 数据 (provider: AkShareProvider)
+2026-03-20 20:15:54,439 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:15:54,825 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] MA 核心数据(报价+指标): 0.39秒
+2026-03-20 20:15:55,196 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:15:55,197 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:15:55,198 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] MA 全量数据获取: 0.76秒
+2026-03-20 20:15:57,159 - __main__ - INFO - ✅ Successfully refreshed MA. New Price: 491.14
+2026-03-20 20:16:00,304 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 AXP 数据 (provider: AkShareProvider)
+2026-03-20 20:16:00,304 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:16:00,863 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] AXP 核心数据(报价+指标): 0.56秒
+2026-03-20 20:16:01,066 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:16:01,069 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:16:01,071 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] AXP 全量数据获取: 0.77秒
+2026-03-20 20:16:02,926 - __main__ - INFO - ✅ Successfully refreshed AXP. New Price: 294.93
+2026-03-20 20:16:06,068 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 CAT 数据 (provider: AkShareProvider)
+2026-03-20 20:16:06,068 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:16:06,731 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] CAT 核心数据(报价+指标): 0.66秒
+2026-03-20 20:16:06,823 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:16:06,824 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:16:06,826 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] CAT 全量数据获取: 0.76秒
+2026-03-20 20:16:08,694 - __main__ - INFO - ✅ Successfully refreshed CAT. New Price: 688.65
+2026-03-20 20:16:11,839 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 ABBV 数据 (provider: AkShareProvider)
+2026-03-20 20:16:11,839 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:16:12,349 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] ABBV 核心数据(报价+指标): 0.51秒
+2026-03-20 20:16:12,583 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:16:12,586 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:16:12,588 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] ABBV 全量数据获取: 0.75秒
+2026-03-20 20:16:14,458 - __main__ - INFO - ✅ Successfully refreshed ABBV. New Price: 206.23
+2026-03-20 20:16:17,609 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 BRK.B 数据 (provider: AkShareProvider)
+2026-03-20 20:16:17,609 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:16:18,211 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] BRK.B 核心数据(报价+指标): 0.60秒
+2026-03-20 20:16:18,363 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:16:18,365 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:16:18,368 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] BRK.B 全量数据获取: 0.76秒
+2026-03-20 20:16:20,382 - __main__ - INFO - ✅ Successfully refreshed BRK.B. New Price: 481.48
+2026-03-20 20:16:23,547 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 MRK 数据 (provider: AkShareProvider)
+2026-03-20 20:16:23,547 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:16:24,205 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] MRK 核心数据(报价+指标): 0.66秒
+2026-03-20 20:16:24,290 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:16:24,291 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:16:24,294 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] MRK 全量数据获取: 0.75秒
+2026-03-20 20:16:26,371 - __main__ - INFO - ✅ Successfully refreshed MRK. New Price: 114.2
+2026-03-20 20:16:30,188 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 XOM 数据 (provider: AkShareProvider)
+2026-03-20 20:16:30,188 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:16:30,837 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] XOM 核心数据(报价+指标): 0.65秒
+2026-03-20 20:16:31,087 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:16:31,088 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:16:31,089 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] XOM 全量数据获取: 0.90秒
+2026-03-20 20:16:32,969 - __main__ - INFO - ✅ Successfully refreshed XOM. New Price: 158.16
+2026-03-20 20:16:36,109 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 TSLA 数据 (provider: AkShareProvider)
+2026-03-20 20:16:36,109 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:16:36,518 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] TSLA 核心数据(报价+指标): 0.41秒
+2026-03-20 20:16:37,379 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:16:37,380 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:16:37,383 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] TSLA 全量数据获取: 1.27秒
+2026-03-20 20:16:39,257 - __main__ - INFO - ✅ Successfully refreshed TSLA. New Price: 380.3
+2026-03-20 20:16:41,472 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+6-03-20 20:07:45,216 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:07:45,784 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] GLD 核心数据(报价+指标): 0.57秒
+2026-03-20 20:07:46,028 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:07:46,029 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:07:46,031 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] GLD 全量数据获取: 0.82秒
+2026-03-20 20:07:48,360 - __main__ - INFO - ✅ Successfully refreshed GLD. New Price: 426.41
+2026-03-20 20:07:51,506 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 ACN 数据 (provider: AkShareProvider)
+2026-03-20 20:07:51,506 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:07:52,110 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] ACN 核心数据(报价+指标): 0.60秒
+2026-03-20 20:07:52,327 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:07:52,328 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:07:52,329 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] ACN 全量数据获取: 0.82秒
+2026-03-20 20:07:54,293 - __main__ - INFO - ✅ Successfully refreshed ACN. New Price: 203.55
+2026-03-20 20:07:57,431 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600438 数据 (provider: AkShareProvider)
+2026-03-20 20:07:57,432 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:07:57,603 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600438 核心数据(报价+指标): 0.17秒
+2026-03-20 20:07:57,690 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600438 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-20 20:07:58,192 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:07:58,193 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:07:58,195 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600438 全量数据获取: 0.76秒
+2026-03-20 20:08:00,208 - __main__ - INFO - ✅ Successfully refreshed 600438. New Price: 18.46
+2026-03-20 20:08:03,353 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 ABT 数据 (provider: AkShareProvider)
+2026-03-20 20:08:03,353 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:08:04,108 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:08:04,109 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:08:04,157 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] ABT 核心数据(报价+指标): 0.80秒
+2026-03-20 20:08:04,157 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] ABT 全量数据获取: 0.80秒
+2026-03-20 20:08:05,974 - __main__ - INFO - ✅ Successfully refreshed ABT. New Price: 107.19
+2026-03-20 20:08:08,188 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-20 20:13:09,907 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: PFE, OKLO, GOOGL, MSFT, FCX, IAU, RKLB, ^GSPC, SNDK, SLV...
+2026-03-20 20:13:11,347 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 PFE 数据 (provider: AkShareProvider)
+2026-03-20 20:13:11,348 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:13:11,808 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] PFE 核心数据(报价+指标): 0.46秒
+2026-03-20 20:13:12,111 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:13:12,113 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:13:12,114 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] PFE 全量数据获取: 0.77秒
+2026-03-20 20:13:14,283 - __main__ - INFO - ✅ Successfully refreshed PFE. New Price: 27.41
+2026-03-20 20:13:17,366 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 OKLO 数据 (provider: AkShareProvider)
+2026-03-20 20:13:17,366 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:13:17,659 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] OKLO 核心数据(报价+指标): 0.29秒
+2026-03-20 20:13:18,161 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:13:18,162 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:13:18,164 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] OKLO 全量数据获取: 0.80秒
+2026-03-20 20:13:20,037 - __main__ - INFO - ✅ Successfully refreshed OKLO. New Price: 54.69
+2026-03-20 20:13:23,148 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 GOOGL 数据 (provider: AkShareProvider)
+2026-03-20 20:13:23,148 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:13:23,525 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] GOOGL 核心数据(报价+指标): 0.38秒
+2026-03-20 20:13:23,923 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:13:23,924 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:13:23,926 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] GOOGL 全量数据获取: 0.78秒
+2026-03-20 20:13:25,662 - __main__ - INFO - ✅ Successfully refreshed GOOGL. New Price: 307.13
+2026-03-20 20:13:28,745 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 MSFT 数据 (provider: AkShareProvider)
+2026-03-20 20:13:28,745 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:13:29,172 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] MSFT 核心数据(报价+指标): 0.43秒
+2026-03-20 20:13:29,515 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:13:29,516 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:13:29,519 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] MSFT 全量数据获取: 0.77秒
+2026-03-20 20:13:31,220 - __main__ - INFO - ✅ Successfully refreshed MSFT. New Price: 389.02
+2026-03-20 20:13:34,295 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 FCX 数据 (provider: AkShareProvider)
+2026-03-20 20:13:34,295 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:13:35,066 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:13:35,069 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:13:35,701 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] FCX 核心数据(报价+指标): 1.41秒
+2026-03-20 20:13:35,701 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] FCX 全量数据获取: 1.41秒
+2026-03-20 20:13:37,399 - __main__ - INFO - ✅ Successfully refreshed FCX. New Price: 53.62
+2026-03-20 20:13:40,475 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 IAU 数据 (provider: AkShareProvider)
+2026-03-20 20:13:40,475 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:13:40,968 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] IAU 核心数据(报价+指标): 0.49秒
+2026-03-20 20:13:41,278 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:13:41,280 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:13:41,282 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] IAU 全量数据获取: 0.81秒
+2026-03-20 20:13:43,139 - __main__ - INFO - ✅ Successfully refreshed IAU. New Price: 87.37
+2026-03-20 20:13:46,216 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 RKLB 数据 (provider: AkShareProvider)
+2026-03-20 20:13:46,216 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:13:46,636 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] RKLB 核心数据(报价+指标): 0.42秒
+2026-03-20 20:13:46,993 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:13:46,994 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:13:46,996 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] RKLB 全量数据获取: 0.78秒
+2026-03-20 20:13:48,692 - __main__ - INFO - ✅ Successfully refreshed RKLB. New Price: 71.93
+2026-03-20 20:13:51,769 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 ^GSPC 数据 (provider: AkShareProvider)
+2026-03-20 20:13:51,769 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:13:51,972 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] ^GSPC 核心数据(报价+指标): 0.20秒
+2026-03-20 20:13:52,516 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:13:52,518 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:13:52,520 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] ^GSPC 全量数据获取: 0.75秒
+2026-03-20 20:13:54,561 - __main__ - INFO - ✅ Successfully refreshed ^GSPC. New Price: 6606.49
+2026-03-20 20:13:57,639 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 SNDK 数据 (provider: AkShareProvider)
+2026-03-20 20:13:57,639 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:13:57,913 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] SNDK 核心数据(报价+指标): 0.27秒
+2026-03-20 20:13:58,405 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:13:58,407 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:13:58,409 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] SNDK 全量数据获取: 0.77秒
+2026-03-20 20:14:00,112 - __main__ - INFO - ✅ Successfully refreshed SNDK. New Price: 772.09
+2026-03-20 20:14:03,189 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 SLV 数据 (provider: AkShareProvider)
+2026-03-20 20:14:03,189 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:14:03,618 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] SLV 核心数据(报价+指标): 0.43秒
+2026-03-20 20:14:03,947 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:14:03,948 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:14:03,950 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] SLV 全量数据获取: 0.76秒
+2026-03-20 20:14:05,812 - __main__ - INFO - ✅ Successfully refreshed SLV. New Price: 65.68
+2026-03-20 20:14:07,966 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-20 20:19:09,742 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: NVDA, XLE, TSM, SQQQ, LITE, WFC, JPM, DJIA, TMO, TXN...
+2026-03-20 20:19:11,307 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 NVDA 数据 (provider: AkShareProvider)
+2026-03-20 20:19:11,307 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:19:11,800 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] NVDA 核心数据(报价+指标): 0.49秒
+2026-03-20 20:19:12,096 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:19:12,097 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:19:12,100 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] NVDA 全量数据获取: 0.79秒
+2026-03-20 20:19:14,450 - __main__ - INFO - ✅ Successfully refreshed NVDA. New Price: 178.56
+2026-03-20 20:19:18,681 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 XLE 数据 (provider: AkShareProvider)
+2026-03-20 20:19:18,682 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:19:19,686 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:19:19,687 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:19:19,769 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] XLE 核心数据(报价+指标): 1.09秒
+2026-03-20 20:19:19,769 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] XLE 全量数据获取: 1.09秒
+2026-03-20 20:19:22,710 - __main__ - INFO - ✅ Successfully refreshed XLE. New Price: 59.36
+2026-03-20 20:19:25,869 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 TSM 数据 (provider: AkShareProvider)
+2026-03-20 20:19:25,869 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:19:26,636 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] TSM 核心数据(报价+指标): 0.77秒
+2026-03-20 20:19:26,727 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:19:26,729 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:19:26,731 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] TSM 全量数据获取: 0.86秒
+2026-03-20 20:19:28,646 - __main__ - INFO - ✅ Successfully refreshed TSM. New Price: 338.79
+2026-03-20 20:19:31,760 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 SQQQ 数据 (provider: AkShareProvider)
+2026-03-20 20:19:31,761 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:19:32,246 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] SQQQ 核心数据(报价+指标): 0.49秒
+2026-03-20 20:19:32,513 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:19:32,514 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:19:32,517 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] SQQQ 全量数据获取: 0.76秒
+2026-03-20 20:19:34,374 - __main__ - INFO - ✅ Successfully refreshed SQQQ. New Price: 75.91
+2026-03-20 20:19:37,778 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 LITE 数据 (provider: AkShareProvider)
+2026-03-20 20:19:37,778 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:19:38,307 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] LITE 核心数据(报价+指标): 0.53秒
+2026-03-20 20:19:38,672 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:19:38,673 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:19:38,674 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] LITE 全量数据获取: 0.90秒
+2026-03-20 20:19:40,883 - __main__ - INFO - ✅ Successfully refreshed LITE. New Price: 772.13
+2026-03-20 20:19:44,029 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 WFC 数据 (provider: AkShareProvider)
+2026-03-20 20:19:44,029 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:19:44,571 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] WFC 核心数据(报价+指标): 0.54秒
+2026-03-20 20:19:44,845 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:19:44,846 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:19:44,846 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] WFC 全量数据获取: 0.82秒
+2026-03-20 20:19:48,039 - __main__ - INFO - ✅ Successfully refreshed WFC. New Price: 76.39
+2026-03-20 20:19:51,192 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 JPM 数据 (provider: AkShareProvider)
+2026-03-20 20:19:51,192 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:19:51,723 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] JPM 核心数据(报价+指标): 0.53秒
+2026-03-20 20:19:51,996 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:19:52,002 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:19:52,004 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] JPM 全量数据获取: 0.81秒
+2026-03-20 20:19:54,320 - __main__ - INFO - ✅ Successfully refreshed JPM. New Price: 287.97
+2026-03-20 20:19:57,663 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 DJIA 数据 (provider: AkShareProvider)
+2026-03-20 20:19:57,663 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:19:57,951 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] DJIA 核心数据(报价+指标): 0.29秒
+2026-03-20 20:19:58,465 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:19:58,468 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:19:58,469 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] DJIA 全量数据获取: 0.81秒
+2026-03-20 20:20:00,590 - __main__ - INFO - ✅ Successfully refreshed DJIA. New Price: 21.16
+2026-03-20 20:20:03,738 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 TMO 数据 (provider: AkShareProvider)
+2026-03-20 20:20:03,738 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:20:04,248 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] TMO 核心数据(报价+指标): 0.51秒
+2026-03-20 20:20:04,489 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:20:04,489 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:20:04,490 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] TMO 全量数据获取: 0.75秒
+2026-03-20 20:20:06,361 - __main__ - INFO - ✅ Successfully refreshed TMO. New Price: 470.21
+2026-03-20 20:20:09,725 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 TXN 数据 (provider: AkShareProvider)
+2026-03-20 20:20:09,725 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-20 20:20:10,266 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] TXN 核心数据(报价+指标): 0.54秒
+2026-03-20 20:20:10,542 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-20 20:20:10,543 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-20 20:20:10,544 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] TXN 全量数据获取: 0.82秒
+2026-03-20 20:20:12,649 - __main__ - INFO - ✅ Successfully refreshed TXN. New Price: 188.29
+2026-03-20 20:20:14,866 - __main__ - INFO - 💤 Sleeping for 5 minutes...

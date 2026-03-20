@@ -28,6 +28,9 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+*.pem
+*.key
+key.pem
 pw.pem
 
 # Node.js

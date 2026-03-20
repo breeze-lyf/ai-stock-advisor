@@ -8093,9 +8093,9 @@ FROM stocks LEFT OUTER JOIN market_data_cache ON stocks.ticker = market_data_cac
 2026-03-20 20:34:49,395 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] GLD 全量数据获取: 0.74秒
 2026-03-20 20:34:51,644 - __main__ - INFO - ✅ Successfully refreshed GLD. New Price: 426.41
 2026-03-20 20:34:53,799 - __main__ - INFO - 💤 Sleeping for 5 minutes...
-C 核心数据(报价+指标): 0.46秒
-2026-03-20 20:26:09,297 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
-2026-03-20 20:26:09,298 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/resource_tracker.py:396: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown: {'/mp-3gauedzj'}
+  warnings.warn(
+ news.
 2026-03-20 20:26:09,300 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] BAC 全量数据获取: 0.86秒
 2026-03-20 20:26:11,218 - __main__ - INFO - ✅ Successfully refreshed BAC. New Price: 47.01
 2026-03-20 20:26:14,373 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 WMT 数据 (provider: AkShareProvider)
@@ -8183,3 +8183,5 @@ C 核心数据(报价+指标): 0.46秒
 2026-03-20 20:32:18,780 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 603883 全量数据获取: 0.76秒
 2026-03-20 20:32:20,646 - __main__ - INFO - ✅ Successfully refreshed 603883. New Price: 13.68
 2026-03-20 20:32:22,797 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+/opt/homebrew/Cellar/python@3.14/3.14.2/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/resource_tracker.py:396: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown: {'/mp-0pnd5ws6'}
+  warnings.warn(

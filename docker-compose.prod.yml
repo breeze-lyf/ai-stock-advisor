@@ -1,6 +1,6 @@
 services:
   backend:
-    image: ghcr.io/${GHCR_OWNER}/ai-stock-advisor-backend:${APP_IMAGE_TAG:-latest}
+    image: ${ACR_REGISTRY}/ai-stock-advisor/stock-backend:${APP_IMAGE_TAG:-latest}
     container_name: stock_backend
     restart: always
     env_file:
@@ -25,7 +25,7 @@ services:
       start_period: 20s
 
   frontend:
-    image: ghcr.io/${GHCR_OWNER}/ai-stock-advisor-frontend:${APP_IMAGE_TAG:-latest}
+    image: ${ACR_REGISTRY}/ai-stock-advisor/stock-frontend:${APP_IMAGE_TAG:-latest}
     container_name: stock_frontend
     restart: always
     depends_on:

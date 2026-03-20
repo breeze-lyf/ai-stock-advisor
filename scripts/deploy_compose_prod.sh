@@ -27,6 +27,10 @@ fi
 
 # 根据项目准则，清理可能残留的进程以释放端口
 echo "Cleaning up possible port conflicts (8000 & 3000)..."
+if command -v pm2 >/dev/null 2>&1; then
+  pm2 stop all 2>/dev/null || true
+  pm2 delete all 2>/dev/null || true
+fi
 fuser -k 8000/tcp 3000/tcp 2>/dev/null || true
 
 echo "Using compose command: ${COMPOSE_CMD}"

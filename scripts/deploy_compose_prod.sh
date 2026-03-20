@@ -20,8 +20,8 @@ if [ ! -f "./backend/.env" ]; then
   exit 1
 fi
 
-if [ -z "${GHCR_OWNER:-}" ]; then
-  echo "GHCR_OWNER is required (example: your-github-username)"
+if [ -z "${ACR_REGISTRY:-}" ]; then
+  echo "ACR_REGISTRY is required"
   exit 1
 fi
 

@@ -18,17 +18,18 @@
 - [backend/app/models/analysis.py](file://backend/app/models/analysis.py)
 - [backend/app/models/ai_config.py](file://backend/app/models/ai_config.py)
 - [backend/app/schemas/portfolio.py](file://backend/app/schemas/portfolio.py)
-- [backend/app/schemas/analysis.py](file://backend/app/schemas/analysis.py)
-- [backend/app/services/market_data.py](file://backend/app/services/market_data.py)
+- [backend/app/schemas/market_data.py](file://backend/app/schemas/market_data.py)
+- [backend/app/services/market_data.py](file-layer)
 - [backend/app/services/ai_service.py](file://backend/app/services/ai_service.py)
+- [backend/app/services/indicators.py](file://backend/app/services/indicators.py)
 </cite>
 
 ## 更新摘要
 **变更内容**
-- 更新分析端点的性能优化机制，包括统一分析检索和缓存策略
-- 移除模型过滤复杂逻辑，采用统一的模型配置缓存机制
-- 新增统一分析检索机制，支持历史数据回退和缓存优化
-- 增强AI服务的模型配置管理，提供更好的性能和可靠性
+- 新增股票快照端点，支持非持有股票的详细信息获取
+- 增强数据 sanitization 功能，新增批量OHLCV数据清洗机制
+- 扩展技术指标处理能力，支持更多量化指标计算
+- 优化快照到投资组合项的转换逻辑，提升数据一致性
 
 ## 目录
 1. [项目概述](#项目概述)
@@ -57,6 +58,7 @@ subgraph "服务层"
 Services[业务服务]
 MarketData[市场数据服务]
 AIService[AI分析服务]
+Indicators[技术指标引擎]
 end
 subgraph "数据层"
 Models[ORM模型]
@@ -67,6 +69,7 @@ subgraph "核心组件"
 Security[安全认证]
 Config[配置管理]
 Deps[依赖注入]
+Sanitization[数据清洗]
 end
 API --> Endpoints
 Endpoints --> Services
@@ -75,15 +78,16 @@ Models --> Database
 Endpoints --> Security
 Services --> Config
 Endpoints --> Deps
+Services --> Sanitization
 ```
 
 **图表来源**
-- [backend/app/api/v1/api.py](file://backend/app/api/v1/api.py#L1-L25)
-- [backend/app/main.py](file://backend/app/main.py#L1-L129)
+- [backend/app/api/v1/api.py:1-33](file://backend/app/api/v1/api.py#L1-L33)
+- [backend/app/main.py:1-129](file://backend/app/main.py#L1-L129)
 
 **章节来源**
-- [backend/app/api/v1/api.py](file://backend/app/api/v1/api.py#L1-L25)
-- [backend/app/main.py](file://backend/app/main.py#L1-L129)
+- [backend/app/api/v1/api.py:1-33](file://backend/app/api/v1/api.py#L1-L33)
+- [backend/app/main.py:1-129](file://backend/app/main.py#L1-L129)
 
 ## 核心组件
 系统的核心组件包括：
@@ -101,6 +105,7 @@ Endpoints --> Deps
 ### 3. 数据服务层
 - **市场数据服务**：统一管理多数据源的实时数据获取
 - **AI分析服务**：集成多种LLM模型提供智能分析，支持统一的模型配置缓存
+- **技术指标引擎**：提供全面的技术分析指标计算能力
 - **缓存机制**：智能缓存策略确保数据新鲜度和性能
 
 ### 4. 数据模型层
@@ -109,10 +114,15 @@ Endpoints --> Deps
 - **市场数据模型**：存储实时行情和技术指标
 - **分析报告模型**：统一管理AI分析结果和缓存
 
+### 5. 数据清洗系统
+- **数值清洗器**：防止NaN和Inf导致JSON序列化崩溃
+- **批量数据清洗**：支持OHLCV数据集的批量处理
+- **动态指标处理**：自动识别和处理动态技术指标字段
+
 **章节来源**
-- [backend/app/api/v1/api.py](file://backend/app/api/v1/api.py#L1-L25)
-- [backend/app/core/security.py](file://backend/app/core/security.py#L1-L46)
-- [backend/app/models/user.py](file://backend/app/models/user.py#L1-L41)
+- [backend/app/api/v1/api.py:1-33](file://backend/app/api/v1/api.py#L1-L33)
+- [backend/app/core/security.py:30-45](file://backend/app/core/security.py#L30-L45)
+- [backend/app/models/user.py:1-41](file://backend/app/models/user.py#L1-L41)
 
 ## 架构总览
 系统采用分层架构设计，实现了清晰的关注点分离：
@@ -146,6 +156,8 @@ AS[AkShare]
 AV[AlphaVantage]
 Tavily[Tavily]
 LLM[LLM模型]
+Indicators[技术指标引擎]
+Sanitizer[数据清洗器]
 end
 Frontend --> FastAPI
 Mobile --> FastAPI
@@ -163,6 +175,8 @@ ORM --> Database
 Portfolio --> Cache
 Stock --> Cache
 Analysis --> LLM
+Analysis --> Indicators
+Stock --> Sanitizer
 Cache --> YF
 Cache --> AS
 Cache --> AV
@@ -170,8 +184,8 @@ Cache --> Tavily
 ```
 
 **图表来源**
-- [backend/app/main.py](file://backend/app/main.py#L27-L129)
-- [backend/app/api/v1/api.py](file://backend/app/api/v1/api.py#L1-L25)
+- [backend/app/main.py:27-129](file://backend/app/main.py#L27-L129)
+- [backend/app/api/v1/api.py:1-33](file://backend/app/api/v1/api.py#L1-L33)
 
 ## 详细端点分析
 
@@ -197,15 +211,15 @@ Note over Client,JWT : 用户登录流程
 ```
 
 **图表来源**
-- [backend/app/api/v1/endpoints/auth.py](file://backend/app/api/v1/endpoints/auth.py#L24-L50)
-- [backend/app/core/security.py](file://backend/app/core/security.py#L31-L45)
+- [backend/app/api/v1/endpoints/auth.py:24-50](file://backend/app/api/v1/endpoints/auth.py#L24-L50)
+- [backend/app/core/security.py:31-45](file://backend/app/core/security.py#L31-L45)
 
 **端点概览**：
 - `POST /api/v1/auth/login` - 用户登录获取访问令牌
 - `POST /api/v1/auth/register` - 用户注册并自动登录
 
 **章节来源**
-- [backend/app/api/v1/endpoints/auth.py](file://backend/app/api/v1/endpoints/auth.py#L1-L88)
+- [backend/app/api/v1/endpoints/auth.py:1-88](file://backend/app/api/v1/endpoints/auth.py#L1-L88)
 
 ### 投资组合端点 (Portfolio)
 管理用户的自选股和持仓信息：
@@ -224,7 +238,7 @@ ReturnData --> End
 ```
 
 **图表来源**
-- [backend/app/api/v1/endpoints/portfolio.py](file://backend/app/api/v1/endpoints/portfolio.py#L159-L264)
+- [backend/app/api/v1/endpoints/portfolio.py:159-264](file://backend/app/api/v1/endpoints/portfolio.py#L159-L264)
 
 **核心功能**：
 - `GET /api/v1/portfolio/search` - 股票搜索（支持本地和远程）
@@ -236,10 +250,10 @@ ReturnData --> End
 - `GET /api/v1/portfolio/{ticker}/news` - 获取股票新闻
 
 **章节来源**
-- [backend/app/api/v1/endpoints/portfolio.py](file://backend/app/api/v1/endpoints/portfolio.py#L1-L403)
+- [backend/app/api/v1/endpoints/portfolio.py:1-403](file://backend/app/api/v1/endpoints/portfolio.py#L1-L403)
 
 ### 股票端点 (Stock)
-提供股票历史数据和批量刷新功能：
+提供股票历史数据和批量刷新功能，现已新增股票快照端点：
 
 ```mermaid
 sequenceDiagram
@@ -248,26 +262,36 @@ participant Stock as 股票端点
 participant Factory as 提供商工厂
 participant Provider as 数据提供商
 participant Sanitizer as 数据清洗器
-Client->>Stock : GET /api/v1/stocks/{ticker}/history
-Stock->>Factory : 获取提供商实例
-Factory-->>Stock : Provider实例
-Stock->>Provider : get_ohlcv(ticker, period, interval)
-Provider-->>Stock : 原始数据
-Stock->>Sanitizer : 清洗NaN/Inf值
-Sanitizer-->>Stock : 清洗后数据
-Stock-->>Client : OHLCV数据列表
-Note over Client,Provider : 历史数据获取流程
+participant Snapshot as 快照转换器
+Client->>Stock : GET /api/v1/stocks/{ticker}
+Stock->>MarketData : 获取实时数据
+MarketData-->>Stock : 市场数据缓存
+Stock->>StockRepo : 获取股票基础信息
+StockRepo-->>Stock : 股票基本信息
+Stock->>Snapshot : 转换为投资组合项
+Snapshot-->>Stock : 标准化数据结构
+Stock-->>Client : 股票快照详情
+Note over Client,Provider : 股票快照获取流程
 ```
 
 **图表来源**
-- [backend/app/api/v1/endpoints/stock.py](file://backend/app/api/v1/endpoints/stock.py#L46-L75)
+- [backend/app/api/v1/endpoints/stock.py:112-135](file://backend/app/api/v1/endpoints/stock.py#L112-L135)
+- [backend/app/services/market_data.py:23-54](file://backend/app/services/market_data.py#L23-L54)
 
-**端点功能**：
+**新增功能**：
+- `GET /api/v1/stocks/{ticker}` - 获取股票详情快照（支持非持有股票）
+
+**核心功能**：
 - `GET /api/v1/stocks/{ticker}/history` - 获取股票历史数据
 - `POST /api/v1/stocks/refresh_all` - 批量刷新所有持仓股票
 
+**更新** 股票端点现在包含增强的数据清洗功能：
+- 批量OHLCV数据清洗：支持同时清洗多个技术指标字段
+- 动态指标处理：自动识别和处理动态生成的技术指标
+- 核心字段默认值：OHLC核心字段默认0.0，技术指标默认None
+
 **章节来源**
-- [backend/app/api/v1/endpoints/stock.py](file://backend/app/api/v1/endpoints/stock.py#L1-L121)
+- [backend/app/api/v1/endpoints/stock.py:1-217](file://backend/app/api/v1/endpoints/stock.py#L1-L217)
 
 ### AI分析端点 (Analysis)
 提供智能投资分析和组合健康检查，现已实现统一的分析检索机制：
@@ -290,7 +314,7 @@ ReturnResult --> End([完成])
 ```
 
 **图表来源**
-- [backend/app/api/v1/endpoints/analysis.py](file://backend/app/api/v1/endpoints/analysis.py#L198-L664)
+- [backend/app/api/v1/endpoints/analysis.py:198-664](file://backend/app/api/v1/endpoints/analysis.py#L198-L664)
 
 **核心功能**：
 - `POST /api/v1/analysis/portfolio` - 全量持仓健康分析
@@ -305,7 +329,7 @@ ReturnResult --> End([完成])
 - 兼容性处理：支持旧格式分析报告的自动转换
 
 **章节来源**
-- [backend/app/api/v1/endpoints/analysis.py](file://backend/app/api/v1/endpoints/analysis.py#L1-L664)
+- [backend/app/api/v1/endpoints/analysis.py:1-664](file://backend/app/api/v1/endpoints/analysis.py#L1-L664)
 
 ### 用户端点 (User)
 管理用户个人信息和设置：
@@ -316,7 +340,7 @@ ReturnResult --> End([完成])
 - `PUT /api/v1/user/settings` - 更新用户设置
 
 **章节来源**
-- [backend/app/api/v1/endpoints/user.py](file://backend/app/api/v1/endpoints/user.py#L1-L75)
+- [backend/app/api/v1/endpoints/user.py:1-75](file://backend/app/api/v1/endpoints/user.py#L1-L75)
 
 ## 依赖关系分析
 
@@ -453,11 +477,11 @@ MARKET_DATA_CACHE ||--|| STOCKS : "关联"
 ```
 
 **图表来源**
-- [backend/app/models/user.py](file://backend/app/models/user.py#L22-L41)
-- [backend/app/models/portfolio.py](file://backend/app/models/portfolio.py#L9-L32)
-- [backend/app/models/stock.py](file://backend/app/models/stock.py#L15-L105)
-- [backend/app/models/analysis.py](file://backend/app/models/analysis.py#L12-L42)
-- [backend/app/models/ai_config.py](file://backend/app/models/ai_config.py#L6-L21)
+- [backend/app/models/user.py:22-41](file://backend/app/models/user.py#L22-L41)
+- [backend/app/models/portfolio.py:9-32](file://backend/app/models/portfolio.py#L9-L32)
+- [backend/app/models/stock.py:15-105](file://backend/app/models/stock.py#L15-L105)
+- [backend/app/models/analysis.py:12-42](file://backend/app/models/analysis.py#L12-L42)
+- [backend/app/models/ai_config.py:6-21](file://backend/app/models/ai_config.py#L6-L21)
 
 ### 服务依赖关系
 系统的服务层实现了松耦合的设计：
@@ -477,6 +501,8 @@ PortfolioService[投资组合服务]
 MarketDataService[市场数据服务]
 AIService[AI分析服务]
 SecurityService[安全服务]
+IndicatorsService[技术指标服务]
+SanitizationService[数据清洗服务]
 end
 subgraph "数据访问"
 UserRepository[用户仓储]
@@ -489,28 +515,31 @@ end
 AuthEndpoint --> AuthService
 PortfolioEndpoint --> PortfolioService
 StockEndpoint --> MarketDataService
+StockEndpoint --> SanitizationService
 AnalysisEndpoint --> AIService
 UserEndpoint --> SecurityService
 AuthService --> UserRepository
 PortfolioService --> PortfolioRepository
 MarketDataService --> StockRepository
-AIService --> CacheRepository
+MarketDataService --> CacheRepository
 AIService --> AnalysisRepository
 AIService --> AIConfigRepository
+AIService --> IndicatorsService
 PortfolioService --> MarketDataService
 AnalysisEndpoint --> MarketDataService
 ```
 
 **图表来源**
-- [backend/app/api/v1/endpoints/auth.py](file://backend/app/api/v1/endpoints/auth.py#L1-L88)
-- [backend/app/api/v1/endpoints/portfolio.py](file://backend/app/api/v1/endpoints/portfolio.py#L1-L403)
-- [backend/app/services/market_data.py](file://backend/app/services/market_data.py#L17-L266)
-- [backend/app/services/ai_service.py](file://backend/app/services/ai_service.py#L18-L390)
+- [backend/app/api/v1/endpoints/auth.py:1-88](file://backend/app/api/v1/endpoints/auth.py#L1-L88)
+- [backend/app/api/v1/endpoints/portfolio.py:1-403](file://backend/app/api/v1/endpoints/portfolio.py#L1-L403)
+- [backend/app/services/market_data.py:17-266](file://backend/app/services/market_data.py#L17-L266)
+- [backend/app/services/ai_service.py:18-390](file://backend/app/services/ai_service.py#L18-L390)
+- [backend/app/services/indicators.py:1-146](file://backend/app/services/indicators.py#L1-L146)
 
 **章节来源**
-- [backend/app/models/user.py](file://backend/app/models/user.py#L1-L41)
-- [backend/app/models/portfolio.py](file://backend/app/models/portfolio.py#L1-L32)
-- [backend/app/models/stock.py](file://backend/app/models/stock.py#L1-L105)
+- [backend/app/models/user.py:1-41](file://backend/app/models/user.py#L1-L41)
+- [backend/app/models/portfolio.py:1-32](file://backend/app/models/portfolio.py#L1-L32)
+- [backend/app/models/stock.py:1-105](file://backend/app/models/stock.py#L1-L105)
 
 ## 性能考虑
 系统在设计时充分考虑了性能优化，特别是在分析端点的性能优化方面：
@@ -539,6 +568,16 @@ AnalysisEndpoint --> MarketDataService
 - **懒加载**：按需加载关联数据
 - **索引优化**：关键字段建立数据库索引
 - **查询优化**：使用JOIN减少查询次数
+
+### 6. 数据清洗优化
+- **批量处理**：新增批量OHLCV数据清洗，提升处理效率
+- **动态字段识别**：自动识别和处理动态生成的技术指标
+- **默认值策略**：核心字段和指标字段采用不同的默认值策略
+
+### 7. 技术指标优化
+- **全量计算**：提供完整的技术指标计算能力
+- **增量更新**：支持基于历史数据的增量指标计算
+- **性能优化**：使用向量化操作提升计算效率
 
 ## 故障排除指南
 
@@ -571,12 +610,31 @@ AnalysisEndpoint --> MarketDataService
 - 确认历史数据回退逻辑
 - 查看AI模型配置缓存状态
 
+**6. 股票快照获取失败**
+- 检查市场数据缓存状态
+- 验证股票基础信息是否存在
+- 确认数据清洗器正常工作
+- 查看快照转换逻辑
+
+**7. 数据清洗异常**
+- 检查数值清洗器配置
+- 验证输入数据格式
+- 确认默认值策略设置
+- 查看批量清洗逻辑
+
+**8. 技术指标计算错误**
+- 检查历史数据完整性
+- 验证指标计算逻辑
+- 确认数据类型正确性
+- 查看边界条件处理
+
 **章节来源**
-- [backend/app/main.py](file://backend/app/main.py#L33-L47)
-- [backend/app/services/market_data.py](file://backend/app/services/market_data.py#L237-L266)
-- [backend/app/services/ai_service.py](file://backend/app/services/ai_service.py#L24-L77)
+- [backend/app/main.py:33-47](file://backend/app/main.py#L33-L47)
+- [backend/app/services/market_data.py:237-266](file://backend/app/services/market_data.py#L237-L266)
+- [backend/app/services/ai_service.py:24-77](file://backend/app/services/ai_service.py#L24-L77)
+- [backend/app/core/security.py:30-45](file://backend/app/core/security.py#L30-L45)
 
 ## 结论
 V1 API端点架构展现了现代Web应用的最佳实践，通过清晰的分层设计、完善的错误处理机制和高性能的并发处理，为用户提供了一个稳定可靠的AI投资顾问平台。系统的设计充分考虑了可扩展性和维护性，为未来的功能扩展奠定了坚实的基础。
 
-**更新** 最新的架构改进包括统一的分析检索机制、优化的模型配置缓存和增强的性能考虑，这些改进显著提升了系统的响应速度和可靠性，同时保持了良好的向后兼容性。
+**更新** 最新的架构改进包括统一的分析检索机制、优化的模型配置缓存、增强的数据清洗功能和全面的技术指标处理能力。新增的股票快照端点显著提升了用户体验，使用户能够获取非持有股票的详细信息。这些改进不仅提升了系统的响应速度和可靠性，还增强了数据一致性和处理能力，同时保持了良好的向后兼容性。

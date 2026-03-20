@@ -71,15 +71,16 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      - name: Debug Workspace
+        run: ls -R
+
       - name: Upload Deploy Assets To Server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: |
-            docker-compose.prod.yml
-            scripts/deploy_compose_prod.sh
+          source: "docker-compose.prod.yml,scripts/deploy_compose_prod.sh"
           target: "/root/ai-stock-advisor"
           rm: false
 

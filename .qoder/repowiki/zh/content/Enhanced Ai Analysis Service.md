@@ -42,16 +42,18 @@
 - [backend/app/infrastructure/db/repositories/provider_config_repository.py](file://backend/app/infrastructure/db/repositories/provider_config_repository.py)
 - [backend/migrations/versions/ab4e342e4749_create_provider_configs_v4.py](file://backend/migrations/versions/ab4e342e4749_create_provider_configs_v4.py)
 - [backend/migrations/versions/0675c6d039e6_create_ai_model_config_table.py](file://backend/migrations/versions/0675c6d039e6_create_ai_model_config_table.py)
+- [backend/migrations/versions/ae1b8335eea2_add_user_ai_configs.py](file://backend/migrations/versions/ae1b8335eea2_add_user_ai_configs.py)
+- [backend/tests/test_byok_dispatch.py](file://backend/tests/test_byok_dispatch.py)
+- [backend/app/api/v1/endpoints/user.py](file://backend/app/api/v1/endpoints/user.py)
 </cite>
 
 ## 更新摘要
 **变更内容**
-- AI服务架构重构：引入新的运行时配置模式，移除Gemini依赖
-- 供应商配置管理：新增ProviderConfig模型，支持动态URL切换和故障转移
-- 用户AI模型管理：新增UserAIModel和UserProviderCredential模型
-- 运行时配置解耦：新增AIModelRuntimeConfig和ProviderRuntimeConfig模型
-- 供应商缓存机制：实现供应商配置缓存，提升性能
-- API密钥统一管理：支持用户级和系统级API密钥配置
+- 新增DeepSeek-v3支持：引入DeepSeek-V3推理模型，提供更强的分析能力
+- 改进AI服务配置：增强供应商配置管理，支持动态URL切换和故障转移
+- 增强推理模型超时处理：默认300秒超时，适用于DeepSeek等推理模型
+- 优化AI服务层架构：重构供应商缓存机制，提升性能和可靠性
+- 新增用户AI模型管理：支持用户自定义AI模型配置和凭据管理
 
 ## 目录
 1. [项目概述](#项目概述)
@@ -1143,6 +1145,15 @@ ProviderConfigRepository --> ProviderConfig
 - **统一凭据管理**：支持用户级和系统级API密钥配置
 - **实时配置更新**：供应商配置变更立即生效，无需重启
 
+### DeepSeek-v3支持增强
+
+**新增** 系统现已完全支持DeepSeek-V3推理模型：
+
+- **模型配置**：新增DeepSeek-V3模型配置，提供更强的分析能力
+- **超时优化**：针对DeepSeek-V3的300秒超时设置，确保推理稳定性
+- **性能监控**：完整的DeepSeek-V3调用链路监控和性能统计
+- **故障转移**：支持DeepSeek-V3与其他供应商的无缝故障转移
+
 **章节来源**
 - [frontend/features/dashboard/hooks/useDashboardStockDetailData.ts:61-76](file://frontend/features/dashboard/hooks/useDashboardStockDetailData.ts#L61-L76)
 - [backend/app/utils/json_logger.py:111-166](file://backend/app/utils/json_logger.py#L111-L166)
@@ -1151,6 +1162,7 @@ ProviderConfigRepository --> ProviderConfig
 - [backend/app/models/provider_config.py:12-48](file://backend/app/models/provider_config.py#L12-L48)
 - [backend/app/models/user_ai_model.py:9-26](file://backend/app/models/user_ai_model.py#L9-L26)
 - [backend/app/models/user_provider_credential.py:9-23](file://backend/app/models/user_provider_credential.py#L9-L23)
+- [backend/migrations/versions/0675c6d039e6_create_ai_model_config_table.py:41-93](file://backend/migrations/versions/0675c6d039e6_create_ai_model_config_table.py#L41-L93)
 
 ## 故障排除指南
 
@@ -1162,6 +1174,7 @@ ProviderConfigRepository --> ProviderConfig
 - 检查网络连接和防火墙设置
 - **新增**：验证代理环境变量配置是否正确
 - **新增**：检查供应商配置表中的Base URL是否正确
+- **新增**：验证DeepSeek-V3模型配置是否正确
 
 **数据抓取超时**
 - 检查数据源可用性（AkShare、Tavily等）
@@ -1169,6 +1182,7 @@ ProviderConfigRepository --> ProviderConfig
 - 查看API配额限制
 - **新增**：检查网络代理配置
 - **新增**：验证供应商的Base URL可达性
+- **新增**：确认DeepSeek-V3的300秒超时设置
 
 **推送通知失败**
 - 验证飞书Webhook URL配置
@@ -1181,6 +1195,7 @@ ProviderConfigRepository --> ProviderConfig
 - 查看分析日志和错误信息
 - **新增**：使用诊断脚本进行全面排查
 - **新增**：检查用户自定义模型配置
+- **新增**：验证DeepSeek-V3模型的调用日志
 
 **性能问题**
 - 检查数据库连接池配置
@@ -1189,6 +1204,7 @@ ProviderConfigRepository --> ProviderConfig
 - 调整并发限制参数
 - **新增**：检查日志系统的性能影响
 - **新增**：验证供应商配置缓存是否生效
+- **新增**：监控DeepSeek-V3的性能指标
 
 **并行处理问题**
 - 检查异步任务的超时设置
@@ -1201,6 +1217,7 @@ ProviderConfigRepository --> ProviderConfig
 - 确认日志轮转设置
 - **新增**：验证AI调用日志的完整性
 - **新增**：检查供应商配置变更日志
+- **新增**：监控DeepSeek-V3的调用日志
 
 **代理配置问题**
 - **新增**：检查HTTP_PROXY和HTTPS_PROXY环境变量
@@ -1213,12 +1230,14 @@ ProviderConfigRepository --> ProviderConfig
 - 验证供应商的优先级设置
 - 确认供应商的激活状态
 - 测试供应商的Base URL连通性
+- **新增**：验证DeepSeek-V3的供应商配置
 
 **用户AI模型问题**
 - **新增**：检查user_ai_models表中的配置
 - 验证用户自定义模型的API密钥
 - 确认模型的激活状态
 - 测试用户自定义模型的Base URL
+- **新增**：验证DeepSeek-V3用户的模型配置
 
 **章节来源**
 - [backend/app/services/ai_service.py:140-159](file://backend/app/services/ai_service.py#L140-L159)
@@ -1249,6 +1268,9 @@ ProviderConfigRepository --> ProviderConfig
 16. **用户AI模型管理**：支持用户自定义AI模型配置
 17. **API密钥统一管理**：支持用户级和系统级密钥配置
 18. **运行时配置解耦**：使用Pydantic模型解耦数据库ORM
+19. **DeepSeek-v3支持**：新增的DeepSeek-V3推理模型，提供更强的分析能力
+20. **增强的超时处理**：针对推理模型的300秒超时优化
+21. **优化的供应商缓存**：提升AI服务层的性能和可靠性
 
 ### 技术亮点
 
@@ -1265,7 +1287,8 @@ ProviderConfigRepository --> ProviderConfig
 - **供应商管理**：动态供应商配置，支持运行时故障转移
 - **用户定制**：用户AI模型支持，满足个性化需求
 - **配置解耦**：运行时配置模型，提升系统灵活性
+- **DeepSeek-v3集成**：完整的DeepSeek-V3支持，包括模型配置和性能监控
 
 该系统为用户提供了一个强大而可靠的AI分析平台，能够有效辅助投资决策，提升投资效率和成功率。通过持续的性能优化和监控改进，系统能够适应不断增长的用户需求和数据规模。新增的诊断脚本、性能监控系统和供应商配置管理进一步增强了系统的可观测性和可维护性，为用户提供更好的技术支持和问题解决能力。
 
-**更新** 本次更新主要反映了AI服务架构的重大重构，包括引入新的运行时配置模式、移除Gemini依赖以及全新的供应商配置管理机制。这些变更显著提升了系统的灵活性、可维护性和扩展性，为未来的功能扩展奠定了坚实基础。
+**更新** 本次更新主要反映了AI分析服务的重大增强，包括新增DeepSeek-v3支持、改进AI服务配置、增强推理模型超时处理（300秒）、优化AI服务层架构以及新增用户AI模型管理功能。这些变更显著提升了系统的推理能力、性能监控和可维护性，为用户提供更强大和可靠的AI分析服务。

@@ -4,23 +4,14 @@
 **本文档引用的文件**
 - [ai_service.py](file://backend/app/services/ai_service.py)
 - [config.py](file://backend/app/core/config.py)
-- [.env](file://.env)
 - [analysis.py](file://backend/app/api/v1/endpoints/analysis.py)
-- [deps.py](file://backend/app/api/deps.py)
-- [market_data.py](file://backend/app/services/market_data.py)
-- [requirements.txt](file://backend/requirements.txt)
 - [user.py](file://backend/app/api/v1/endpoints/user.py)
-- [user_settings.py](file://backend/app/schemas/user_settings.py)
-- [analysis.py](file://backend/app/models/analysis.py)
-- [user.py](file://backend/app/models/user.py)
-- [portfolio.py](file://backend/app/models/portfolio.py)
-- [stock.py](file://backend/app/models/stock.py)
 - [provider_config.py](file://backend/app/models/provider_config.py)
 - [user_provider_credential.py](file://backend/app/models/user_provider_credential.py)
 - [ai_config.py](file://backend/app/models/ai_config.py)
-- [provider_config_repository.py](file://backend/app/infrastructure/db/repositories/provider_config_repository.py)
 - [0675c6d039e6_create_ai_model_config_table.py](file://backend/migrations/versions/0675c6d039e6_create_ai_model_config_table.py)
 - [ab4e342e4749_create_provider_configs_v4.py](file://backend/migrations/versions/ab4e342e4749_create_provider_configs_v4.py)
+- [requirements.txt](file://backend/requirements.txt)
 - [api.ts](file://frontend/features/user/api.ts)
 - [page.tsx](file://frontend/app/settings/page.tsx)
 </cite>
@@ -105,7 +96,6 @@ E --> M
 - [provider_config.py:1-48](file://backend/app/models/provider_config.py#L1-L48)
 - [ai_config.py:1-20](file://backend/app/models/ai_config.py#L1-L20)
 - [user_provider_credential.py:1-23](file://backend/app/models/user_provider_credential.py#L1-L23)
-- [.env:1-5](file://.env#L1-L5)
 
 **章节来源**
 - [analysis.py:1-124](file://backend/app/api/v1/endpoints/analysis.py#L1-L124)
@@ -117,7 +107,6 @@ E --> M
 - [provider_config.py:1-48](file://backend/app/models/provider_config.py#L1-L48)
 - [ai_config.py:1-20](file://backend/app/models/ai_config.py#L1-L20)
 - [user_provider_credential.py:1-23](file://backend/app/models/user_provider_credential.py#L1-L23)
-- [.env:1-5](file://.env#L1-L5)
 
 ## 核心组件
 - AIService：封装多供应商AI服务的配置、模型初始化与内容生成，支持异步调用与JSON响应模式，内置供应商路由与降级策略。

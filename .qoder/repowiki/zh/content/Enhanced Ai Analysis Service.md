@@ -29,19 +29,29 @@
 - [backend/app/models/user.py](file://backend/app/models/user.py)
 - [backend/app/utils/ai_response_parser.py](file://backend/app/utils/ai_response_parser.py)
 - [backend/app/utils/json_logger.py](file://backend/app/utils/json_logger.py)
+- [scripts/diagnose_ai_flow.py](file://scripts/diagnose_ai_flow.py)
 - [frontend/features/dashboard/hooks/useDashboardStockDetailData.ts](file://frontend/features/dashboard/hooks/useDashboardStockDetailData.ts)
 - [frontend/features/macro/api.ts](file://frontend/features/macro/api.ts)
 - [frontend/shared/api/client.ts](file://frontend/shared/api/client.ts)
 - [scripts/start.sh](file://scripts/start.sh)
+- [backend/app/models/provider_config.py](file://backend/app/models/provider_config.py)
+- [backend/app/models/ai_config.py](file://backend/app/models/ai_config.py)
+- [backend/app/models/user_ai_model.py](file://backend/app/models/user_ai_model.py)
+- [backend/app/models/user_provider_credential.py](file://backend/app/models/user_provider_credential.py)
+- [backend/app/schemas/ai_config.py](file://backend/app/schemas/ai_config.py)
+- [backend/app/infrastructure/db/repositories/provider_config_repository.py](file://backend/app/infrastructure/db/repositories/provider_config_repository.py)
+- [backend/migrations/versions/ab4e342e4749_create_provider_configs_v4.py](file://backend/migrations/versions/ab4e342e4749_create_provider_configs_v4.py)
+- [backend/migrations/versions/0675c6d039e6_create_ai_model_config_table.py](file://backend/migrations/versions/0675c6d039e6_create_ai_model_config_table.py)
 </cite>
 
 ## 更新摘要
 **变更内容**
-- 新增并行数据获取架构，支持多数据源并行抓取和处理
-- 改进宏观分析服务，增强AI分析能力和性能监控
-- 新增结构化JSON日志系统，提供完整的性能监控能力
-- 优化前端并行加载机制，提升用户体验
-- 增强AI响应解析和错误处理机制
+- AI服务架构重构：引入新的运行时配置模式，移除Gemini依赖
+- 供应商配置管理：新增ProviderConfig模型，支持动态URL切换和故障转移
+- 用户AI模型管理：新增UserAIModel和UserProviderCredential模型
+- 运行时配置解耦：新增AIModelRuntimeConfig和ProviderRuntimeConfig模型
+- 供应商缓存机制：实现供应商配置缓存，提升性能
+- API密钥统一管理：支持用户级和系统级API密钥配置
 
 ## 目录
 1. [项目概述](#项目概述)
@@ -52,10 +62,11 @@
 6. [分析应用层架构](#分析应用层架构)
 7. [并行数据获取架构](#并行数据获取架构)
 8. [性能监控系统](#性能监控系统)
-9. [依赖关系分析](#依赖关系分析)
-10. [性能考虑](#性能考虑)
-11. [故障排除指南](#故障排除指南)
-12. [结论](#结论)
+9. [诊断脚本系统](#诊断脚本系统)
+10. [依赖关系分析](#依赖关系分析)
+11. [性能考虑](#性能考虑)
+12. [故障排除指南](#故障排除指南)
+13. [结论](#结论)
 
 ## 项目概述
 
@@ -97,6 +108,7 @@ NextJS[Next.js 14 App Router]
 Components[React组件]
 UI[Tailwind CSS]
 ParallelLoad[并行加载机制]
+DiagnosticScript[诊断脚本]
 end
 subgraph "后端层 (Backend)"
 FastAPI[FastAPI 1.0.0]
@@ -106,6 +118,8 @@ Application[应用层]
 Utils[工具类]
 ParallelFetch[并行数据获取]
 PerformanceMonitor[性能监控]
+JSONLogger[JSON日志系统]
+ProxyConfig[代理配置]
 end
 subgraph "数据层 (Data Layer)"
 Database[(PostgreSQL/SQLite)]
@@ -118,22 +132,26 @@ AIService[AI服务]
 Providers[多家供应商]
 Prompts[提示词模板]
 JSONParser[JSON解析器]
+CallLogger[调用日志器]
 end
 subgraph "外部服务 (External Services)"
 AkShare[AkShare数据源]
 Tavily[Tavily API]
 Feishu[飞书Webhook]
 SiliconFlow[SiliconFlow API]
-LoggingStack[日志监控栈]
+MonitoringStack[监控栈]
 end
 NextJS --> FastAPI
 Components --> API
 UI --> API
 ParallelLoad --> API
+DiagnosticScript --> AIService
 FastAPI --> Application
 FastAPI --> Services
 FastAPI --> ParallelFetch
 FastAPI --> PerformanceMonitor
+FastAPI --> JSONLogger
+FastAPI --> ProxyConfig
 Application --> AIService
 Application --> Repositories
 Services --> AIService
@@ -141,6 +159,7 @@ Services --> Database
 Services --> Cache
 AIService --> Providers
 AIService --> JSONParser
+AIService --> CallLogger
 Providers --> AkShare
 Providers --> Tavily
 Providers --> SiliconFlow
@@ -149,8 +168,9 @@ Cache --> Models
 AIService --> Prompts
 Services --> Utils
 Services --> Feishu
-ParallelFetch --> LoggingStack
-PerformanceMonitor --> LoggingStack
+ParallelFetch --> MonitoringStack
+PerformanceMonitor --> MonitoringStack
+JSONLogger --> MonitoringStack
 ```
 
 **图表来源**
@@ -158,6 +178,7 @@ PerformanceMonitor --> LoggingStack
 - [backend/app/api/v1/api.py:1-33](file://backend/app/api/v1/api.py#L1-L33)
 - [backend/app/services/ai_service.py:22-56](file://backend/app/services/ai_service.py#L22-L56)
 - [backend/app/utils/json_logger.py:11-80](file://backend/app/utils/json_logger.py#L11-L80)
+- [scripts/diagnose_ai_flow.py:1-169](file://scripts/diagnose_ai_flow.py#L1-L169)
 
 ## 核心组件
 
@@ -171,13 +192,15 @@ class AIService {
 +_model_config_cache : dict
 +_provider_cache : list
 +CACHE_TTL : int
-+get_model_config(model_key, db) AIModelConfig
++get_model_config(model_key, db) AIModelRuntimeConfig
 +call_provider(provider_config, model_id, prompt, api_key, custom_url) str
 +test_connection(provider_key, api_key, base_url) Tuple[bool, str]
 +generate_analysis(ticker, market_data, portfolio_data, ...) str
 +generate_portfolio_analysis(portfolio_items, ...) str
 +_dispatch_with_fallback(prompt, model_config, user, db) str
 +_resolve_api_key(provider_key, user) Tuple[Optional[str], Optional[str]]
++call_user_ai_model(model, prompt) str
++get_user_ai_model(model_key, user_id, db) UserAIModel
 }
 class AIModelConfig {
 +key : str
@@ -191,12 +214,47 @@ class ProviderConfig {
 +is_active : bool
 +timeout_seconds : int
 }
+class UserAIModel {
++user_id : str
++key : str
++provider_note : str
++model_id : str
++encrypted_api_key : str
++base_url : str
++is_active : bool
+}
+class UserProviderCredential {
++user_id : str
++provider_key : str
++encrypted_api_key : str
++base_url : str
++is_enabled : bool
+}
+class AIModelRuntimeConfig {
++key : str
++provider : str
++model_id : str
++description : str
+}
+class ProviderRuntimeConfig {
++provider_key : str
++base_url : str
++timeout_seconds : int
+}
 AIService --> AIModelConfig : "使用"
 AIService --> ProviderConfig : "管理"
+AIService --> UserAIModel : "管理"
+AIService --> UserProviderCredential : "管理"
+AIService --> AIModelRuntimeConfig : "使用"
+AIService --> ProviderRuntimeConfig : "使用"
 ```
 
 **图表来源**
-- [backend/app/services/ai_service.py:22-254](file://backend/app/services/ai_service.py#L22-L254)
+- [backend/app/services/ai_service.py:22-594](file://backend/app/services/ai_service.py#L22-L594)
+- [backend/app/models/provider_config.py:12-48](file://backend/app/models/provider_config.py#L12-L48)
+- [backend/app/models/user_ai_model.py:9-26](file://backend/app/models/user_ai_model.py#L9-L26)
+- [backend/app/models/user_provider_credential.py:9-23](file://backend/app/models/user_provider_credential.py#L9-L23)
+- [backend/app/schemas/ai_config.py:4-15](file://backend/app/schemas/ai_config.py#L4-L15)
 
 ### 数据服务层 (MarketDataService)
 
@@ -228,7 +286,7 @@ MarketDataService --> MarketDataCache : "管理"
 ```
 
 **图表来源**
-- [backend/app/services/market_data.py:19-407](file://backend/app/services/market_data.py#L19-L407)
+- [backend/app/services/market_data.py:19-100](file://backend/app/services/market_data.py#L19-L100)
 - [backend/app/services/market_data_fetcher.py:12-165](file://backend/app/services/market_data_fetcher.py#L12-L165)
 
 ### 宏观服务层 (MacroService)
@@ -261,8 +319,8 @@ MacroService --> GlobalNews : "管理"
 - [backend/app/services/macro_service.py:21-442](file://backend/app/services/macro_service.py#L21-L442)
 
 **章节来源**
-- [backend/app/services/ai_service.py:22-254](file://backend/app/services/ai_service.py#L22-L254)
-- [backend/app/services/market_data.py:19-407](file://backend/app/services/market_data.py#L19-L407)
+- [backend/app/services/ai_service.py:22-594](file://backend/app/services/ai_service.py#L22-L594)
+- [backend/app/services/market_data.py:19-100](file://backend/app/services/market_data.py#L19-L100)
 - [backend/app/services/macro_service.py:21-442](file://backend/app/services/macro_service.py#L21-L442)
 
 ## 架构概览
@@ -275,6 +333,7 @@ subgraph "表现层"
 Frontend[前端应用]
 UI[用户界面组件]
 ParallelLoader[并行加载器]
+DiagnosticScript[诊断脚本]
 end
 subgraph "API层"
 Main[主应用入口]
@@ -290,6 +349,9 @@ Scheduler[调度器]
 AnalysisUseCases[分析用例层]
 ParallelProcessor[并行处理器]
 PerformanceMonitor[性能监控]
+JSONLogger[JSON日志系统]
+ProxyConfig[代理配置]
+CallLogger[调用日志器]
 end
 subgraph "应用层"
 AnalyzeStockUseCase[股票分析用例]
@@ -300,6 +362,7 @@ QueryPortfolioUseCase[组合查询用例]
 Helpers[辅助工具]
 Mappers[数据映射器]
 JSONParser[JSON解析器]
+Parser[响应解析器]
 end
 subgraph "数据访问层"
 Database[数据库]
@@ -307,16 +370,19 @@ Cache[缓存]
 Models[ORM模型]
 AnalysisRepository[分析仓储]
 PortfolioRepository[组合仓储]
+ProviderConfigRepository[供应商配置仓储]
 end
 subgraph "外部集成"
 Providers[数据提供商]
 AIProviders[AI供应商]
 PushServices[推送服务]
-LogStack[日志监控栈]
+MonitoringStack[监控栈]
+DiagnosticTools[诊断工具]
 end
 Frontend --> Main
 UI --> Main
 ParallelLoader --> Main
+DiagnosticScript --> AIService
 Main --> Router
 Router --> Endpoints
 Endpoints --> AnalysisUseCases
@@ -332,12 +398,14 @@ AnalysisUseCases --> QueryPortfolioUseCase
 AnalysisUseCases --> Helpers
 AnalysisUseCases --> Mappers
 AnalysisUseCases --> JSONParser
+AnalysisUseCases --> Parser
 AnalyzeStockUseCase --> AnalysisRepository
 AnalyzePortfolioUseCase --> PortfolioRepository
 GetLatestAnalysisUseCase --> AnalysisRepository
 GetAnalysisHistoryUseCase --> AnalysisRepository
 QueryPortfolioUseCase --> PortfolioRepository
 AIService --> AIProviders
+AIService --> CallLogger
 MarketService --> Providers
 MacroService --> AIProviders
 NotificationService --> PushServices
@@ -347,10 +415,14 @@ MacroService --> Database
 AnalysisUseCases --> Database
 AnalysisRepository --> Database
 PortfolioRepository --> Database
+ProviderConfigRepository --> Database
 Database --> Models
 Cache --> Models
-ParallelProcessor --> LogStack
-PerformanceMonitor --> LogStack
+ParallelProcessor --> MonitoringStack
+PerformanceMonitor --> MonitoringStack
+JSONLogger --> MonitoringStack
+ProxyConfig --> AIService
+CallLogger --> MonitoringStack
 ```
 
 **图表来源**
@@ -369,6 +441,7 @@ participant Client as 客户端
 participant API as 分析API
 participant Market as 市场数据服务
 participant AI as AI服务
+participant Logger as 调用日志器
 participant DB as 数据库
 participant Parser as 解析器
 Client->>API : POST /api/v1/analysis/{ticker}
@@ -380,6 +453,8 @@ API->>AI : 调用AI分析服务
 AI->>AI : 构建提示词模板
 AI->>AI : 供应商故障转移
 AI->>AI : 调用AI模型
+AI->>Logger : 记录完整调用过程
+Logger-->>AI : 返回分段计时数据
 AI-->>API : 返回AI响应
 API->>Parser : 解析AI响应
 Parser-->>API : 返回结构化数据
@@ -757,14 +832,21 @@ class PerformanceMonitor {
 +log_api_call(method, path, status_code, duration_ms, user_id) void
 +log_analysis_performance(ticker, analysis_type, duration_ms) void
 }
+class CallLogger {
++log_ai_call(provider, model, prompt, response, duration) void
++log_http_request(provider, status_code, duration) void
++log_timeout(provider, duration) void
++log_error(provider, error, duration) void
+}
 JSONFormatter --> LogContext : "使用"
 StandardFormatter --> LogContext : "使用"
 PerformanceMonitor --> JSONFormatter : "配置"
 PerformanceMonitor --> StandardFormatter : "配置"
+CallLogger --> JSONFormatter : "使用"
 ```
 
 **图表来源**
-- [backend/app/utils/json_logger.py:11-203](file://backend/app/utils/json_logger.py#L11-L203)
+- [backend/app/utils/json_logger.py:11-202](file://backend/app/utils/json_logger.py#L11-L202)
 
 ### 性能监控指标
 
@@ -774,6 +856,7 @@ PerformanceMonitor --> StandardFormatter : "配置"
 2. **AI分析性能**：模型调用耗时、供应商响应时间、故障转移统计
 3. **数据获取性能**：并行抓取耗时、超时率、成功率统计
 4. **系统资源监控**：内存使用、CPU负载、数据库连接数
+5. **调用链路追踪**：完整的AI调用过程记录，包括分段计时
 
 ### 日志结构化
 
@@ -800,7 +883,74 @@ PerformanceMonitor --> StandardFormatter : "配置"
 ```
 
 **章节来源**
-- [backend/app/utils/json_logger.py:11-203](file://backend/app/utils/json_logger.py#L11-L203)
+- [backend/app/utils/json_logger.py:11-202](file://backend/app/utils/json_logger.py#L11-L202)
+
+## 诊断脚本系统
+
+### AI分析全流程诊断
+
+系统新增了完整的AI分析全流程诊断脚本，提供端到端的问题排查能力：
+
+```mermaid
+sequenceDiagram
+participant DiagnoseScript as 诊断脚本
+participant MarketService as 市场数据服务
+participant MacroService as 宏观服务
+participant AIService as AI服务
+participant DB as 数据库
+DiagnoseScript->>DB : 获取用户信息
+DiagnoseScript->>MarketService : 市场数据抓取
+MarketService->>MarketService : 并行获取多数据源
+MarketService-->>DiagnoseScript : 返回行情数据
+DiagnoseScript->>DB : 获取最新新闻
+DiagnoseScript->>MacroService : 获取宏观上下文
+MacroService->>MacroService : 检索雷达和新闻
+MacroService-->>DiagnoseScript : 返回宏观数据
+DiagnoseScript->>DiagnoseScript : 构建Prompt
+DiagnoseScript->>AIService : 调用AI模型
+AIService->>AIService : 记录完整调用过程
+AIService-->>DiagnoseScript : 返回AI响应
+DiagnoseScript->>DiagnoseScript : 统计各环节耗时
+DiagnoseScript-->>DiagnoseScript : 输出诊断报告
+```
+
+**图表来源**
+- [scripts/diagnose_ai_flow.py:33-168](file://scripts/diagnose_ai_flow.py#L33-L168)
+
+### 诊断功能特性
+
+诊断脚本提供了以下核心功能：
+
+1. **全流程追踪**：从数据获取到AI调用的完整链路监控
+2. **性能统计**：精确统计每个环节的耗时，帮助定位性能瓶颈
+3. **Prompt导出**：自动保存完整的AI提示词，便于手动测试和调试
+4. **错误隔离**：精确定位问题环节，区分数据获取、AI调用等不同阶段
+5. **环境验证**：验证数据库连接、API密钥、网络配置等环境因素
+
+### 诊断输出格式
+
+诊断脚本输出详细的性能统计和问题定位信息：
+
+```
+================== AI 深度分析全链路诊断 ==================
+目标股票: NBIS
+模拟用户: test@qq.com
+============================================================
+
+1. 市场数据抓取 (Market Data)     :   2.34s
+2. 个股新闻获取 (News)            :   0.15s
+3. 宏观上下文检索 (Macro)         :   1.23s
+4. 历史记录加载 (History)         :   0.08s
+5. Prompt 构建 (Prompt Building)  :   0.02s
+6. AI 接口响应 (AI Inference)     :   4.56s
+
+------------------------------------------------------------
+总计总耗时                      :   8.37s
+============================================================
+```
+
+**章节来源**
+- [scripts/diagnose_ai_flow.py:1-169](file://scripts/diagnose_ai_flow.py#L1-L169)
 
 ## 依赖关系分析
 
@@ -817,10 +967,11 @@ asyncio[异步处理]
 logging[日志系统]
 end
 subgraph "AI相关"
-Gemini[Google GenAI]
 SiliconFlow[SiliconFlow API]
 DeepSeek[DeepSeek模型]
 JSONParser[JSON解析器]
+CallLogger[调用日志器]
+ProxyConfig[代理配置]
 end
 subgraph "数据源"
 AkShare[AkShare库]
@@ -843,6 +994,7 @@ PortfolioRepository[组合仓储]
 Helpers[辅助工具]
 Mappers[数据映射]
 LogContext[日志上下文]
+Parser[响应解析器]
 end
 subgraph "前端并行加载"
 ParallelLoader[并行加载器]
@@ -852,17 +1004,26 @@ end
 subgraph "监控系统"
 JSONFormatter[JSON格式化器]
 PerformanceMonitor[性能监控]
-LogStack[日志栈]
+MonitoringStack[监控栈]
+DiagnosticScript[诊断脚本]
+end
+subgraph "供应商配置"
+ProviderConfig[供应商配置]
+AIModelConfig[AI模型配置]
+UserAIModel[用户AI模型]
+UserProviderCredential[用户供应商凭据]
+ProviderConfigRepository[供应商配置仓储]
 end
 FastAPI --> SQLAlchemy
 FastAPI --> Pydantic
 FastAPI --> HTTPX
 FastAPI --> asyncio
 FastAPI --> logging
-AIService --> Gemini
 AIService --> SiliconFlow
 AIService --> DeepSeek
 AIService --> JSONParser
+AIService --> CallLogger
+AIService --> ProxyConfig
 MarketDataService --> AkShare
 MarketDataService --> Tavily
 MarketDataService --> YFinance
@@ -878,18 +1039,25 @@ AnalysisRepository --> AnalysisReport
 PortfolioRepository --> PortfolioAnalysisReport
 Helpers --> AnalysisRepository
 Mappers --> AnalysisRepository
+Parser --> JSONParser
 ParallelLoader --> CacheManager
 CacheManager --> RetryMechanism
-JSONFormatter --> LogStack
-PerformanceMonitor --> LogStack
+JSONFormatter --> MonitoringStack
+PerformanceMonitor --> MonitoringStack
+DiagnosticScript --> AIService
+ProviderConfig --> AIService
+AIModelConfig --> AIService
+UserAIModel --> AIService
+UserProviderCredential --> AIService
+ProviderConfigRepository --> ProviderConfig
 ```
 
 **图表来源**
-- [backend/app/core/config.py:1-36](file://backend/app/core/config.py#L1-L36)
+- [backend/app/core/config.py:1-38](file://backend/app/core/config.py#L1-L38)
 - [backend/app/services/ai_service.py:1-12](file://backend/app/services/ai_service.py#L1-L12)
 
 **章节来源**
-- [backend/app/core/config.py:1-36](file://backend/app/core/config.py#L1-L36)
+- [backend/app/core/config.py:1-38](file://backend/app/core/config.py#L1-L38)
 - [backend/app/services/ai_service.py:1-12](file://backend/app/services/ai_service.py#L1-L12)
 
 ## 性能考虑
@@ -941,9 +1109,48 @@ PerformanceMonitor --> LogStack
 - **资源监控**：实时监控系统资源使用情况
 - **性能告警**：基于阈值的性能告警机制
 
+### 代理环境变量配置
+
+系统新增了代理环境变量配置支持，解决Python 3.14 + httpx兼容性问题：
+
+- **自动代理设置**：根据配置自动设置HTTP_PROXY和HTTPS_PROXY环境变量
+- **兼容性修复**：确保AI服务在新版本Python环境下正常运行
+- **灵活配置**：支持通过环境变量或配置文件设置代理
+
+### 超时处理优化
+
+系统对AI调用超时进行了优化：
+
+- **推理模型超时**：默认300秒超时，适用于DeepSeek等推理模型
+- **供应商超时配置**：支持按供应商配置不同的超时时间
+- **分段超时监控**：调用日志器提供分段计时，精确监控每个环节耗时
+
+### AI调用性能监控
+
+系统提供了完整的AI调用性能监控：
+
+- **完整调用记录**：记录每次AI调用的完整过程，包括提示词、响应、耗时
+- **分段计时**：精确记录网络请求、模型推理、响应解析等各个环节
+- **错误追踪**：详细记录调用失败的原因和时间点
+- **性能统计**：提供调用成功率、平均耗时、错误率等统计指标
+
+### 供应商配置管理优化
+
+**新增** 系统引入了全新的供应商配置管理系统：
+
+- **动态URL切换**：支持运行时修改供应商Base URL，无需重启服务
+- **故障转移机制**：按优先级顺序自动切换供应商，提升可用性
+- **统一凭据管理**：支持用户级和系统级API密钥配置
+- **实时配置更新**：供应商配置变更立即生效，无需重启
+
 **章节来源**
 - [frontend/features/dashboard/hooks/useDashboardStockDetailData.ts:61-76](file://frontend/features/dashboard/hooks/useDashboardStockDetailData.ts#L61-L76)
 - [backend/app/utils/json_logger.py:111-166](file://backend/app/utils/json_logger.py#L111-L166)
+- [backend/app/services/ai_service.py:1-7](file://backend/app/services/ai_service.py#L1-L7)
+- [backend/app/services/ai_service.py:203-356](file://backend/app/services/ai_service.py#L203-L356)
+- [backend/app/models/provider_config.py:12-48](file://backend/app/models/provider_config.py#L12-L48)
+- [backend/app/models/user_ai_model.py:9-26](file://backend/app/models/user_ai_model.py#L9-L26)
+- [backend/app/models/user_provider_credential.py:9-23](file://backend/app/models/user_provider_credential.py#L9-L23)
 
 ## 故障排除指南
 
@@ -953,11 +1160,15 @@ PerformanceMonitor --> LogStack
 - 检查API密钥配置是否正确
 - 验证供应商可用性，查看供应商列表
 - 检查网络连接和防火墙设置
+- **新增**：验证代理环境变量配置是否正确
+- **新增**：检查供应商配置表中的Base URL是否正确
 
 **数据抓取超时**
 - 检查数据源可用性（AkShare、Tavily等）
 - 调整超时参数和重试机制
 - 查看API配额限制
+- **新增**：检查网络代理配置
+- **新增**：验证供应商的Base URL可达性
 
 **推送通知失败**
 - 验证飞书Webhook URL配置
@@ -968,12 +1179,16 @@ PerformanceMonitor --> LogStack
 - 检查AI模型配置和可用性
 - 验证输入数据的完整性和准确性
 - 查看分析日志和错误信息
+- **新增**：使用诊断脚本进行全面排查
+- **新增**：检查用户自定义模型配置
 
 **性能问题**
 - 检查数据库连接池配置
 - 监控CPU和内存使用情况
 - 优化查询语句和索引
 - 调整并发限制参数
+- **新增**：检查日志系统的性能影响
+- **新增**：验证供应商配置缓存是否生效
 
 **并行处理问题**
 - 检查异步任务的超时设置
@@ -984,10 +1199,31 @@ PerformanceMonitor --> LogStack
 - 检查日志格式配置
 - 验证日志输出路径
 - 确认日志轮转设置
+- **新增**：验证AI调用日志的完整性
+- **新增**：检查供应商配置变更日志
+
+**代理配置问题**
+- **新增**：检查HTTP_PROXY和HTTPS_PROXY环境变量
+- 验证代理服务器的连通性
+- 确认代理认证配置
+- 测试代理环境下的网络访问
+
+**供应商配置问题**
+- **新增**：检查provider_configs表中的配置
+- 验证供应商的优先级设置
+- 确认供应商的激活状态
+- 测试供应商的Base URL连通性
+
+**用户AI模型问题**
+- **新增**：检查user_ai_models表中的配置
+- 验证用户自定义模型的API密钥
+- 确认模型的激活状态
+- 测试用户自定义模型的Base URL
 
 **章节来源**
 - [backend/app/services/ai_service.py:140-159](file://backend/app/services/ai_service.py#L140-L159)
 - [backend/app/services/notification_service.py:19-127](file://backend/app/services/notification_service.py#L19-L127)
+- [scripts/diagnose_ai_flow.py:33-168](file://scripts/diagnose_ai_flow.py#L33-L168)
 
 ## 结论
 
@@ -1005,6 +1241,14 @@ PerformanceMonitor --> LogStack
 8. **历史数据分析**：完整的分析历史记录和回测功能
 9. **并行数据获取**：全面的并行处理架构，显著提升数据获取效率
 10. **性能监控系统**：完整的结构化日志监控，提供详细的性能洞察
+11. **诊断脚本系统**：新增的全流程诊断能力，提供端到端的问题排查
+12. **代理环境支持**：新增的代理配置支持，解决兼容性问题
+13. **超时处理优化**：针对推理模型的超时优化，提升稳定性
+14. **AI调用监控**：完整的调用链路追踪，提供详细的性能数据
+15. **供应商配置管理**：新增的动态配置管理，支持运行时调整
+16. **用户AI模型管理**：支持用户自定义AI模型配置
+17. **API密钥统一管理**：支持用户级和系统级密钥配置
+18. **运行时配置解耦**：使用Pydantic模型解耦数据库ORM
 
 ### 技术亮点
 
@@ -1016,5 +1260,12 @@ PerformanceMonitor --> LogStack
 - **数据模型设计**：结构化的分析数据存储，支持复杂的分析需求
 - **并行处理**：全面的并行数据获取架构，提升系统整体性能
 - **性能监控**：完整的结构化日志系统，提供实时性能洞察
+- **诊断工具**：新增的诊断脚本，提供完整的故障排查能力
+- **环境适配**：代理配置支持，确保在各种网络环境下的稳定性
+- **供应商管理**：动态供应商配置，支持运行时故障转移
+- **用户定制**：用户AI模型支持，满足个性化需求
+- **配置解耦**：运行时配置模型，提升系统灵活性
 
-该系统为用户提供了一个强大而可靠的AI分析平台，能够有效辅助投资决策，提升投资效率和成功率。通过持续的性能优化和监控改进，系统能够适应不断增长的用户需求和数据规模。
+该系统为用户提供了一个强大而可靠的AI分析平台，能够有效辅助投资决策，提升投资效率和成功率。通过持续的性能优化和监控改进，系统能够适应不断增长的用户需求和数据规模。新增的诊断脚本、性能监控系统和供应商配置管理进一步增强了系统的可观测性和可维护性，为用户提供更好的技术支持和问题解决能力。
+
+**更新** 本次更新主要反映了AI服务架构的重大重构，包括引入新的运行时配置模式、移除Gemini依赖以及全新的供应商配置管理机制。这些变更显著提升了系统的灵活性、可维护性和扩展性，为未来的功能扩展奠定了坚实基础。

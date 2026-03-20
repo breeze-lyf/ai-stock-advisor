@@ -45,7 +45,7 @@ class AnalyzeStockUseCase:
         ticker = ticker.upper().strip()
         logger.info(f"🚀 开始分析股票: {ticker}")
 
-        preferred_model = self.current_user.preferred_ai_model or "gemini-1.5-flash"
+        preferred_model = self.current_user.preferred_ai_model or "deepseek-v3"
         step_start = _log_duration("Step 1: 初始化分析参数", total_start)
 
         # Step 2: Parallel data fetching for all components
@@ -213,8 +213,7 @@ class AnalyzeStockUseCase:
         }
 
     async def _check_free_tier_limit(self):
-        if self.current_user.api_key_gemini:
-            return
+        # 系统级 API Key (如 SiliconFlow) 的免费额度限制
 
         today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
         count = await self.repo.count_reports_since(self.current_user.id, today_start)

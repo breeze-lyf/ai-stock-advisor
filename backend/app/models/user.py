@@ -18,7 +18,6 @@ class MarketDataSource(str, enum.Enum):
 
 # AI 模型选项 (用户可以在个人设置中切换默认模型)
 class AIModel(str, enum.Enum):
-    GEMINI_15_FLASH = "gemini-1.5-flash"
     DEEPSEEK_V3 = "deepseek-v3"
     DEEPSEEK_R1 = "deepseek-r1"
     QWEN_25_72B = "qwen-2.5-72b"
@@ -46,7 +45,6 @@ class User(Base):
     
     # --- 多平台 AI 密钥管理 ---
     # 我们支持多厂家模型，用户可以填入自己的 Key。
-    api_key_gemini = Column(String, nullable=True)     # Google Gemini
     api_key_deepseek = Column(String, nullable=True)   # DeepSeek 官方 (常断连，作为备选)
     
     # 强烈推荐使用的国产聚合平台，直连丝滑，支持 DeepSeek 和 Qwen。
@@ -54,7 +52,7 @@ class User(Base):
     
     # 偏好设置：用户可以自定义使用哪里的行情，以及默认喜欢哪个分析师(AI模型)。
     preferred_data_source = Column(String, default=MarketDataSource.ALPHA_VANTAGE.value) 
-    preferred_ai_model = Column(String, default=AIModel.GEMINI_15_FLASH.value)
+    preferred_ai_model = Column(String, default=AIModel.DEEPSEEK_V3.value)
     timezone = Column(String, default="Asia/Shanghai")
     theme = Column(String, default="light")
     feishu_webhook_url = Column(String, nullable=True) 

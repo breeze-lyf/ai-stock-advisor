@@ -13,6 +13,8 @@ from sqlalchemy.future import select
 from app.core.database import get_db
 from app.core.security import sanitize_float
 from app.schemas.market_data import OHLCVItem
+from app.schemas.portfolio import PortfolioItem
+from app.infrastructure.db.repositories.stock_repository import StockRepository
 
 router = APIRouter()
 
@@ -25,19 +27,111 @@ def _sanitize_float_local(val):
 # OHLCV 数据集清洗：批量处理 K 线图所需的数据
 def _sanitize_ohlcv(items: list) -> list:
     sanitized = []
+    # 定义所有需要检查并清洗的浮点字段
+    float_fields = [
+        "open", "high", "low", "close", "volume",
+        "rsi", "macd", "macd_signal", "macd_hist", 
+        "bb_upper", "bb_middle", "bb_lower"
+    ]
+    
     for item in items:
         # 兼容 dict 或 Pydantic 模型
         d = item if isinstance(item, dict) else item.model_dump()
-        d["open"] = sanitize_float(d.get("open"), 0.0)
-        d["high"] = sanitize_float(d.get("high"), 0.0)
-        d["low"] = sanitize_float(d.get("low"), 0.0)
-        d["close"] = sanitize_float(d.get("close"), 0.0)
-        d["volume"] = sanitize_float(d.get("volume"), 0.0)
-        # 清洗附带的技术指标 (RSI/MACD 等)
-        for key in ["rsi", "macd", "macd_signal", "macd_hist", "bb_upper", "bb_middle", "bb_lower"]:
-            d[key] = sanitize_float(d.get(key))
+        
+        # 遍历所有浮点字段进行清洗
+        for field in float_fields:
+            if field in d:
+                # 核心字段 (OHLC) 默认给 0.0，技术指标默认给 None
+                default_val = 0.0 if field in ["open", "high", "low", "close"] else None
+                d[field] = sanitize_float(d.get(field), default_val)
+        
+        # 补充：处理可能存在的 ma_5, ma_10 等动态指标
+        for key, val in d.items():
+            if key.startswith("ma_") or key.endswith("_indicator"):
+                d[key] = sanitize_float(val)
+                
         sanitized.append(OHLCVItem(**d))
     return sanitized
+
+
+def _snapshot_to_portfolio_item(ticker: str, cache, stock) -> PortfolioItem:
+    return PortfolioItem(
+        ticker=ticker,
+        name=(stock.name if stock and stock.name else ticker),
+        quantity=0.0,
+        avg_cost=0.0,
+        current_price=sanitize_float(getattr(cache, "current_price", None), 0.0),
+        market_value=0.0,
+        unrealized_pl=0.0,
+        pl_percent=0.0,
+        last_updated=getattr(cache, "last_updated", None),
+        sector=getattr(stock, "sector", None) if stock else None,
+        industry=getattr(stock, "industry", None) if stock else None,
+        market_cap=sanitize_float(getattr(stock, "market_cap", None)) if stock else None,
+        pe_ratio=sanitize_float(getattr(stock, "pe_ratio", None)) if stock else None,
+        forward_pe=sanitize_float(getattr(stock, "forward_pe", None)) if stock else None,
+        eps=sanitize_float(getattr(stock, "eps", None)) if stock else None,
+        dividend_yield=sanitize_float(getattr(stock, "dividend_yield", None)) if stock else None,
+        beta=sanitize_float(getattr(stock, "beta", None)) if stock else None,
+        fifty_two_week_high=sanitize_float(getattr(stock, "fifty_two_week_high", None)) if stock else None,
+        fifty_two_week_low=sanitize_float(getattr(stock, "fifty_two_week_low", None)) if stock else None,
+        pe_percentile=sanitize_float(getattr(cache, "pe_percentile", None)),
+        pb_percentile=sanitize_float(getattr(cache, "pb_percentile", None)),
+        net_inflow=sanitize_float(getattr(cache, "net_inflow", None)),
+        rsi_14=sanitize_float(getattr(cache, "rsi_14", None)),
+        ma_20=sanitize_float(getattr(cache, "ma_20", None)),
+        ma_50=sanitize_float(getattr(cache, "ma_50", None)),
+        ma_200=sanitize_float(getattr(cache, "ma_200", None)),
+        macd_val=sanitize_float(getattr(cache, "macd_val", None)),
+        macd_signal=sanitize_float(getattr(cache, "macd_signal", None)),
+        macd_hist=sanitize_float(getattr(cache, "macd_hist", None)),
+        macd_hist_slope=sanitize_float(getattr(cache, "macd_hist_slope", None)),
+        macd_cross=getattr(cache, "macd_cross", None),
+        macd_is_new_cross=bool(getattr(cache, "macd_is_new_cross", False)),
+        bb_upper=sanitize_float(getattr(cache, "bb_upper", None)),
+        bb_middle=sanitize_float(getattr(cache, "bb_middle", None)),
+        bb_lower=sanitize_float(getattr(cache, "bb_lower", None)),
+        atr_14=sanitize_float(getattr(cache, "atr_14", None)),
+        k_line=sanitize_float(getattr(cache, "k_line", None)),
+        d_line=sanitize_float(getattr(cache, "d_line", None)),
+        j_line=sanitize_float(getattr(cache, "j_line", None)),
+        volume_ma_20=sanitize_float(getattr(cache, "volume_ma_20", None)),
+        volume_ratio=sanitize_float(getattr(cache, "volume_ratio", None)),
+        adx_14=sanitize_float(getattr(cache, "adx_14", None)),
+        pivot_point=sanitize_float(getattr(cache, "pivot_point", None)),
+        resistance_1=sanitize_float(getattr(cache, "resistance_1", None)),
+        resistance_2=sanitize_float(getattr(cache, "resistance_2", None)),
+        support_1=sanitize_float(getattr(cache, "support_1", None)),
+        support_2=sanitize_float(getattr(cache, "support_2", None)),
+        risk_reward_ratio=sanitize_float(getattr(cache, "risk_reward_ratio", None)),
+        change_percent=sanitize_float(getattr(cache, "change_percent", None), 0.0),
+        market_status=getattr(cache, "market_status", None),
+    )
+
+
+@router.get("/{ticker}", response_model=PortfolioItem)
+async def get_stock_snapshot(
+    ticker: str,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    接口：获取单只股票的详情快照。
+    场景：用户通过 URL 直接打开某个不在持仓中的标的时，前端仍需渲染真实详情，而不是伪造 0 值对象。
+    """
+    ticker = ticker.upper().strip()
+
+    try:
+        cache = await MarketDataService.get_real_time_data(ticker, db)
+        stock = await StockRepository(db).get_stock(ticker)
+
+        if not cache and not stock:
+            raise HTTPException(status_code=404, detail=f"未找到股票: {ticker}")
+
+        return _snapshot_to_portfolio_item(ticker, cache, stock)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"获取股票详情失败: {str(e)}")
 
 @router.get("/{ticker}/history", response_model=List[OHLCVItem])
 async def get_stock_history(

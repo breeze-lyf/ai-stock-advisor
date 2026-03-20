@@ -1,7 +1,7 @@
 # 分析API
 
 <cite>
-**本文引用的文件**
+**本文档引用的文件**
 - [backend/app/main.py](file://backend/app/main.py)
 - [backend/app/api/v1/api.py](file://backend/app/api/v1/api.py)
 - [backend/app/api/v1/endpoints/analysis.py](file://backend/app/api/v1/endpoints/analysis.py)
@@ -16,15 +16,24 @@
 - [backend/app/schemas/analysis.py](file://backend/app/schemas/analysis.py)
 - [backend/app/core/config.py](file://backend/app/core/config.py)
 - [backend/app/core/security.py](file://backend/app/core/security.py)
+- [backend/app/application/analysis/analyze_stock.py](file://backend/app/application/analysis/analyze_stock.py)
+- [backend/app/application/analysis/analyze_portfolio.py](file://backend/app/application/analysis/analyze_portfolio.py)
+- [backend/app/application/analysis/query_analysis.py](file://backend/app/application/analysis/query_analysis.py)
+- [backend/app/utils/ai_response_parser.py](file://backend/app/utils/ai_response_parser.py)
+- [frontend/features/analysis/api.ts](file://frontend/features/analysis/api.ts)
+- [frontend/features/dashboard/hooks/useDashboardPortfolioTabData.ts](file://frontend/features/dashboard/hooks/useDashboardPortfolioTabData.ts)
+- [frontend/features/dashboard/components/PortfolioTabContainer.tsx](file://frontend/features/dashboard/components/PortfolioTabContainer.tsx)
+- [backend/core/prompts.py](file://backend/core/prompts.py)
 - [backend/migrations/versions/33f174f249a3_add_structured_analysis_fields.py](file://backend/migrations/versions/33f174f249a3_add_structured_analysis_fields.py)
 - [backend/migrations/versions/731ab4ae1248_add_is_ai_strategy_to_marketdatacache.py](file://backend/migrations/versions/731ab4ae1248_add_is_ai_strategy_to_marketdatacache.py)
 - [backend/migrations/versions/0675c6d039e6_create_ai_model_config_table.py](file://backend/migrations/versions/0675c6d039e6_create_ai_model_config_table.py)
+- [backend/migrations/versions/f3fe98d72c73_add_horizon_and_confidence.py](file://backend/migrations/versions/f3fe98d72c73_add_horizon_and_confidence.py)
 </cite>
 
 ## 更新摘要
 **变更内容**
 - 重构分析API架构，采用V1端点架构替代旧版本
-- 新增投资组合健康分析功能
+- 保留并完善投资组合健康分析功能
 - 增强AI输出解析和兜底机制
 - 支持多AI模型（Gemini、SiliconFlow等）
 - 改进结构化数据分析存储
@@ -76,21 +85,21 @@ F --> J["外部模型：Gemini / SiliconFlow / DeepSeek"]
 ```
 
 **图表来源**
-- [backend/app/main.py](file://backend/app/main.py#L114-L117)
-- [backend/app/api/v1/api.py](file://backend/app/api/v1/api.py#L1-L25)
-- [backend/app/api/v1/endpoints/analysis.py](file://backend/app/api/v1/endpoints/analysis.py#L1-L657)
-- [backend/app/services/market_data.py](file://backend/app/services/market_data.py#L1-L266)
-- [backend/app/services/ai_service.py](file://backend/app/services/ai_service.py#L1-L390)
-- [backend/app/models/analysis.py](file://backend/app/models/analysis.py#L1-L42)
-- [backend/app/models/stock.py](file://backend/app/models/stock.py#L1-L105)
-- [backend/app/models/portfolio.py](file://backend/app/models/portfolio.py#L1-L32)
-- [backend/app/models/user.py](file://backend/app/models/user.py#L1-L41)
-- [backend/app/models/ai_config.py](file://backend/app/models/ai_config.py#L1-L21)
-- [backend/app/schemas/analysis.py](file://backend/app/schemas/analysis.py#L1-L38)
+- [backend/app/main.py:114-117](file://backend/app/main.py#L114-L117)
+- [backend/app/api/v1/api.py:1-25](file://backend/app/api/v1/api.py#L1-L25)
+- [backend/app/api/v1/endpoints/analysis.py:1-70](file://backend/app/api/v1/endpoints/analysis.py#L1-L70)
+- [backend/app/services/market_data.py:1-266](file://backend/app/services/market_data.py#L1-L266)
+- [backend/app/services/ai_service.py:1-390](file://backend/app/services/ai_service.py#L1-L390)
+- [backend/app/models/analysis.py:1-42](file://backend/app/models/analysis.py#L1-L42)
+- [backend/app/models/stock.py:1-105](file://backend/app/models/stock.py#L1-L105)
+- [backend/app/models/portfolio.py:1-32](file://backend/app/models/portfolio.py#L1-L32)
+- [backend/app/models/user.py:1-41](file://backend/app/models/user.py#L1-L41)
+- [backend/app/models/ai_config.py:1-21](file://backend/app/models/ai_config.py#L1-L21)
+- [backend/app/schemas/analysis.py:1-62](file://backend/app/schemas/analysis.py#L1-L62)
 
 **章节来源**
-- [backend/app/main.py](file://backend/app/main.py#L1-L129)
-- [backend/app/api/v1/api.py](file://backend/app/api/v1/api.py#L1-L25)
+- [backend/app/main.py:1-170](file://backend/app/main.py#L1-L170)
+- [backend/app/api/v1/api.py:1-33](file://backend/app/api/v1/api.py#L1-L33)
 
 ## 核心组件
 - **分析接口**：接收股票代码，组装市场数据、新闻、用户持仓上下文，调用AI生成分析报告并返回。
@@ -104,10 +113,10 @@ F --> J["外部模型：Gemini / SiliconFlow / DeepSeek"]
 **更新** 新架构提供了更强大的投资组合分析功能，支持多模型配置和增强的上下文注入，以及历史分析上下文的智能利用。
 
 **章节来源**
-- [backend/app/api/v1/endpoints/analysis.py](file://backend/app/api/v1/endpoints/analysis.py#L64-L184)
-- [backend/app/services/market_data.py](file://backend/app/services/market_data.py#L13-L170)
-- [backend/app/services/ai_service.py](file://backend/app/services/ai_service.py#L23-L390)
-- [backend/app/api/deps.py](file://backend/app/api/deps.py#L17-L45)
+- [backend/app/api/v1/endpoints/analysis.py:44-70](file://backend/app/api/v1/endpoints/analysis.py#L44-L70)
+- [backend/app/services/market_data.py:13-170](file://backend/app/services/market_data.py#L13-L170)
+- [backend/app/services/ai_service.py:23-390](file://backend/app/services/ai_service.py#L23-L390)
+- [backend/app/api/deps.py:17-45](file://backend/app/api/deps.py#L17-L45)
 
 ## 架构总览
 下图展示一次"触发AI分析"的端到端流程：
@@ -140,10 +149,10 @@ API-->>Client : "结构化分析结果"
 ```
 
 **图表来源**
-- [backend/app/api/v1/endpoints/analysis.py](file://backend/app/api/v1/endpoints/analysis.py#L198-L657)
-- [backend/app/api/deps.py](file://backend/app/api/deps.py#L17-L45)
-- [backend/app/services/market_data.py](file://backend/app/services/market_data.py#L13-L170)
-- [backend/app/services/ai_service.py](file://backend/app/services/ai_service.py#L135-L286)
+- [backend/app/api/v1/endpoints/analysis.py:44-70](file://backend/app/api/v1/endpoints/analysis.py#L44-L70)
+- [backend/app/api/deps.py:17-45](file://backend/app/api/deps.py#L17-L45)
+- [backend/app/services/market_data.py:13-170](file://backend/app/services/market_data.py#L13-L170)
+- [backend/app/services/ai_service.py:135-286](file://backend/app/services/ai_service.py#L135-L286)
 
 ## 详细组件分析
 
@@ -204,8 +213,8 @@ API-->>Client : "结构化分析结果"
 **更新** 新架构提供了更丰富的响应字段，支持结构化数据分析和投资组合全景扫描，新增历史分析上下文的智能利用。
 
 **章节来源**
-- [backend/app/api/v1/endpoints/analysis.py](file://backend/app/api/v1/endpoints/analysis.py#L198-L657)
-- [backend/app/schemas/analysis.py](file://backend/app/schemas/analysis.py#L5-L38)
+- [backend/app/api/v1/endpoints/analysis.py:44-70](file://backend/app/api/v1/endpoints/analysis.py#L44-L70)
+- [backend/app/schemas/analysis.py:5-62](file://backend/app/schemas/analysis.py#L5-L62)
 
 ### 请求上下文拼装规则
 接口在生成分析前会收集以下上下文并传入AI服务：
@@ -229,10 +238,10 @@ API-->>Client : "结构化分析结果"
 - **RAG增强**：并行获取宏观和重点持仓新闻
 
 **章节来源**
-- [backend/app/api/v1/endpoints/analysis.py](file://backend/app/api/v1/endpoints/analysis.py#L238-L423)
-- [backend/app/services/market_data.py](file://backend/app/services/market_data.py#L13-L170)
-- [backend/app/models/stock.py](file://backend/app/models/stock.py#L14-L105)
-- [backend/app/models/portfolio.py](file://backend/app/models/portfolio.py#L9-L32)
+- [backend/app/api/v1/endpoints/analysis.py:44-70](file://backend/app/api/v1/endpoints/analysis.py#L44-L70)
+- [backend/app/services/market_data.py:13-170](file://backend/app/services/market_data.py#L13-L170)
+- [backend/app/models/stock.py:14-105](file://backend/app/models/stock.py#L14-L105)
+- [backend/app/models/portfolio.py:9-32](file://backend/app/models/portfolio.py#L9-L32)
 
 ### AI服务与外部模型集成
 - **模型支持**：Gemini 1.5 Flash、SiliconFlow、DeepSeek、Qwen系列
@@ -244,8 +253,8 @@ API-->>Client : "结构化分析结果"
 **更新** 新架构支持多模型配置和动态模型ID解析，提供更好的模型管理和降级机制，新增模型配置缓存机制。
 
 **章节来源**
-- [backend/app/services/ai_service.py](file://backend/app/services/ai_service.py#L23-L390)
-- [backend/app/core/config.py](file://backend/app/core/config.py#L13-L18)
+- [backend/app/services/ai_service.py:23-390](file://backend/app/services/ai_service.py#L23-L390)
+- [backend/app/core/config.py:13-18](file://backend/app/core/config.py#L13-L18)
 
 ### 数据来源与缓存策略
 - **缓存命中**：若缓存存在且小于1分钟，则直接返回缓存
@@ -258,8 +267,8 @@ API-->>Client : "结构化分析结果"
 **更新** 新架构增强了缓存同步机制，AI生成的策略会锁定到缓存中，防止被通用算法覆盖，新增is_ai_strategy字段标记AI策略。
 
 **章节来源**
-- [backend/app/services/market_data.py](file://backend/app/services/market_data.py#L13-L170)
-- [backend/app/api/v1/endpoints/analysis.py](file://backend/app/api/v1/endpoints/analysis.py#L541-L577)
+- [backend/app/services/market_data.py:13-170](file://backend/app/services/market_data.py#L13-L170)
+- [backend/app/api/v1/endpoints/analysis.py:541-577](file://backend/app/api/v1/endpoints/analysis.py#L541-L577)
 
 ### 鉴权与并发限制
 - **鉴权**：通过OAuth2 Bearer令牌校验，解码JWT获取用户ID并加载用户信息
@@ -271,9 +280,9 @@ API-->>Client : "结构化分析结果"
 **更新** 新架构增加了模型配置缓存机制，提高API响应速度，新增AI策略标记防止缓存被覆盖。
 
 **章节来源**
-- [backend/app/api/v1/endpoints/analysis.py](file://backend/app/api/v1/endpoints/analysis.py#L213-L237)
-- [backend/app/api/deps.py](file://backend/app/api/deps.py#L17-L45)
-- [backend/app/services/ai_service.py](file://backend/app/services/ai_service.py#L24-L77)
+- [backend/app/api/v1/endpoints/analysis.py:213-237](file://backend/app/api/v1/endpoints/analysis.py#L213-L237)
+- [backend/app/api/deps.py:17-45](file://backend/app/api/deps.py#L17-L45)
+- [backend/app/services/ai_service.py:24-77](file://backend/app/services/ai_service.py#L24-L77)
 
 ### 响应格式与JSON解析规则
 - **返回结构**：包含ticker、analysis、sentiment_score等丰富字段
@@ -286,8 +295,8 @@ API-->>Client : "结构化分析结果"
 **更新** 新架构提供了更严格的JSON解析和更强的兜底机制，确保响应的完整性，新增历史数据自动补全功能。
 
 **章节来源**
-- [backend/app/api/v1/endpoints/analysis.py](file://backend/app/api/v1/endpoints/analysis.py#L445-L484)
-- [backend/app/services/ai_service.py](file://backend/app/services/ai_service.py#L135-L286)
+- [backend/app/api/v1/endpoints/analysis.py:445-484](file://backend/app/api/v1/endpoints/analysis.py#L445-L484)
+- [backend/app/services/ai_service.py:135-286](file://backend/app/services/ai_service.py#L135-L286)
 
 ### 分析质量评估与可信度说明
 - **可信度来源**：
@@ -304,8 +313,8 @@ API-->>Client : "结构化分析结果"
 **更新** 新架构通过历史上下文和多模型支持提升了分析质量，新增AI策略标记确保分析结果的稳定性。
 
 **章节来源**
-- [backend/app/services/ai_service.py](file://backend/app/services/ai_service.py#L135-L286)
-- [backend/app/api/v1/endpoints/analysis.py](file://backend/app/api/v1/endpoints/analysis.py#L213-L237)
+- [backend/app/services/ai_service.py:135-286](file://backend/app/services/ai_service.py#L135-L286)
+- [backend/app/api/v1/endpoints/analysis.py:213-237](file://backend/app/api/v1/endpoints/analysis.py#L213-L237)
 
 ### 多场景示例与最佳实践
 - **场景一**：首次分析某股票
@@ -329,9 +338,9 @@ API-->>Client : "结构化分析结果"
 **更新** 新增投资组合分析的最佳实践和多模型使用建议，以及AI策略标记的使用说明。
 
 **章节来源**
-- [backend/app/api/v1/endpoints/analysis.py](file://backend/app/api/v1/endpoints/analysis.py#L64-L184)
-- [backend/app/models/user.py](file://backend/app/models/user.py#L22-L41)
-- [backend/app/services/market_data.py](file://backend/app/services/market_data.py#L49-L56)
+- [backend/app/api/v1/endpoints/analysis.py:64-184](file://backend/app/api/v1/endpoints/analysis.py#L64-L184)
+- [backend/app/models/user.py:22-41](file://backend/app/models/user.py#L22-L41)
+- [backend/app/services/market_data.py:49-56](file://backend/app/services/market_data.py#L49-L56)
 
 ### 与外部AI服务的集成方式与错误处理
 - **集成方式**：
@@ -347,8 +356,8 @@ API-->>Client : "结构化分析结果"
 **更新** 新架构提供了更完善的错误处理和模型配置管理机制，新增模型配置缓存和AI策略标记功能。
 
 **章节来源**
-- [backend/app/services/ai_service.py](file://backend/app/services/ai_service.py#L78-L133)
-- [backend/app/services/market_data.py](file://backend/app/services/market_data.py#L303-L318)
+- [backend/app/services/ai_service.py:78-133](file://backend/app/services/ai_service.py#L78-L133)
+- [backend/app/services/market_data.py:303-318](file://backend/app/services/market_data.py#L303-L318)
 
 ## 依赖分析
 - **组件耦合**
@@ -376,15 +385,15 @@ AI --> ModelConfig["模型配置缓存"]
 ```
 
 **图表来源**
-- [backend/app/api/v1/endpoints/analysis.py](file://backend/app/api/v1/endpoints/analysis.py#L1-L657)
-- [backend/app/services/market_data.py](file://backend/app/services/market_data.py#L1-L266)
-- [backend/app/services/ai_service.py](file://backend/app/services/ai_service.py#L1-L390)
-- [backend/app/models/analysis.py](file://backend/app/models/analysis.py#L1-L42)
-- [backend/app/models/stock.py](file://backend/app/models/stock.py#L1-L105)
-- [backend/app/models/portfolio.py](file://backend/app/models/portfolio.py#L1-L32)
-- [backend/app/models/user.py](file://backend/app/models/user.py#L1-L41)
-- [backend/app/models/ai_config.py](file://backend/app/models/ai_config.py#L1-L21)
-- [backend/app/schemas/analysis.py](file://backend/app/schemas/analysis.py#L1-L38)
+- [backend/app/api/v1/endpoints/analysis.py:1-70](file://backend/app/api/v1/endpoints/analysis.py#L1-L70)
+- [backend/app/services/market_data.py:1-266](file://backend/app/services/market_data.py#L1-L266)
+- [backend/app/services/ai_service.py:1-390](file://backend/app/services/ai_service.py#L1-L390)
+- [backend/app/models/analysis.py:1-42](file://backend/app/models/analysis.py#L1-L42)
+- [backend/app/models/stock.py:1-105](file://backend/app/models/stock.py#L1-L105)
+- [backend/app/models/portfolio.py:1-32](file://backend/app/models/portfolio.py#L1-L32)
+- [backend/app/models/user.py:1-41](file://backend/app/models/user.py#L1-L41)
+- [backend/app/models/ai_config.py:1-21](file://backend/app/models/ai_config.py#L1-L21)
+- [backend/app/schemas/analysis.py:1-62](file://backend/app/schemas/analysis.py#L1-L62)
 
 ## 性能考虑
 - **缓存策略**
@@ -408,9 +417,9 @@ AI --> ModelConfig["模型配置缓存"]
 **更新** 新架构引入了模型配置缓存和并行新闻获取等性能优化措施，新增AI策略标记确保分析结果的稳定性。
 
 **章节来源**
-- [backend/app/services/market_data.py](file://backend/app/services/market_data.py#L16-L56)
-- [backend/app/services/ai_service.py](file://backend/app/services/ai_service.py#L24-L77)
-- [backend/app/api/v1/endpoints/analysis.py](file://backend/app/api/v1/endpoints/analysis.py#L92-L106)
+- [backend/app/services/market_data.py:16-56](file://backend/app/services/market_data.py#L16-L56)
+- [backend/app/services/ai_service.py:24-77](file://backend/app/services/ai_service.py#L24-L77)
+- [backend/app/api/v1/endpoints/analysis.py:92-106](file://backend/app/api/v1/endpoints/analysis.py#L92-L106)
 
 ## 故障排查指南
 - **429 Too Many Requests**
@@ -438,10 +447,10 @@ AI --> ModelConfig["模型配置缓存"]
 **更新** 新增了AI解析失败和模型配置错误的故障排查指南，以及AI策略被覆盖的故障排查。
 
 **章节来源**
-- [backend/app/api/v1/endpoints/analysis.py](file://backend/app/api/v1/endpoints/analysis.py#L213-L237)
-- [backend/app/services/market_data.py](file://backend/app/services/market_data.py#L303-L318)
-- [backend/app/services/ai_service.py](file://backend/app/services/ai_service.py#L30-L77)
-- [backend/app/api/deps.py](file://backend/app/api/deps.py#L28-L45)
+- [backend/app/api/v1/endpoints/analysis.py:213-237](file://backend/app/api/v1/endpoints/analysis.py#L213-L237)
+- [backend/app/services/market_data.py:303-318](file://backend/app/services/market_data.py#L303-L318)
+- [backend/app/services/ai_service.py:30-77](file://backend/app/services/ai_service.py#L30-L77)
+- [backend/app/api/deps.py:28-45](file://backend/app/api/deps.py#L28-L45)
 
 ## 结论
 本分析接口通过"上下文拼装 + 多数据源 + 多模型 + AI模型"的组合，为用户提供个性化的中文分析报告。新架构设计兼顾了实时性、稳定性与可扩展性：缓存与回退策略降低外部依赖风险；免费用户限制与个人Key绑定平衡成本与体验；多模型支持和增强的上下文注入提升了分析质量；前后端协同可进一步优化性能与用户体验。
@@ -507,8 +516,8 @@ AI --> ModelConfig["模型配置缓存"]
 **更新** 新增了投资组合分析接口的完整定义和响应格式，以及历史分析上下文功能的说明。
 
 **章节来源**
-- [backend/app/api/v1/endpoints/analysis.py](file://backend/app/api/v1/endpoints/analysis.py#L198-L657)
-- [backend/app/schemas/analysis.py](file://backend/app/schemas/analysis.py#L5-L38)
+- [backend/app/api/v1/endpoints/analysis.py:44-70](file://backend/app/api/v1/endpoints/analysis.py#L44-L70)
+- [backend/app/schemas/analysis.py:5-62](file://backend/app/schemas/analysis.py#L5-L62)
 
 ### 配置项与环境变量
 - **数据库连接**：DATABASE_URL
@@ -524,9 +533,9 @@ AI --> ModelConfig["模型配置缓存"]
 **更新** 新增了多模型供应商的API Key配置和模型配置缓存TTL设置，以及AI策略标记的相关配置。
 
 **章节来源**
-- [backend/app/core/config.py](file://backend/app/core/config.py#L4-L24)
-- [backend/app/core/security.py](file://backend/app/core/security.py#L31-L39)
-- [backend/app/services/ai_service.py](file://backend/app/services/ai_service.py#L24-L29)
+- [backend/app/core/config.py:4-24](file://backend/app/core/config.py#L4-L24)
+- [backend/app/core/security.py:31-39](file://backend/app/core/security.py#L31-L39)
+- [backend/app/services/ai_service.py:24-29](file://backend/app/services/ai_service.py#L24-L29)
 
 ### 数据模型关系
 ```mermaid
@@ -647,10 +656,10 @@ AI_MODEL_CONFIGS ||--o{ ANALYSIS_REPORTS : "配置"
 ```
 
 **图表来源**
-- [backend/app/models/user.py](file://backend/app/models/user.py#L22-L41)
-- [backend/app/models/stock.py](file://backend/app/models/stock.py#L14-L105)
-- [backend/app/models/portfolio.py](file://backend/app/models/portfolio.py#L9-L32)
-- [backend/app/models/analysis.py](file://backend/app/models/analysis.py#L12-L42)
-- [backend/app/models/ai_config.py](file://backend/app/models/ai_config.py#L6-L21)
+- [backend/app/models/user.py:22-41](file://backend/app/models/user.py#L22-L41)
+- [backend/app/models/stock.py:14-105](file://backend/app/models/stock.py#L14-L105)
+- [backend/app/models/portfolio.py:9-32](file://backend/app/models/portfolio.py#L9-L32)
+- [backend/app/models/analysis.py:12-42](file://backend/app/models/analysis.py#L12-L42)
+- [backend/app/models/ai_config.py:6-21](file://backend/app/models/ai_config.py#L6-L21)
 
 **更新** 新增了多模型API Key字段、AI策略标记字段和AI模型配置表，以及相关的数据模型关系。

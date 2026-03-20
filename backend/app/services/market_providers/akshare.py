@@ -86,8 +86,9 @@ class AkShareProvider(MarketDataProvider):
     @classmethod
     def _get_semaphore(cls):
         if cls._async_lock is None:
-            # 使用信号量允许多个协程同时进行 IO 任务，但限制总数防止资源耗尽
-            cls._async_lock = asyncio.Semaphore(5)
+            # 严重警告：在 macOS ARM + Python 3.14 环境下，mini_racer (V8) 的并发初始化存在线程安全漏洞。
+            # 必须将信号量限制为 1 以强行序列化所有可能触发 JS 引擎初始化的 AkShare 调用。
+            cls._async_lock = asyncio.Semaphore(1)
         return cls._async_lock
 
     @classmethod

@@ -52,7 +52,6 @@ class ProviderConfigResponse(BaseModel):
 
 
 class UserSettingsUpdate(BaseModel):
-    api_key_gemini: str | None = None
     api_key_deepseek: str | None = None
     api_key_siliconflow: str | None = None
     api_configs: dict[str, ApiConfig] | None = None
@@ -75,14 +74,13 @@ class UserProfile(BaseModel):
     id: str
     email: str
     membership_tier: str
-    has_gemini_key: bool
     has_deepseek_key: bool
     has_siliconflow_key: bool
     api_configs: dict[str, ApiConfig] | None = None
     provider_credentials: dict[str, UserProviderCredentialResponse] | None = None
     fallback_enabled: bool = True
     preferred_data_source: str = "AKSHARE"
-    preferred_ai_model: str = "gemini-1.5-flash"
+    preferred_ai_model: str = "deepseek-v3"
     timezone: str = "Asia/Shanghai"
     theme: str = "dark"
     feishu_webhook_url: str | None = None

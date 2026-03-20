@@ -34,7 +34,7 @@ class AnalyzePortfolioUseCase:
         holdings_data = self._build_holdings_data(summary.holdings)
         market_news_context = await self._build_market_news_context(summary.holdings)
         macro_context = await self._build_macro_context()
-        preferred_model = self.current_user.preferred_ai_model or "gemini-1.5-flash"
+        preferred_model = self.current_user.preferred_ai_model or "deepseek-v3"
 
         ai_raw_response = await AIService.generate_portfolio_analysis(
             portfolio_items=holdings_data,

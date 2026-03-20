@@ -6,7 +6,7 @@ MODE="${1:-dev}"
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 BACKEND_PORT="${BACKEND_PORT:-8000}"
 FRONTEND_PORT="${FRONTEND_PORT:-3000}"
-DEV_HOST="${DEV_HOST:-127.0.0.1}"
+DEV_HOST="${DEV_HOST:-0.0.0.0}"
 
 port_listener() {
     local port="$1"

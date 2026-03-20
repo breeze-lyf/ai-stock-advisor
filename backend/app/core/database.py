@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy import event, text
+from sqlalchemy.engine import make_url
 from app.core.config import settings
 
 # 数据库引擎核心配置 (Database Engine Config)
@@ -16,11 +17,16 @@ if "sqlite" in settings.DATABASE_URL:
         "timeout": 30,
     }
 elif is_postgresql:
-    # Neon 强制要求 SSL
-    connect_args = {
-        "ssl": "require",
-        "command_timeout": 60,
-    }
+    parsed_url = make_url(settings.DATABASE_URL)
+    host = (parsed_url.host or "").strip().lower()
+    sslmode = str(parsed_url.query.get("sslmode", "")).strip().lower()
+    is_local_postgres = host in {"127.0.0.1", "localhost"}
+    is_neon = host.endswith(".neon.tech")
+
+    connect_args = {"command_timeout": 60}
+    # 仅在 Neon 或显式声明 require 时开启 SSL，避免本地 Postgres 启动失败。
+    if sslmode in {"require", "verify-ca", "verify-full"} or is_neon:
+        connect_args["ssl"] = "require"
 
 engine = create_async_engine(
     settings.DATABASE_URL,

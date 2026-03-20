@@ -15,6 +15,9 @@
 - [backend/app/models/user.py](file://backend/app/models/user.py)
 - [backend/app/models/ai_config.py](file://backend/app/models/ai_config.py)
 - [backend/app/models/provider_config.py](file://backend/app/models/provider_config.py)
+- [backend/app/models/user_ai_model.py](file://backend/app/models/user_ai_model.py)
+- [backend/app/models/user_provider_credential.py](file://backend/app/models/user_provider_credential.py)
+- [backend/app/schemas/ai_config.py](file://backend/app/schemas/ai_config.py)
 - [backend/app/utils/ai_response_parser.py](file://backend/app/utils/ai_response_parser.py)
 - [backend/requirements.txt](file://backend/requirements.txt)
 - [.env.example](file://.env.example)
@@ -24,18 +27,20 @@
 - [backend/migrations/versions/15c8d26963f4_add_structured_action_fields.py](file://backend/migrations/versions/15c8d26963f4_add_structured_action_fields.py)
 - [backend/migrations/versions/0675c6d039e6_create_ai_model_config_table.py](file://backend/migrations/versions/0675c6d039e6_create_ai_model_config_table.py)
 - [backend/migrations/versions/ab4e342e4749_create_provider_configs_v4.py](file://backend/migrations/versions/ab4e342e4749_create_provider_configs_v4.py)
+- [backend/migrations/versions/221e2b34d133_add_siliconflow_and_ai_model_to_user.py](file://backend/migrations/versions/221e2b34d133_add_siliconflow_and_ai_model_to_user.py)
+- [backend/migrations/versions/ae1b8335eea2_add_user_ai_configs.py](file://backend/migrations/versions/ae1b8335eea2_add_user_ai_configs.py)
 - [frontend/app/settings/page.tsx](file://frontend/app/settings/page.tsx)
 - [backend/tests/test_byok_dispatch.py](file://backend/tests/test_byok_dispatch.py)
 </cite>
 
 ## 更新摘要
 **变更内容**
-- AI服务已重构为多提供商系统，支持Gemini、SiliconFlow、DeepSeek等多家AI提供商
-- 引入集中式供应商配置管理，支持动态API密钥解析和故障转移
-- 新增提示词模板中心，实现提示工程的集中化管理
-- 增强了BYOK（Bring Your Own Key）支持，用户可自定义供应商配置
-- 完善了AI模型配置表，支持多模型动态切换和缓存机制
-- 新增供应商配置模型，支持优先级排序和超时控制
+- 新增AI模型运行时配置系统，支持动态模型配置和缓存机制
+- AI服务架构重构，移除Google Gemini依赖，更新默认模型为deepseek-v3
+- 引入用户AI模型管理系统，支持BYOK（Bring Your Own Key）和自定义供应商配置
+- 新增统一的供应商凭据管理，支持用户级API Key和Base URL配置
+- 更新AI模型配置表，支持多模型动态切换和优先级管理
+- 增强故障转移机制，支持用户级回退开关控制
 
 ## 目录
 1. [简介](#简介)
@@ -50,16 +55,16 @@
 10. [附录](#附录)
 
 ## 简介
-本项目为"AI智能分析服务"，围绕美股股票提供一体化的智能分析能力。系统通过FastAPI提供REST接口，后端集成了多AI提供商（Gemini、DeepSeek、Qwen、SiliconFlow等）进行自然语言分析，结合技术面与消息面数据，输出中文JSON格式的投资建议。系统的核心创新在于AI分析指令的优化，强调基于最新数据的适应性调整而非僵化的策略一致性，显著提升了AI决策的灵活性和准确性。
+本项目为"AI智能分析服务"，围绕美股股票提供一体化的智能分析能力。系统通过FastAPI提供REST接口，后端集成了多AI提供商（SiliconFlow、DeepSeek、DashScope等）进行自然语言分析，结合技术面与消息面数据，输出中文JSON格式的投资建议。系统的核心创新在于AI分析指令的优化，强调基于最新数据的适应性调整而非僵化的策略一致性，显著提升了AI决策的灵活性和准确性。
 
-**全新重构**：系统现已重构为多提供商架构，引入集中式供应商配置管理、动态API密钥解析和工厂模式设计，支持用户自定义供应商配置和故障转移机制。通过提示词模板中心实现提示工程的标准化管理，增强系统的可扩展性和维护性。
+**全新重构**：系统现已重构为多提供商架构，引入集中式供应商配置管理、动态API密钥解析和工厂模式设计，支持用户自定义供应商配置和故障转移机制。通过提示词模板中心实现提示工程的标准化管理，增强系统的可扩展性和维护性。**重要更新**：移除了Google Gemini依赖，更新默认模型为deepseek-v3，增强了AI模型运行时配置系统。
 
 ## 项目结构
 后端采用分层架构：
 - 应用入口与路由：FastAPI应用、CORS中间件、路由注册
 - API层：鉴权依赖、分析接口
 - 服务层：AI服务（多AI提供商支持）、市场数据服务（多数据源+缓存）
-- 模型层：数据库实体（用户、股票、技术缓存、分析记录、组合、AI模型配置、供应商配置）
+- 模型层：数据库实体（用户、股票、技术缓存、分析记录、组合、AI模型配置、供应商配置、用户AI模型、用户供应商凭据）
 - 配置层：环境变量与密钥管理
 - 工具脚本：批量数据采集测试
 - 提示管理：集中式提示词模板管理
@@ -84,10 +89,13 @@ T["stock.py<br/>股票/技术缓存/新闻"]
 R["analysis.py(Model)<br/>分析记录(结构化字段)"]
 AI_CFG["ai_config.py(Model)<br/>AI模型配置"]
 PROV_CFG["provider_config.py(Model)<br/>供应商配置"]
+USER_AI["user_ai_model.py(Model)<br/>用户AI模型"]
+USER_CRED["user_provider_credential.py(Model)<br/>用户供应商凭据"]
 end
 subgraph "配置与依赖"
 C["config.py<br/>Settings"]
 PROMPTS["prompts.py<br/>提示词模板中心"]
+SCHEMAS["ai_config.py(Schema)<br/>运行时配置模型"]
 REQ["requirements.txt<br/>第三方库"]
 ENV[".env.example<br/>示例环境变量"]
 end
@@ -98,6 +106,9 @@ A --> S_AI
 S_AI --> C
 S_AI --> AI_CFG
 S_AI --> PROV_CFG
+S_AI --> USER_AI
+S_AI --> USER_CRED
+S_AI --> SCHEMAS
 S_AI --> PROMPTS
 S_MD --> C
 A --> U
@@ -112,9 +123,9 @@ ENV --> C
 - [backend/app/main.py:1-38](file://backend/app/main.py#L1-L38)
 - [backend/app/api/v1/endpoints/analysis.py:1-745](file://backend/app/api/v1/endpoints/analysis.py#L1-L745)
 - [backend/app/api/deps.py:1-44](file://backend/app/api/deps.py#L1-L44)
-- [backend/app/services/ai_service.py:1-254](file://backend/app/services/ai_service.py#L1-L254)
+- [backend/app/services/ai_service.py:1-555](file://backend/app/services/ai_service.py#L1-L555)
 - [backend/app/services/market_data.py:1-370](file://backend/app/services/market_data.py#L1-L370)
-- [backend/app/core/config.py:1-36](file://backend/app/core/config.py#L1-L36)
+- [backend/app/core/config.py:1-38](file://backend/app/core/config.py#L1-L38)
 - [backend/app/core/prompts.py:1-192](file://backend/app/core/prompts.py#L1-L192)
 - [backend/app/models/user.py:1-80](file://backend/app/models/user.py#L1-L80)
 - [backend/app/models/portfolio.py:1-26](file://backend/app/models/portfolio.py#L1-L26)
@@ -122,6 +133,9 @@ ENV --> C
 - [backend/app/models/analysis.py:1-63](file://backend/app/models/analysis.py#L1-L63)
 - [backend/app/models/ai_config.py:1-20](file://backend/app/models/ai_config.py#L1-L20)
 - [backend/app/models/provider_config.py:1-48](file://backend/app/models/provider_config.py#L1-L48)
+- [backend/app/models/user_ai_model.py:1-26](file://backend/app/models/user_ai_model.py#L1-L26)
+- [backend/app/models/user_provider_credential.py:1-23](file://backend/app/models/user_provider_credential.py#L1-L23)
+- [backend/app/schemas/ai_config.py:1-16](file://backend/app/schemas/ai_config.py#L1-L16)
 - [backend/requirements.txt:1-75](file://backend/requirements.txt#L1-L75)
 - [.env.example:1-9](file://.env.example#L1-L9)
 
@@ -134,21 +148,23 @@ ENV --> C
   - 校验SaaS配额（免费用户每日限制），拉取市场数据、新闻、用户持仓，调用AI服务生成分析
   - **新增**：历史分析上下文集成，支持基于最新数据的适应性调整
 - AI服务（多AI提供商）
-  - **重构**：引入多提供商架构，支持Gemini、SiliconFlow、DeepSeek等多家供应商
-  - **新增**：集中式供应商配置管理，支持动态API密钥解析和故障转移
-  - **新增**：BYOK（Bring Your Own Key）支持，用户可自定义供应商配置
+  - **重构**：引入多提供商架构，支持SiliconFlow、DeepSeek、DashScope等多家供应商
+  - **新增**：AI模型运行时配置系统，支持动态模型配置和缓存机制
+  - **新增**：用户AI模型管理系统，支持BYOK和自定义供应商配置
+  - **新增**：统一的供应商凭据管理，支持用户级API Key和Base URL配置
   - **新增**：AI模型配置缓存机制，提高响应速度
   - **新增**：供应商优先级排序和超时控制
+  - **更新**：移除Google Gemini依赖，默认模型更新为deepseek-v3
 - 市场数据服务
   - 多数据源优先策略（Alpha Vantage优先，yfinance备选），缓存技术指标，回退模拟数据
 - 数据模型
-  - 用户、股票、技术缓存、新闻、组合、分析记录、AI模型配置、**新增**：供应商配置
+  - 用户、股票、技术缓存、新闻、组合、分析记录、AI模型配置、**新增**：供应商配置、**新增**：用户AI模型、**新增**：用户供应商凭据
 
 **章节来源**
 - [backend/app/main.py:1-38](file://backend/app/main.py#L1-L38)
 - [backend/app/api/deps.py:17-44](file://backend/app/api/deps.py#L17-L44)
 - [backend/app/api/v1/endpoints/analysis.py:241-599](file://backend/app/api/v1/endpoints/analysis.py#L241-L599)
-- [backend/app/services/ai_service.py:22-254](file://backend/app/services/ai_service.py#L22-L254)
+- [backend/app/services/ai_service.py:1-555](file://backend/app/services/ai_service.py#L1-L555)
 - [backend/app/services/market_data.py:14-170](file://backend/app/services/market_data.py#L14-L170)
 - [backend/app/models/user.py:29-80](file://backend/app/models/user.py#L29-L80)
 - [backend/app/models/stock.py:13-85](file://backend/app/models/stock.py#L13-L85)
@@ -156,9 +172,11 @@ ENV --> C
 - [backend/app/models/analysis.py:12-63](file://backend/app/models/analysis.py#L12-L63)
 - [backend/app/models/ai_config.py:6-20](file://backend/app/models/ai_config.py#L6-L20)
 - [backend/app/models/provider_config.py:12-48](file://backend/app/models/provider_config.py#L12-L48)
+- [backend/app/models/user_ai_model.py:9-26](file://backend/app/models/user_ai_model.py#L9-L26)
+- [backend/app/models/user_provider_credential.py:9-23](file://backend/app/models/user_provider_credential.py#L9-L23)
 
 ## 架构总览
-系统采用"API网关层 → 业务编排层 → 服务层 → 数据层"的分层设计。分析流程从API入口开始，经鉴权与配额校验，拉取市场数据与上下文，再调用AI服务生成分析结果，最终返回JSON。**核心重构**：AI服务现在采用多提供商架构，通过集中式供应商配置实现动态API密钥解析和故障转移，显著提升了系统的可扩展性和可靠性。
+系统采用"API网关层 → 业务编排层 → 服务层 → 数据层"的分层设计。分析流程从API入口开始，经鉴权与配额校验，拉取市场数据与上下文，再调用AI服务生成分析结果，最终返回JSON。**核心重构**：AI服务现在采用多提供商架构，通过集中式供应商配置实现动态API密钥解析和故障转移，显著提升了系统的可扩展性和可靠性。**重要更新**：移除了Google Gemini依赖，引入了AI模型运行时配置系统和用户AI模型管理。
 
 ```mermaid
 sequenceDiagram
@@ -168,6 +186,7 @@ participant Auth as "鉴权(deps.py)"
 participant MD as "市场数据服务(market_data.py)"
 participant Cache as "数据库缓存(models.stock)"
 participant AI as "AI服务(ai_service.py)"
+participant UserModel as "用户AI模型"
 participant ProvMgr as "供应商管理"
 participant Provider as "多AI提供商"
 participant History as "历史分析上下文"
@@ -180,6 +199,8 @@ Cache-->>MD : 返回缓存/更新后的数据
 API->>History : 加载历史分析上下文
 History-->>API : 返回上次分析结果
 API->>AI : 生成分析(股票代码/市场数据/持仓/新闻/历史上下文)
+AI->>UserModel : 检查用户自定义模型
+UserModel-->>AI : 返回用户模型配置
 AI->>ProvMgr : 解析API Key & 供应商配置
 ProvMgr->>Provider : 按优先级尝试供应商
 Provider-->>ProvMgr : 返回JSON文本或错误
@@ -193,7 +214,7 @@ API-->>Client : {ticker, analysis, sentiment, rr_ratio}
 - [backend/app/api/deps.py:17-44](file://backend/app/api/deps.py#L17-L44)
 - [backend/app/services/market_data.py:14-170](file://backend/app/services/market_data.py#L14-L170)
 - [backend/app/models/stock.py:33-67](file://backend/app/models/stock.py#L33-L67)
-- [backend/app/services/ai_service.py:161-211](file://backend/app/services/ai_service.py#L161-L211)
+- [backend/app/services/ai_service.py:488-524](file://backend/app/services/ai_service.py#L488-L524)
 
 ## 详细组件分析
 
@@ -246,11 +267,12 @@ ReturnOK --> End
 
 ### 组件B：AI服务（ai_service.py）- 重构版
 - 功能职责
-  - **重构**：多提供商架构支持（Gemini、SiliconFlow、DeepSeek等）
-  - **新增**：集中式供应商配置管理
-  - **新增**：动态API密钥解析（BYOK支持）
+  - **重构**：多提供商架构支持（SiliconFlow、DeepSeek、DashScope等）
+  - **新增**：AI模型运行时配置系统，支持动态模型配置和缓存机制
+  - **新增**：用户AI模型管理系统，支持BYOK和自定义供应商配置
+  - **新增**：统一的供应商凭据管理，支持用户级API Key和Base URL配置
+  - **新增**：AI模型配置缓存机制，提高响应速度
   - **新增**：供应商优先级排序和故障转移
-  - **新增**：AI模型配置缓存机制
   - 构建中文提示词（技术面、消息面、持仓背景、历史上下文）
   - 调用AI模型生成内容，强制JSON响应
   - 异常降级：JSON模式失败时回退普通文本
@@ -263,6 +285,7 @@ ReturnOK --> End
   - 缺少Key时返回模拟Markdown提示
   - 两次调用均失败时返回错误摘要
   - **新增**：供应商故障转移机制
+  - **更新**：移除Google Gemini依赖，更新默认模型为deepseek-v3
 
 ```mermaid
 classDiagram
@@ -273,49 +296,99 @@ class AIService {
 +CACHE_TTL : int
 +_configure_genai() void
 +_resolve_api_key(provider_key, user) tuple
-+get_model_config(model_key, db) AIModelConfig
++get_model_config(model_key, db) AIModelRuntimeConfig
++get_user_ai_model(model_key, user_id, db) UserAIModel
++call_user_ai_model(model, prompt) str
++get_default_model_for_provider(provider_key, db) str
 +call_provider(provider_config, model_id, prompt, api_key, custom_url) str
 +test_connection(provider_key, api_key, base_url) tuple
 +_dispatch_with_fallback(prompt, model_config, user, db) str
 +generate_analysis(ticker, market_data, portfolio_data, news_data, fundamental_data, previous_analysis, model, db, user_id) str
 +generate_portfolio_analysis(portfolio_items, market_news, model, db, user_id) str
 }
-class AIModelConfig {
+class AIModelRuntimeConfig {
 +key : str
 +provider : str
 +model_id : str
-+is_active : bool
 +description : str
-+created_at : datetime
-+updated_at : datetime
 }
-class ProviderConfig {
-+provider_key : str
+class UserAIModel {
++user_id : str
++key : str
 +display_name : str
++provider_note : str
++model_id : str
++encrypted_api_key : str
 +base_url : str
-+api_key_env : str
-+priority : int
 +is_active : bool
-+max_retries : int
-+timeout_seconds : int
-+created_at : datetime
-+updated_at : datetime
 }
-AIService --> AIModelConfig : uses
-AIService --> ProviderConfig : manages
+class ProviderRuntimeConfig {
++provider_key : str
++base_url : str
++timeout_seconds : int
+}
+AIService --> AIModelRuntimeConfig : uses
+AIService --> UserAIModel : manages
+AIService --> ProviderRuntimeConfig : uses
 ```
 
 **图表来源**
-- [backend/app/services/ai_service.py:22-254](file://backend/app/services/ai_service.py#L22-L254)
-- [backend/app/models/ai_config.py:6-20](file://backend/app/models/ai_config.py#L6-L20)
-- [backend/app/models/provider_config.py:12-48](file://backend/app/models/provider_config.py#L12-L48)
+- [backend/app/services/ai_service.py:1-555](file://backend/app/services/ai_service.py#L1-L555)
+- [backend/app/schemas/ai_config.py:4-16](file://backend/app/schemas/ai_config.py#L4-L16)
+- [backend/app/models/user_ai_model.py:9-26](file://backend/app/models/user_ai_model.py#L9-L26)
 
 **章节来源**
-- [backend/app/services/ai_service.py:22-254](file://backend/app/services/ai_service.py#L22-L254)
-- [backend/app/models/ai_config.py:6-20](file://backend/app/models/ai_config.py#L6-L20)
-- [backend/app/models/provider_config.py:12-48](file://backend/app/models/provider_config.py#L12-L48)
+- [backend/app/services/ai_service.py:1-555](file://backend/app/services/ai_service.py#L1-L555)
+- [backend/app/schemas/ai_config.py:4-16](file://backend/app/schemas/ai_config.py#L4-L16)
+- [backend/app/models/user_ai_model.py:9-26](file://backend/app/models/user_ai_model.py#L9-L26)
 
-### 组件C：供应商配置管理
+### 组件C：AI模型运行时配置系统
+- 功能职责
+  - **新增**：AI模型运行时配置系统，支持动态模型配置和缓存机制
+  - **新增**：AIModelRuntimeConfig Pydantic模型，解耦SQLAlchemy ORM
+  - **新增**：ProviderRuntimeConfig Pydantic模型，管理供应商配置
+  - **新增**：模型配置缓存机制，5分钟TTL
+  - **新增**：回退机制，支持默认模型配置
+- 配置项
+  - key：模型唯一标识（如"deepseek-v3"）
+  - provider：提供商标识（如"siliconflow"）
+  - model_id：实际模型ID（如"Pro/deepseek-ai/DeepSeek-V3.2"）
+  - description：模型描述信息
+- 回退策略
+  - 数据库查询失败时的兜底配置
+  - 支持deepseek-v3、deepseek-r1、qwen-3-vl-thinking等模型的回退映射
+
+**章节来源**
+- [backend/app/schemas/ai_config.py:4-16](file://backend/app/schemas/ai_config.py#L4-L16)
+- [backend/app/services/ai_service.py:107-140](file://backend/app/services/ai_service.py#L107-L140)
+
+### 组件D：用户AI模型管理系统
+- 功能职责
+  - **新增**：用户AI模型管理，支持BYOK和自定义供应商配置
+  - **新增**：UserAIModel模型，存储用户自定义的AI模型配置
+  - **新增**：UserProviderCredential模型，统一管理用户供应商凭据
+  - **新增**：API Key加密存储，支持用户自定义Base URL
+  - **新增**：模型激活/停用管理
+- 配置项
+  - user_id：用户标识
+  - key：模型键名（如"my-custom-model"）
+  - display_name：显示名称
+  - provider_note：提供商备注
+  - model_id：模型ID
+  - encrypted_api_key：加密的API Key
+  - base_url：自定义Base URL
+  - is_active：是否激活
+- 特殊处理
+  - **新增**：自动识别Gemini提供商（通过URL或提供商备注）
+  - **新增**：Base URL标准化处理
+  - **新增**：用户模型优先级高于系统模型
+
+**章节来源**
+- [backend/app/models/user_ai_model.py:9-26](file://backend/app/models/user_ai_model.py#L9-L26)
+- [backend/app/models/user_provider_credential.py:9-23](file://backend/app/models/user_provider_credential.py#L9-L23)
+- [backend/app/services/ai_service.py:44-80](file://backend/app/services/ai_service.py#L44-L80)
+
+### 组件E：供应商配置管理
 - 功能职责
   - **新增**：集中式供应商配置管理
   - **新增**：供应商优先级排序（数字越小优先级越高）
@@ -323,8 +396,8 @@ AIService --> ProviderConfig : manages
   - **新增**：超时控制和最大重试次数配置
   - **新增**：启用/禁用状态管理
 - 配置项
-  - provider_key：供应商唯一标识（如"siliconflow"、"gemini"）
-  - display_name：显示名称（如"SiliconFlow"、"Gemini"）
+  - provider_key：供应商唯一标识（如"siliconflow"、"deepseek"）
+  - display_name：显示名称（如"SiliconFlow"、"DeepSeek"）
   - base_url：API基地址（支持动态修改）
   - api_key_env：对应环境变量名
   - priority：故障转移优先级
@@ -336,7 +409,7 @@ AIService --> ProviderConfig : manages
 - [backend/app/models/provider_config.py:12-48](file://backend/app/models/provider_config.py#L12-L48)
 - [backend/migrations/versions/ab4e342e4749_create_provider_configs_v4.py:24-49](file://backend/migrations/versions/ab4e342e4749_create_provider_configs_v4.py#L24-L49)
 
-### 组件D：提示词模板中心（prompts.py）
+### 组件F：提示词模板中心（prompts.py）
 - 功能职责
   - **新增**：集中式提示词模板管理
   - **新增**：合规性免责声明标准化
@@ -353,7 +426,7 @@ AIService --> ProviderConfig : manages
 **章节来源**
 - [backend/app/core/prompts.py:1-192](file://backend/app/core/prompts.py#L1-L192)
 
-### 组件E：AI响应解析器（ai_response_parser.py）
+### 组件G：AI响应解析器（ai_response_parser.py）
 - 功能职责
   - **新增**：统一的AI响应JSON提取与清洗逻辑
   - **新增**：错误前缀检测和降级处理
@@ -369,7 +442,7 @@ AIService --> ProviderConfig : manages
 **章节来源**
 - [backend/app/utils/ai_response_parser.py:1-125](file://backend/app/utils/ai_response_parser.py#L1-L125)
 
-### 组件F：市场数据服务（market_data.py）
+### 组件H：市场数据服务（market_data.py）
 - 功能职责
   - 多数据源优先策略：Alpha Vantage优先，yfinance备选
   - 缓存机制：1分钟内命中缓存，避免重复抓取
@@ -408,7 +481,7 @@ ReturnData --> End
 **章节来源**
 - [backend/app/services/market_data.py:14-170](file://backend/app/services/market_data.py#L14-L170)
 
-### 组件G：数据模型（models）
+### 组件I：数据模型（models）
 - 用户（user.py）
   - 会员等级、加密存储的API Key、首选数据源、**新增**：首选AI模型
   - **新增**：BYOK支持（api_configs字段）
@@ -427,6 +500,12 @@ ReturnData --> End
 - 供应商配置（provider_config.py）
   - **新增**：供应商配置表，支持多提供商管理
   - **新增**：供应商键、显示名、基地址、环境变量、优先级、激活状态、重试次数、超时时间
+- 用户AI模型（user_ai_model.py）
+  - **新增**：用户自定义AI模型管理
+  - **新增**：用户ID、模型键、显示名、提供商备注、模型ID、加密API Key、Base URL、激活状态
+- 用户供应商凭据（user_provider_credential.py）
+  - **新增**：统一的用户供应商凭据管理
+  - **新增**：用户ID、供应商键、加密API Key、Base URL、启用状态
 
 ```mermaid
 erDiagram
@@ -436,9 +515,9 @@ string email UK
 string hashed_password
 boolean is_active
 enum membership_tier
-string api_key_gemini
-string api_key_deepseek
 string api_key_siliconflow
+string api_key_deepseek
+string api_key_dashscope
 enum preferred_data_source
 string preferred_ai_model
 string api_configs
@@ -540,6 +619,29 @@ int timeout_seconds
 datetime created_at
 datetime updated_at
 }
+USER_AI_MODELS {
+string id PK
+string user_id FK
+string key UK
+string display_name
+string provider_note
+string model_id
+string encrypted_api_key
+string base_url
+boolean is_active
+datetime created_at
+datetime updated_at
+}
+USER_PROVIDER_CREDENTIALS {
+string id PK
+string user_id FK
+string provider_key UK
+string encrypted_api_key
+string base_url
+boolean is_enabled
+datetime created_at
+datetime updated_at
+}
 STOCKS ||--|| MARKET_DATA_CACHE : "一对一位于缓存"
 STOCKS ||--o{ PORTFOLIOS : "持有"
 USERS ||--o{ PORTFOLIOS : "拥有"
@@ -548,6 +650,8 @@ STOCKS ||--o{ ANALYSIS_REPORTS : "关联"
 USERS ||--o{ ANALYSIS_REPORTS : "用户偏好"
 AI_MODEL_CONFIGS ||--o{ ANALYSIS_REPORTS : "模型配置"
 PROVIDER_CONFIGS ||--o{ ANALYSIS_REPORTS : "供应商配置"
+USER_AI_MODELS ||--o{ ANALYSIS_REPORTS : "用户模型"
+USER_PROVIDER_CREDENTIALS ||--o{ ANALYSIS_REPORTS : "用户凭据"
 ```
 
 **图表来源**
@@ -557,6 +661,8 @@ PROVIDER_CONFIGS ||--o{ ANALYSIS_REPORTS : "供应商配置"
 - [backend/app/models/analysis.py:12-63](file://backend/app/models/analysis.py#L12-L63)
 - [backend/app/models/ai_config.py:6-20](file://backend/app/models/ai_config.py#L6-L20)
 - [backend/app/models/provider_config.py:12-48](file://backend/app/models/provider_config.py#L12-L48)
+- [backend/app/models/user_ai_model.py:9-26](file://backend/app/models/user_ai_model.py#L9-L26)
+- [backend/app/models/user_provider_credential.py:9-23](file://backend/app/models/user_provider_credential.py#L9-L23)
 
 **章节来源**
 - [backend/app/models/user.py:29-80](file://backend/app/models/user.py#L29-L80)
@@ -565,23 +671,26 @@ PROVIDER_CONFIGS ||--o{ ANALYSIS_REPORTS : "供应商配置"
 - [backend/app/models/analysis.py:12-63](file://backend/app/models/analysis.py#L12-L63)
 - [backend/app/models/ai_config.py:6-20](file://backend/app/models/ai_config.py#L6-L20)
 - [backend/app/models/provider_config.py:12-48](file://backend/app/models/provider_config.py#L12-L48)
+- [backend/app/models/user_ai_model.py:9-26](file://backend/app/models/user_ai_model.py#L9-L26)
+- [backend/app/models/user_provider_credential.py:9-23](file://backend/app/models/user_provider_credential.py#L9-L23)
 
-### 组件H：配置与依赖（config.py, requirements.txt, .env.example）
+### 组件J：配置与依赖（config.py, requirements.txt, .env.example）
 - 配置项
   - 数据库URL、JWT密钥与算法、过期时间
-  - **新增**：多提供商API Key支持（Gemini、DeepSeek、SiliconFlow）
+  - **新增**：多提供商API Key支持（SiliconFlow、DeepSeek、DashScope）
+  - **更新**：移除Google Gemini API Key
   - HTTP代理
 - 依赖
-  - FastAPI、SQLAlchemy、google-generativeai、yfinance、pandas、requests等
+  - FastAPI、SQLAlchemy、yfinance、pandas、requests等
 - 环境变量
   - 示例文件包含数据库、各提供商Key、Secret Key与前端地址
 
 **章节来源**
-- [backend/app/core/config.py:4-36](file://backend/app/core/config.py#L4-L36)
+- [backend/app/core/config.py:4-38](file://backend/app/core/config.py#L4-L38)
 - [backend/requirements.txt:1-75](file://backend/requirements.txt#L1-L75)
 - [.env.example:1-9](file://.env.example#L1-L9)
 
-### 组件I：批量分析与性能测试（test_batch_collection.py）
+### 组件K：批量分析与性能测试（test_batch_collection.py）
 - 目的
   - 批量抓取历史最久的缓存项，验证多数据源与缓存更新
 - 行为
@@ -591,7 +700,7 @@ PROVIDER_CONFIGS ||--o{ ANALYSIS_REPORTS : "供应商配置"
 **章节来源**
 - [backend/scripts/test_batch_collection.py:16-85](file://backend/scripts/test_batch_collection.py#L16-L85)
 
-### 组件J：BYOK测试（test_byok_dispatch.py）
+### 组件L：BYOK测试（test_byok_dispatch.py）
 - 功能测试
   - **新增**：用户自定义API配置解析测试
   - **新增**：系统级API Key回退测试
@@ -608,11 +717,11 @@ PROVIDER_CONFIGS ||--o{ ANALYSIS_REPORTS : "供应商配置"
 
 ## 依赖分析
 - 组件耦合
-  - 分析接口依赖鉴权、市场数据、AI服务、模型层（用户、组合、股票、分析记录、AI模型配置、供应商配置）
-  - AI服务依赖配置与多AI提供商SDK、**新增**：AI模型配置表、供应商配置表、提示词模板中心
+  - 分析接口依赖鉴权、市场数据、AI服务、模型层（用户、组合、股票、分析记录、AI模型配置、供应商配置、用户AI模型、用户供应商凭据）
+  - AI服务依赖配置与多AI提供商SDK、**新增**：AI模型配置表、供应商配置表、用户AI模型、用户供应商凭据、提示词模板中心
   - 市场数据服务依赖yfinance/Alpha Vantage与数据库缓存
 - 外部依赖
-  - Google Generative AI、yfinance、requests、SQLAlchemy、pandas
+  - yfinance、requests、SQLAlchemy、pandas
 - 可能的循环依赖
   - 未见模块间循环导入
 
@@ -627,9 +736,14 @@ Analysis --> ModelsS["models/stock.py"]
 Analysis --> ModelsR["models/analysis.py"]
 Analysis --> ModelsAI["models/ai_config.py"]
 Analysis --> ModelsProv["models/provider_config.py"]
+Analysis --> ModelsUserAI["models/user_ai_model.py"]
+Analysis --> ModelsUserCred["models/user_provider_credential.py"]
 AI --> Config["config.py"]
 AI --> AIConfig["models/ai_config.py"]
 AI --> ProvConfig["models/provider_config.py"]
+AI --> UserAI["models/user_ai_model.py"]
+AI --> UserCred["models/user_provider_credential.py"]
+AI --> Schemas["schemas/ai_config.py"]
 AI --> Prompts["core/prompts.py"]
 Market --> Config
 ```
@@ -637,9 +751,9 @@ Market --> Config
 **图表来源**
 - [backend/app/api/v1/endpoints/analysis.py:1-745](file://backend/app/api/v1/endpoints/analysis.py#L1-L745)
 - [backend/app/api/deps.py:1-44](file://backend/app/api/deps.py#L1-L44)
-- [backend/app/services/ai_service.py:1-254](file://backend/app/services/ai_service.py#L1-L254)
+- [backend/app/services/ai_service.py:1-555](file://backend/app/services/ai_service.py#L1-L555)
 - [backend/app/services/market_data.py:1-370](file://backend/app/services/market_data.py#L1-L370)
-- [backend/app/core/config.py:1-36](file://backend/app/core/config.py#L1-L36)
+- [backend/app/core/config.py:1-38](file://backend/app/core/config.py#L1-L38)
 - [backend/app/core/prompts.py:1-192](file://backend/app/core/prompts.py#L1-L192)
 - [backend/app/models/user.py:1-80](file://backend/app/models/user.py#L1-L80)
 - [backend/app/models/portfolio.py:1-26](file://backend/app/models/portfolio.py#L1-L26)
@@ -647,6 +761,8 @@ Market --> Config
 - [backend/app/models/analysis.py:1-63](file://backend/app/models/analysis.py#L1-L63)
 - [backend/app/models/ai_config.py:1-20](file://backend/app/models/ai_config.py#L1-L20)
 - [backend/app/models/provider_config.py:1-48](file://backend/app/models/provider_config.py#L1-L48)
+- [backend/app/models/user_ai_model.py:1-26](file://backend/app/models/user_ai_model.py#L1-L26)
+- [backend/app/models/user_provider_credential.py:1-23](file://backend/app/models/user_provider_credential.py#L1-L23)
 
 ## 性能考虑
 - 缓存策略
@@ -654,6 +770,7 @@ Market --> Config
   - 基础数据按需更新，避免频繁写入
   - **新增**：AI模型配置缓存5分钟，提高多模型切换性能
   - **新增**：供应商配置缓存10分钟，减少数据库查询
+  - **新增**：用户AI模型缓存机制
 - 并发与超时
   - 异步执行外部请求，设置yfinance超时
   - 指数退避应对429限流
@@ -669,19 +786,22 @@ Market --> Config
 
 ## 故障排查指南
 - 常见问题
-  - Gemini API Key缺失：AI返回模拟提示
+  - SiliconFlow API Key缺失：AI返回模拟提示
   - 免费配额超限：返回429，引导用户配置自有Key
   - yfinance限流：自动指数退避，必要时切换Alpha Vantage
   - Alpha Vantage配额耗尽：抛出明确异常，回退缓存或模拟
   - **新增**：AI模型配置错误：检查AI_MODEL_CONFIGS表配置
+  - **新增**：用户AI模型配置错误：检查USER_AI_MODELS表配置
   - **新增**：供应商配置错误：检查PROVIDER_CONFIGS表配置
   - **新增**：BYOK配置解析失败：检查用户api_configs字段
+  - **更新**：移除Google Gemini依赖相关的错误
 - 定位步骤
   - 检查.env配置与密钥
   - 查看日志与异常堆栈
   - 核对数据库缓存与技术指标
   - 使用批量脚本验证数据采集链路
   - **新增**：检查AI模型配置表和历史分析上下文
+  - **新增**：验证用户AI模型和供应商凭据配置
   - **新增**：验证供应商配置和API Key解析
 - 降级策略
   - 缓存数据波动更新
@@ -689,9 +809,10 @@ Market --> Config
   - 回退到yfinance或Alpha Vantage备选源
   - **新增**：模型配置回退到默认DeepSeek V3
   - **新增**：供应商故障转移机制
+  - **更新**：移除Google Gemini相关的降级策略
 
 **章节来源**
-- [backend/app/services/ai_service.py:58-92](file://backend/app/services/ai_service.py#L58-L92)
+- [backend/app/services/ai_service.py:488-524](file://backend/app/services/ai_service.py#L488-L524)
 - [backend/app/api/v1/endpoints/analysis.py:256-275](file://backend/app/api/v1/endpoints/analysis.py#L256-L275)
 - [backend/app/services/market_data.py:29-86](file://backend/app/services/market_data.py#L29-L86)
 - [backend/tests/test_byok_dispatch.py:1-99](file://backend/tests/test_byok_dispatch.py#L1-L99)
@@ -699,10 +820,15 @@ Market --> Config
 ## 结论
 本系统以多AI提供商为核心，结合多数据源与缓存机制，实现了稳定高效的股票智能分析能力。**核心重构**在于AI服务架构的全面升级，引入多提供商系统、集中式供应商配置管理和BYOK支持，显著提升了系统的可扩展性、可靠性和用户体验。
 
+**重要更新**：系统已移除Google Gemini依赖，更新默认模型为deepseek-v3，增强了AI模型运行时配置系统和用户AI模型管理能力。通过AI模型运行时配置系统，实现了动态模型配置和缓存机制；通过用户AI模型管理系统，支持用户自定义供应商配置和API Key管理。
+
 通过集中式提示词模板管理，确保了提示工程的标准化和可维护性。AI模型配置缓存和供应商配置缓存机制大幅提升了响应性能。故障转移机制和超时控制确保了服务的高可用性。
 
 **新增功能亮点**：
-- 多提供商架构支持（Gemini、SiliconFlow、DeepSeek等）
+- 多提供商架构支持（SiliconFlow、DeepSeek、DashScope等）
+- AI模型运行时配置系统
+- 用户AI模型管理系统
+- 统一的供应商凭据管理
 - BYOK支持，用户可自定义供应商配置
 - 集中式供应商配置管理
 - 提示词模板中心化管理
@@ -725,7 +851,7 @@ Market --> Config
 
 **章节来源**
 - [backend/app/api/v1/endpoints/analysis.py:507-509](file://backend/app/api/v1/endpoints/analysis.py#L507-L509)
-- [backend/app/services/ai_service.py:214-253](file://backend/app/services/ai_service.py#L214-L253)
+- [backend/app/services/ai_service.py:488-524](file://backend/app/services/ai_service.py#L488-L524)
 - [backend/app/models/analysis.py:12-63](file://backend/app/models/analysis.py#L12-L63)
 
 ### AI提示工程最佳实践
@@ -741,7 +867,7 @@ Market --> Config
 - **新增**：提示词模板标准化管理
 
 **章节来源**
-- [backend/app/services/ai_service.py:214-253](file://backend/app/services/ai_service.py#L214-L253)
+- [backend/app/services/ai_service.py:488-524](file://backend/app/services/ai_service.py#L488-L524)
 - [backend/app/core/prompts.py:14-93](file://backend/app/core/prompts.py#L14-L93)
 
 ### 多股票批量分析与性能优化
@@ -754,14 +880,15 @@ Market --> Config
   - 备选数据源与回退策略
   - **新增**：AI模型配置缓存机制
   - **新增**：供应商配置缓存机制
+  - **新增**：用户AI模型缓存机制
 
 **章节来源**
 - [backend/scripts/test_batch_collection.py:16-85](file://backend/scripts/test_batch_collection.py#L16-L85)
 - [backend/app/services/market_data.py:29-86](file://backend/app/services/market_data.py#L29-L86)
-- [backend/app/services/ai_service.py:28-56](file://backend/app/services/ai_service.py#L28-L56)
+- [backend/app/services/ai_service.py:107-140](file://backend/app/services/ai_service.py#L107-L140)
 
 ### 错误处理与降级策略
-- Gemini异常
+- SiliconFlow异常
   - JSON模式失败时回退普通文本
   - 最终失败返回错误摘要
 - 配额与鉴权
@@ -771,12 +898,16 @@ Market --> Config
 - **新增**：AI模型配置异常
   - 数据库连接失败时使用硬编码回退配置
   - 默认回退到DeepSeek V3模型
+- **新增**：用户AI模型异常
+  - 用户模型不存在时回退到系统模型
+  - 加密API Key解密失败时的错误处理
 - **新增**：供应商配置异常
   - 供应商不可用时的故障转移
   - API Key解析失败时的回退机制
+- **更新**：移除Google Gemini相关的错误处理
 
 **章节来源**
-- [backend/app/services/ai_service.py:161-211](file://backend/app/services/ai_service.py#L161-L211)
+- [backend/app/services/ai_service.py:421-524](file://backend/app/services/ai_service.py#L421-L524)
 - [backend/app/api/v1/endpoints/analysis.py:486-501](file://backend/app/api/v1/endpoints/analysis.py#L486-L501)
 - [backend/app/services/market_data.py:303-318](file://backend/app/services/market_data.py#L303-L318)
 - [backend/tests/test_byok_dispatch.py:1-99](file://backend/tests/test_byok_dispatch.py#L1-L99)
@@ -786,24 +917,31 @@ Market --> Config
   - AIService作为适配层，便于替换不同模型
   - **新增**：多模型动态配置管理
   - **新增**：供应商配置抽象
+  - **新增**：用户AI模型管理抽象
 - 配置与密钥
   - Settings集中管理多模型密钥
   - **新增**：AIModelConfig表管理模型配置
   - **新增**：ProviderConfig表管理供应商配置
+  - **新增**：UserAIModel表管理用户模型
+  - **新增**：UserProviderCredential表管理用户凭据
 - 提示词与输出
   - 保持提示词结构与JSON输出约定，降低迁移成本
   - **新增**：提示词模板中心化管理
   - **新增**：模型配置缓存机制，提高切换性能
+  - **新增**：用户模型缓存机制
 - **新增**：BYOK支持
   - 用户可自定义供应商配置
   - 支持自定义API基地址
   - 动态API Key解析
+- **更新**：移除Google Gemini提供商支持
 
 **章节来源**
-- [backend/app/services/ai_service.py:58-92](file://backend/app/services/ai_service.py#L58-L92)
+- [backend/app/services/ai_service.py:107-140](file://backend/app/services/ai_service.py#L107-L140)
 - [backend/app/core/config.py:14-23](file://backend/app/core/config.py#L14-L23)
 - [backend/app/models/ai_config.py:6-20](file://backend/app/models/ai_config.py#L6-L20)
 - [backend/app/models/provider_config.py:12-48](file://backend/app/models/provider_config.py#L12-L48)
+- [backend/app/models/user_ai_model.py:9-26](file://backend/app/models/user_ai_model.py#L9-L26)
+- [backend/app/models/user_provider_credential.py:9-23](file://backend/app/models/user_provider_credential.py#L9-L23)
 - [frontend/app/settings/page.tsx:300-318](file://frontend/app/settings/page.tsx#L300-L318)
 
 ### 调试工具与性能监控方案
@@ -812,18 +950,20 @@ Market --> Config
   - 日志记录与异常捕获
   - **新增**：AI提示词日志记录
   - **新增**：BYOK配置测试工具
+  - **新增**：用户AI模型调试工具
 - 性能监控
   - 请求耗时与成功率统计
   - 缓存命中率与外部API延迟
   - **新增**：AI模型配置缓存命中率
   - **新增**：供应商配置缓存命中率
+  - **新增**：用户AI模型缓存命中率
   - **新增**：故障转移成功率
   - 建议引入APM与指标面板
 
 **章节来源**
 - [backend/scripts/test_batch_collection.py:16-85](file://backend/scripts/test_batch_collection.py#L16-L85)
 - [backend/app/services/market_data.py:303-318](file://backend/app/services/market_data.py#L303-L318)
-- [backend/app/services/ai_service.py:253-254](file://backend/app/services/ai_service.py#L253-L254)
+- [backend/app/services/ai_service.py:421-524](file://backend/app/services/ai_service.py#L421-L524)
 - [backend/tests/test_byok_dispatch.py:87-99](file://backend/tests/test_byok_dispatch.py#L87-L99)
 
 ### 历史分析上下文集成机制
@@ -840,7 +980,7 @@ Market --> Config
 
 **章节来源**
 - [backend/app/api/v1/endpoints/analysis.py:448-484](file://backend/app/api/v1/endpoints/analysis.py#L448-L484)
-- [backend/app/services/ai_service.py:161-211](file://backend/app/services/ai_service.py#L161-L211)
+- [backend/app/services/ai_service.py:488-524](file://backend/app/services/ai_service.py#L488-L524)
 
 ### AnalysisReport模型结构化字段详解
 - **新增结构化字段**
@@ -872,19 +1012,21 @@ Market --> Config
 
 ### 多AI提供商支持与模型配置管理
 - **支持的AI提供商**
-  - Gemini：Google Gemini 1.5 Flash
-  - DeepSeek：DeepSeek V3、DeepSeek R1
-  - Qwen：Qwen 2.5 72B、Qwen 3 VL Thinking
-  - SiliconFlow：支持多种模型的统一接口
+  - SiliconFlow：DeepSeek系列模型（DeepSeek-V3、DeepSeek-R1等）
+  - DeepSeek：DeepSeek Chat系列
+  - DashScope：通义千问系列（Qwen 3.5 Plus等）
+  - **更新**：移除Google Gemini提供商支持
 - **模型配置管理**
   - AIModelConfig表管理所有可用模型
   - 支持模型激活/停用
   - 提供描述信息和创建/更新时间
   - 用户可设置首选AI模型
+  - **新增**：AI模型运行时配置系统
 - **动态切换机制**
   - 实时查询模型配置
   - 缓存模型配置5分钟
   - 支持回退到默认模型
+  - **新增**：用户自定义模型优先级
 - **供应商配置管理**
   - ProviderConfig表管理供应商信息
   - 支持优先级排序和故障转移
@@ -894,7 +1036,7 @@ Market --> Config
 **章节来源**
 - [backend/app/models/ai_config.py:6-20](file://backend/app/models/ai_config.py#L6-L20)
 - [backend/app/models/provider_config.py:12-48](file://backend/app/models/provider_config.py#L12-L48)
-- [backend/migrations/versions/0675c6d039e6_create_ai_model_config_table.py:55-82](file://backend/migrations/versions/0675c6d039e6_create_ai_model_config_table.py#L55-L82)
+- [backend/migrations/versions/0675c6d039e6_create_ai_model_config_table.py:41-82](file://backend/migrations/versions/0675c6d039e6_create_ai_model_config_table.py#L41-L82)
 - [backend/migrations/versions/ab4e342e4749_create_provider_configs_v4.py:24-49](file://backend/migrations/versions/ab4e342e4749_create_provider_configs_v4.py#L24-L49)
 
 ### BYOK（Bring Your Own Key）支持机制
@@ -911,11 +1053,17 @@ Market --> Config
   - 用户使用自建代理或特殊供应商
   - 多账户管理不同供应商
   - 企业级部署的私有化配置
+- **新增功能**
+  - UserProviderCredential统一凭据管理
+  - 用户AIModel自定义模型管理
+  - 加密API Key安全存储
 
 **章节来源**
 - [backend/app/models/user.py:62-66](file://backend/app/models/user.py#L62-L66)
-- [backend/app/services/ai_service.py:58-92](file://backend/app/services/ai_service.py#L58-L92)
+- [backend/app/services/ai_service.py:143-202](file://backend/app/services/ai_service.py#L143-L202)
 - [backend/tests/test_byok_dispatch.py:11-35](file://backend/tests/test_byok_dispatch.py#L11-L35)
+- [backend/app/models/user_provider_credential.py:9-23](file://backend/app/models/user_provider_credential.py#L9-L23)
+- [backend/app/models/user_ai_model.py:9-26](file://backend/app/models/user_ai_model.py#L9-L26)
 
 ### 审计追踪功能
 - **历史分析上下文**
@@ -935,11 +1083,15 @@ Market --> Config
   - 记录使用的供应商和配置
   - 支持供应商性能对比
   - 便于故障排查和优化
+- **新增**：用户AI模型使用追踪
+  - 记录用户自定义模型的使用情况
+  - 支持用户模型效果评估
+  - 便于模型优化和推荐
 
 **章节来源**
 - [backend/app/models/analysis.py:24-25](file://backend/app/models/analysis.py#L24-L25)
-- [backend/app/api/v1/endpoints/analysis.py:524-567](file://backend/app/api/v1/endpoints/analysis.py#L524-L567)
-- [backend/app/api/v1/endpoints/analysis.py:568-599](file://backend/app/api/v1/endpoints/analysis.py#L568-L599)
+- [backend/app/api/v1/endpoints/analysis.py:524-599](file://backend/app/api/v1/endpoints/analysis.py#L524-L599)
+- [backend/app/services/ai_service.py:488-524](file://backend/app/services/ai_service.py#L488-L524)
 
 ### 提示词模板中心化管理
 - **功能概述**
@@ -961,18 +1113,91 @@ Market --> Config
 
 ### 前端配置界面支持
 - **用户模型选择**
-  - 支持多种AI模型选择（Gemini、DeepSeek、Qwen等）
-  - SiliconFlow模型使用系统管理的API Key
-  - Gemini模型需要用户自备Key
+  - 支持多种AI模型选择（SiliconFlow、DeepSeek、DashScope等）
+  - **更新**：移除Google Gemini模型选项
+  - 用户可添加自定义AI模型
 - **配置界面特性**
   - 下拉菜单选择首选分析模型
   - 显示各模型的简要说明
   - 支持用户偏好设置
+  - **新增**：用户AI模型管理界面
+  - **新增**：供应商凭据配置界面
 - **用户体验**
   - 简化多提供商配置流程
   - 提供清晰的使用说明
   - 支持不同用户的使用习惯
+  - **新增**：模型测试连接功能
 
 **章节来源**
-- [frontend/app/settings/page.tsx:300-318](file://frontend/app/settings/page.tsx#L300-L318)
+- [frontend/app/settings/page.tsx:300-499](file://frontend/app/settings/page.tsx#L300-L499)
 - [backend/app/models/user.py:19-25](file://backend/app/models/user.py#L19-L25)
+
+### AI模型运行时配置系统详解
+- **核心概念**
+  - AIModelRuntimeConfig：运行时模型配置，解耦ORM模型
+  - ProviderRuntimeConfig：运行时供应商配置
+  - 缓存机制：5分钟TTL，提升性能
+- **配置流程**
+  - 优先从数据库查询AI模型配置
+  - 缓存查询结果，避免重复查询
+  - 数据库查询失败时使用回退配置
+  - 支持特定模型的特殊回退映射
+- **回退策略**
+  - deepseek-v3 → Pro/deepseek-ai/DeepSeek-V3.2
+  - deepseek-r1 → Pro/deepseek-ai/DeepSeek-R1
+  - qwen-3-vl-thinking → Qwen/Qwen3-VL-235B-A22B-Thinking
+- **应用场景**
+  - 动态模型切换
+  - 模型版本管理
+  - 故障恢复机制
+  - 性能优化缓存
+
+**章节来源**
+- [backend/app/schemas/ai_config.py:4-16](file://backend/app/schemas/ai_config.py#L4-L16)
+- [backend/app/services/ai_service.py:107-140](file://backend/app/services/ai_service.py#L107-L140)
+
+### 用户AI模型管理系统详解
+- **核心功能**
+  - 用户自定义AI模型管理
+  - 加密API Key安全存储
+  - 自定义Base URL支持
+  - 模型激活/停用管理
+- **配置流程**
+  - 用户添加自定义模型
+  - 加密存储API Key
+  - 验证模型连接性
+  - 设置为默认模型（可选）
+- **特殊处理**
+  - 自动识别Gemini提供商（通过URL或提供商备注）
+  - Base URL标准化处理（去除尾部斜杠和路径）
+  - 用户模型优先级高于系统模型
+- **应用场景**
+  - 企业私有化部署
+  - 多账户管理
+  - 特殊供应商接入
+  - 模型A/B测试
+
+**章节来源**
+- [backend/app/models/user_ai_model.py:9-26](file://backend/app/models/user_ai_model.py#L9-L26)
+- [backend/app/services/ai_service.py:44-80](file://backend/app/services/ai_service.py#L44-L80)
+
+### 统一供应商凭据管理详解
+- **核心功能**
+  - UserProviderCredential统一管理用户供应商凭据
+  - 支持启用/禁用状态
+  - 加密API Key存储
+  - Base URL自定义支持
+- **配置流程**
+  - 用户添加供应商凭据
+  - 加密存储API Key
+  - 设置Base URL（可选）
+  - 启用凭据使用
+- **应用场景**
+  - 多供应商账户管理
+  - 企业级凭据管理
+  - 供应商切换测试
+  - 凭据权限控制
+
+**章节来源**
+- [backend/app/models/user_provider_credential.py:9-23](file://backend/app/models/user_provider_credential.py#L9-L23)
+- [backend/app/services/ai_service.py:143-202](file://backend/app/services/ai_service.py#L143-L202)

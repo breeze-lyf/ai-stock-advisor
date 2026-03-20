@@ -511,7 +511,7 @@ export default function SettingsPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="model-id">模型名称标识</Label>
-                <Input id="model-id" placeholder="例如：gpt-4o-mini / gemini-1.5-flash / qwen-max" value={customModel.model_id} onChange={(e) => setCustomModel((prev) => ({ ...prev, model_id: e.target.value }))} />
+                <Input id="model-id" placeholder="例如：deepseek-v3 / deepseek-r1 / qwen-max" value={customModel.model_id} onChange={(e) => setCustomModel((prev) => ({ ...prev, model_id: e.target.value }))} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="model-base-url">Base URL</Label>
@@ -523,7 +523,7 @@ export default function SettingsPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="provider-note">提供商备注</Label>
-                <Input id="provider-note" placeholder="例如：OpenRouter / Gemini Native / 自建中转" value={customModel.provider_note} onChange={(e) => setCustomModel((prev) => ({ ...prev, provider_note: e.target.value }))} />
+                <Input id="provider-note" placeholder="例如：OpenRouter / DeepSeek / 自建中转" value={customModel.provider_note} onChange={(e) => setCustomModel((prev) => ({ ...prev, provider_note: e.target.value }))} />
               </div>
               <div className="flex items-center justify-between rounded-lg border border-slate-200 p-3 dark:border-slate-800">
                 <div className="space-y-0.5">

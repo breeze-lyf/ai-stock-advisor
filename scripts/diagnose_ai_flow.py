@@ -112,7 +112,6 @@ async def diagnose(ticker: str, user_email: str = "test@qq.com"):
         prompt = build_stock_analysis_prompt(
             ticker=ticker,
             market_data=market_data_dict,
-            portfolio_data={},
             fundamental_data=fundamental_data,
             news_data=news_data,
             macro_context=macro_context,
@@ -130,7 +129,7 @@ async def diagnose(ticker: str, user_email: str = "test@qq.com"):
         print(f"你可以直接打开该文件并将内容发送给大模型。\n")
         
         # --- Step 6: AI 调用 ---
-        preferred_model = user.preferred_ai_model or "gemini-1.5-flash"
+        preferred_model = user.preferred_ai_model or "deepseek-v3"
         print(f"🚀 正在调用 AI 模型: {preferred_model} ... (请耐心等待)")
         
         start = time.time()
@@ -138,7 +137,6 @@ async def diagnose(ticker: str, user_email: str = "test@qq.com"):
             ai_response = await AIService.generate_analysis(
                 ticker=ticker,
                 market_data=market_data_dict,
-                portfolio_data={},
                 news_data=news_data,
                 macro_context=macro_context,
                 fundamental_data=fundamental_data,
@@ -149,6 +147,7 @@ async def diagnose(ticker: str, user_email: str = "test@qq.com"):
             )
             timing["6. AI 接口响应 (AI Inference)"] = time.time() - start
             print(f"\n✅ AI 响应成功 (长度: {len(ai_response)} 字符)")
+            print(f"完整响应内容:\n{'-'*40}\n{ai_response}\n{'-'*40}")
         except Exception as e:
             timing["6. AI 接口响应 (AI Inference - FAILED)"] = time.time() - start
             print(f"\n❌ AI 响应失败: {str(e)}")

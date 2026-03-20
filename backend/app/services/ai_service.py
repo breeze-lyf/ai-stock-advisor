@@ -228,8 +228,10 @@ class AIService:
         logger.info(f"[AI] 调用 {provider_key}/{model_id} (prompt {len(prompt)}字符)")
 
         base_url = custom_url or provider_config.base_url
-        # 移除硬编码的 60s 限制，推理模型建议 300s
-        timeout = provider_config.timeout_seconds or 300
+        # AI 推理模型（如 DeepSeek-R1）响应时间长，最低保证 300s 超时
+        # 取数据库配置值和 300s 的最大值，防止数据库被误改小导致提前超时
+        _db_timeout = provider_config.timeout_seconds or 300
+        timeout = max(_db_timeout, 300)
 
         # OpenAI 兼容接口
         url = f"{base_url.rstrip('/')}/chat/completions"

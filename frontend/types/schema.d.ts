@@ -880,8 +880,6 @@ export interface components {
             email: string;
             /** Membership Tier */
             membership_tier: string;
-            /** Has Gemini Key */
-            has_gemini_key: boolean;
             /** Has Deepseek Key */
             has_deepseek_key: boolean;
             /** Has Siliconflow Key */
@@ -913,8 +911,6 @@ export interface components {
         };
         /** UserSettingsUpdate */
         UserSettingsUpdate: {
-            /** Api Key Gemini */
-            api_key_gemini?: string | null;
             /** Api Key Deepseek */
             api_key_deepseek?: string | null;
             /** Api Key Siliconflow */

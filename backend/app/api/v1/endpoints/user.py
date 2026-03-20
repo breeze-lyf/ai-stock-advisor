@@ -52,7 +52,6 @@ def serialize_user_profile(current_user: User, provider_credentials: dict[str, U
             api_configs = {}
 
     provider_credentials = provider_credentials or {}
-    has_gemini = bool(current_user.api_key_gemini) or provider_credentials.get("gemini", UserProviderCredentialResponse(has_key=False, is_enabled=True)).has_key
     has_deepseek = bool(current_user.api_key_deepseek) or provider_credentials.get("deepseek", UserProviderCredentialResponse(has_key=False, is_enabled=True)).has_key
     has_siliconflow = bool(current_user.api_key_siliconflow) or provider_credentials.get("siliconflow", UserProviderCredentialResponse(has_key=False, is_enabled=True)).has_key
 
@@ -60,14 +59,13 @@ def serialize_user_profile(current_user: User, provider_credentials: dict[str, U
         id=current_user.id,
         email=current_user.email,
         membership_tier=current_user.membership_tier,
-        has_gemini_key=has_gemini,
         has_deepseek_key=has_deepseek,
         has_siliconflow_key=has_siliconflow,
         api_configs=api_configs,
         provider_credentials=provider_credentials,
         fallback_enabled=current_user.fallback_enabled if current_user.fallback_enabled is not None else True,
         preferred_data_source=current_user.preferred_data_source or "AKSHARE",
-        preferred_ai_model=current_user.preferred_ai_model or "gemini-1.5-flash",
+        preferred_ai_model=current_user.preferred_ai_model or "deepseek-v3",
         timezone=current_user.timezone or "Asia/Shanghai",
         theme=current_user.theme or "light",
         feishu_webhook_url=current_user.feishu_webhook_url,
@@ -374,7 +372,7 @@ async def delete_ai_model(
     await repo.deactivate(config)
 
     if current_user.preferred_ai_model == normalized_key:
-        current_user.preferred_ai_model = "gemini-1.5-flash"
+        current_user.preferred_ai_model = "deepseek-v3"
         user_repo = UserRepository(db)
         await user_repo.save(current_user)
 

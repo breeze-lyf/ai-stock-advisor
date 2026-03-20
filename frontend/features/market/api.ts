@@ -1,7 +1,13 @@
 import api from "@/shared/api/client";
+import type { PortfolioItem } from "@/types";
 
 export async function fetchStockHistory(ticker: string, period = "1y") {
   const response = await api.get(`/api/v1/stocks/${ticker}/history?period=${period}`);
+  return response.data;
+}
+
+export async function fetchStockSnapshot(ticker: string): Promise<PortfolioItem> {
+  const response = await api.get(`/api/v1/stocks/${ticker}`);
   return response.data;
 }
 

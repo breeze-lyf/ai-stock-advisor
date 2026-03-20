@@ -105,6 +105,33 @@ docker compose up --build -d
 
 > 当前仓库的默认开发形态已经偏向 “应用跑在本机 / 数据库跑在 Neon”。如果你的服务器资源较小，建议继续把数据库托管在 Neon，只让云主机承担前后端服务和调度任务。
 
+### 3. 2G 服务器推荐发布方式 (GitHub 构建 + 服务器仅拉镜像)
+
+为避免服务器卡死，生产建议使用以下路径：
+
+- GitHub Actions 构建并推送镜像到 GHCR
+- 服务器仅执行 `docker pull + docker compose up -d`
+- 服务器不执行 `npm install / pip install / docker build`
+
+对应文件：
+
+- 工作流：`.github/workflows/deploy.yml`
+- 生产编排：`docker-compose.prod.yml`
+- 远端部署脚本：`scripts/deploy_compose_prod.sh`
+
+需要在仓库 Secrets 配置：
+
+- `SERVER_IP`
+- `SERVER_USER`
+- `SSH_PRIVATE_KEY`
+- `GHCR_USERNAME`（可用 GitHub 用户名）
+- `GHCR_TOKEN`（需要 read:packages 权限）
+- `NEXT_PUBLIC_API_URL`（前端构建时注入）
+
+服务器上的 `backend/.env` 需单独维护，不要直接复用本机值。若数据库跑在宿主机而后端跑在容器内，请使用：
+
+- `DATABASE_URL=postgresql+asyncpg://<user>:<pass>@host.docker.internal:5432/<db_name>`
+
 ---
 
 ## 🛠 系统架构与技术栈

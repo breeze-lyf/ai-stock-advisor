@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 COPY . .
 # 注意：在构建时需要定义 API 地址
 ARG NEXT_PUBLIC_API_URL
@@ -20,10 +20,11 @@ RUN npm run build
 # 阶段 2: 运行阶段
 FROM node:20-slim
 WORKDIR /app
-COPY --from=builder /app/.next ./.next
+ENV NODE_ENV=production
+ENV PORT=3000
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/.next/standalone ./
 
 EXPOSE 3000
-CMD ["npm", "start"]
+CMD ["node", "server.js"]

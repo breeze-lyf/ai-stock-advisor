@@ -22,7 +22,7 @@ COPY . .
 # 暴露端口
 EXPOSE 8000
 
-# 生产环境使用 gunicorn 运行 FastAPI
-# -w 4: 4个工作进程
-# -k uvicorn.workers.UvicornWorker: 使用异步 worker
-CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "app.main:app", "--bind", "0.0.0.0:8000"]
+# 2G 机器默认值：2 个 worker，避免内存抖动；可通过 WEB_CONCURRENCY 覆盖
+ENV WEB_CONCURRENCY=2
+ENV GUNICORN_TIMEOUT=120
+CMD ["sh", "-c", "gunicorn -w ${WEB_CONCURRENCY} -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:8000 --timeout ${GUNICORN_TIMEOUT}"]

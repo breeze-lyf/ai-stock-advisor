@@ -1,16 +1,6 @@
-import asyncio
-from app.core.database import engine
-from sqlalchemy import text
+#!/usr/bin/env python3
+"""Compatibility wrapper. Use scripts/db/add_portfolio_index.py."""
+from pathlib import Path
+import runpy
 
-async def add_index():
-    print("🚀 Adding index to portfolios(user_id)...")
-    async with engine.begin() as conn:
-        try:
-            # SQLite specific index creation
-            await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_portfolios_user_id ON portfolios (user_id)"))
-            print("✅ Index added successfully!")
-        except Exception as e:
-            print(f"❌ Failed to add index: {e}")
-
-if __name__ == "__main__":
-    asyncio.run(add_index())
+runpy.run_path(str(Path(__file__).resolve().parent / "db" / "add_portfolio_index.py"), run_name="__main__")

@@ -100,6 +100,8 @@ export default function SettingsPage() {
   });
 
   const [feishuUrl, setFeishuUrl] = useState("");
+  const [tavilyApiKey, setTavilyApiKey] = useState("");
+  const [hasSavedTavilyKey, setHasSavedTavilyKey] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     old_password: "",
     new_password: "",
@@ -113,6 +115,9 @@ export default function SettingsPage() {
     if (!authUser) return;
     setProfile(authUser);
     setFeishuUrl(authUser.feishu_webhook_url || "");
+    const tavilyCredential = authUser.provider_credentials?.tavily;
+    setHasSavedTavilyKey(Boolean(tavilyCredential?.has_key));
+    setTavilyApiKey("");
     if (authUser.theme && currentTheme !== authUser.theme) setTheme(authUser.theme);
   }, [authUser, currentTheme, setTheme]);
 
@@ -131,6 +136,9 @@ export default function SettingsPage() {
       const data = await getProfile();
       setProfile(data);
       setFeishuUrl(data.feishu_webhook_url || "");
+      const tavilyCredential = data.provider_credentials?.tavily;
+      setHasSavedTavilyKey(Boolean(tavilyCredential?.has_key));
+      setTavilyApiKey("");
       if (data.theme && currentTheme !== data.theme) setTheme(data.theme);
     } catch (error) {
       console.error("Failed to load profile", error);
@@ -391,6 +399,31 @@ export default function SettingsPage() {
     }
   };
 
+  const handleSaveTavilyCredential = async () => {
+    setSaving(true);
+    setMessage(null);
+    try {
+      await updateSettings({
+        provider_credentials: {
+          tavily: {
+            api_key: tavilyApiKey.trim(),
+            is_enabled: true,
+          },
+        },
+      });
+      await loadProfile();
+      setMessage({
+        text: tavilyApiKey.trim() ? "Tavily API Key 已保存。" : "Tavily API Key 已清空。",
+        type: "success",
+      });
+    } catch (error) {
+      console.error("Failed to save Tavily API key", error);
+      setMessage({ text: "保存 Tavily API Key 失败。", type: "error" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordMessage(null);
@@ -479,6 +512,43 @@ export default function SettingsPage() {
 
   const renderAiSection = () => (
     <div className="space-y-4">
+      <div className="rounded-2xl border border-slate-200 px-5 py-5 dark:border-slate-800">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Tavily 搜索 API</h3>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              用于全球宏观与新闻检索。留空并保存可清空已保存密钥。
+            </p>
+          </div>
+          <span
+            className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
+              hasSavedTavilyKey
+                ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                : "border-slate-200 text-slate-500 dark:border-slate-700 dark:text-slate-400"
+            }`}
+          >
+            {hasSavedTavilyKey ? "已保存密钥" : "未保存密钥"}
+          </span>
+        </div>
+        <div className="mt-4 flex flex-col gap-3 md:flex-row">
+          <Input
+            type="password"
+            placeholder={hasSavedTavilyKey ? "已保存，输入新值可覆盖" : "输入 Tavily API Key"}
+            value={tavilyApiKey}
+            onChange={(e) => setTavilyApiKey(e.target.value)}
+          />
+          <Button
+            variant="outline"
+            onClick={handleSaveTavilyCredential}
+            disabled={saving}
+            className="md:min-w-[132px]"
+          >
+            <Save className="mr-2 h-4 w-4" />
+            保存密钥
+          </Button>
+        </div>
+      </div>
+
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">我的模型</h3>

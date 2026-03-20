@@ -60,8 +60,22 @@ export interface AnalysisResponse {
 }
 export type SearchResult = components["schemas"]["SearchResult"];
 export type ApiConfig = components["schemas"]["ApiConfig"];
-export type UserProfile = components["schemas"]["UserProfile"];
-export type UserSettingsUpdate = components["schemas"]["UserSettingsUpdate"];
+export type UserProviderCredentialInput = {
+    api_key?: string | null;
+    base_url?: string | null;
+    is_enabled?: boolean | null;
+};
+export type UserProviderCredentialResponse = {
+    has_key: boolean;
+    base_url?: string | null;
+    is_enabled: boolean;
+};
+export type UserProfile = components["schemas"]["UserProfile"] & {
+    provider_credentials?: Record<string, UserProviderCredentialResponse> | null;
+};
+export type UserSettingsUpdate = components["schemas"]["UserSettingsUpdate"] & {
+    provider_credentials?: Record<string, UserProviderCredentialInput> | null;
+};
 export type PasswordChange = components["schemas"]["PasswordChange"];
 export type TestConnectionRequest = components["schemas"]["TestConnectionRequest"];
 export type TestConnectionResponse = components["schemas"]["TestConnectionResponse"];

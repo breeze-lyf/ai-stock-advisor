@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import axios from "axios";
 
 import {
   dashboardCache,
@@ -51,12 +52,17 @@ export function useDashboardAnalysisData(
       const result = await analyzeStock(ticker, force);
       analysisResource.updateData(result);
       await refreshPortfolio(false);
-    } catch (error: any) {
-      const errorMsg = error.response?.data?.detail || error.message || "未知错误";
+    } catch (error: unknown) {
+      const errorMsg = axios.isAxiosError(error)
+        ? (error.response?.data?.detail || error.message || "未知错误")
+        : (error instanceof Error ? error.message : "未知错误");
+      const isQuotaLimit = axios.isAxiosError(error) && error.response?.status === 429;
       analysisResource.updateData({
         ticker,
         technical_analysis: `请求失败: ${errorMsg}`,
-        action_advice: "接口请求发生异常，请检查网络或重新登录。",
+        action_advice: isQuotaLimit
+          ? "免费额度已用完。请在设置中配置个人 API Key，或稍后再试。"
+          : "接口请求发生异常，请检查网络或重新登录。",
         summary_status: "调用失败",
       });
     } finally {

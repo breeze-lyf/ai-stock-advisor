@@ -4,7 +4,7 @@ import React from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
 import { UserProfile } from "@/types";
-import { Settings, User, Key, LogOut, ChevronDown, PieChart } from "lucide-react";
+import { Settings, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
@@ -71,25 +71,6 @@ export function UserMenu({ user }: UserMenuProps) {
                                 </Link>
                             </DropdownMenu.Item>
 
-                            <DropdownMenu.Item 
-                                className="group flex h-9 items-center px-2 text-sm font-medium text-slate-700 dark:text-slate-300 outline-none hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
-                                onClick={() => router.push("/profile")}
-                            >
-                                <div className="flex items-center w-full gap-2.5">
-                                    <User className="h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
-                                    <span>个人信息 (Profile)</span>
-                                </div>
-                            </DropdownMenu.Item>
-
-                            <DropdownMenu.Item 
-                                className="group flex h-9 items-center px-2 text-sm font-medium text-slate-700 dark:text-slate-300 outline-none hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
-                                onClick={() => router.push("/password")}
-                            >
-                                <div className="flex items-center w-full gap-2.5">
-                                    <Key className="h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
-                                    <span>修改密码 (Password)</span>
-                                </div>
-                            </DropdownMenu.Item>
                         </DropdownMenu.Content>
                     </DropdownMenu.Portal>
                 </DropdownMenu.Root>

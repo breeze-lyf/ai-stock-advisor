@@ -122,9 +122,7 @@ async def update_user_settings(
 ):
     repo = UserRepository(db)
     credential_repo = UserProviderCredentialRepository(db)
-    if settings.api_key_gemini is not None:
-        current_user.api_key_gemini = security.encrypt_api_key(settings.api_key_gemini)
-    
+
     if settings.api_key_deepseek is not None:
         current_user.api_key_deepseek = security.encrypt_api_key(settings.api_key_deepseek)
 

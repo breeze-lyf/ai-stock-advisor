@@ -82,12 +82,17 @@ class AnalyzePortfolioUseCase:
         market_news_context = ""
         try:
             macro_ticker = "^GSPC"
-            await MarketDataService.get_real_time_data(macro_ticker, self.db)
+            await MarketDataService.get_real_time_data(macro_ticker, self.db, user_id=self.current_user.id)
 
             top_holdings = sorted(holdings, key=lambda item: item.market_value, reverse=True)[:3]
             top_tickers = [holding.ticker for holding in top_holdings]
 
-            await asyncio.gather(*[MarketDataService.get_real_time_data(ticker, self.db) for ticker in top_tickers])
+            await asyncio.gather(
+                *[
+                    MarketDataService.get_real_time_data(ticker, self.db, user_id=self.current_user.id)
+                    for ticker in top_tickers
+                ]
+            )
 
             relevant_tickers = [macro_ticker] + top_tickers
             all_news = await self.repo.get_stock_news(relevant_tickers, limit=15)

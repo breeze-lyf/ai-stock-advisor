@@ -17,8 +17,8 @@ class TavilyProvider(MarketDataProvider):
     # 类级别信号量：由于 Tavily 免费版对并发极其敏感，强制全系统同时只能有一个请求在进行
     _semaphore = asyncio.Semaphore(1)
     
-    def __init__(self):
-        self.api_key = settings.TAVILY_API_KEY
+    def __init__(self, api_key: str | None = None):
+        self.api_key = (api_key or settings.TAVILY_API_KEY or "").strip() or None
         self.base_url = "https://api.tavily.com/search"
         if not self.api_key:
             logger.warning("TAVILY_API_KEY not set. TavilyProvider will be disabled.")

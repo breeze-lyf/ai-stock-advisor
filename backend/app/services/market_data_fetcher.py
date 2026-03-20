@@ -4,6 +4,10 @@ import time
 from datetime import datetime
 from typing import Optional
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core import security
+from app.infrastructure.db.repositories.user_provider_credential_repository import UserProviderCredentialRepository
 from app.schemas.market_data import FullMarketData, ProviderFundamental, ProviderTechnical
 from app.services.market_providers import ProviderFactory
 
@@ -19,11 +23,27 @@ def _log_duration(label: str, start: float) -> float:
 
 class MarketDataFetcher:
     @staticmethod
+    async def _resolve_tavily_api_key(db: AsyncSession | None, user_id: str | None) -> str | None:
+        if not db or not user_id:
+            return None
+        try:
+            credential_repo = UserProviderCredentialRepository(db)
+            credential = await credential_repo.get_by_user_and_provider(user_id, "tavily")
+            if not credential or not credential.encrypted_api_key or not credential.is_enabled:
+                return None
+            return security.decrypt_api_key(credential.encrypted_api_key)
+        except Exception as exc:
+            logger.warning(f"Failed to resolve Tavily credential for user {user_id}: {exc}")
+            return None
+
+    @staticmethod
     async def fetch_from_providers(
         ticker: str,
         preferred_source: str,
         price_only: bool = False,
         skip_news: bool = False,
+        db: AsyncSession | None = None,
+        user_id: str | None = None,
     ) -> Optional[FullMarketData]:
         total_start = time.time()
         provider = ProviderFactory.get_provider(ticker, preferred_source)
@@ -57,8 +77,8 @@ class MarketDataFetcher:
                 indicator_task = asyncio.create_task(provider.get_historical_data(ticker, period="200d"))
 
                 from app.services.market_providers.tavily import TavilyProvider
-
-                tavily = TavilyProvider()
+                tavily_key = await MarketDataFetcher._resolve_tavily_api_key(db, user_id)
+                tavily = TavilyProvider(api_key=tavily_key)
                 news_tasks = [asyncio.create_task(provider.get_news(ticker))]
 
                 if not skip_news and tavily.api_key:

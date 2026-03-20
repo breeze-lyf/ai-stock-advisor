@@ -16,9 +16,10 @@ from app.application.analysis.helpers import (
 )
 from app.core.security import sanitize_float
 from app.infrastructure.db.repositories.analysis_repository import AnalysisRepository
+from app.infrastructure.db.repositories.user_provider_credential_repository import UserProviderCredentialRepository
 from app.models.analysis import AnalysisReport
 from app.models.stock import Stock
-from app.models.user import User
+from app.models.user import MembershipTier, User
 from app.services.ai_service import AIService
 from app.services.macro_service import MacroService
 from app.services.market_data import MarketDataService
@@ -40,6 +41,20 @@ class AnalyzeStockUseCase:
         self.current_user = current_user
         self.repo = AnalysisRepository(db)
 
+    async def _has_personal_api_key(self) -> bool:
+        # Legacy user-level keys
+        if bool(self.current_user.api_key_deepseek) or bool(self.current_user.api_key_siliconflow):
+            return True
+
+        # Unified provider credentials
+        try:
+            credential_repo = UserProviderCredentialRepository(self.db)
+            credentials = await credential_repo.list_by_user_id(self.current_user.id)
+            return any(bool(item.encrypted_api_key) and bool(item.is_enabled) for item in credentials)
+        except Exception as exc:
+            logger.warning(f"Failed to inspect provider credentials for user {self.current_user.id}: {exc}")
+            return False
+
     async def execute(self, ticker: str, force: bool = False) -> dict[str, Any]:
         total_start = time.time()
         ticker = ticker.upper().strip()
@@ -53,7 +68,12 @@ class AnalyzeStockUseCase:
         fetch_start = time.time()
         results = await asyncio.gather(
             self._get_stock(ticker),
-            MarketDataService.get_real_time_data(ticker, self.db, force_refresh=force),
+            MarketDataService.get_real_time_data(
+                ticker,
+                self.db,
+                force_refresh=force,
+                user_id=self.current_user.id,
+            ),
             self._get_news_data(ticker),
             self._get_macro_context(),
             return_exceptions=True
@@ -214,6 +234,11 @@ class AnalyzeStockUseCase:
 
     async def _check_free_tier_limit(self):
         # 系统级 API Key (如 SiliconFlow) 的免费额度限制
+        # 已配置个人 API Key 或非 FREE 用户，不受此限制。
+        if (self.current_user.membership_tier or "").upper() != MembershipTier.FREE.value:
+            return
+        if await self._has_personal_api_key():
+            return
 
         today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
         count = await self.repo.count_reports_since(self.current_user.id, today_start)

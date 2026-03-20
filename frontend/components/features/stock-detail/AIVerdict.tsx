@@ -110,6 +110,15 @@ function compactSentence(value?: string, maxLength = 38) {
     return `${normalized.slice(0, maxLength).trim()}...`;
 }
 
+function normalizeComparisonText(value?: string) {
+    if (!value) return "";
+    return value
+        .replace(/^当前(?:先观察|不直接执行)[:：]\s*/u, "")
+        .replace(/\s+/g, "")
+        .trim()
+        .toLowerCase();
+}
+
 function splitScenario(value?: string) {
     if (!value) {
         return { trigger: "", action: "" };
@@ -219,6 +228,9 @@ function AIVerdictContent({
         : aiData.trade_setup_status === "未触发"
             ? `当前先观察：${compactSentence(aiData.trigger_condition || aiData.core_logic_summary, 42)}`
             : "";
+    const shouldShowActionReason = Boolean(actionReason) && (
+        normalizeComparisonText(actionReason) !== normalizeComparisonText(heroSubtitle)
+    );
 
     return (
         <div className="space-y-0 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none animate-in fade-in slide-in-from-bottom-2 duration-700">
@@ -303,7 +315,7 @@ function AIVerdictContent({
                                 </Button>
                             )}
                         </div>
-                        {actionReason && (
+                        {shouldShowActionReason && (
                             <div className="rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 px-3 py-2">
                                 <p className="text-[11px] font-medium leading-relaxed text-slate-600 dark:text-slate-300">
                                     {actionReason}

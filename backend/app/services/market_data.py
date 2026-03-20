@@ -20,7 +20,15 @@ class MarketDataService:
         return MarketDataRepository(db)
 
     @staticmethod
-    async def get_real_time_data(ticker: str, db: AsyncSession, preferred_source: str = "AKSHARE", force_refresh: bool = False, price_only: bool = False, skip_news: bool = False):
+    async def get_real_time_data(
+        ticker: str,
+        db: AsyncSession,
+        preferred_source: str = "AKSHARE",
+        force_refresh: bool = False,
+        price_only: bool = False,
+        skip_news: bool = False,
+        user_id: str | None = None,
+    ):
         """
         核心方法：获取单支股票最新的行情。支持 price_only 模式以提高响应速度。
         """
@@ -40,6 +48,8 @@ class MarketDataService:
             preferred_source,
             price_only=price_only,
             skip_news=skip_news,
+            db=db,
+            user_id=user_id,
         )
 
         if not data:
@@ -59,12 +69,16 @@ class MarketDataService:
         preferred_source: str,
         price_only: bool = False,
         skip_news: bool = False,
+        db: AsyncSession | None = None,
+        user_id: str | None = None,
     ) -> Optional[FullMarketData]:
         return await MarketDataFetcher.fetch_from_providers(
             ticker,
             preferred_source,
             price_only=price_only,
             skip_news=skip_news,
+            db=db,
+            user_id=user_id,
         )
 
     @staticmethod
@@ -82,12 +96,21 @@ class MarketDataService:
         return MarketDataRepository(None).build_simulation_cache(ticker, cache, now)
 
     @staticmethod
-    async def _fetch_from_providers(ticker: str, preferred_source: str, price_only: bool = False, skip_news: bool = False) -> Optional[FullMarketData]:
+    async def _fetch_from_providers(
+        ticker: str,
+        preferred_source: str,
+        price_only: bool = False,
+        skip_news: bool = False,
+        db: AsyncSession | None = None,
+        user_id: str | None = None,
+    ) -> Optional[FullMarketData]:
         return await MarketDataService.fetch_market_data(
             ticker,
             preferred_source,
             price_only=price_only,
             skip_news=skip_news,
+            db=db,
+            user_id=user_id,
         )
 
     @staticmethod

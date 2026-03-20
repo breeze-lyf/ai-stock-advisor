@@ -253,7 +253,10 @@ npm run generate-types
 4. 大陆网络环境建议使用镜像源安装依赖：
    - Python: `pip install -i https://pypi.tuna.tsinghua.edu.cn/simple`
    - Node: `npm --registry=https://registry.npmmirror.com`
-5. 初始化数据库或补种子数据时，优先使用 `backend/scripts/` 下脚本。
+5. 初始化数据库或补种子数据时，优先使用 `backend/scripts/` 分组目录：
+   - `backend/scripts/db/`：数据库初始化、迁移、种子
+   - `backend/scripts/data/`：行情/新闻采集与刷新
+   - `backend/scripts/dev/`：本地并发与性能诊断
 6. 生产部署优先使用 Docker Compose，不建议直接运行开发态脚本。
 
 ---

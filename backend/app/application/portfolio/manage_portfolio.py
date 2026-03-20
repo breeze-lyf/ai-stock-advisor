@@ -100,6 +100,8 @@ class RefreshPortfolioStockUseCase:
                 ticker,
                 self.current_user.preferred_data_source,
                 price_only=price_only,
+                db=self.db,
+                user_id=self.current_user.id,
             )
 
             if not data or not data.quote:

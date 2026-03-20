@@ -20,7 +20,7 @@ import { useDashboardRadarData } from "@/features/dashboard/hooks/useDashboardRa
 import { HotspotRadar } from "@/components/features/HotspotRadar";
 
 function DashboardContent() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const router = useRouter();
   const [onlyHoldings, setOnlyHoldings] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -41,13 +41,10 @@ function DashboardContent() {
   const { fetchRadar, loading: radarLoading, topics } = useDashboardRadarData();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (typeof window !== 'undefined' && !isAuthenticated && !localStorage.getItem("token")) {
-        router.push("/login");
-      }
-    }, 100);
-    return () => clearTimeout(timer);
-  }, [isAuthenticated, router]);
+    if (!authLoading && !isAuthenticated) {
+      router.replace("/login");
+    }
+  }, [authLoading, isAuthenticated, router]);
 
   const handleAnalyze = async (force = false) => {
     if (!selectedTicker) {

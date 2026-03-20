@@ -48,6 +48,7 @@ class GetPortfolioUseCase:
                                     preferred_source=self.current_user.preferred_data_source,
                                     force_refresh=True,
                                     price_only=price_only,
+                                    user_id=self.current_user.id,
                                 )
                             except Exception as exc:
                                 logger.error(f"Error refreshing ticker {ticker_name}: {exc}")

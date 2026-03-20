@@ -17,7 +17,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const PUBLIC_ROUTES = ["/login", "/register", "/password"];
+const PUBLIC_ROUTES = ["/login", "/register"];
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [token, setToken] = useState<string | null>(null);
@@ -48,6 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    // Initialize auth state once to avoid route-change flicker.
     useEffect(() => {
         let active = true;
 
@@ -56,8 +57,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (storedToken) {
                 setToken(storedToken);
                 await refreshProfile();
-            } else if (!PUBLIC_ROUTES.includes(pathname)) {
-                router.push("/login");
             }
 
             if (active) {
@@ -65,13 +64,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
         };
 
-        setLoading(true);
         initializeAuth();
 
         return () => {
             active = false;
         };
-    }, [pathname, router]);
+    }, []);
+
+    // Handle route guard after initialization; keep loading stable across page switches.
+    useEffect(() => {
+        if (loading) return;
+        if (!token && !PUBLIC_ROUTES.includes(pathname)) {
+            router.replace("/login");
+        }
+    }, [loading, token, pathname, router]);
 
     const login = (newToken: string) => {
         localStorage.setItem("token", newToken);
@@ -85,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setToken(null);
         setUser(null);
         setLoading(false);
-        router.push("/login");
+        router.replace("/login");
     };
 
     return (

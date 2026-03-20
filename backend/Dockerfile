@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-dev \
     libpq-dev \
     gcc \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
 # 安装 Python 依赖

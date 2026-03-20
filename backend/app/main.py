@@ -146,8 +146,7 @@ async def startup_event():
     from app.core.database import engine, Base, SessionLocal
     from app.models.notification import NotificationLog
     from app.services.system_ai_registry import ensure_system_ai_registry
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    # 数据库同步现已通过 entrypoint.sh 中的 alembic upgrade head 统一处理
 
     async with SessionLocal() as db:
         await ensure_system_ai_registry(db)

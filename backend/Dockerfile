@@ -21,9 +21,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # 暴露端口
+# 暴露业务端口
 EXPOSE 8000
 
 # 2G 机器默认值：2 个 worker，避免内存抖动；可通过 WEB_CONCURRENCY 覆盖
 ENV WEB_CONCURRENCY=2
 ENV GUNICORN_TIMEOUT=120
-CMD ["sh", "-c", "gunicorn -w ${WEB_CONCURRENCY} -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:8000 --timeout ${GUNICORN_TIMEOUT}"]
+
+# 数据库自动迁移集成
+RUN chmod +x /app/scripts/entrypoint.sh
+ENTRYPOINT ["/app/scripts/entrypoint.sh"]

@@ -19,6 +19,19 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const PUBLIC_ROUTES = ["/login", "/register"];
 
+function getApiBaseURL(): string {
+    const configured = process.env.NEXT_PUBLIC_API_URL?.trim();
+    if (configured) {
+        return configured.replace(/\/api\/?$/, "");
+    }
+
+    if (typeof window !== "undefined") {
+        return window.location.origin.replace(/\/$/, "");
+    }
+
+    return "http://localhost:8000";
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [token, setToken] = useState<string | null>(null);
     const [user, setUser] = useState<UserProfile | null>(null);
@@ -31,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!storedToken) return;
         
         try {
-            const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+            const apiBase = getApiBaseURL();
             const response = await fetch(`${apiBase}/api/v1/user/me`, {
                 headers: { "Authorization": `Bearer ${storedToken}` }
             });

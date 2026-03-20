@@ -1,6 +1,19 @@
 import axios from "axios";
 
-const baseURL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/api$/, "");
+function getApiBaseURL(): string {
+  const configured = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (configured) {
+    return configured.replace(/\/api\/?$/, "");
+  }
+
+  if (typeof window !== "undefined") {
+    return window.location.origin.replace(/\/$/, "");
+  }
+
+  return "http://localhost:8000";
+}
+
+const baseURL = getApiBaseURL();
 
 const api = axios.create({
   baseURL,

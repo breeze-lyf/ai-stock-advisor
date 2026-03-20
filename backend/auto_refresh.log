@@ -562,3 +562,653 @@
 2026-03-20 23:57:37,803 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600519 全量数据获取: 1.13秒
 2026-03-20 23:57:37,810 - __main__ - INFO - ✅ Successfully refreshed 600519. New Price: 1445.0
 2026-03-20 23:57:39,811 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-21 00:02:39,849 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: 601138, 002970, 600338, 002050, 600438, 002920, SNDK, OKLO, PEP, KO...
+2026-03-21 00:02:39,852 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 601138 数据 (provider: AkShareProvider)
+2026-03-21 00:02:39,852 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:02:40,076 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601138 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:02:40,085 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601138 核心数据(报价+指标): 0.23秒
+2026-03-21 00:02:40,615 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:02:40,616 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:02:40,617 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601138 全量数据获取: 0.77秒
+2026-03-21 00:02:40,627 - __main__ - INFO - ✅ Successfully refreshed 601138. New Price: 50.3
+2026-03-21 00:02:42,631 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002970 数据 (provider: AkShareProvider)
+2026-03-21 00:02:42,631 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:02:42,763 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002970 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:02:42,827 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002970 核心数据(报价+指标): 0.20秒
+2026-03-21 00:02:43,460 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:02:43,462 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:02:43,463 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002970 全量数据获取: 0.83秒
+2026-03-21 00:02:43,470 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 66.0
+2026-03-21 00:02:45,474 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600338 数据 (provider: AkShareProvider)
+2026-03-21 00:02:45,474 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:02:45,693 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600338 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:02:45,729 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600338 核心数据(报价+指标): 0.25秒
+2026-03-21 00:02:46,385 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:02:46,386 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:02:46,388 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600338 全量数据获取: 0.91秒
+2026-03-21 00:02:46,397 - __main__ - INFO - ✅ Successfully refreshed 600338. New Price: 15.61
+2026-03-21 00:02:48,400 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002050 数据 (provider: AkShareProvider)
+2026-03-21 00:02:48,400 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:02:48,547 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002050 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:02:48,586 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002050 核心数据(报价+指标): 0.19秒
+2026-03-21 00:02:49,131 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:02:49,132 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:02:49,134 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002050 全量数据获取: 0.73秒
+2026-03-21 00:02:49,140 - __main__ - INFO - ✅ Successfully refreshed 002050. New Price: 44.23
+2026-03-21 00:02:51,143 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600438 数据 (provider: AkShareProvider)
+2026-03-21 00:02:51,144 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:02:51,334 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600438 核心数据(报价+指标): 0.19秒
+2026-03-21 00:02:51,362 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600438 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:02:51,900 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:02:51,901 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:02:51,902 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600438 全量数据获取: 0.76秒
+2026-03-21 00:02:51,909 - __main__ - INFO - ✅ Successfully refreshed 600438. New Price: 18.46
+2026-03-21 00:02:53,913 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002920 数据 (provider: AkShareProvider)
+2026-03-21 00:02:53,913 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:02:54,069 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002920 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:02:54,124 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002920 核心数据(报价+指标): 0.21秒
+2026-03-21 00:02:54,767 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:02:54,768 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:02:54,768 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002920 全量数据获取: 0.86秒
+2026-03-21 00:02:54,773 - __main__ - INFO - ✅ Successfully refreshed 002920. New Price: 110.8
+2026-03-21 00:02:56,776 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 SNDK 数据 (provider: AkShareProvider)
+2026-03-21 00:02:56,777 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:02:56,989 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] SNDK 核心数据(报价+指标): 0.21秒
+2026-03-21 00:02:57,515 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:02:57,517 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:02:57,518 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] SNDK 全量数据获取: 0.74秒
+2026-03-21 00:02:57,526 - __main__ - INFO - ✅ Successfully refreshed SNDK. New Price: 735.78
+2026-03-21 00:02:59,530 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 OKLO 数据 (provider: AkShareProvider)
+2026-03-21 00:02:59,530 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:02:59,816 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] OKLO 核心数据(报价+指标): 0.29秒
+2026-03-21 00:03:00,329 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:03:00,330 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:03:00,332 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] OKLO 全量数据获取: 0.80秒
+2026-03-21 00:03:00,340 - __main__ - INFO - ✅ Successfully refreshed OKLO. New Price: 55.51
+2026-03-21 00:03:02,343 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 PEP 数据 (provider: AkShareProvider)
+2026-03-21 00:03:02,343 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:03:02,881 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] PEP 核心数据(报价+指标): 0.54秒
+2026-03-21 00:03:03,186 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:03:03,187 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:03:03,189 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] PEP 全量数据获取: 0.85秒
+2026-03-21 00:03:03,198 - __main__ - INFO - ✅ Successfully refreshed PEP. New Price: 152.16
+2026-03-21 00:03:05,201 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 KO 数据 (provider: AkShareProvider)
+2026-03-21 00:03:05,202 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:03:05,708 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] KO 核心数据(报价+指标): 0.51秒
+2026-03-21 00:03:06,179 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:03:06,180 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:03:06,181 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] KO 全量数据获取: 0.98秒
+2026-03-21 00:03:06,189 - __main__ - INFO - ✅ Successfully refreshed KO. New Price: 75.11
+2026-03-21 00:03:08,191 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-21 00:08:08,228 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: 002036, 603883, 600845, 601689, 600900, 601658, 002475, 601567, 603258, 600519...
+2026-03-21 00:08:08,230 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002036 数据 (provider: AkShareProvider)
+2026-03-21 00:08:08,230 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:08:08,371 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002036 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:08:08,435 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002036 核心数据(报价+指标): 0.21秒
+2026-03-21 00:08:09,043 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:08:09,044 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:08:09,046 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002036 全量数据获取: 0.82秒
+2026-03-21 00:08:09,055 - __main__ - INFO - ✅ Successfully refreshed 002036. New Price: 9.72
+2026-03-21 00:08:11,058 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 603883 数据 (provider: AkShareProvider)
+2026-03-21 00:08:11,058 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:08:11,260 - app.services.market_providers.akshare - WARNING - EM individual info failed for 603883 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:08:11,322 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 603883 核心数据(报价+指标): 0.26秒
+2026-03-21 00:08:11,987 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:08:11,989 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:08:11,991 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 603883 全量数据获取: 0.93秒
+2026-03-21 00:08:11,998 - __main__ - INFO - ✅ Successfully refreshed 603883. New Price: 13.68
+2026-03-21 00:08:14,001 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600845 数据 (provider: AkShareProvider)
+2026-03-21 00:08:14,001 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:08:14,136 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600845 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:08:14,203 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600845 核心数据(报价+指标): 0.20秒
+2026-03-21 00:08:15,161 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:08:15,162 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:08:15,164 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600845 全量数据获取: 1.16秒
+2026-03-21 00:08:15,170 - __main__ - INFO - ✅ Successfully refreshed 600845. New Price: 21.69
+2026-03-21 00:08:17,174 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 601689 数据 (provider: AkShareProvider)
+2026-03-21 00:08:17,175 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:08:17,313 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601689 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:08:17,442 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601689 核心数据(报价+指标): 0.27秒
+2026-03-21 00:08:17,955 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:08:17,957 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:08:17,959 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601689 全量数据获取: 0.78秒
+2026-03-21 00:08:17,967 - __main__ - INFO - ✅ Successfully refreshed 601689. New Price: 58.25
+2026-03-21 00:08:19,972 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600900 数据 (provider: AkShareProvider)
+2026-03-21 00:08:19,972 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:08:20,180 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600900 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:08:20,232 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600900 核心数据(报价+指标): 0.26秒
+2026-03-21 00:08:20,877 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:08:20,879 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:08:20,881 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600900 全量数据获取: 0.91秒
+2026-03-21 00:08:20,888 - __main__ - INFO - ✅ Successfully refreshed 600900. New Price: 27.18
+2026-03-21 00:08:22,892 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 601658 数据 (provider: AkShareProvider)
+2026-03-21 00:08:22,892 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:08:23,018 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601658 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:08:23,077 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601658 核心数据(报价+指标): 0.19秒
+2026-03-21 00:08:23,721 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:08:23,721 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:08:23,723 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601658 全量数据获取: 0.83秒
+2026-03-21 00:08:23,733 - __main__ - INFO - ✅ Successfully refreshed 601658. New Price: 5.05
+2026-03-21 00:08:25,737 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002475 数据 (provider: AkShareProvider)
+2026-03-21 00:08:25,737 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:08:25,940 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002475 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:08:25,987 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002475 核心数据(报价+指标): 0.25秒
+2026-03-21 00:08:26,619 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:08:26,621 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:08:26,622 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002475 全量数据获取: 0.89秒
+2026-03-21 00:08:26,630 - __main__ - INFO - ✅ Successfully refreshed 002475. New Price: 48.22
+2026-03-21 00:08:28,635 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 601567 数据 (provider: AkShareProvider)
+2026-03-21 00:08:28,635 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:08:28,761 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601567 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:08:28,807 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601567 核心数据(报价+指标): 0.17秒
+2026-03-21 00:08:29,487 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:08:29,489 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:08:29,492 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601567 全量数据获取: 0.86秒
+2026-03-21 00:08:29,499 - __main__ - INFO - ✅ Successfully refreshed 601567. New Price: 27.99
+2026-03-21 00:08:31,504 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 603258 数据 (provider: AkShareProvider)
+2026-03-21 00:08:31,504 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:08:31,706 - app.services.market_providers.akshare - WARNING - EM individual info failed for 603258 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:08:31,764 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 603258 核心数据(报价+指标): 0.26秒
+2026-03-21 00:08:32,405 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:08:32,406 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:08:32,408 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 603258 全量数据获取: 0.90秒
+2026-03-21 00:08:32,414 - __main__ - INFO - ✅ Successfully refreshed 603258. New Price: 17.04
+2026-03-21 00:08:34,419 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600519 数据 (provider: AkShareProvider)
+2026-03-21 00:08:34,420 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:08:34,551 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600519 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:08:34,590 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600519 核心数据(报价+指标): 0.17秒
+2026-03-21 00:08:35,256 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:08:35,258 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:08:35,259 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600519 全量数据获取: 0.84秒
+2026-03-21 00:08:35,267 - __main__ - INFO - ✅ Successfully refreshed 600519. New Price: 1445.0
+2026-03-21 00:08:37,267 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-21 00:13:37,300 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: 601138, 002970, 600338, 002050, 600438, 002920, SNDK, OKLO, 002036, 603883...
+2026-03-21 00:13:37,302 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 601138 数据 (provider: AkShareProvider)
+2026-03-21 00:13:37,302 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:13:37,454 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601138 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:13:37,497 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601138 核心数据(报价+指标): 0.20秒
+2026-03-21 00:13:38,071 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:13:38,074 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:13:38,075 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601138 全量数据获取: 0.77秒
+2026-03-21 00:13:38,085 - __main__ - INFO - ✅ Successfully refreshed 601138. New Price: 50.3
+2026-03-21 00:13:40,091 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002970 数据 (provider: AkShareProvider)
+2026-03-21 00:13:40,091 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:13:40,218 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002970 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:13:40,292 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002970 核心数据(报价+指标): 0.20秒
+2026-03-21 00:13:40,919 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:13:40,921 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:13:40,923 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002970 全量数据获取: 0.83秒
+2026-03-21 00:13:40,931 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 66.0
+2026-03-21 00:13:42,933 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600338 数据 (provider: AkShareProvider)
+2026-03-21 00:13:42,933 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:13:43,138 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600338 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:13:43,183 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600338 核心数据(报价+指标): 0.25秒
+2026-03-21 00:13:43,829 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:13:43,830 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:13:43,830 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600338 全量数据获取: 0.90秒
+2026-03-21 00:13:43,835 - __main__ - INFO - ✅ Successfully refreshed 600338. New Price: 15.61
+2026-03-21 00:13:45,839 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002050 数据 (provider: AkShareProvider)
+2026-03-21 00:13:45,839 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:13:45,969 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002050 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:13:46,012 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002050 核心数据(报价+指标): 0.17秒
+2026-03-21 00:13:46,687 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:13:46,688 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:13:46,690 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002050 全量数据获取: 0.85秒
+2026-03-21 00:13:46,698 - __main__ - INFO - ✅ Successfully refreshed 002050. New Price: 44.23
+2026-03-21 00:13:48,701 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600438 数据 (provider: AkShareProvider)
+2026-03-21 00:13:48,701 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:13:48,902 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600438 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:13:48,936 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600438 核心数据(报价+指标): 0.23秒
+2026-03-21 00:13:49,601 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:13:49,603 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:13:49,605 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600438 全量数据获取: 0.90秒
+2026-03-21 00:13:49,612 - __main__ - INFO - ✅ Successfully refreshed 600438. New Price: 18.46
+2026-03-21 00:13:51,616 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002920 数据 (provider: AkShareProvider)
+2026-03-21 00:13:51,616 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:13:51,739 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002920 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:13:51,778 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002920 核心数据(报价+指标): 0.16秒
+2026-03-21 00:13:52,355 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:13:52,357 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:13:52,358 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002920 全量数据获取: 0.74秒
+2026-03-21 00:13:52,369 - __main__ - INFO - ✅ Successfully refreshed 002920. New Price: 110.8
+2026-03-21 00:13:54,372 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 SNDK 数据 (provider: AkShareProvider)
+2026-03-21 00:13:54,373 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:13:54,665 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] SNDK 核心数据(报价+指标): 0.29秒
+2026-03-21 00:13:55,158 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:13:55,159 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:13:55,161 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] SNDK 全量数据获取: 0.79秒
+2026-03-21 00:13:55,167 - __main__ - INFO - ✅ Successfully refreshed SNDK. New Price: 735.35
+2026-03-21 00:13:57,170 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 OKLO 数据 (provider: AkShareProvider)
+2026-03-21 00:13:57,170 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:13:57,467 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] OKLO 核心数据(报价+指标): 0.30秒
+2026-03-21 00:13:58,221 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:13:58,224 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:13:58,226 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] OKLO 全量数据获取: 1.06秒
+2026-03-21 00:13:58,233 - __main__ - INFO - ✅ Successfully refreshed OKLO. New Price: 55.22
+2026-03-21 00:14:00,236 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002036 数据 (provider: AkShareProvider)
+2026-03-21 00:14:00,236 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:14:01,038 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002036 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:14:01,047 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002036 核心数据(报价+指标): 0.81秒
+2026-03-21 00:14:01,375 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:14:01,376 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:14:01,378 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002036 全量数据获取: 1.14秒
+2026-03-21 00:14:01,386 - __main__ - INFO - ✅ Successfully refreshed 002036. New Price: 9.72
+2026-03-21 00:14:03,389 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 603883 数据 (provider: AkShareProvider)
+2026-03-21 00:14:03,389 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:14:03,625 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 603883 核心数据(报价+指标): 0.24秒
+2026-03-21 00:14:03,725 - app.services.market_providers.akshare - WARNING - EM individual info failed for 603883 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:14:04,581 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:14:04,582 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:14:04,584 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 603883 全量数据获取: 1.19秒
+2026-03-21 00:14:04,591 - __main__ - INFO - ✅ Successfully refreshed 603883. New Price: 13.68
+2026-03-21 00:14:06,591 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-21 00:19:06,628 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: 600845, 601689, 600900, 601658, 002475, 601567, 603258, 600519, 601138, 002970...
+2026-03-21 00:19:06,631 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600845 数据 (provider: AkShareProvider)
+2026-03-21 00:19:06,631 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:19:07,043 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600845 核心数据(报价+指标): 0.41秒
+2026-03-21 00:19:07,159 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600845 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:19:08,287 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:19:08,288 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:19:08,290 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600845 全量数据获取: 1.66秒
+2026-03-21 00:19:08,300 - __main__ - INFO - ✅ Successfully refreshed 600845. New Price: 21.69
+2026-03-21 00:19:10,305 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 601689 数据 (provider: AkShareProvider)
+2026-03-21 00:19:10,305 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:19:10,479 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601689 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:19:10,520 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601689 核心数据(报价+指标): 0.21秒
+2026-03-21 00:19:11,062 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:19:11,063 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:19:11,063 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601689 全量数据获取: 0.76秒
+2026-03-21 00:19:11,068 - __main__ - INFO - ✅ Successfully refreshed 601689. New Price: 58.25
+2026-03-21 00:19:13,071 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600900 数据 (provider: AkShareProvider)
+2026-03-21 00:19:13,071 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:19:13,206 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600900 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:19:13,241 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600900 核心数据(报价+指标): 0.17秒
+2026-03-21 00:19:13,847 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:19:13,847 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:19:13,849 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600900 全量数据获取: 0.78秒
+2026-03-21 00:19:13,857 - __main__ - INFO - ✅ Successfully refreshed 600900. New Price: 27.18
+2026-03-21 00:19:15,861 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 601658 数据 (provider: AkShareProvider)
+2026-03-21 00:19:15,861 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:19:16,063 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601658 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:19:16,119 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601658 核心数据(报价+指标): 0.26秒
+2026-03-21 00:19:16,783 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:19:16,784 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:19:16,786 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601658 全量数据获取: 0.92秒
+2026-03-21 00:19:16,792 - __main__ - INFO - ✅ Successfully refreshed 601658. New Price: 5.05
+2026-03-21 00:19:18,796 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002475 数据 (provider: AkShareProvider)
+2026-03-21 00:19:18,796 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:19:18,924 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002475 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:19:18,969 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002475 核心数据(报价+指标): 0.17秒
+2026-03-21 00:19:19,611 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:19:19,611 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:19:19,613 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002475 全量数据获取: 0.82秒
+2026-03-21 00:19:19,620 - __main__ - INFO - ✅ Successfully refreshed 002475. New Price: 48.22
+2026-03-21 00:19:21,624 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 601567 数据 (provider: AkShareProvider)
+2026-03-21 00:19:21,624 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:19:21,837 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601567 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:19:21,873 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601567 核心数据(报价+指标): 0.25秒
+2026-03-21 00:19:22,500 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:19:22,504 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:19:22,505 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601567 全量数据获取: 0.88秒
+2026-03-21 00:19:22,513 - __main__ - INFO - ✅ Successfully refreshed 601567. New Price: 27.99
+2026-03-21 00:19:24,516 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 603258 数据 (provider: AkShareProvider)
+2026-03-21 00:19:24,516 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:19:24,641 - app.services.market_providers.akshare - WARNING - EM individual info failed for 603258 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:19:24,676 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 603258 核心数据(报价+指标): 0.16秒
+2026-03-21 00:19:25,379 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:19:25,380 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:19:25,382 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 603258 全量数据获取: 0.87秒
+2026-03-21 00:19:25,390 - __main__ - INFO - ✅ Successfully refreshed 603258. New Price: 17.04
+2026-03-21 00:19:27,393 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600519 数据 (provider: AkShareProvider)
+2026-03-21 00:19:27,393 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:19:27,605 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600519 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:19:27,645 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600519 核心数据(报价+指标): 0.25秒
+2026-03-21 00:19:28,321 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:19:28,322 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:19:28,324 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600519 全量数据获取: 0.93秒
+2026-03-21 00:19:28,331 - __main__ - INFO - ✅ Successfully refreshed 600519. New Price: 1445.0
+2026-03-21 00:19:30,334 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 601138 数据 (provider: AkShareProvider)
+2026-03-21 00:19:30,334 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:19:30,464 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601138 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:19:30,518 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601138 核心数据(报价+指标): 0.18秒
+2026-03-21 00:19:31,145 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:19:31,147 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:19:31,148 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601138 全量数据获取: 0.81秒
+2026-03-21 00:19:31,156 - __main__ - INFO - ✅ Successfully refreshed 601138. New Price: 50.3
+2026-03-21 00:19:33,159 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002970 数据 (provider: AkShareProvider)
+2026-03-21 00:19:33,159 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:19:33,371 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002970 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:19:33,414 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002970 核心数据(报价+指标): 0.26秒
+2026-03-21 00:19:34,052 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:19:34,053 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:19:34,055 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002970 全量数据获取: 0.90秒
+2026-03-21 00:19:34,062 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 66.0
+2026-03-21 00:19:36,062 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-21 00:24:36,095 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: 600338, 002050, 600438, 002920, 002036, 603883, 600845, 601689, 600900, 601658...
+2026-03-21 00:24:36,097 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600338 数据 (provider: AkShareProvider)
+2026-03-21 00:24:36,097 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:24:36,327 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600338 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:24:36,374 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600338 核心数据(报价+指标): 0.28秒
+2026-03-21 00:24:36,856 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:24:36,857 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:24:36,859 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600338 全量数据获取: 0.76秒
+2026-03-21 00:24:36,871 - __main__ - INFO - ✅ Successfully refreshed 600338. New Price: 15.61
+2026-03-21 00:24:38,876 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002050 数据 (provider: AkShareProvider)
+2026-03-21 00:24:38,876 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:24:39,074 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002050 核心数据(报价+指标): 0.20秒
+2026-03-21 00:24:39,141 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002050 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:24:39,720 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:24:39,721 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:24:39,721 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002050 全量数据获取: 0.85秒
+2026-03-21 00:24:39,725 - __main__ - INFO - ✅ Successfully refreshed 002050. New Price: 44.23
+2026-03-21 00:24:41,728 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600438 数据 (provider: AkShareProvider)
+2026-03-21 00:24:41,728 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:24:41,903 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600438 核心数据(报价+指标): 0.18秒
+2026-03-21 00:24:42,057 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600438 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:24:42,576 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:24:42,576 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:24:42,577 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600438 全量数据获取: 0.85秒
+2026-03-21 00:24:42,582 - __main__ - INFO - ✅ Successfully refreshed 600438. New Price: 18.46
+2026-03-21 00:24:44,586 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002920 数据 (provider: AkShareProvider)
+2026-03-21 00:24:44,586 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:24:44,873 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002920 核心数据(报价+指标): 0.29秒
+2026-03-21 00:24:44,976 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002920 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:24:46,009 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:24:46,010 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:24:46,012 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002920 全量数据获取: 1.43秒
+2026-03-21 00:24:46,018 - __main__ - INFO - ✅ Successfully refreshed 002920. New Price: 110.8
+2026-03-21 00:24:48,022 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002036 数据 (provider: AkShareProvider)
+2026-03-21 00:24:48,022 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:24:48,195 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002036 核心数据(报价+指标): 0.17秒
+2026-03-21 00:24:48,341 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002036 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:24:48,901 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:24:48,902 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:24:48,904 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002036 全量数据获取: 0.88秒
+2026-03-21 00:24:48,911 - __main__ - INFO - ✅ Successfully refreshed 002036. New Price: 9.72
+2026-03-21 00:24:50,914 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 603883 数据 (provider: AkShareProvider)
+2026-03-21 00:24:50,914 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:24:51,496 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 603883 核心数据(报价+指标): 0.58秒
+2026-03-21 00:24:51,740 - app.services.market_providers.akshare - WARNING - EM individual info failed for 603883 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:24:51,791 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:24:51,792 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:24:51,794 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 603883 全量数据获取: 0.88秒
+2026-03-21 00:24:51,802 - __main__ - INFO - ✅ Successfully refreshed 603883. New Price: 13.68
+2026-03-21 00:24:53,807 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600845 数据 (provider: AkShareProvider)
+2026-03-21 00:24:53,807 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:24:54,000 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600845 核心数据(报价+指标): 0.19秒
+2026-03-21 00:24:54,110 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600845 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:24:54,635 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:24:54,636 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:24:54,638 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600845 全量数据获取: 0.83秒
+2026-03-21 00:24:54,645 - __main__ - INFO - ✅ Successfully refreshed 600845. New Price: 21.69
+2026-03-21 00:24:56,650 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 601689 数据 (provider: AkShareProvider)
+2026-03-21 00:24:56,650 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:24:56,894 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601689 核心数据(报价+指标): 0.24秒
+2026-03-21 00:24:56,984 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601689 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:24:57,548 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:24:57,550 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:24:57,551 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601689 全量数据获取: 0.90秒
+2026-03-21 00:24:57,557 - __main__ - INFO - ✅ Successfully refreshed 601689. New Price: 58.25
+2026-03-21 00:24:59,561 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600900 数据 (provider: AkShareProvider)
+2026-03-21 00:24:59,561 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:24:59,732 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600900 核心数据(报价+指标): 0.17秒
+2026-03-21 00:24:59,878 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600900 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:25:00,434 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:25:00,435 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:25:00,436 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600900 全量数据获取: 0.88秒
+2026-03-21 00:25:00,443 - __main__ - INFO - ✅ Successfully refreshed 600900. New Price: 27.18
+2026-03-21 00:25:02,447 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 601658 数据 (provider: AkShareProvider)
+2026-03-21 00:25:02,447 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:25:02,677 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601658 核心数据(报价+指标): 0.23秒
+2026-03-21 00:25:02,747 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601658 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:25:03,310 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:25:03,311 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:25:03,313 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601658 全量数据获取: 0.87秒
+2026-03-21 00:25:03,320 - __main__ - INFO - ✅ Successfully refreshed 601658. New Price: 5.05
+2026-03-21 00:25:05,321 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-21 00:30:05,360 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: 002475, 601567, 603258, 600519, 601138, 002970, 600338, 002050, 600438, 002920...
+2026-03-21 00:30:05,363 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002475 数据 (provider: AkShareProvider)
+2026-03-21 00:30:05,363 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:30:05,598 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002475 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:30:05,626 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002475 核心数据(报价+指标): 0.26秒
+2026-03-21 00:30:06,100 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:30:06,102 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:30:06,103 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002475 全量数据获取: 0.74秒
+2026-03-21 00:30:06,113 - __main__ - INFO - ✅ Successfully refreshed 002475. New Price: 48.22
+2026-03-21 00:30:08,118 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 601567 数据 (provider: AkShareProvider)
+2026-03-21 00:30:08,118 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:30:08,304 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601567 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:30:08,316 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601567 核心数据(报价+指标): 0.20秒
+2026-03-21 00:30:08,959 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:30:08,960 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:30:08,962 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601567 全量数据获取: 0.84秒
+2026-03-21 00:30:08,971 - __main__ - INFO - ✅ Successfully refreshed 601567. New Price: 27.99
+2026-03-21 00:30:10,975 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 603258 数据 (provider: AkShareProvider)
+2026-03-21 00:30:10,975 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:30:11,100 - app.services.market_providers.akshare - WARNING - EM individual info failed for 603258 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:30:11,154 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 603258 核心数据(报价+指标): 0.18秒
+2026-03-21 00:30:11,724 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:30:11,725 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:30:11,727 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 603258 全量数据获取: 0.75秒
+2026-03-21 00:30:11,735 - __main__ - INFO - ✅ Successfully refreshed 603258. New Price: 17.04
+2026-03-21 00:30:13,740 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600519 数据 (provider: AkShareProvider)
+2026-03-21 00:30:13,740 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:30:13,940 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600519 核心数据(报价+指标): 0.20秒
+2026-03-21 00:30:13,969 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600519 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:30:14,495 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:30:14,497 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:30:14,498 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600519 全量数据获取: 0.76秒
+2026-03-21 00:30:14,505 - __main__ - INFO - ✅ Successfully refreshed 600519. New Price: 1445.0
+2026-03-21 00:30:16,509 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 601138 数据 (provider: AkShareProvider)
+2026-03-21 00:30:16,509 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:30:16,666 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601138 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:30:16,721 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601138 核心数据(报价+指标): 0.21秒
+2026-03-21 00:30:17,341 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:30:17,343 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:30:17,344 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601138 全量数据获取: 0.84秒
+2026-03-21 00:30:17,352 - __main__ - INFO - ✅ Successfully refreshed 601138. New Price: 50.3
+2026-03-21 00:30:19,356 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002970 数据 (provider: AkShareProvider)
+2026-03-21 00:30:19,356 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:30:19,504 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002970 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:30:19,534 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002970 核心数据(报价+指标): 0.18秒
+2026-03-21 00:30:20,219 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:30:20,220 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:30:20,222 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002970 全量数据获取: 0.87秒
+2026-03-21 00:30:20,229 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 66.0
+2026-03-21 00:30:22,233 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600338 数据 (provider: AkShareProvider)
+2026-03-21 00:30:22,233 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:30:22,455 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600338 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:30:22,478 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600338 核心数据(报价+指标): 0.24秒
+2026-03-21 00:30:23,127 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:30:23,128 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:30:23,130 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600338 全量数据获取: 0.90秒
+2026-03-21 00:30:23,137 - __main__ - INFO - ✅ Successfully refreshed 600338. New Price: 15.61
+2026-03-21 00:30:25,139 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002050 数据 (provider: AkShareProvider)
+2026-03-21 00:30:25,139 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:30:25,273 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002050 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:30:25,307 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002050 核心数据(报价+指标): 0.17秒
+2026-03-21 00:30:26,331 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:30:26,332 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:30:26,334 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002050 全量数据获取: 1.19秒
+2026-03-21 00:30:26,342 - __main__ - INFO - ✅ Successfully refreshed 002050. New Price: 44.23
+2026-03-21 00:30:28,344 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600438 数据 (provider: AkShareProvider)
+2026-03-21 00:30:28,344 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:30:28,488 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600438 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:30:28,527 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600438 核心数据(报价+指标): 0.18秒
+2026-03-21 00:30:29,134 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:30:29,135 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:30:29,136 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600438 全量数据获取: 0.79秒
+2026-03-21 00:30:29,144 - __main__ - INFO - ✅ Successfully refreshed 600438. New Price: 18.46
+2026-03-21 00:30:31,149 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002920 数据 (provider: AkShareProvider)
+2026-03-21 00:30:31,149 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:30:31,356 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002920 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:30:31,391 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002920 核心数据(报价+指标): 0.24秒
+2026-03-21 00:30:32,044 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:30:32,044 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:30:32,046 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002920 全量数据获取: 0.90秒
+2026-03-21 00:30:32,052 - __main__ - INFO - ✅ Successfully refreshed 002920. New Price: 110.8
+2026-03-21 00:30:34,053 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-21 00:35:34,090 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: 002036, 603883, 600845, 601689, 600900, 601658, 002475, 601567, 603258, 600519...
+2026-03-21 00:35:34,092 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002036 数据 (provider: AkShareProvider)
+2026-03-21 00:35:34,092 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:35:34,244 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002036 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:35:34,314 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002036 核心数据(报价+指标): 0.22秒
+2026-03-21 00:35:34,809 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:35:34,810 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:35:34,812 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002036 全量数据获取: 0.72秒
+2026-03-21 00:35:34,819 - __main__ - INFO - ✅ Successfully refreshed 002036. New Price: 9.72
+2026-03-21 00:35:36,823 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 603883 数据 (provider: AkShareProvider)
+2026-03-21 00:35:36,823 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:35:36,946 - app.services.market_providers.akshare - WARNING - EM individual info failed for 603883 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:35:36,989 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 603883 核心数据(报价+指标): 0.17秒
+2026-03-21 00:35:37,604 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:35:37,605 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:35:37,607 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 603883 全量数据获取: 0.78秒
+2026-03-21 00:35:37,615 - __main__ - INFO - ✅ Successfully refreshed 603883. New Price: 13.68
+2026-03-21 00:35:39,618 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600845 数据 (provider: AkShareProvider)
+2026-03-21 00:35:39,619 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:35:39,782 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600845 核心数据(报价+指标): 0.16秒
+2026-03-21 00:35:40,009 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600845 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:35:40,372 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:35:40,373 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:35:40,375 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600845 全量数据获取: 0.76秒
+2026-03-21 00:35:40,382 - __main__ - INFO - ✅ Successfully refreshed 600845. New Price: 21.69
+2026-03-21 00:35:42,385 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 601689 数据 (provider: AkShareProvider)
+2026-03-21 00:35:42,385 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:35:42,515 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601689 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:35:42,574 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601689 核心数据(报价+指标): 0.19秒
+2026-03-21 00:35:43,195 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:35:43,196 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:35:43,198 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601689 全量数据获取: 0.81秒
+2026-03-21 00:35:43,205 - __main__ - INFO - ✅ Successfully refreshed 601689. New Price: 58.25
+2026-03-21 00:35:45,207 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600900 数据 (provider: AkShareProvider)
+2026-03-21 00:35:45,208 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:35:45,390 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600900 核心数据(报价+指标): 0.18秒
+2026-03-21 00:35:45,473 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600900 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:35:45,964 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:35:45,965 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:35:45,967 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600900 全量数据获取: 0.76秒
+2026-03-21 00:35:45,975 - __main__ - INFO - ✅ Successfully refreshed 600900. New Price: 27.18
+2026-03-21 00:35:47,979 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 601658 数据 (provider: AkShareProvider)
+2026-03-21 00:35:47,979 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:35:48,158 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601658 核心数据(报价+指标): 0.18秒
+2026-03-21 00:35:48,250 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601658 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:35:48,739 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:35:48,741 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:35:48,743 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601658 全量数据获取: 0.76秒
+2026-03-21 00:35:48,751 - __main__ - INFO - ✅ Successfully refreshed 601658. New Price: 5.05
+2026-03-21 00:35:50,754 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002475 数据 (provider: AkShareProvider)
+2026-03-21 00:35:50,754 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:35:50,933 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002475 核心数据(报价+指标): 0.18秒
+2026-03-21 00:35:51,022 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002475 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:35:51,542 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:35:51,544 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:35:51,546 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002475 全量数据获取: 0.79秒
+2026-03-21 00:35:51,552 - __main__ - INFO - ✅ Successfully refreshed 002475. New Price: 48.22
+2026-03-21 00:35:53,556 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 601567 数据 (provider: AkShareProvider)
+2026-03-21 00:35:53,556 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:35:53,719 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601567 核心数据(报价+指标): 0.16秒
+2026-03-21 00:35:53,820 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601567 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:35:54,351 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:35:54,353 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:35:54,354 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601567 全量数据获取: 0.80秒
+2026-03-21 00:35:54,361 - __main__ - INFO - ✅ Successfully refreshed 601567. New Price: 27.99
+2026-03-21 00:35:56,363 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 603258 数据 (provider: AkShareProvider)
+2026-03-21 00:35:56,364 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:35:57,024 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 603258 核心数据(报价+指标): 0.66秒
+2026-03-21 00:35:57,173 - app.services.market_providers.akshare - WARNING - EM individual info failed for 603258 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:35:57,538 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:35:57,539 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:35:58,056 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 603258 全量数据获取: 1.69秒
+2026-03-21 00:35:58,068 - __main__ - INFO - ✅ Successfully refreshed 603258. New Price: 17.04
+2026-03-21 00:36:00,071 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600519 数据 (provider: AkShareProvider)
+2026-03-21 00:36:00,071 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:36:00,334 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600519 核心数据(报价+指标): 0.26秒
+2026-03-21 00:36:00,781 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600519 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:36:01,066 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:36:01,067 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:36:01,606 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600519 全量数据获取: 1.54秒
+2026-03-21 00:36:01,614 - __main__ - INFO - ✅ Successfully refreshed 600519. New Price: 1445.0
+2026-03-21 00:36:03,616 - __main__ - INFO - 💤 Sleeping for 5 minutes...
+2026-03-21 00:41:03,693 - __main__ - INFO - 🔄 Refreshing stalest 10 stocks: 601138, 002970, 600338, 002050, 600438, 002920, 002036, 603883, 600845, 601689...
+2026-03-21 00:41:03,696 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 601138 数据 (provider: AkShareProvider)
+2026-03-21 00:41:03,696 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:41:03,832 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601138 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:41:03,887 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601138 核心数据(报价+指标): 0.19秒
+2026-03-21 00:41:04,453 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:41:04,455 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:41:04,457 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601138 全量数据获取: 0.76秒
+2026-03-21 00:41:04,467 - __main__ - INFO - ✅ Successfully refreshed 601138. New Price: 50.3
+2026-03-21 00:41:06,470 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002970 数据 (provider: AkShareProvider)
+2026-03-21 00:41:06,470 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:41:06,604 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002970 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:41:06,712 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002970 核心数据(报价+指标): 0.24秒
+2026-03-21 00:41:07,251 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:41:07,253 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:41:07,255 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002970 全量数据获取: 0.79秒
+2026-03-21 00:41:07,264 - __main__ - INFO - ✅ Successfully refreshed 002970. New Price: 66.0
+2026-03-21 00:41:09,266 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600338 数据 (provider: AkShareProvider)
+2026-03-21 00:41:09,267 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:41:09,460 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600338 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:41:09,487 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600338 核心数据(报价+指标): 0.22秒
+2026-03-21 00:41:10,139 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:41:10,140 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:41:10,142 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600338 全量数据获取: 0.88秒
+2026-03-21 00:41:10,150 - __main__ - INFO - ✅ Successfully refreshed 600338. New Price: 15.61
+2026-03-21 00:41:12,154 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002050 数据 (provider: AkShareProvider)
+2026-03-21 00:41:12,154 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:41:12,293 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002050 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:41:12,337 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002050 核心数据(报价+指标): 0.18秒
+2026-03-21 00:41:13,063 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:41:13,064 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:41:13,065 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002050 全量数据获取: 0.91秒
+2026-03-21 00:41:13,074 - __main__ - INFO - ✅ Successfully refreshed 002050. New Price: 44.23
+2026-03-21 00:41:15,078 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600438 数据 (provider: AkShareProvider)
+2026-03-21 00:41:15,078 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:41:15,825 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600438 核心数据(报价+指标): 0.75秒
+2026-03-21 00:41:15,828 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600438 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:41:16,340 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:41:16,341 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:41:16,343 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600438 全量数据获取: 1.27秒
+2026-03-21 00:41:16,351 - __main__ - INFO - ✅ Successfully refreshed 600438. New Price: 18.46
+2026-03-21 00:41:18,353 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002920 数据 (provider: AkShareProvider)
+2026-03-21 00:41:18,354 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:41:18,512 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002920 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:41:18,544 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002920 核心数据(报价+指标): 0.19秒
+2026-03-21 00:41:19,118 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:41:19,119 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:41:19,120 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002920 全量数据获取: 0.77秒
+2026-03-21 00:41:19,127 - __main__ - INFO - ✅ Successfully refreshed 002920. New Price: 110.8
+2026-03-21 00:41:21,131 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 002036 数据 (provider: AkShareProvider)
+2026-03-21 00:41:21,131 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:41:21,265 - app.services.market_providers.akshare - WARNING - EM individual info failed for 002036 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:41:21,397 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002036 核心数据(报价+指标): 0.27秒
+2026-03-21 00:41:21,915 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:41:21,916 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:41:21,918 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 002036 全量数据获取: 0.79秒
+2026-03-21 00:41:21,926 - __main__ - INFO - ✅ Successfully refreshed 002036. New Price: 9.72
+2026-03-21 00:41:23,930 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 603883 数据 (provider: AkShareProvider)
+2026-03-21 00:41:23,930 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:41:24,140 - app.services.market_providers.akshare - WARNING - EM individual info failed for 603883 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:41:24,182 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 603883 核心数据(报价+指标): 0.25秒
+2026-03-21 00:41:24,817 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:41:24,819 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:41:24,821 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 603883 全量数据获取: 0.89秒
+2026-03-21 00:41:24,829 - __main__ - INFO - ✅ Successfully refreshed 603883. New Price: 13.68
+2026-03-21 00:41:26,833 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 600845 数据 (provider: AkShareProvider)
+2026-03-21 00:41:26,833 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:41:26,955 - app.services.market_providers.akshare - WARNING - EM individual info failed for 600845 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:41:27,012 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600845 核心数据(报价+指标): 0.18秒
+2026-03-21 00:41:27,577 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:41:27,578 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:41:27,580 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 600845 全量数据获取: 0.75秒
+2026-03-21 00:41:27,586 - __main__ - INFO - ✅ Successfully refreshed 600845. New Price: 21.69
+2026-03-21 00:41:29,589 - app.services.market_data_fetcher - INFO - 📊 [MarketDataFetcher] 开始获取 601689 数据 (provider: AkShareProvider)
+2026-03-21 00:41:29,589 - app.services.market_data_fetcher - INFO - 🔄 [MarketDataFetcher] 使用并行抓取模式...
+2026-03-21 00:41:29,789 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601689 核心数据(报价+指标): 0.20秒
+2026-03-21 00:41:29,797 - app.services.market_providers.akshare - WARNING - EM individual info failed for 601689 (likely connection reset): ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2026-03-21 00:41:30,352 - httpx - INFO - HTTP Request: POST https://api.tavily.com/search "HTTP/1.1 432 "
+2026-03-21 00:41:30,354 - app.services.market_providers.tavily - WARNING - Tavily API Quota Exceeded (432 Error). Returning empty news.
+2026-03-21 00:41:30,356 - app.services.market_data_fetcher - INFO - ⏱️ [MarketDataFetcher] 601689 全量数据获取: 0.77秒
+2026-03-21 00:41:30,364 - __main__ - INFO - ✅ Successfully refreshed 601689. New Price: 58.25
+2026-03-21 00:41:32,365 - __main__ - INFO - 💤 Sleeping for 5 minutes...

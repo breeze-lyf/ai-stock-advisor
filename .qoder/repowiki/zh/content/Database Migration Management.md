@@ -8,8 +8,10 @@
 - [backend/app/core/database.py](file://backend/app/core/database.py)
 - [backend/app/core/config.py](file://backend/app/core/config.py)
 - [backend/app/models/__init__.py](file://backend/app/models/__init__.py)
-- [backend/scripts/migrate_db.py](file://backend/scripts/migrate_db.py)
-- [backend/scripts/init_db.py](file://backend/scripts/init_db.py)
+- [backend/scripts/db/migrate_db.py](file://backend/scripts/db/migrate_db.py)
+- [backend/scripts/db/init_db.py](file://backend/scripts/db/init_db.py)
+- [backend/scripts/db/init_db_tables.py](file://backend/scripts/db/init_db_tables.py)
+- [backend/scripts/db/sync_db.py](file://backend/scripts/db/sync_db.py)
 - [backend/migrations/versions/35a834f440ba_baseline.py](file://backend/migrations/versions/35a834f440ba_baseline.py)
 - [backend/migrations/versions/052e88ccdfbf_sync_schema_with_models.py](file://backend/migrations/versions/052e88ccdfbf_sync_schema_with_models.py)
 - [backend/migrations/versions/261c72d24d12_initial_migration.py](file://backend/migrations/versions/261c72d24d12_initial_migration.py)
@@ -17,7 +19,18 @@
 - [backend/app/models/stock.py](file://backend/app/models/stock.py)
 - [backend/app/models/portfolio.py](file://backend/app/models/portfolio.py)
 - [backend/app/models/analysis.py](file://backend/app/models/analysis.py)
+- [backend/app/main.py](file://backend/app/main.py)
+- [backend/scripts/entrypoint.sh](file://backend/scripts/entrypoint.sh)
+- [backend/scripts/migrate_db.py](file://backend/scripts/migrate_db.py)
+- [backend/scripts/init_db.py](file://backend/scripts/init_db.py)
 </cite>
+
+## 更新摘要
+**变更内容**
+- 更新了迁移执行流程，从应用启动时内联迁移改为通过入口点脚本统一处理
+- 新增了数据库脚本的统一管理结构（backend/scripts/db/）
+- 移除了应用启动时的数据库同步逻辑
+- 更新了迁移架构图以反映新的执行流程
 
 ## 目录
 1. [简介](#简介)
@@ -33,6 +46,8 @@
 ## 简介
 
 本项目采用Alembic作为数据库迁移管理工具，结合SQLAlchemy ORM实现数据库版本控制。系统支持SQLite和PostgreSQL两种数据库后端，具备完整的迁移脚本生成、执行和回滚机制。通过结构化的迁移文件组织，实现了从初始数据库结构到复杂业务表的演进管理。
+
+**重要变更**：系统现在通过入口点脚本统一处理数据库迁移，移除了应用启动时的内联迁移逻辑，实现了更清晰的职责分离和更好的启动性能。
 
 ## 项目结构
 
@@ -57,24 +72,34 @@ I --> L[stock.py]
 I --> M[portfolio.py]
 I --> N[analysis.py]
 end
-subgraph "辅助脚本"
+subgraph "统一脚本管理"
 O[backend/scripts/] --> P[migrate_db.py]
 O --> Q[init_db.py]
+O --> R[entrypoint.sh]
+end
+subgraph "新脚本目录"
+S[backend/scripts/db/] --> T[migrate_db.py]
+S --> U[init_db.py]
+S --> V[init_db_tables.py]
+S --> W[sync_db.py]
 end
 A --> I
 G --> I
 H --> A
+R --> A
 ```
 
 **图表来源**
-- [backend/migrations/env.py](file://backend/migrations/env.py#L1-L86)
-- [backend/alembic.ini](file://backend/alembic.ini#L1-L148)
-- [backend/app/core/database.py](file://backend/app/core/database.py#L1-L69)
+- [backend/migrations/env.py:1-86](file://backend/migrations/env.py#L1-L86)
+- [backend/alembic.ini:1-148](file://backend/alembic.ini#L1-L148)
+- [backend/app/core/database.py:1-69](file://backend/app/core/database.py#L1-L69)
+- [backend/scripts/entrypoint.sh:1-16](file://backend/scripts/entrypoint.sh#L1-L16)
 
 **章节来源**
-- [backend/migrations/env.py](file://backend/migrations/env.py#L1-L86)
-- [backend/alembic.ini](file://backend/alembic.ini#L1-L148)
-- [backend/app/core/database.py](file://backend/app/core/database.py#L1-L69)
+- [backend/migrations/env.py:1-86](file://backend/migrations/env.py#L1-L86)
+- [backend/alembic.ini:1-148](file://backend/alembic.ini#L1-L148)
+- [backend/app/core/database.py:1-69](file://backend/app/core/database.py#L1-L69)
+- [backend/scripts/entrypoint.sh:1-16](file://backend/scripts/entrypoint.sh#L1-L16)
 
 ## 核心组件
 
@@ -90,54 +115,65 @@ H --> A
 
 应用模型通过SQLAlchemy ORM定义，包括用户、股票、投资组合、分析报告等核心业务实体，每个模型都定义了完整的字段结构和关系映射。
 
+### 统一迁移执行
+
+**新增** 系统现在通过入口点脚本统一处理数据库迁移，移除了应用启动时的内联迁移逻辑，提高了启动性能和职责分离。
+
 **章节来源**
-- [backend/app/core/database.py](file://backend/app/core/database.py#L1-L69)
-- [backend/app/core/config.py](file://backend/app/core/config.py#L1-L28)
-- [backend/app/models/__init__.py](file://backend/app/models/__init__.py#L1-L6)
+- [backend/app/core/database.py:1-69](file://backend/app/core/database.py#L1-L69)
+- [backend/app/core/config.py:1-28](file://backend/app/core/config.py#L1-L28)
+- [backend/app/models/__init__.py:1-6](file://backend/app/models/__init__.py#L1-L6)
+- [backend/scripts/entrypoint.sh:1-16](file://backend/scripts/entrypoint.sh#L1-L16)
 
 ## 架构概览
 
-系统采用三层架构设计，实现了数据库迁移的完整生命周期管理：
+系统采用三层架构设计，实现了数据库迁移的完整生命周期管理。**重要变更**：现在通过入口点脚本统一处理迁移，应用启动时只负责业务逻辑。
 
 ```mermaid
 graph TB
+subgraph "入口点执行层"
+A[entrypoint.sh<br/>统一迁移执行]
+B[alembic upgrade head<br/>数据库迁移]
+end
 subgraph "配置层"
-A[alembic.ini<br/>配置文件]
-B[env.py<br/>环境配置]
-C[config.py<br/>应用配置]
+C[alembic.ini<br/>配置文件]
+D[env.py<br/>环境配置]
+E[config.py<br/>应用配置]
 end
 subgraph "模型层"
-D[models/__init__.py<br/>模型导入]
-E[user.py<br/>用户模型]
-F[stock.py<br/>股票模型]
-G[portfolio.py<br/>投资组合模型]
-H[analysis.py<br/>分析报告模型]
+F[models/__init__.py<br/>模型导入]
+G[user.py<br/>用户模型]
+H[stock.py<br/>股票模型]
+I[portfolio.py<br/>投资组合模型]
+J[analysis.py<br/>分析报告模型]
 end
 subgraph "迁移层"
-I[versions/<br/>迁移脚本]
-J[script.py.mako<br/>模板生成]
-K[env.py<br/>运行时配置]
+K[versions/<br/>迁移脚本]
+L[script.py.mako<br/>模板生成]
+M[env.py<br/>运行时配置]
 end
-subgraph "执行层"
-L[init_db.py<br/>初始化脚本]
-M[migrate_db.py<br/>手动迁移]
+subgraph "应用启动层"
+N[app.main.py<br/>FastAPI应用]
+O[startup事件<br/>业务初始化]
 end
-A --> B --> K
-C --> B
-D --> E
-D --> F
-D --> G
-D --> H
-K --> I
-J --> I
-K --> L
-K --> M
+A --> B --> M
+C --> D --> M
+E --> D
+F --> G
+F --> H
+F --> I
+F --> J
+M --> K
+L --> K
+A --> N
+N --> O
 ```
 
 **图表来源**
-- [backend/alembic.ini](file://backend/alembic.ini#L1-L148)
-- [backend/migrations/env.py](file://backend/migrations/env.py#L1-L86)
-- [backend/app/models/__init__.py](file://backend/app/models/__init__.py#L1-L6)
+- [backend/scripts/entrypoint.sh:1-16](file://backend/scripts/entrypoint.sh#L1-L16)
+- [backend/migrations/env.py:1-86](file://backend/migrations/env.py#L1-L86)
+- [backend/app/core/config.py:1-28](file://backend/app/core/config.py#L1-L28)
+- [backend/app/models/__init__.py:1-6](file://backend/app/models/__init__.py#L1-L6)
 
 ## 详细组件分析
 
@@ -147,27 +183,54 @@ K --> M
 
 ```mermaid
 sequenceDiagram
-participant CLI as "命令行"
+participant Entrypoint as "入口点脚本"
+participant Alembic as "Alembic"
 participant Env as "env.py"
 participant Config as "config.py"
 participant Models as "models/__init__.py"
 participant DB as "database.py"
-CLI->>Env : alembic命令
+Entrypoint->>Alembic : alembic upgrade head
+Alembic->>Env : 读取配置
 Env->>Config : 读取DATABASE_URL
 Env->>Models : 导入所有模型
 Models->>DB : 获取Base.metadata
 Env->>Env : run_migrations_offline/online
 Env->>DB : 建立数据库连接
-Env->>CLI : 执行迁移
+Env->>Alembic : 执行迁移
+Alembic->>Entrypoint : 迁移完成
 ```
 
 **图表来源**
-- [backend/migrations/env.py](file://backend/migrations/env.py#L1-L86)
-- [backend/app/core/config.py](file://backend/app/core/config.py#L1-L28)
-- [backend/app/models/__init__.py](file://backend/app/models/__init__.py#L1-L6)
+- [backend/scripts/entrypoint.sh:1-16](file://backend/scripts/entrypoint.sh#L1-L16)
+- [backend/migrations/env.py:1-86](file://backend/migrations/env.py#L1-L86)
+- [backend/app/core/config.py:1-28](file://backend/app/core/config.py#L1-L28)
+- [backend/app/models/__init__.py:1-6](file://backend/app/models/__init__.py#L1-L6)
 
 **章节来源**
-- [backend/migrations/env.py](file://backend/migrations/env.py#L1-L86)
+- [backend/migrations/env.py:1-86](file://backend/migrations/env.py#L1-L86)
+
+### 应用启动流程变更
+
+**更新** 应用启动时不再执行数据库迁移，只负责业务逻辑初始化。
+
+```mermaid
+sequenceDiagram
+participant App as "FastAPI应用"
+participant Main as "app.main.py"
+participant DB as "数据库"
+App->>Main : 启动应用
+Main->>Main : 初始化日志和中间件
+Main->>Main : 挂载路由
+Main->>Main : startup事件
+Main->>DB : 确保系统AI注册表
+Main->>App : 返回应用实例
+```
+
+**图表来源**
+- [backend/app/main.py:142-158](file://backend/app/main.py#L142-L158)
+
+**章节来源**
+- [backend/app/main.py:142-158](file://backend/app/main.py#L142-L158)
 
 ### 数据库引擎配置
 
@@ -201,10 +264,10 @@ DatabaseEngine --> PostgreSQLConfig : "postgresql配置"
 ```
 
 **图表来源**
-- [backend/app/core/database.py](file://backend/app/core/database.py#L1-L69)
+- [backend/app/core/database.py:1-69](file://backend/app/core/database.py#L1-L69)
 
 **章节来源**
-- [backend/app/core/database.py](file://backend/app/core/database.py#L1-L69)
+- [backend/app/core/database.py:1-69](file://backend/app/core/database.py#L1-L69)
 
 ### 模型关系设计
 
@@ -289,16 +352,16 @@ STOCKS ||--o{ STOCK_NEWS : "相关新闻"
 ```
 
 **图表来源**
-- [backend/app/models/user.py](file://backend/app/models/user.py#L1-L64)
-- [backend/app/models/stock.py](file://backend/app/models/stock.py#L1-L116)
-- [backend/app/models/portfolio.py](file://backend/app/models/portfolio.py#L1-L33)
-- [backend/app/models/analysis.py](file://backend/app/models/analysis.py#L1-L66)
+- [backend/app/models/user.py:1-64](file://backend/app/models/user.py#L1-L64)
+- [backend/app/models/stock.py:1-116](file://backend/app/models/stock.py#L1-L116)
+- [backend/app/models/portfolio.py:1-33](file://backend/app/models/portfolio.py#L1-L33)
+- [backend/app/models/analysis.py:1-66](file://backend/app/models/analysis.py#L1-L66)
 
 **章节来源**
-- [backend/app/models/user.py](file://backend/app/models/user.py#L1-L64)
-- [backend/app/models/stock.py](file://backend/app/models/stock.py#L1-L116)
-- [backend/app/models/portfolio.py](file://backend/app/models/portfolio.py#L1-L33)
-- [backend/app/models/analysis.py](file://backend/app/models/analysis.py#L1-L66)
+- [backend/app/models/user.py:1-64](file://backend/app/models/user.py#L1-L64)
+- [backend/app/models/stock.py:1-116](file://backend/app/models/stock.py#L1-L116)
+- [backend/app/models/portfolio.py:1-33](file://backend/app/models/portfolio.py#L1-L33)
+- [backend/app/models/analysis.py:1-66](file://backend/app/models/analysis.py#L1-L66)
 
 ### 迁移脚本演进
 
@@ -324,14 +387,14 @@ D --> J
 ```
 
 **图表来源**
-- [backend/migrations/versions/35a834f440ba_baseline.py](file://backend/migrations/versions/35a834f440ba_baseline.py#L1-L128)
-- [backend/migrations/versions/261c72d24d12_initial_migration.py](file://backend/migrations/versions/261c72d24d12_initial_migration.py#L1-L37)
-- [backend/migrations/versions/052e88ccdfbf_sync_schema_with_models.py](file://backend/migrations/versions/052e88ccdfbf_sync_schema_with_models.py#L1-L115)
+- [backend/migrations/versions/35a834f440ba_baseline.py:1-128](file://backend/migrations/versions/35a834f440ba_baseline.py#L1-L128)
+- [backend/migrations/versions/261c72d24d12_initial_migration.py:1-37](file://backend/migrations/versions/261c72d24d12_initial_migration.py#L1-L37)
+- [backend/migrations/versions/052e88ccdfbf_sync_schema_with_models.py:1-115](file://backend/migrations/versions/052e88ccdfbf_sync_schema_with_models.py#L1-L115)
 
 **章节来源**
-- [backend/migrations/versions/35a834f440ba_baseline.py](file://backend/migrations/versions/35a834f440ba_baseline.py#L1-L128)
-- [backend/migrations/versions/261c72d24d12_initial_migration.py](file://backend/migrations/versions/261c72d24d12_initial_migration.py#L1-L37)
-- [backend/migrations/versions/052e88ccdfbf_sync_schema_with_models.py](file://backend/migrations/versions/052e88ccdfbf_sync_schema_with_models.py#L1-L115)
+- [backend/migrations/versions/35a834f440ba_baseline.py:1-128](file://backend/migrations/versions/35a834f440ba_baseline.py#L1-L128)
+- [backend/migrations/versions/261c72d24d12_initial_migration.py:1-37](file://backend/migrations/versions/261c72d24d12_initial_migration.py#L1-L37)
+- [backend/migrations/versions/052e88ccdfbf_sync_schema_with_models.py:1-115](file://backend/migrations/versions/052e88ccdfbf_sync_schema_with_models.py#L1-L115)
 
 ## 依赖关系分析
 
@@ -350,9 +413,10 @@ H[script.py.mako] --> G
 I[models/__init__.py] --> F
 end
 subgraph "执行依赖"
-J[init_db.py] --> D
-J --> E
-K[migrate_db.py] --> L[ai_advisor.db]
+J[entrypoint.sh] --> K[alembic迁移]
+L[app.main.py] --> M[业务初始化]
+N[migrate_db.py] --> O[ai_advisor.db]
+P[init_db.py] --> Q[数据库表创建]
 end
 A --> F
 C --> D
@@ -360,21 +424,24 @@ D --> F
 F --> G
 H --> G
 I --> F
-J --> D
-J --> E
-K --> L
+J --> F
+L --> M
+N --> O
+P --> Q
 ```
 
 **图表来源**
-- [backend/alembic.ini](file://backend/alembic.ini#L1-L148)
-- [backend/migrations/env.py](file://backend/migrations/env.py#L1-L86)
-- [backend/app/core/config.py](file://backend/app/core/config.py#L1-L28)
-- [backend/app/core/database.py](file://backend/app/core/database.py#L1-L69)
+- [backend/alembic.ini:1-148](file://backend/alembic.ini#L1-L148)
+- [backend/migrations/env.py:1-86](file://backend/migrations/env.py#L1-L86)
+- [backend/app/core/config.py:1-28](file://backend/app/core/config.py#L1-L28)
+- [backend/app/core/database.py:1-69](file://backend/app/core/database.py#L1-L69)
+- [backend/scripts/entrypoint.sh:1-16](file://backend/scripts/entrypoint.sh#L1-L16)
 
 **章节来源**
-- [backend/alembic.ini](file://backend/alembic.ini#L1-L148)
-- [backend/migrations/env.py](file://backend/migrations/env.py#L1-L86)
-- [backend/app/core/database.py](file://backend/app/core/database.py#L1-L69)
+- [backend/alembic.ini:1-148](file://backend/alembic.ini#L1-L148)
+- [backend/migrations/env.py:1-86](file://backend/migrations/env.py#L1-L86)
+- [backend/app/core/database.py:1-69](file://backend/app/core/database.py#L1-L69)
+- [backend/scripts/entrypoint.sh:1-16](file://backend/scripts/entrypoint.sh#L1-L16)
 
 ## 性能考虑
 
@@ -395,6 +462,9 @@ K --> L
 - 优化索引创建顺序
 - 合理的数据类型选择
 
+### 启动性能优化
+**新增** 通过入口点脚本统一处理迁移，移除了应用启动时的内联迁移逻辑，显著提升了应用启动速度。
+
 ## 故障排除指南
 
 ### 常见问题及解决方案
@@ -414,9 +484,15 @@ K --> L
    - 检查外键约束关系
    - 验证索引完整性
 
+4. **应用启动缓慢**
+   - **新增** 检查入口点脚本是否正确执行迁移
+   - 确认数据库连接池配置
+   - 验证迁移脚本执行时间
+
 **章节来源**
-- [backend/migrations/env.py](file://backend/migrations/env.py#L1-L86)
-- [backend/app/core/database.py](file://backend/app/core/database.py#L1-L69)
+- [backend/migrations/env.py:1-86](file://backend/migrations/env.py#L1-L86)
+- [backend/app/core/database.py:1-69](file://backend/app/core/database.py#L1-L69)
+- [backend/scripts/entrypoint.sh:1-16](file://backend/scripts/entrypoint.sh#L1-L16)
 
 ## 结论
 
@@ -427,5 +503,12 @@ K --> L
 3. **结构化组织**：通过版本化脚本实现可追溯的变更管理
 4. **性能优化**：针对不同数据库类型的专门优化配置
 5. **可靠性保障**：完善的错误处理和回滚机制
+6. **职责分离**：通过入口点脚本统一处理迁移，提升应用启动性能
+
+**重要变更总结**：
+- 迁移执行流程从应用启动时内联处理改为通过入口点脚本统一处理
+- 新增了专门的数据库脚本目录（backend/scripts/db/）用于管理各种数据库操作
+- 移除了应用启动时的数据库同步逻辑，提高了启动速度和稳定性
+- 实现了更清晰的职责分离，使应用启动专注于业务逻辑
 
 系统通过标准化的迁移流程和严格的版本控制，确保了数据库结构演进的可控性和安全性，为AI股票顾问应用的长期发展奠定了坚实的基础设施基础。

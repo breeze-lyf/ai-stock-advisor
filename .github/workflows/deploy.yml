@@ -74,7 +74,9 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "docker-compose.prod.yml,scripts/deploy_compose_prod.sh"
+          source: |
+            docker-compose.prod.yml
+            scripts/deploy_compose_prod.sh
           target: "/root/ai-stock-advisor"
           rm: false
 

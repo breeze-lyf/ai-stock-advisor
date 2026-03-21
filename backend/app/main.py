@@ -4,6 +4,8 @@ import time
 import logging
 import traceback
 import os
+import socket
+from urllib.parse import urlparse
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,6 +27,75 @@ logger = setup_logging(
     environment=environment,
     log_file="app.log"
 )
+
+def _patch_py_mini_racer_cleanup_bug() -> None:
+    """
+    兼容补丁：py_mini_racer 在 Python 3.14 下可能在解释器回收期触发 __del__ 空指针。
+    该异常不影响业务，但会污染日志，这里做安全析构兜底。
+    """
+    try:
+        from py_mini_racer.py_mini_racer import MiniRacer
+    except Exception:
+        return
+
+    if getattr(MiniRacer, "_safe_del_patched", False):
+        return
+
+    def _safe_del(self):
+        try:
+            ext = getattr(self, "ext", None)
+            if ext is None:
+                return
+            free_ctx = getattr(ext, "mr_free_context", None)
+            if callable(free_ctx):
+                free_ctx(getattr(self, "ctx", None))
+        except Exception:
+            # 析构阶段静默处理，避免退出时噪声
+            pass
+
+    MiniRacer.__del__ = _safe_del  # type: ignore[method-assign]
+    MiniRacer._safe_del_patched = True  # type: ignore[attr-defined]
+
+
+def _is_proxy_reachable(proxy_url: str, timeout: float = 0.4) -> bool:
+    try:
+        parsed = urlparse(proxy_url)
+        host = parsed.hostname
+        port = parsed.port
+        if not host or not port:
+            return False
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except Exception:
+        return False
+
+
+def _normalize_proxy_env() -> None:
+    """
+    启动时检查代理连通性：
+    - 代理可达：保留配置
+    - 代理不可达：自动清理当前进程代理环境变量，避免请求被卡死
+    """
+    if not getattr(settings, "AUTO_DISABLE_UNAVAILABLE_PROXY", True):
+        return
+
+    http_proxy = getattr(settings, "HTTP_PROXY", None)
+    https_proxy = getattr(settings, "HTTPS_PROXY", None) or http_proxy
+
+    candidates = [p for p in [http_proxy, https_proxy] if p]
+    if not candidates:
+        return
+
+    if any(_is_proxy_reachable(proxy) for proxy in candidates):
+        logger.info("Proxy detected and reachable. Keeping proxy settings.")
+        return
+
+    for var in [
+        "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY",
+        "http_proxy", "https_proxy", "all_proxy"
+    ]:
+        os.environ.pop(var, None)
+    logger.warning("Configured proxy is unreachable. Cleared proxy env vars for this process.")
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -142,6 +213,9 @@ app.include_router(api_router, prefix="/api/v1")
 # 6. 后端后台任务启动 (Background Task Startup)
 @app.on_event("startup")
 async def startup_event():
+    _patch_py_mini_racer_cleanup_bug()
+    _normalize_proxy_env()
+
     # 自动创建缺失的数据库表 (包括 notification_logs)
     from app.core.database import engine, Base, SessionLocal
     from app.models.notification import NotificationLog

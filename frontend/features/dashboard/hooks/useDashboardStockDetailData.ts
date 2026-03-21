@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import {
   dashboardCache,
   getOrCreateDashboardCacheEntry,
+  readDashboardCache,
 } from "@/features/dashboard/hooks/dashboardCache";
 import { useCachedResource } from "@/features/dashboard/hooks/useCachedResource";
 import { getAnalysisHistory } from "@/features/analysis/api";
@@ -33,7 +34,20 @@ export function useDashboardStockDetailData(
   const stockHistoryResource = useCachedResource<unknown[]>({
     cacheEntry: stockHistoryEntry,
     enabled: Boolean(selectedTicker),
-    fetcher: () => fetchStockHistory(selectedTicker!),
+    fetcher: async () => {
+      const latest = await fetchStockHistory(selectedTicker!);
+      const cached = stockHistoryEntry ? readDashboardCache(stockHistoryEntry) : null;
+      // 防止上游偶发空返回把已有图表清空（表现为“K线闪一下就消失”）
+      if (
+        Array.isArray(latest) &&
+        latest.length === 0 &&
+        Array.isArray(cached) &&
+        cached.length > 0
+      ) {
+        return cached as unknown[];
+      }
+      return latest;
+    },
     onError: (error) => {
       console.error("Failed to fetch stock history for", selectedTicker, error);
     },

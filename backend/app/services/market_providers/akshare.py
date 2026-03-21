@@ -20,6 +20,7 @@ import urllib.request
 import urllib3
 import urllib3.util.proxy
 import requests.sessions
+from app.core.config import settings
 
 # 线程本地变量，用于在 A 股/美股抓取线程中标记是否停用代理
 _tls = threading.local()
@@ -129,27 +130,35 @@ class AkShareProvider(MarketDataProvider):
 
     async def _run_sync(self, func, *args, **kwargs):
         """
-        在线程池中运行同步函数，强制直连。
+        在线程池中运行同步函数。
+        默认强制直连（历史行为），可通过 AKSHARE_BYPASS_PROXY=false 允许走系统代理。
         """
         def run_isolated():
-            _tls.bypass_proxy = True
-            # 直接、彻底清理环境变量
-            env_vars = ['HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY', 'http_proxy', 'https_proxy', 'all_proxy', 'no_proxy', 'NO_PROXY']
-            old_vals = {var: os.environ.get(var) for var in env_vars}
-            for var in env_vars: os.environ.pop(var, None)
-            
+            bypass_proxy = getattr(settings, "AKSHARE_BYPASS_PROXY", True)
+            if bypass_proxy:
+                _tls.bypass_proxy = True
+                env_vars = ['HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY', 'http_proxy', 'https_proxy', 'all_proxy', 'no_proxy', 'NO_PROXY']
+                old_vals = {var: os.environ.get(var) for var in env_vars}
+                for var in env_vars:
+                    os.environ.pop(var, None)
+            else:
+                _tls.bypass_proxy = False
+                old_vals = {}
+
             try:
-                # 显式创建禁用环境配置的 Session
                 with requests.Session() as s:
-                    s.trust_env = False
-                    if func == requests.get: return s.get(*args, **kwargs)
-                    if func == requests.post: return s.post(*args, **kwargs)
+                    # bypass=true 时禁用系统代理；否则允许读取环境代理
+                    s.trust_env = not bypass_proxy
+                    if func == requests.get:
+                        return s.get(*args, **kwargs)
+                    if func == requests.post:
+                        return s.post(*args, **kwargs)
                     return func(*args, **kwargs)
             finally:
                 _tls.bypass_proxy = False
-                # 还原环境
                 for var, val in old_vals.items():
-                    if val is not None: os.environ[var] = val
+                    if val is not None:
+                        os.environ[var] = val
 
         loop = asyncio.get_event_loop()
         async with self._get_semaphore():
@@ -183,6 +192,61 @@ class AkShareProvider(MarketDataProvider):
         if any(suffix in ticker.upper() for suffix in ['.SS', '.SZ']):
             return False
         return not (ticker.isdigit() and len(ticker) == 6)
+
+    async def _get_us_hist_em_df(self, ticker: str) -> Optional[pd.DataFrame]:
+        """
+        使用东方财富美股历史接口获取 K 线，避免 stock_us_daily 对 py_mini_racer 的依赖。
+        说明：
+        - secid 前缀常见为 105/106/107（NASDAQ/NYSE/AMEX）
+        - 逐个尝试直到拿到非空数据
+        """
+        symbol = ticker.upper().strip()
+        secid_candidates = [
+            f"105.{symbol}",
+            f"106.{symbol}",
+            f"107.{symbol}",
+        ]
+
+        for secid in secid_candidates:
+            try:
+                df = await self._run_sync(
+                    ak.stock_us_hist,
+                    symbol=secid,
+                    period="daily",
+                    start_date="19700101",
+                    end_date="20500101",
+                    adjust="qfq",
+                )
+                if df is None or df.empty:
+                    continue
+
+                # 东方财富美股历史字段 -> 统一字段
+                rename_map = {
+                    "日期": "Date",
+                    "开盘": "Open",
+                    "最高": "High",
+                    "最低": "Low",
+                    "收盘": "Close",
+                    "成交量": "Volume",
+                }
+                if "日期" not in df.columns:
+                    continue
+
+                df = df.rename(columns=rename_map)
+                keep_cols = [c for c in ["Date", "Open", "High", "Low", "Close", "Volume"] if c in df.columns]
+                df = df[keep_cols].copy()
+                df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
+                df = df.dropna(subset=["Date"])
+                for col in ["Open", "High", "Low", "Close", "Volume"]:
+                    if col in df.columns:
+                        df[col] = pd.to_numeric(df[col], errors="coerce")
+                df = df.dropna(subset=[c for c in ["Open", "High", "Low", "Close"] if c in df.columns])
+                if not df.empty:
+                    return df
+            except Exception:
+                continue
+
+        return None
 
     def _get_sina_symbol(self, ticker: str) -> str:
         symbol = self._normalize_symbol(ticker)
@@ -756,12 +820,18 @@ class AkShareProvider(MarketDataProvider):
                             df['Date'] = pd.to_datetime(df['Date'])
                             df.set_index('Date', inplace=True)
                 else:
-                    # 个股原生逻辑
-                    df = await self._run_sync(ak.stock_us_daily, symbol=ticker)
+                    # 个股优先走东方财富历史接口（不依赖 mini_racer，稳定性更高）
+                    df = await self._get_us_hist_em_df(ticker)
                     if df is not None and not df.empty:
-                        df = df.rename(columns={'date': 'Date', 'open': 'Open', 'high': 'High', 'low': 'Low', 'close': 'Close', 'volume': 'Volume'})
-                        df['Date'] = pd.to_datetime(df['Date'])
+                        df = df.sort_values("Date")
                         df.set_index('Date', inplace=True)
+                    else:
+                        # 兜底：旧链路
+                        df = await self._run_sync(ak.stock_us_daily, symbol=ticker)
+                        if df is not None and not df.empty:
+                            df = df.rename(columns={'date': 'Date', 'open': 'Open', 'high': 'High', 'low': 'Low', 'close': 'Close', 'volume': 'Volume'})
+                            df['Date'] = pd.to_datetime(df['Date'])
+                            df.set_index('Date', inplace=True)
             else:
                 # A 股改用腾讯源，绕开被封锁的东财/AkShare 原生接口
                 df = await self._get_tencent_hist(ticker, num_days=250)
@@ -876,6 +946,13 @@ class AkShareProvider(MarketDataProvider):
                     except: pass
 
                 if df is None or df.empty:
+                    try:
+                        # 个股优先走东方财富历史接口，避免 stock_us_daily 的 mini_racer 兼容问题
+                        df = await self._get_us_hist_em_df(ticker)
+                    except: pass
+
+                if (df is None or df.empty) and not is_index:
+                    # 兜底：保留原新浪链路
                     try:
                         df = await self._run_sync(ak.stock_us_daily, symbol=ticker)
                     except: pass

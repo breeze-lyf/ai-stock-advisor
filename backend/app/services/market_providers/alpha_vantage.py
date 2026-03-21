@@ -5,9 +5,11 @@ from datetime import datetime
 
 from app.core.config import settings
 from app.services.market_providers.base import MarketDataProvider
+from app.services.indicators import TechnicalIndicators
 from app.schemas.market_data import (
-    ProviderQuote, ProviderFundamental, ProviderNews, MarketStatus
+    ProviderQuote, ProviderFundamental, ProviderNews, MarketStatus, OHLCVItem
 )
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +73,91 @@ class AlphaVantageProvider(MarketDataProvider):
         return None
 
     async def get_ohlcv(self, ticker: str, interval: str = "1d", period: str = "1y") -> List[Any]:
-        return []
+        if not self.api_key:
+            return []
+
+        if interval != "1d":
+            # AlphaVantage 这里仅实现日线，其他粒度回退给其他 provider
+            return []
+
+        try:
+            url = (
+                "https://www.alphavantage.co/query"
+                f"?function=TIME_SERIES_DAILY&symbol={ticker}&outputsize=compact&apikey={self.api_key}"
+            )
+            response = requests.get(url, timeout=20)
+            data = response.json()
+            series = data.get("Time Series (Daily)")
+            if not series:
+                return []
+
+            rows = []
+            for day, v in series.items():
+                rows.append(
+                    {
+                        "Date": pd.to_datetime(day, errors="coerce"),
+                        "Open": float(v.get("1. open", 0) or 0),
+                        "High": float(v.get("2. high", 0) or 0),
+                        "Low": float(v.get("3. low", 0) or 0),
+                        "Close": float(v.get("4. close", 0) or 0),
+                        "Volume": float(v.get("5. volume", 0) or 0),
+                    }
+                )
+
+            if not rows:
+                return []
+
+            df = pd.DataFrame(rows).dropna(subset=["Date"]).sort_values("Date")
+            if df.empty:
+                return []
+
+            now = datetime.now()
+            if period == "1mo":
+                start_date = now - pd.Timedelta(days=30)
+            elif period == "3mo":
+                start_date = now - pd.Timedelta(days=90)
+            elif period == "6mo":
+                start_date = now - pd.Timedelta(days=180)
+            elif period == "1y":
+                start_date = now - pd.Timedelta(days=365)
+            elif period == "5y":
+                start_date = now - pd.Timedelta(days=365 * 5)
+            else:
+                start_date = None
+
+            if start_date is not None:
+                df = df[df["Date"] >= start_date]
+
+            if df.empty:
+                return []
+
+            df = TechnicalIndicators.add_historical_indicators(df)
+            df = df.where(pd.notnull(df), None)
+
+            result: List[OHLCVItem] = []
+            for _, row in df.iterrows():
+                result.append(
+                    OHLCVItem(
+                        time=row["Date"].strftime("%Y-%m-%d"),
+                        open=float(row.get("Open", 0) or 0),
+                        high=float(row.get("High", 0) or 0),
+                        low=float(row.get("Low", 0) or 0),
+                        close=float(row.get("Close", 0) or 0),
+                        volume=float(row.get("Volume", 0) or 0),
+                        rsi=row.get("rsi"),
+                        macd=row.get("macd"),
+                        macd_signal=row.get("macd_signal"),
+                        macd_hist=row.get("macd_hist"),
+                        bb_upper=row.get("bb_upper"),
+                        bb_middle=row.get("bb_middle"),
+                        bb_lower=row.get("bb_lower"),
+                    )
+                )
+
+            return result
+        except Exception as e:
+            logger.error(f"Alpha Vantage get_ohlcv error for {ticker}: {e}")
+            return []
 
     async def get_news(self, ticker: str) -> List[ProviderNews]:
         return []

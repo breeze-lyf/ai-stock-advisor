@@ -1,6 +1,7 @@
 from __future__ import annotations
 import math
 from typing import List
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 import pandas as pd
@@ -15,8 +16,11 @@ from app.core.security import sanitize_float
 from app.schemas.market_data import OHLCVItem
 from app.schemas.portfolio import PortfolioItem
 from app.infrastructure.db.repositories.stock_repository import StockRepository
+from app.services.market_providers.akshare import AkShareProvider
+from app.services.market_providers.alpha_vantage import AlphaVantageProvider
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 # 数据清洗器：将无效数值转化为 None。
 # 场景：yfinance 抓取的数据有时会出现 NaN (非数字) 或 Inf (无穷大)，
@@ -152,6 +156,43 @@ async def get_stock_history(
         # 比如输入 'AAPL' 会去美股源，输入 '600519.SH' 则会自动切换到 A 股源。
         provider = ProviderFactory.get_provider(ticker)
         data = await provider.get_ohlcv(ticker, interval=interval, period=period)
+        logger.info(
+            "history fetch ticker=%s provider=%s count=%s",
+            ticker,
+            provider.__class__.__name__,
+            len(data) if data else 0,
+        )
+
+        # 非 A 股场景：IBKR 常见失败模式是“可用但未连上网关”，此时回退 AkShare 避免前端趋势图空白。
+        is_cn = (ticker.isdigit() and len(ticker) == 6) or any(
+            suffix in ticker.upper() for suffix in [".SS", ".SZ"]
+        )
+        if (not data) and (not is_cn) and provider.__class__.__name__ == "IBKRProvider":
+            try:
+                fallback_provider = AkShareProvider()
+                data = await fallback_provider.get_ohlcv(ticker, interval=interval, period=period)
+                logger.info(
+                    "history fallback ticker=%s provider=%s count=%s",
+                    ticker,
+                    fallback_provider.__class__.__name__,
+                    len(data) if data else 0,
+                )
+            except Exception:
+                data = []
+
+        # 美股二级兜底：AkShare 为空时回退 AlphaVantage（仅在配置了 API Key 时生效）
+        if (not data) and (not is_cn):
+            try:
+                alpha_provider = AlphaVantageProvider()
+                data = await alpha_provider.get_ohlcv(ticker, interval=interval, period=period)
+                logger.info(
+                    "history fallback ticker=%s provider=%s count=%s",
+                    ticker,
+                    alpha_provider.__class__.__name__,
+                    len(data) if data else 0,
+                )
+            except Exception:
+                data = []
         
         if not data:
             # 容错：如果抓取失败，返回空数组 [] 而非 404，防止前端 Axios 抛异常导致白屏

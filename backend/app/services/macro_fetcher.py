@@ -2,6 +2,7 @@ import asyncio
 import hashlib
 import logging
 from typing import Any
+import httpx
 from app.services.market_providers.tavily import TavilyProvider
 
 logger = logging.getLogger(__name__)
@@ -54,6 +55,13 @@ class MacroFetcher:
                         response = await client.post(tavily.base_url, json=payload)
                         response.raise_for_status()
                         all_news_raw.extend(response.json().get("results", []))
+            except httpx.HTTPStatusError as exc:
+                status_code = exc.response.status_code if exc.response else None
+                # Tavily 432 常见于额度/风控限制，继续重试其余 query 意义不大，直接降级到本地缓存
+                if status_code == 432:
+                    logger.warning("Tavily macro search blocked (HTTP 432). Skip external macro fetch this round.")
+                    break
+                logger.error(f"Macro search failed for query '{query}': {exc}")
             except Exception as exc:
                 logger.error(f"Macro search failed for query '{query}': {exc}")
         return all_news_raw

@@ -1,7 +1,7 @@
-from typing import Dict, Type
-import re
+from typing import Dict
 import logging
 
+from app.core.config import settings
 from app.services.market_providers.base import MarketDataProvider
 from app.services.market_providers.alpha_vantage import AlphaVantageProvider
 from app.services.market_providers.akshare import AkShareProvider
@@ -17,23 +17,17 @@ class ProviderFactory:
     @classmethod
     def get_provider(cls, ticker: str, preferred_source: str = "AKSHARE") -> MarketDataProvider:
         """
-        核心分流逻辑（升级版）：
-        1. 6 位数字代码 或 .SS/.SZ 后缀 -> AkShare (A 股)
-        2. 美股/港股 -> 优先 IBKR（如果可用），否则回退到 AkShare
+        核心分流逻辑（默认关闭 IBKR）：
+        1. 默认统一走 AkShare。
+        2. 只有 preferred_source 明确指定为 IBKR 且 IBKR_ENABLED=true 时，才尝试 IBKR。
+        3. IBKR 不可用时自动回退 AkShare。
         """
-        # A 股判断逻辑
-        is_cn = (ticker.isdigit() and len(ticker) == 6) or \
-                any(suffix in ticker.upper() for suffix in ['.SS', '.SZ'])
+        source = (preferred_source or "AKSHARE").upper()
+        ibkr_enabled = bool(getattr(settings, "IBKR_ENABLED", False))
 
-        if is_cn:
-            # A 股：始终使用 AkShare（国内直连、数据充分）
-            return cls._get_instance("AKSHARE")
-
-        # 非 A 股（美股/港股等）：优先 IBKR，fallback 到 AkShare
-        if cls._is_ibkr_available():
+        if source == "IBKR" and ibkr_enabled and cls._is_ibkr_available():
             return cls._get_instance("IBKR")
 
-        # IBKR 不可用时回退到 AkShare
         return cls._get_instance("AKSHARE")
 
     @classmethod

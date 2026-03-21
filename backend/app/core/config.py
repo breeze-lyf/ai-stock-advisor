@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     ALPHA_VANTAGE_API_KEY: Optional[str] = None
     TAVILY_API_KEY: Optional[str] = None
     HTTP_PROXY: Optional[str] = None
+    HTTPS_PROXY: Optional[str] = None
+    AKSHARE_BYPASS_PROXY: bool = True
+    AUTO_DISABLE_UNAVAILABLE_PROXY: bool = True
     FEISHU_WEBHOOK_URL: Optional[str] = None
     FEISHU_SECRET: Optional[str] = None
 

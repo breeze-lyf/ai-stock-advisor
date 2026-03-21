@@ -275,16 +275,42 @@ export const StockChart: React.FC<StockChartProps> = ({ data, ticker, showBb = t
             data && data.length > 0
         ) {
             try {
+                const normalizedData = [...data]
+                    .filter((item) =>
+                        item?.time &&
+                        Number.isFinite(Number(item?.open)) &&
+                        Number.isFinite(Number(item?.high)) &&
+                        Number.isFinite(Number(item?.low)) &&
+                        Number.isFinite(Number(item?.close))
+                    )
+                    .sort((a, b) => String(a.time).localeCompare(String(b.time)));
+
+                if (normalizedData.length === 0) {
+                    candlestickSeriesRef.current.setData([]);
+                    volumeSeriesRef.current.setData([]);
+                    bbUpperSeriesRef.current?.setData([]);
+                    bbMiddleSeriesRef.current?.setData([]);
+                    bbLowerSeriesRef.current?.setData([]);
+                    rsiSeriesRef.current?.setData([]);
+                    macdSeriesRef.current?.setData([]);
+                    macdSignalSeriesRef.current?.setData([]);
+                    macdHistSeriesRef.current?.setData([]);
+                    return;
+                }
+
                 // 主图数据解析
-                const chartData = data.map(item => ({
+                const chartData = normalizedData.map(item => ({
                     time: item.time,
-                    open: item.open, high: item.high, low: item.low, close: item.close,
+                    open: Number(item.open),
+                    high: Number(item.high),
+                    low: Number(item.low),
+                    close: Number(item.close),
                 }));
 
-                const volumeData = data.map(item => ({
+                const volumeData = normalizedData.map(item => ({
                     time: item.time,
-                    value: item.volume,
-                    color: item.close >= item.open ? 'rgba(16, 185, 129, 0.3)' : 'rgba(244, 63, 94, 0.3)',
+                    value: Number(item.volume) || 0,
+                    color: Number(item.close) >= Number(item.open) ? 'rgba(16, 185, 129, 0.3)' : 'rgba(244, 63, 94, 0.3)',
                 }));
 
                 candlestickSeriesRef.current.setData(chartData);
@@ -292,9 +318,9 @@ export const StockChart: React.FC<StockChartProps> = ({ data, ticker, showBb = t
                 
                 // 布林带数据更新
                 if (showBb && bbUpperSeriesRef.current && bbMiddleSeriesRef.current && bbLowerSeriesRef.current) {
-                    const bbUpperData = data.map(item => ({ time: item.time, value: item.bb_upper ?? undefined }));
-                    const bbMiddleData = data.map(item => ({ time: item.time, value: item.bb_middle ?? undefined }));
-                    const bbLowerData = data.map(item => ({ time: item.time, value: item.bb_lower ?? undefined }));
+                    const bbUpperData = normalizedData.map(item => ({ time: item.time, value: item.bb_upper ?? undefined }));
+                    const bbMiddleData = normalizedData.map(item => ({ time: item.time, value: item.bb_middle ?? undefined }));
+                    const bbLowerData = normalizedData.map(item => ({ time: item.time, value: item.bb_lower ?? undefined }));
                     
                     bbUpperSeriesRef.current.setData(bbUpperData as any);
                     bbMiddleSeriesRef.current.setData(bbMiddleData as any);
@@ -303,7 +329,7 @@ export const StockChart: React.FC<StockChartProps> = ({ data, ticker, showBb = t
                 
                 // RSI 数据更新
                 if (showRsi && rsiSeriesRef.current) {
-                    const rsiData = data.map(item => ({ 
+                    const rsiData = normalizedData.map(item => ({ 
                         time: item.time, 
                         value: item.rsi !== null ? item.rsi : undefined 
                     }));
@@ -312,15 +338,15 @@ export const StockChart: React.FC<StockChartProps> = ({ data, ticker, showBb = t
                 
                 // MACD 数据更新
                 if (showMacd && macdSeriesRef.current && macdSignalSeriesRef.current && macdHistSeriesRef.current) {
-                    const macdData = data.map(item => ({ 
+                    const macdData = normalizedData.map(item => ({ 
                         time: item.time, 
                         value: item.macd !== null ? item.macd : undefined 
                     }));
-                    const macdSignalData = data.map(item => ({ 
+                    const macdSignalData = normalizedData.map(item => ({ 
                         time: item.time, 
                         value: item.macd_signal !== null ? item.macd_signal : undefined 
                     }));
-                    const macdHistData = data.map(item => ({
+                    const macdHistData = normalizedData.map(item => ({
                         time: item.time,
                         value: item.macd_hist !== null ? item.macd_hist : undefined,
                         color: (item.macd_hist ?? 0) >= 0 ? 'rgba(16, 185, 129, 0.5)' : 'rgba(244, 63, 94, 0.5)',

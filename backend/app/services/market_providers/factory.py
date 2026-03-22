@@ -3,7 +3,6 @@ import logging
 
 from app.core.config import settings
 from app.services.market_providers.base import MarketDataProvider
-from app.services.market_providers.alpha_vantage import AlphaVantageProvider
 from app.services.market_providers.akshare import AkShareProvider
 
 logger = logging.getLogger(__name__)
@@ -48,8 +47,6 @@ class ProviderFactory:
             if source == "IBKR":
                 from app.services.market_providers.ibkr import IBKRProvider
                 cls._instances[source] = IBKRProvider()
-            elif source == "ALPHA_VANTAGE":
-                cls._instances[source] = AlphaVantageProvider()
             elif source == "AKSHARE":
                 cls._instances[source] = AkShareProvider()
             else:

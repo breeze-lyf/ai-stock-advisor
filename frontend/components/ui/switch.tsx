@@ -8,14 +8,12 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-type SwitchProps = {
+type SwitchProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   checked?: boolean;
-  disabled?: boolean;
   onCheckedChange?: (checked: boolean) => void;
-  className?: string;
 };
 
-export function Switch({ checked = false, disabled = false, onCheckedChange, className }: SwitchProps) {
+export function Switch({ checked = false, disabled = false, onCheckedChange, className, ...props }: SwitchProps) {
   return (
     <button
       type="button"

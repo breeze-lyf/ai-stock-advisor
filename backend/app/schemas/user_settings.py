@@ -2,6 +2,7 @@ from __future__ import annotations
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
+from app.core.config import settings
 
 
 class ApiConfig(BaseModel):
@@ -62,6 +63,7 @@ class UserSettingsUpdate(BaseModel):
     timezone: str | None = None
     theme: str | None = None
     feishu_webhook_url: str | None = None
+    notifications_enabled: bool | None = None
     enable_price_alerts: bool | None = None
     enable_hourly_summary: bool | None = None
     enable_daily_report: bool | None = None
@@ -80,10 +82,11 @@ class UserProfile(BaseModel):
     provider_credentials: dict[str, UserProviderCredentialResponse] | None = None
     fallback_enabled: bool = True
     preferred_data_source: str = "AKSHARE"
-    preferred_ai_model: str = "deepseek-v3"
+    preferred_ai_model: str = settings.DEFAULT_AI_MODEL
     timezone: str = "Asia/Shanghai"
     theme: str = "dark"
     feishu_webhook_url: str | None = None
+    notifications_enabled: bool = True
     enable_price_alerts: bool = True
     enable_hourly_summary: bool = True
     enable_daily_report: bool = True
@@ -106,3 +109,7 @@ class TestConnectionRequest(BaseModel):
 class TestConnectionResponse(BaseModel):
     status: Literal["success", "error"]
     message: str
+
+
+class TavilyTestRequest(BaseModel):
+    api_key: str | None = None

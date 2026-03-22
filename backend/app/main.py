@@ -57,6 +57,49 @@ def _patch_py_mini_racer_cleanup_bug() -> None:
     MiniRacer._safe_del_patched = True  # type: ignore[attr-defined]
 
 
+def _patch_httpx_asyncclient_compat() -> None:
+    """
+    兼容补丁：部分第三方 SDK 仍依赖旧版 httpx AsyncClient 行为：
+    - AsyncClient(..., proxies=...) 参数
+    - client._limits 内部属性
+    在 httpx 0.28+ 中这两处可能不兼容，这里做最小兼容兜底。
+    """
+    try:
+        import inspect
+        import httpx
+    except Exception:
+        return
+
+    async_client_cls = httpx.AsyncClient
+    if getattr(async_client_cls, "_compat_init_patched", False):
+        return
+
+    original_init = async_client_cls.__init__
+    accepts_proxies = "proxies" in inspect.signature(original_init).parameters
+
+    def _compat_init(self, *args, **kwargs):
+        if "proxies" in kwargs and "proxy" not in kwargs and not accepts_proxies:
+            raw_proxies = kwargs.pop("proxies")
+            if isinstance(raw_proxies, dict):
+                proxy_val = (
+                    raw_proxies.get("https://")
+                    or raw_proxies.get("http://")
+                    or raw_proxies.get("https")
+                    or raw_proxies.get("http")
+                )
+            else:
+                proxy_val = raw_proxies
+            kwargs["proxy"] = proxy_val
+        limits = kwargs.get("limits")
+        original_init(self, *args, **kwargs)
+        if not hasattr(self, "_limits"):
+            # 兼容旧 SDK 读取 client._limits 的行为
+            self._limits = limits
+
+    async_client_cls.__init__ = _compat_init  # type: ignore[method-assign]
+    async_client_cls._compat_init_patched = True  # type: ignore[attr-defined]
+
+
 def _is_proxy_reachable(proxy_url: str, timeout: float = 0.4) -> bool:
     try:
         parsed = urlparse(proxy_url)
@@ -76,11 +119,23 @@ def _normalize_proxy_env() -> None:
     - 代理可达：保留配置
     - 代理不可达：自动清理当前进程代理环境变量，避免请求被卡死
     """
-    if not getattr(settings, "AUTO_DISABLE_UNAVAILABLE_PROXY", True):
-        return
-
     http_proxy = getattr(settings, "HTTP_PROXY", None)
     https_proxy = getattr(settings, "HTTPS_PROXY", None) or http_proxy
+    no_proxy = getattr(settings, "NO_PROXY", None)
+
+    # 确保 .env 中的代理配置显式注入进程环境变量，供 requests/httpx 下游库读取
+    if http_proxy:
+        os.environ.setdefault("HTTP_PROXY", http_proxy)
+        os.environ.setdefault("http_proxy", http_proxy)
+    if https_proxy:
+        os.environ.setdefault("HTTPS_PROXY", https_proxy)
+        os.environ.setdefault("https_proxy", https_proxy)
+    if no_proxy:
+        os.environ.setdefault("NO_PROXY", no_proxy)
+        os.environ.setdefault("no_proxy", no_proxy)
+
+    if not getattr(settings, "AUTO_DISABLE_UNAVAILABLE_PROXY", True):
+        return
 
     candidates = [p for p in [http_proxy, https_proxy] if p]
     if not candidates:
@@ -92,10 +147,15 @@ def _normalize_proxy_env() -> None:
 
     for var in [
         "HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY",
-        "http_proxy", "https_proxy", "all_proxy"
+        "http_proxy", "https_proxy", "all_proxy",
+        "NO_PROXY", "no_proxy"
     ]:
         os.environ.pop(var, None)
     logger.warning("Configured proxy is unreachable. Cleared proxy env vars for this process.")
+
+
+# 尽早应用兼容补丁，覆盖可能在 startup 前初始化的第三方客户端。
+_patch_httpx_asyncclient_compat()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -214,6 +274,7 @@ app.include_router(api_router, prefix="/api/v1")
 @app.on_event("startup")
 async def startup_event():
     _patch_py_mini_racer_cleanup_bug()
+    _patch_httpx_asyncclient_compat()
     _normalize_proxy_env()
 
     # 自动创建缺失的数据库表 (包括 notification_logs)

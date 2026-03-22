@@ -8,3 +8,5 @@ from app.models.notification import NotificationLog
 from app.models.provider_config import ProviderConfig
 from app.models.user_provider_credential import UserProviderCredential
 from app.models.user_ai_model import UserAIModel
+from app.models.trade import SimulatedTrade, TradeHistoryLog, TradeStatus
+from app.models.notification import NotificationLog as Notification # Just in case it's named differently elsewhere

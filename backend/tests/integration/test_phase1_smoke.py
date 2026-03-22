@@ -53,7 +53,7 @@ def build_user(**overrides):
         api_key_siliconflow="encrypted-key",
         api_configs=None,
         fallback_enabled=True,
-        preferred_data_source="ALPHA_VANTAGE",
+        preferred_data_source="AKSHARE",
         preferred_ai_model="qwen-3-vl-thinking",
         timezone="Asia/Shanghai",
         theme="light",

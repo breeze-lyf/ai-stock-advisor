@@ -14,6 +14,11 @@ from app.models.user import User
 logger = logging.getLogger(__name__)
 
 
+def _is_error_report(report) -> bool:
+    raw = (getattr(report, "ai_response_markdown", None) or "").strip()
+    return raw.startswith("**Error**")
+
+
 class GetLatestAnalysisUseCase:
     def __init__(self, db: AsyncSession, current_user: User):
         self.db = db
@@ -47,13 +52,22 @@ class GetLatestAnalysisUseCase:
 
     @staticmethod
     def _pick_shared_scope_report(reports):
+        first_shared = None
         for report in reports:
             if getattr(report, "report_scope", None) == AnalysisRepository.SHARED_SCOPE:
-                return report
+                if first_shared is None:
+                    first_shared = report
+                if not _is_error_report(report):
+                    return report
+                continue
+
             snapshot = report.input_context_snapshot or {}
             if isinstance(snapshot, dict) and snapshot.get("analysis_scope") == "stock_shared":
-                return report
-        return None
+                if first_shared is None:
+                    first_shared = report
+                if not _is_error_report(report):
+                    return report
+        return first_shared
 
 
 class GetAnalysisHistoryUseCase:
@@ -69,11 +83,13 @@ class GetAnalysisHistoryUseCase:
             shared_reports = []
             for report in reports:
                 if getattr(report, "report_scope", None) == AnalysisRepository.SHARED_SCOPE:
-                    shared_reports.append(report)
+                    if not _is_error_report(report):
+                        shared_reports.append(report)
                 else:
                     snapshot = report.input_context_snapshot or {}
                     if isinstance(snapshot, dict) and snapshot.get("analysis_scope") == "stock_shared":
-                        shared_reports.append(report)
+                        if not _is_error_report(report):
+                            shared_reports.append(report)
                 if len(shared_reports) >= limit:
                     break
 
@@ -81,11 +97,13 @@ class GetAnalysisHistoryUseCase:
                 fallback_reports = await self.repo.get_report_history_for_ticker(ticker, limit * 3)
                 for report in fallback_reports:
                     if getattr(report, "report_scope", None) == AnalysisRepository.SHARED_SCOPE:
-                        shared_reports.append(report)
+                        if not _is_error_report(report):
+                            shared_reports.append(report)
                     else:
                         snapshot = report.input_context_snapshot or {}
                         if isinstance(snapshot, dict) and snapshot.get("analysis_scope") == "stock_shared":
-                            shared_reports.append(report)
+                            if not _is_error_report(report):
+                                shared_reports.append(report)
                     if len(shared_reports) >= limit:
                         break
 

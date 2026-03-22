@@ -14,6 +14,7 @@ from app.application.analysis.helpers import (
     to_float,
     to_str,
 )
+from app.core.config import settings
 from app.core.security import sanitize_float
 from app.infrastructure.db.repositories.analysis_repository import AnalysisRepository
 from app.infrastructure.db.repositories.user_provider_credential_repository import UserProviderCredentialRepository
@@ -60,7 +61,7 @@ class AnalyzeStockUseCase:
         ticker = ticker.upper().strip()
         logger.info(f"🚀 开始分析股票: {ticker}")
 
-        preferred_model = self.current_user.preferred_ai_model or "deepseek-v3"
+        preferred_model = self.current_user.preferred_ai_model or settings.DEFAULT_AI_MODEL
         step_start = _log_duration("Step 1: 初始化分析参数", total_start)
 
         # Step 2: Parallel data fetching for all components

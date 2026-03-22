@@ -284,7 +284,7 @@ class IBKRProvider(MarketDataProvider):
             logger.error(f"IBKR get_fundamental_data 异常 ({ticker}): {e}")
             return None
 
-    async def get_historical_data(self, ticker: str, interval: str = "1d", period: str = "1mo") -> Optional[Dict[str, Any]]:
+    async def get_historical_data(self, ticker: str, interval: str = "1d", period: str = "1mo", end_date: Optional[str] = None) -> Optional[Dict[str, Any]]:
         """
         获取历史 K 线并计算技术指标 (RSI, MACD, MA, BB, KDJ, ATR 等)。
 
@@ -322,11 +322,17 @@ class IBKRProvider(MarketDataProvider):
             }
             bar_size = bar_size_map.get(interval, "1 day")
 
+            # 转换 end_date 为 IBKR 格式 (YYYYMMDD HH:mm:ss)
+            ib_end_date = ""
+            if end_date:
+                # 假设 end_date 是 YYYY-MM-DD
+                ib_end_date = end_date.replace("-", "") + " 23:59:59"
+
             # 请求历史数据
             bars = await asyncio.wait_for(
                 self._ib.reqHistoricalDataAsync(
                     contract,
-                    endDateTime='',  # 空字符串表示"现在"
+                    endDateTime=ib_end_date,  # 使用指定的截止时间
                     durationStr=duration_str,
                     barSizeSetting=bar_size,
                     whatToShow='TRADES',
@@ -367,7 +373,7 @@ class IBKRProvider(MarketDataProvider):
             logger.error(f"IBKR get_historical_data 异常 ({ticker}): {e}")
             return None
 
-    async def get_ohlcv(self, ticker: str, interval: str = "1d", period: str = "1y") -> List[Any]:
+    async def get_ohlcv(self, ticker: str, interval: str = "1d", period: str = "1y", end_date: Optional[str] = None) -> List[Any]:
         """
         获取原始 K 线数据，用于前端趋势图表展示。
         包含附加计算的技术指标（RSI、MACD、布林带）叠加在每根 K 线上。
@@ -398,10 +404,15 @@ class IBKRProvider(MarketDataProvider):
             }
             bar_size = bar_size_map.get(interval, "1 day")
 
+            # 转换 end_date 为 IBKR 格式
+            ib_end_date = ""
+            if end_date:
+                ib_end_date = end_date.replace("-", "") + " 23:59:59"
+
             bars = await asyncio.wait_for(
                 self._ib.reqHistoricalDataAsync(
                     contract,
-                    endDateTime='',
+                    endDateTime=ib_end_date,
                     durationStr=duration_str,
                     barSizeSetting=bar_size,
                     whatToShow='TRADES',

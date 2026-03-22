@@ -2,7 +2,7 @@ from __future__ import annotations
 import math
 from typing import List
 import logging
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 import pandas as pd
 from datetime import datetime
@@ -17,7 +17,6 @@ from app.schemas.market_data import OHLCVItem
 from app.schemas.portfolio import PortfolioItem
 from app.infrastructure.db.repositories.stock_repository import StockRepository
 from app.services.market_providers.akshare import AkShareProvider
-from app.services.market_providers.alpha_vantage import AlphaVantageProvider
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -142,6 +141,7 @@ async def get_stock_history(
     ticker: str,
     period: str = "1y",     # 时间跨度，如 1y (一年), 1mo (一月), 5d (五天)
     interval: str = "1d",   # 频率，如 1d (日线), 1hk (小时线)
+    end_date: Optional[str] = Query(None, description="回溯加载时的截止日期 (YYYY-MM-DD)"),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -155,7 +155,8 @@ async def get_stock_history(
         # 工厂模式：它会根据 Ticker 自动判断去哪抓数据。
         # 比如输入 'AAPL' 会去美股源，输入 '600519.SH' 则会自动切换到 A 股源。
         provider = ProviderFactory.get_provider(ticker)
-        data = await provider.get_ohlcv(ticker, interval=interval, period=period)
+        data = await provider.get_ohlcv(ticker, interval=interval, period=period, end_date=end_date)
+
         logger.info(
             "history fetch ticker=%s provider=%s count=%s",
             ticker,
@@ -170,7 +171,7 @@ async def get_stock_history(
         if (not data) and (not is_cn) and provider.__class__.__name__ == "IBKRProvider":
             try:
                 fallback_provider = AkShareProvider()
-                data = await fallback_provider.get_ohlcv(ticker, interval=interval, period=period)
+                data = await fallback_provider.get_ohlcv(ticker, interval=interval, period=period, end_date=end_date)
                 logger.info(
                     "history fallback ticker=%s provider=%s count=%s",
                     ticker,
@@ -180,20 +181,6 @@ async def get_stock_history(
             except Exception:
                 data = []
 
-        # 美股二级兜底：AkShare 为空时回退 AlphaVantage（仅在配置了 API Key 时生效）
-        if (not data) and (not is_cn):
-            try:
-                alpha_provider = AlphaVantageProvider()
-                data = await alpha_provider.get_ohlcv(ticker, interval=interval, period=period)
-                logger.info(
-                    "history fallback ticker=%s provider=%s count=%s",
-                    ticker,
-                    alpha_provider.__class__.__name__,
-                    len(data) if data else 0,
-                )
-            except Exception:
-                data = []
-        
         if not data:
             # 容错：如果抓取失败，返回空数组 [] 而非 404，防止前端 Axios 抛异常导致白屏
             return []

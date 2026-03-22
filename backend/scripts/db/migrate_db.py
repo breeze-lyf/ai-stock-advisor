@@ -17,8 +17,8 @@ try:
     
     if "preferred_data_source" not in columns:
         print("Adding preferred_data_source column to users table...")
-        # Add column with default value 'ALPHA_VANTAGE'
-        cursor.execute("ALTER TABLE users ADD COLUMN preferred_data_source VARCHAR DEFAULT 'ALPHA_VANTAGE'")
+        # Add column with default value 'AKSHARE'
+        cursor.execute("ALTER TABLE users ADD COLUMN preferred_data_source VARCHAR DEFAULT 'AKSHARE'")
         conn.commit()
         print("Successfully added column.")
     else:

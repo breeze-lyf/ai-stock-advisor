@@ -27,6 +27,9 @@ elif is_postgresql:
     # 仅在 Neon 或显式声明 require 时开启 SSL，避免本地 Postgres 启动失败。
     if sslmode in {"require", "verify-ca", "verify-full"} or is_neon:
         connect_args["ssl"] = "require"
+    elif is_local_postgres:
+        # 显式禁用本地 SSL 协商，防止 asyncpg 默认行为导致的连接失败
+        connect_args["ssl"] = False
 
 engine = create_async_engine(
     settings.DATABASE_URL,

@@ -22,14 +22,14 @@ class MarketDataProvider(ABC):
         pass
 
     @abstractmethod
-    async def get_historical_data(self, ticker: str, interval: str = "1d", period: str = "1mo") -> Optional[Any]:
+    async def get_historical_data(self, ticker: str, interval: str = "1d", period: str = "1mo", end_date: Optional[str] = None) -> Optional[Any]:
         """
         获取历史 K 线数据，通常用于计算技术指标 (RSI, MACD 等)
         """
         pass
 
     @abstractmethod
-    async def get_ohlcv(self, ticker: str, interval: str = "1d", period: str = "1y") -> List[Any]:
+    async def get_ohlcv(self, ticker: str, interval: str = "1d", period: str = "1y", end_date: Optional[str] = None) -> List[Any]:
         """
         获取原始 K 线数据用于图表展示 (返回 List[OHLCVItem])
         """

@@ -19,7 +19,9 @@ export const MarketAnalysis = React.memo(function MarketAnalysis({
     showMacd,
     onToggleBb,
     onToggleRsi,
-    onToggleMacd
+    onToggleMacd,
+    onLoadMore,
+    isLoadingMore
 }: MarketAnalysisProps) {
     return (
         <div className="space-y-8">
@@ -74,6 +76,8 @@ export const MarketAnalysis = React.memo(function MarketAnalysis({
                         showBb={showBb}
                         showRsi={showRsi} 
                         showMacd={showMacd} 
+                        onLoadMore={onLoadMore}
+                        isLoadingMore={isLoadingMore}
                     />
                 </div>
             </div>

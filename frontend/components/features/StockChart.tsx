@@ -14,9 +14,19 @@ interface StockChartProps {
     showBb?: boolean;
     showRsi?: boolean;
     showMacd?: boolean;
+    onLoadMore?: (earliestTime: string) => void;
+    isLoadingMore?: boolean;
 }
 
-export const StockChart: React.FC<StockChartProps> = ({ data, ticker, showBb = true, showRsi = false, showMacd = false }) => {
+export const StockChart: React.FC<StockChartProps> = ({ 
+    data, 
+    ticker, 
+    showBb = true, 
+    showRsi = false, 
+    showMacd = false,
+    onLoadMore,
+    isLoadingMore = false
+}) => {
     // 容器引用 (Container Refs)
     const mainContainerRef = useRef<HTMLDivElement>(null);
     const rsiContainerRef = useRef<HTMLDivElement>(null);
@@ -24,6 +34,7 @@ export const StockChart: React.FC<StockChartProps> = ({ data, ticker, showBb = t
     
     // 图表实例引用 (Chart API Refs)
     const mainChartRef = useRef<IChartApi | null>(null);
+    const lastDataLength = useRef(data.length);
     const rsiChartRef = useRef<IChartApi | null>(null);
     const macdChartRef = useRef<IChartApi | null>(null);
 
@@ -185,6 +196,15 @@ export const StockChart: React.FC<StockChartProps> = ({ data, ticker, showBb = t
             item.chart.timeScale().subscribeVisibleLogicalRangeChange((range) => {
                 if (!range || isUnmounted.current || isSyncing) return;
                 
+                // --- 懒加载触发逻辑 (Lazy Loading Disclosure) ---
+                // 当逻辑范围的开始位置小于 10 (接近左边界) 且不在加载中时触发
+                if (range.from < 10 && onLoadMore && !isLoadingMore && data.length > 0) {
+                    const earliestData = data[0];
+                    if (earliestData && earliestData.time) {
+                        onLoadMore(String(earliestData.time));
+                    }
+                }
+
                 isSyncing = true;
                 syncItems.forEach((otherItem, otherIndex) => {
                     if (index !== otherIndex && otherItem.chart) {
@@ -357,8 +377,14 @@ export const StockChart: React.FC<StockChartProps> = ({ data, ticker, showBb = t
                     macdHistSeriesRef.current.setData(macdHistData as any);
                 }
                 
-                // 默认填充整个屏幕视图 (Fit view)
-                mainChartRef.current?.timeScale().fitContent();
+                // 默认填充整个屏幕视图 (Fit view) - 仅在初始加载时
+                if (lastDataLength.current === 0) {
+                    mainChartRef.current?.timeScale().fitContent();
+                } else if (data.length > lastDataLength.current) {
+                    // 如果是懒加载回来的数据，我们不希望 fitContent 导致闪烁到最新
+                    // lightweight-charts 会自动处理数据追加，保持当前试图逻辑位置
+                }
+                lastDataLength.current = data.length;
             } catch (e) {
                 console.error("Failed to update chart data", e);
             }

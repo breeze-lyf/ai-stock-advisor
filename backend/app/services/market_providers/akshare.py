@@ -1,13 +1,47 @@
 import time
+import functools
+import random
 import akshare as ak
 import pandas as pd
 import logging
 import asyncio
 import os
 import requests
+import json
+import subprocess
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 from contextlib import contextmanager
+
+def retry_on_network_error(max_retries=3, initial_delay=1):
+    """
+    针对网络波动的重试装饰器。
+    支持处理 RemoteDisconnected, ConnectionResetError, ProxyError 等。
+    """
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            last_err = None
+            delay = initial_delay
+            for i in range(max_retries + 1):
+                try:
+                    return func(*args, **kwargs)
+                except (requests.exceptions.RequestException, 
+                        urllib3.exceptions.HTTPError,
+                        ConnectionError,
+                        TimeoutError) as e:
+                    last_err = e
+                    if i < max_retries:
+                        # 指数退避 + 抖动
+                        sleep_time = delay * (2 ** i) + random.uniform(0, 0.5)
+                        logger.warning(f"Network error in {func.__name__}, retrying ({i+1}/{max_retries}) in {sleep_time:.2f}s: {e}")
+                        time.sleep(sleep_time)
+                        continue
+                    else:
+                        raise last_err
+            return None
+        return wrapper
+    return decorator
 
 from app.services.market_providers.base import MarketDataProvider
 from app.schemas.market_data import (
@@ -112,7 +146,11 @@ class AkShareProvider(MarketDataProvider):
                     try:
                         with requests.Session() as s:
                             s.trust_env = False
-                            return ak.stock_zh_a_spot_em()
+                            # 增加重试
+                            @retry_on_network_error(max_retries=2)
+                            def _inner_fetch():
+                                return ak.stock_zh_a_spot_em()
+                            return _inner_fetch()
                     finally:
                         _tls.bypass_proxy = False
                         for var, val in old_vals.items():
@@ -164,6 +202,47 @@ class AkShareProvider(MarketDataProvider):
         async with self._get_semaphore():
             return await loop.run_in_executor(None, run_isolated)
 
+    async def _run_sync_force_proxy(self, func, *args, **kwargs):
+        """
+        在线程池中运行同步函数，并强制启用代理（忽略 NO_PROXY）。
+        场景：美股历史接口在部分网络环境下仅可通过代理访问。
+        """
+        def run_with_forced_proxy():
+            _tls.bypass_proxy = False
+            old_env = {}
+            proxy = (getattr(settings, "HTTPS_PROXY", None) or getattr(settings, "HTTP_PROXY", None) or "").strip()
+            if proxy:
+                for key in ["HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy", "NO_PROXY", "no_proxy"]:
+                    old_env[key] = os.environ.get(key)
+                os.environ["HTTP_PROXY"] = proxy
+                os.environ["HTTPS_PROXY"] = proxy
+                os.environ["http_proxy"] = proxy
+                os.environ["https_proxy"] = proxy
+                # 强制走代理，避免 eastmoney 被 NO_PROXY 误绕过
+                os.environ.pop("NO_PROXY", None)
+                os.environ.pop("no_proxy", None)
+
+            try:
+                with requests.Session() as s:
+                    s.trust_env = True
+                    if func == requests.get:
+                        return s.get(*args, **kwargs)
+                    if func == requests.post:
+                        return s.post(*args, **kwargs)
+                    return func(*args, **kwargs)
+            finally:
+                _tls.bypass_proxy = False
+                if proxy:
+                    for key, val in old_env.items():
+                        if val is None:
+                            os.environ.pop(key, None)
+                        else:
+                            os.environ[key] = val
+
+        loop = asyncio.get_event_loop()
+        async with self._get_semaphore():
+            return await loop.run_in_executor(None, run_with_forced_proxy)
+
     def _normalize_symbol(self, ticker: str) -> str:
         """
         代码归一化: 002050.SZ -> 002050
@@ -193,7 +272,8 @@ class AkShareProvider(MarketDataProvider):
             return False
         return not (ticker.isdigit() and len(ticker) == 6)
 
-    async def _get_us_hist_em_df(self, ticker: str) -> Optional[pd.DataFrame]:
+    @retry_on_network_error(max_retries=1)
+    async def _get_us_hist_em_df(self, ticker: str, num_days: int = 250, end_date: Optional[str] = None) -> Optional[pd.DataFrame]:
         """
         使用东方财富美股历史接口获取 K 线，避免 stock_us_daily 对 py_mini_racer 的依赖。
         说明：
@@ -207,20 +287,38 @@ class AkShareProvider(MarketDataProvider):
             f"107.{symbol}",
         ]
 
+        last_error: Optional[Exception] = None
         for secid in secid_candidates:
             try:
+                # 尝试 1: 直接获取 (东财)
                 df = await self._run_sync(
                     ak.stock_us_hist,
                     symbol=secid,
                     period="daily",
                     start_date="19700101",
-                    end_date="20500101",
+                    end_date=end_date.replace("-", "") if end_date else "20500101",
                     adjust="qfq",
                 )
+                
+                # 尝试 2: 强制代理获取 (东财)
+                if df is None or df.empty:
+                    try:
+                        df = await self._run_sync_force_proxy(
+                            ak.stock_us_hist,
+                            symbol=secid,
+                            period="daily",
+                            start_date="19700101",
+                            end_date=end_date.replace("-", "") if end_date else "20500101",
+                            adjust="qfq",
+                        )
+                    except Exception as proxy_e:
+                        last_error = proxy_e
+                        logger.warning(f"EM hist (force proxy) failed for {ticker} with secid: {secid}: {proxy_e}")
+
                 if df is None or df.empty:
                     continue
 
-                # 东方财富美股历史字段 -> 统一字段
+                # 东方财富映射
                 rename_map = {
                     "日期": "Date",
                     "开盘": "Open",
@@ -229,23 +327,79 @@ class AkShareProvider(MarketDataProvider):
                     "收盘": "Close",
                     "成交量": "Volume",
                 }
-                if "日期" not in df.columns:
-                    continue
-
-                df = df.rename(columns=rename_map)
-                keep_cols = [c for c in ["Date", "Open", "High", "Low", "Close", "Volume"] if c in df.columns]
-                df = df[keep_cols].copy()
-                df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
-                df = df.dropna(subset=["Date"])
-                for col in ["Open", "High", "Low", "Close", "Volume"]:
-                    if col in df.columns:
-                        df[col] = pd.to_numeric(df[col], errors="coerce")
-                df = df.dropna(subset=[c for c in ["Open", "High", "Low", "Close"] if c in df.columns])
-                if not df.empty:
-                    return df
-            except Exception:
+                if "日期" in df.columns:
+                    df = df.rename(columns=rename_map)
+                    keep_cols = ["Date", "Open", "High", "Low", "Close", "Volume"]
+                    df = df[[c for c in keep_cols if c in df.columns]].copy()
+                    df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
+                    return df.dropna(subset=["Date"]).tail(num_days)
+            except Exception as e:
+                last_error = e
+                logger.error(f"EM hist attempt for {ticker} with secid {secid} failed: {e}")
                 continue
 
+        # 尝试 3: 新浪 Fallback (子进程方式，解决 uvicorn 环境下 MiniRacer 符号冲突)
+        try:
+            logger.info("Trying Sina fallback (subprocess) for %s", ticker)
+            
+            # 使用相对路径寻找脚本
+            script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "utils", "fetch_us_stock.py")
+            
+            args = ["python3", script_path, ticker]
+            if end_date:
+                args.append(end_date)
+
+            process = await asyncio.create_subprocess_exec(
+                *args,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            stdout, stderr = await process.communicate()
+            
+            if process.returncode == 0 and stdout:
+                raw_data = stdout.decode().strip()
+                if raw_data.startswith("["):
+                    df_sina = pd.read_json(raw_data)
+                    if df_sina is not None and not df_sina.empty:
+                        logger.info("Sina subprocess fallback for %s returned df with len=%s", ticker, len(df_sina))
+                        
+                        # 重命名与清洗
+                        rename_sina = {
+                            "date": "Date",
+                            "open": "Open",
+                            "high": "High",
+                            "low": "Low",
+                            "close": "Close",
+                            "volume": "Volume"
+                        }
+                        df_sina = df_sina.rename(columns=rename_sina)
+                        
+                        # 日期处理
+                        df_sina["Date"] = pd.to_datetime(df_sina["Date"], errors="coerce").dt.date
+                        
+                        # 数值转换
+                        for col in ["Open", "High", "Low", "Close", "Volume"]:
+                            if col in df_sina.columns:
+                                df_sina[col] = pd.to_numeric(df_sina[col], errors="coerce")
+                        
+                        return df_sina.dropna(subset=["Date", "Close"]).tail(num_days)
+                elif "error" in raw_data:
+                    logger.warning("Sina subprocess returned error for %s: %s", ticker, raw_data)
+            else:
+                err_msg = stderr.decode().strip()
+                logger.warning("Sina subprocess failed for %s: %s", ticker, err_msg)
+        except Exception as e:
+            last_error = e
+
+        # 尝试 4: 腾讯 (通常数据较少或受限)
+        try:
+            df = await self._get_tencent_hist(ticker)
+            if df is not None and not df.empty:
+                return df.tail(num_days)
+        except: pass
+
+        if last_error:
+            logger.warning("All US hist sources failed for %s: %s", ticker, last_error)
         return None
 
     def _get_sina_symbol(self, ticker: str) -> str:
@@ -343,10 +497,13 @@ class AkShareProvider(MarketDataProvider):
         
         return await loop.run_in_executor(None, fetch)
 
-    async def _get_tencent_hist(self, ticker: str, num_days: int = 365) -> Optional[pd.DataFrame]:
+    async def _get_tencent_hist(self, ticker: str, num_days: int = 365, end_date: Optional[str] = None) -> Optional[pd.DataFrame]:
         """从腾讯 K 线接口获取历史数据 (前复权)"""
         symbol = self._normalize_symbol(ticker)
-        tencent_symbol = self._get_sina_symbol(symbol)
+        if self._is_us_stock(ticker):
+            tencent_symbol = f"us{symbol}"
+        else:
+            tencent_symbol = self._get_sina_symbol(symbol)
         # web.ifzq.gtimg.cn 接口支持前复权
         url = f"http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?_var=kline_dayqfq&param={tencent_symbol},day,,,{num_days},qfq"
         
@@ -367,12 +524,20 @@ class AkShareProvider(MarketDataProvider):
                             json_str = content.split('=', 1)[1]
                             import json
                             data = json.loads(json_str)
-                            stock_data = data.get("data", {}).get(tencent_symbol, {})
+                            data_root = data.get("data", {})
+                            stock_data = data_root.get(tencent_symbol, {})
+                            if not stock_data:
+                                # 容错：部分标的返回 key 可能是无前缀代码
+                                stock_data = data_root.get(symbol, {})
+                            if not stock_data and data_root:
+                                stock_data = next(iter(data_root.values()), {})
                             # 优先取前复权数据 qfqday
                             kline = stock_data.get("qfqday", stock_data.get("day", []))
                             if kline:
-                                # 腾讯 K 线格式: [日期, 开盘, 收盘, 最高, 最低, 成交量]
-                                df = pd.DataFrame(kline)
+                                # 数据格式: [日期, 开盘, 收盘, 最高, 最低, 成交量]
+                                # 取最后 num_days 条以确保获取最新数据
+                                kline_sliced = kline[-num_days:]
+                                df = pd.DataFrame(kline_sliced)
                                 df = df.iloc[:, :6]
                                 df.columns = ['Date', 'Open', 'Close', 'High', 'Low', 'Volume']
                                 df['Date'] = pd.to_datetime(df['Date'])
@@ -381,6 +546,10 @@ class AkShareProvider(MarketDataProvider):
                                     df[col] = pd.to_numeric(df[col], errors='coerce')
                                 # 调整列顺序以符合 indicator 计算习惯 (Date, Open, High, Low, Close, Volume)
                                 df = df[['Date', 'Open', 'High', 'Low', 'Close', 'Volume']]
+                                if end_date:
+                                    # 过滤在该日期之前的数据
+                                    target_dt = pd.to_datetime(end_date)
+                                    df = df[df['Date'] < target_dt]
                                 return df
                     return None
                 finally:
@@ -657,22 +826,23 @@ class AkShareProvider(MarketDataProvider):
             # --- 最终兜底：拉取历史数据取最后一条 ---
             hist_df = None
             if is_index:
-                sina_symbol = ticker if ticker.startswith('.') else f".{ticker}"
-                if sina_symbol == ".SPX": sina_symbol = ".INX"
                 try:
-                    hist_df = await self._run_sync(ak.index_us_stock_sina, symbol=sina_symbol)
-                except: pass
+                    hist_df = await self._get_tencent_hist(ticker, num_days=180)
+                except:
+                    pass
             
             if hist_df is None or hist_df.empty:
                 try:
-                    hist_df = await self._run_sync(ak.stock_us_daily, symbol=ticker)
-                except: pass
+                    hist_df = await self._get_us_hist_em_df(ticker)
+                except:
+                    pass
                 
             if hist_df is not None and not hist_df.empty:
                 latest = hist_df.iloc[-1]
+                close_key = 'Close' if 'Close' in latest else 'close'
                 return ProviderQuote(
                     ticker=ticker,
-                    price=float(latest['close']),
+                    price=float(latest.get(close_key, 0)),
                     change_percent=0.0,
                     name=ticker, 
                     last_updated=datetime.utcnow()
@@ -708,16 +878,48 @@ class AkShareProvider(MarketDataProvider):
                 logger.warning(f"Tencent fundamental fetch failed for {ticker}: {te}")
 
             # --- 优先级 2: 东方财富个股信息 (补充行业/板块) ---
-            # 包裹 try-except 以应对连接中断
+            # 包裹 try-except 并增加重试
             try:
-                info_df = await self._run_sync(ak.stock_individual_info_em, symbol=symbol)
+                @retry_on_network_error(max_retries=2)
+                def fetch_em_info():
+                    return ak.stock_individual_info_em(symbol=symbol)
+
+                info_df = await self._run_sync(fetch_em_info)
                 if info_df is not None and not info_df.empty:
                     data = {row['item']: row['value'] for _, row in info_df.iterrows()}
                     sector = data.get('行业')
-                    if not mc: mc = float(data.get('总市值', 0))
+                    if not mc: 
+                        mc_val = data.get('总市值', 0)
+                        if mc_val and mc_val != '-': mc = float(mc_val)
                     if not name: name = data.get('股票简称')
             except Exception as e:
                 logger.warning(f"EM individual info failed for {ticker} (likely connection reset): {e}")
+
+            # --- 优先级 3: 直接请求 East Money API (如果 AkShare 失败) ---
+            if not mc or not sector:
+                try:
+                    loop = asyncio.get_event_loop()
+                    mkt = 1 if symbol.startswith(('60', '68')) else 0
+                    # f58: 名称, f127: 行业, f116: 总市值, f43: 最新价, f170: 涨跌幅
+                    url = f"https://push2.eastmoney.com/api/qt/stock/get?secid={mkt}.{symbol}&fields=f58,f127,f116,f43,f170"
+                    
+                    @retry_on_network_error(max_retries=2)
+                    def direct_fundamental():
+                        _tls.bypass_proxy = True
+                        try:
+                            resp = requests.get(url, timeout=3, headers={"User-Agent": "Mozilla/5.0"}, proxies={'http': None, 'https': None})
+                            return resp.json() if resp.status_code == 200 else None
+                        finally:
+                            _tls.bypass_proxy = False
+                    
+                    res_json = await loop.run_in_executor(None, direct_fundamental)
+                    if res_json and "data" in res_json and res_json["data"]:
+                        d = res_json["data"]
+                        if not name: name = d.get('f58')
+                        if not sector: sector = d.get('f127')
+                        if not mc: mc = float(d.get('f116', 0))
+                except Exception as direct_e:
+                    logger.warning(f"Direct EM fundamental fallback failed for {ticker}: {direct_e}")
 
             return ProviderFundamental(
                 name=name, 
@@ -794,7 +996,7 @@ class AkShareProvider(MarketDataProvider):
             logger.error(f"AkShare _get_us_fundamental error: {e}")
             return None
 
-    async def get_historical_data(self, ticker: str, interval: str = "1d", period: str = "1mo") -> Optional[Dict[str, Any]]:
+    async def get_historical_data(self, ticker: str, interval: str = "1d", period: str = "1mo", end_date: Optional[str] = None) -> Optional[Dict[str, Any]]:
         # 严格过滤测试标的，避免请求外部接口
         if ticker.upper().startswith("TEST_"):
             logger.info(f"Skipping historical data fetch for test ticker: {ticker}")
@@ -804,43 +1006,45 @@ class AkShareProvider(MarketDataProvider):
             if self._is_us_stock(ticker):
                 # 美股指数和个股抓取策略区分
                 is_index = ticker.upper() in ["NDX", "IXIC", "SPX", "DJI", ".NDX", ".IXIC", ".INX", ".DJI", "^GSPC", "^IXIC", "^DJI"]
+                df = None
                 
                 if is_index:
-                    sina_symbol = ticker if ticker.startswith('.') else f".{ticker}"
-                    # 关键映射：新浪中标普 500 使用 .INX
-                    if sina_symbol in [".SPX", ".^GSPC"]: 
-                        sina_symbol = ".INX"
-                    # 使用新浪美股指数接口
-                    df = await self._run_sync(ak.index_us_stock_sina, symbol=sina_symbol)
+                    # 指数优先走腾讯 K 线，避免 AkShare 新浪指数接口在部分环境触发 mini_racer 崩溃
+                    logger.info(f"Attempting Tencent hist for US index {ticker}")
+                    df = await self._get_tencent_hist(ticker, num_days=500)
                     if df is not None and not df.empty:
-                        # 新浪指数表头通常是 Date, Open, High, Low, Close, Volume
-                        # 确保列名大写
-                        df.columns = [c.capitalize() for c in df.columns]
-                        if 'Date' in df.columns:
-                            df['Date'] = pd.to_datetime(df['Date'])
-                            df.set_index('Date', inplace=True)
-                else:
-                    # 个股优先走东方财富历史接口（不依赖 mini_racer，稳定性更高）
-                    df = await self._get_us_hist_em_df(ticker)
-                    if df is not None and not df.empty:
-                        df = df.sort_values("Date")
-                        df.set_index('Date', inplace=True)
+                        df = self.apply_indicators(df)
                     else:
-                        # 兜底：旧链路
-                        df = await self._run_sync(ak.stock_us_daily, symbol=ticker)
-                        if df is not None and not df.empty:
-                            df = df.rename(columns={'date': 'Date', 'open': 'Open', 'high': 'High', 'low': 'Low', 'close': 'Close', 'volume': 'Volume'})
-                            df['Date'] = pd.to_datetime(df['Date'])
-                            df.set_index('Date', inplace=True)
+                        logger.info(f"Tencent hist for US index {ticker} returned empty or None.")
+
+                if df is None or df.empty:
+                    # 个股（或指数失败）走东方财富历史接口（不依赖 mini_racer，稳定性更高）
+                    # 根据 period 动态调整天数 (简单转换)
+                    days_map = {"1mo": 30, "3mo": 90, "6mo": 180, "1y": 250, "5y": 1250}
+                    req_days = days_map.get(period, 250)
+                    df = await self._get_us_hist_em_df(ticker, num_days=req_days)
+                if df is not None and not df.empty:
+                    df = df.sort_values("Date")
+                    df.set_index('Date', inplace=True)
+                else:
+                    # 备选：腾讯源 (作为极速备选，尽管数据点可能较少)
+                    df = await self._get_tencent_hist(ticker, num_days=req_days)
+                    if df is not None and not df.empty:
+                        df.set_index('Date', inplace=True)
             else:
                 # A 股改用腾讯源，绕开被封锁的东财/AkShare 原生接口
-                df = await self._get_tencent_hist(ticker, num_days=250)
+                days_map = {"1mo": 30, "3mo": 90, "6mo": 180, "1y": 250, "5y": 1250}
+                req_days = days_map.get(period, 250)
+                df = await self._get_tencent_hist(ticker, num_days=req_days)
                 if df is not None and not df.empty:
                     df.set_index('Date', inplace=True)
                 else:
                     # 备选：原有的 AkShare 方式
                     symbol = self._normalize_symbol(ticker)
-                    df = await self._run_sync(ak.stock_zh_a_hist, symbol=symbol, period="daily", adjust="qfq")
+                    @retry_on_network_error(max_retries=2)
+                    def _fetch_hist():
+                        return ak.stock_zh_a_hist(symbol=symbol, period="daily", adjust="qfq")
+                    df = await self._run_sync(_fetch_hist)
                     if df is not None and not df.empty:
                         # 严格检查列是否存在，防止重命名报错
                         if '日期' in df.columns:
@@ -849,12 +1053,35 @@ class AkShareProvider(MarketDataProvider):
                             df.set_index('Date', inplace=True)
                         else:
                             return None
-            
+
             # 最终检查 DataFrame 是否有效且包含足够数据点
             if df is None or df.empty or len(df) < 2: 
                 return None
                 
-            return TechnicalIndicators.calculate_all(df)
+            indicators = TechnicalIndicators.calculate_all(df)
+            # 将 DataFrame 转换为 bars 列表
+            bars = []
+            # 确保按时间排序
+            df = df.sort_index()
+            for date, row in df.iterrows():
+                bars.append({
+                    "time": date.strftime('%Y-%m-%d') if hasattr(date, 'strftime') else str(date),
+                    "open": float(row.get('Open', 0)),
+                    "high": float(row.get('High', 0)),
+                    "low": float(row.get('Low', 0)),
+                    "close": float(row.get('Close', 0)),
+                    "volume": float(row.get('Volume', 0))
+                })
+
+            return {
+                "ticker": ticker,
+                "bars": bars,
+                "indicators": indicators,
+                "metadata": {
+                    "count": len(bars),
+                    "source": "tencent_hist" if not self._is_us_stock(ticker) else "em_hist"
+                }
+            }
         except Exception as e:
             logger.error(f"AkShare get_historical_data error for {ticker}: {e}")
             return None
@@ -870,7 +1097,10 @@ class AkShareProvider(MarketDataProvider):
             def fetch_valuation():
                 _tls.bypass_proxy = True
                 try:
-                    df = ak.stock_a_lg_indicator(symbol=symbol)
+                    @retry_on_network_error(max_retries=2)
+                    def _fetch():
+                        return ak.stock_a_lg_indicator(symbol=symbol)
+                    df = _fetch()
                     if df is not None and not df.empty:
                         latest = df.iloc[-1]
                         # 估算百分位 (简单实现：在最近 500 个交易日中的位置)
@@ -904,7 +1134,10 @@ class AkShareProvider(MarketDataProvider):
                 _tls.bypass_proxy = True
                 try:
                     # 获取个股资金流向排名 (东财源)
-                    df = ak.stock_individual_fund_flow_rank(indicator="今日")
+                    @retry_on_network_error(max_retries=2)
+                    def _fetch():
+                        return ak.stock_individual_fund_flow_rank(indicator="今日")
+                    df = _fetch()
                     if df is not None and not df.empty:
                         row = df[df['代码'] == symbol]
                         if not row.empty:
@@ -922,7 +1155,10 @@ class AkShareProvider(MarketDataProvider):
         if self._is_us_stock(ticker): return [] # 美股新闻建议由 TavilyProvider 处理 (RAG 更强)
         try:
             symbol = self._normalize_symbol(ticker)
-            news_df = await self._run_sync(ak.stock_news_em, symbol=symbol)
+            @retry_on_network_error(max_retries=2)
+            def fetch_news():
+                return ak.stock_news_em(symbol=symbol)
+            news_df = await self._run_sync(fetch_news)
             import hashlib
             results = []
             for _, row in news_df.head(10).iterrows():
@@ -932,31 +1168,23 @@ class AkShareProvider(MarketDataProvider):
             return results
         except: return []
 
-    async def get_ohlcv(self, ticker: str, interval: str = "1d", period: str = "1y") -> List[Any]:
+    async def get_ohlcv(self, ticker: str, interval: str = "1d", period: str = "1y", end_date: Optional[str] = None) -> List[Any]:
         try:
             df = None
             if self._is_us_stock(ticker):
                 # 兼容性逻辑：判断是否为指数 (Index)
                 is_index = ticker.upper() in ["NDX", "IXIC", "SPX", "DJI", ".NDX", ".IXIC", ".INX", ".DJI"]
                 if is_index:
-                    sina_symbol = ticker if ticker.startswith('.') else f".{ticker}"
-                    if sina_symbol == ".SPX": sina_symbol = ".INX"
                     try:
-                        df = await self._run_sync(ak.index_us_stock_sina, symbol=sina_symbol)
+                        df = await self._get_tencent_hist(ticker, num_days=500, end_date=end_date)
                     except: pass
 
                 if df is None or df.empty:
                     try:
                         # 个股优先走东方财富历史接口，避免 stock_us_daily 的 mini_racer 兼容问题
-                        df = await self._get_us_hist_em_df(ticker)
+                        df = await self._get_us_hist_em_df(ticker, end_date=end_date)
                     except: pass
 
-                if (df is None or df.empty) and not is_index:
-                    # 兜底：保留原新浪链路
-                    try:
-                        df = await self._run_sync(ak.stock_us_daily, symbol=ticker)
-                    except: pass
-                
                 if df is not None and not df.empty:
                     # 统一列名：新浪接口返回 date, open, high, low, close, volume
                     # 个股接口返回相同，但列名大小写可能不同
@@ -965,13 +1193,18 @@ class AkShareProvider(MarketDataProvider):
                     df = df.rename(columns=col_map)
             else:
                 # A 股改用腾讯源
-                df = await self._get_tencent_hist(ticker, num_days=500)
+                df = await self._get_tencent_hist(ticker, num_days=1000, end_date=end_date)
                 if df is None or df.empty:
                     # 备选
                     symbol = self._normalize_symbol(ticker)
-                    df = await self._run_sync(ak.stock_zh_a_hist, symbol=symbol, period="daily", adjust="qfq")
+                    start_str = "19900101"
+                    end_str = end_date.replace("-", "") if end_date else datetime.now().strftime("%Y%m%d")
+                    df = await self._run_sync(ak.stock_zh_a_hist, symbol=symbol, period="daily", start_date=start_str, end_date=end_str, adjust="qfq")
                     if df is not None and not df.empty:
                         df = df.rename(columns={'日期': 'Date', '开盘': 'Open', '最高': 'High', '最低': 'Low', '收盘': 'Close', '成交量': 'Volume'})
+                        # 如果有 end_date，通常取最后的部分（chunk）
+                        if end_date:
+                            df = df.tail(250)
 
             if df is None or df.empty: return []
             
@@ -981,15 +1214,21 @@ class AkShareProvider(MarketDataProvider):
             # 优化 1: 截断历史数据 (保留指标前提下)
             from datetime import datetime, timedelta
             now = datetime.now()
-            if period == "1mo": start_date = now - timedelta(days=30)
-            elif period == "3mo": start_date = now - timedelta(days=90)
-            elif period == "6mo": start_date = now - timedelta(days=180)
-            elif period == "1y": start_date = now - timedelta(days=365)
-            elif period == "5y": start_date = now - timedelta(days=365*5)
-            else: start_date = None
             
-            if start_date:
-                calc_df = calc_df[calc_df['Date'] >= start_date]
+            # 如果提供了 end_date，说明是回溯加载，不要按照 period 再截断了
+            if not end_date:
+                if period == "1mo": start_date = now - timedelta(days=30)
+                elif period == "3mo": start_date = now - timedelta(days=90)
+                elif period == "6mo": start_date = now - timedelta(days=180)
+                elif period == "1y": start_date = now - timedelta(days=365)
+                elif period == "5y": start_date = now - timedelta(days=365*5)
+                else: start_date = None
+                
+                if start_date:
+                    calc_df = calc_df[calc_df['Date'] >= start_date]
+            else:
+                # 回溯模式，取最后 250 条（作为分片）
+                calc_df = calc_df.tail(250)
 
             # 优化 2: 向量化抛弃 iterrows
             calc_df = calc_df.where(pd.notnull(calc_df), None)

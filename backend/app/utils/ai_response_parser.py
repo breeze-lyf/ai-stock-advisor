@@ -69,7 +69,9 @@ def parse_ai_json(raw_response: str, context: str = "unknown") -> dict:
 
     # ——— 阶段 1：检测 AI 服务层显式错误 ———
     if raw_response.startswith("**Error**"):
-        logger.error(f"[{context}] AI 服务返回错误: {raw_response}")
+        # report_* 多来自历史数据回放，避免每次打开页面都重复刷屏
+        if not context.startswith("report_"):
+            logger.warning(f"[{context}] AI 服务返回错误: {raw_response}")
         return {
             **_ERROR_FALLBACK,
             "technical_analysis": f"AI 服务调用异常: {raw_response}",

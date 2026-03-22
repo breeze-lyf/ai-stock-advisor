@@ -18,10 +18,11 @@ class Settings(BaseSettings):
     SILICONFLOW_API_KEY: Optional[str] = None
     DASHSCOPE_API_KEY: Optional[str] = None
     DASHSCOPE_BASE_URL: Optional[str] = None
-    ALPHA_VANTAGE_API_KEY: Optional[str] = None
+    DEFAULT_AI_MODEL: str = "qwen3.5-plus"
     TAVILY_API_KEY: Optional[str] = None
     HTTP_PROXY: Optional[str] = None
     HTTPS_PROXY: Optional[str] = None
+    NO_PROXY: Optional[str] = None
     AKSHARE_BYPASS_PROXY: bool = True
     AUTO_DISABLE_UNAVAILABLE_PROXY: bool = True
     FEISHU_WEBHOOK_URL: Optional[str] = None

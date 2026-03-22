@@ -14,7 +14,7 @@ from alembic import context
 from app.core.config import settings
 from app.core.database import Base
 # 显式导入所有模型以确保被 metadata 捕获
-from app.models import User, Stock, Portfolio, AnalysisReport, AIModelConfig
+import app.models # noqa: F401, E402
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -59,7 +59,17 @@ async def run_async_migrations() -> None:
     # 针对 Neon/PostgreSQL 的 SSL 配置
     connect_args = {}
     if "postgresql" in settings.DATABASE_URL:
-        connect_args["ssl"] = "require"
+        from sqlalchemy.engine import make_url
+        parsed_url = make_url(settings.DATABASE_URL)
+        host = (parsed_url.host or "").strip().lower()
+        sslmode = str(parsed_url.query.get("sslmode", "")).strip().lower()
+        is_local_postgres = host in {"127.0.0.1", "localhost"}
+        is_neon = host.endswith(".neon.tech")
+
+        if sslmode in {"require", "verify-ca", "verify-full"} or is_neon:
+            connect_args["ssl"] = "require"
+        elif is_local_postgres:
+            connect_args["ssl"] = False
 
     connectable = async_engine_from_config(
         configuration,

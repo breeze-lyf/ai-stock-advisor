@@ -83,6 +83,8 @@ export interface MarketAnalysisProps {
     onToggleBb: () => void;
     onToggleRsi: () => void;
     onToggleMacd: () => void;
+    onLoadMore?: (earliestTime: string) => void;
+    isLoadingMore?: boolean;
 }
 
 /** AI 智能判研指标 Props */

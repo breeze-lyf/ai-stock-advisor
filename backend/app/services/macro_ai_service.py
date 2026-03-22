@@ -72,7 +72,7 @@ class MacroAIService:
         ai_response = await AIService.call_siliconflow(
             prompt=prompt,
             api_key=final_api_key,
-            model="deepseek-v3",
+            model=settings.DEFAULT_AI_MODEL,
             db=db,
         )
         
@@ -120,7 +120,7 @@ class MacroAIService:
 
         ai_response = await AIService.call_siliconflow(
             prompt=prompt,
-            model="deepseek-v3",
+            model=settings.DEFAULT_AI_MODEL,
             api_key=settings.SILICONFLOW_API_KEY,
             db=db,
         )

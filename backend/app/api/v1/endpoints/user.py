@@ -3,8 +3,10 @@ import json
 import re
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_user
+from app.core.config import settings as core_settings
 from app.core.database import get_db
 from app.infrastructure.db.repositories.ai_model_repository import AIModelRepository
 from app.infrastructure.db.repositories.provider_config_repository import ProviderConfigRepository
@@ -18,6 +20,7 @@ from app.schemas.user_settings import (
     AIModelConfigResponse,
     PasswordChange,
     ProviderConfigResponse,
+    TavilyTestRequest,
     TestConnectionRequest,
     TestConnectionResponse,
     UserProviderCredentialResponse,
@@ -65,10 +68,11 @@ def serialize_user_profile(current_user: User, provider_credentials: dict[str, U
         provider_credentials=provider_credentials,
         fallback_enabled=current_user.fallback_enabled if current_user.fallback_enabled is not None else True,
         preferred_data_source=current_user.preferred_data_source or "AKSHARE",
-        preferred_ai_model=current_user.preferred_ai_model or "deepseek-v3",
+        preferred_ai_model=current_user.preferred_ai_model or core_settings.DEFAULT_AI_MODEL,
         timezone=current_user.timezone or "Asia/Shanghai",
         theme=current_user.theme or "light",
         feishu_webhook_url=current_user.feishu_webhook_url,
+        notifications_enabled=current_user.notifications_enabled if current_user.notifications_enabled is not None else True,
         enable_price_alerts=current_user.enable_price_alerts if current_user.enable_price_alerts is not None else True,
         enable_hourly_summary=current_user.enable_hourly_summary if current_user.enable_hourly_summary is not None else True,
         enable_daily_report=current_user.enable_daily_report if current_user.enable_daily_report is not None else True,
@@ -167,6 +171,9 @@ async def update_user_settings(
     if settings.feishu_webhook_url is not None:
         current_user.feishu_webhook_url = settings.feishu_webhook_url
     
+    if settings.notifications_enabled is not None:
+        current_user.notifications_enabled = settings.notifications_enabled
+    
     if settings.enable_price_alerts is not None:
         current_user.enable_price_alerts = settings.enable_price_alerts
 
@@ -243,6 +250,34 @@ async def test_ai_connection(
         return TestConnectionResponse(status="error", message=message)
 
     return TestConnectionResponse(status="success", message="Connection successful")
+
+
+@router.post("/test-tavily", response_model=TestConnectionResponse)
+async def test_tavily_connection(
+    request: TavilyTestRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    from app.services.market_providers.tavily import TavilyProvider
+
+    api_key = request.api_key.strip() if request.api_key and request.api_key.strip() else None
+    if not api_key:
+        credential_repo = UserProviderCredentialRepository(db)
+        credential = await credential_repo.get_by_user_and_provider(current_user.id, "tavily")
+        if credential and credential.encrypted_api_key and credential.is_enabled:
+            api_key = security.decrypt_api_key(credential.encrypted_api_key)
+
+    if not api_key:
+        return TestConnectionResponse(status="error", message="No Tavily API Key found")
+
+    try:
+        provider = TavilyProvider(api_key=api_key)
+        news = await provider.get_news("AAPL")
+        if isinstance(news, list):
+            return TestConnectionResponse(status="success", message=f"Tavily connection successful (items={len(news)})")
+        return TestConnectionResponse(status="error", message="Tavily returned unexpected response")
+    except Exception as exc:
+        return TestConnectionResponse(status="error", message=f"Tavily connection failed: {exc}")
 
 
 @router.get("/ai-models", response_model=list[AIModelConfigResponse])
@@ -370,7 +405,7 @@ async def delete_ai_model(
     await repo.deactivate(config)
 
     if current_user.preferred_ai_model == normalized_key:
-        current_user.preferred_ai_model = "deepseek-v3"
+        current_user.preferred_ai_model = core_settings.DEFAULT_AI_MODEL
         user_repo = UserRepository(db)
         await user_repo.save(current_user)
 

@@ -71,9 +71,11 @@ export type UserProviderCredentialResponse = {
     is_enabled: boolean;
 };
 export type UserProfile = components["schemas"]["UserProfile"] & {
+    notifications_enabled?: boolean;
     provider_credentials?: Record<string, UserProviderCredentialResponse> | null;
 };
 export type UserSettingsUpdate = components["schemas"]["UserSettingsUpdate"] & {
+    notifications_enabled?: boolean;
     provider_credentials?: Record<string, UserProviderCredentialInput> | null;
 };
 export type PasswordChange = components["schemas"]["PasswordChange"];

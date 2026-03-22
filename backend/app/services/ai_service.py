@@ -1,9 +1,13 @@
 # 设置代理环境变量（解决 Python 3.14 + httpx 兼容性问题）
 import os
 from app.core.config import settings
+import inspect
 if settings.HTTP_PROXY:
     os.environ.setdefault("HTTP_PROXY", settings.HTTP_PROXY)
     os.environ.setdefault("HTTPS_PROXY", settings.HTTP_PROXY)
+if settings.NO_PROXY:
+    os.environ.setdefault("NO_PROXY", settings.NO_PROXY)
+    os.environ.setdefault("no_proxy", settings.NO_PROXY)
 
 from app.core import security
 from app.core.prompts import build_stock_analysis_prompt, build_portfolio_analysis_prompt
@@ -23,6 +27,42 @@ from app.models.user_ai_model import UserAIModel
 from app.models.user_provider_credential import UserProviderCredential
 from app.schemas.ai_config import AIModelRuntimeConfig, ProviderRuntimeConfig
 
+
+def _patch_httpx_asyncclient_compat_local() -> None:
+    """
+    在 AIService 模块加载时即打补丁，避免依赖 FastAPI startup 时机。
+    """
+    async_client_cls = httpx.AsyncClient
+    if getattr(async_client_cls, "_compat_init_patched", False):
+        return
+
+    original_init = async_client_cls.__init__
+    accepts_proxies = "proxies" in inspect.signature(original_init).parameters
+
+    def _compat_init(self, *args, **kwargs):
+        if "proxies" in kwargs and "proxy" not in kwargs and not accepts_proxies:
+            raw_proxies = kwargs.pop("proxies")
+            if isinstance(raw_proxies, dict):
+                proxy_val = (
+                    raw_proxies.get("https://")
+                    or raw_proxies.get("http://")
+                    or raw_proxies.get("https")
+                    or raw_proxies.get("http")
+                )
+            else:
+                proxy_val = raw_proxies
+            kwargs["proxy"] = proxy_val
+        limits = kwargs.get("limits")
+        original_init(self, *args, **kwargs)
+        if not hasattr(self, "_limits"):
+            self._limits = limits
+
+    async_client_cls.__init__ = _compat_init  # type: ignore[method-assign]
+    async_client_cls._compat_init_patched = True  # type: ignore[attr-defined]
+
+
+_patch_httpx_asyncclient_compat_local()
+
 # 配置日志
 logger = logging.getLogger(__name__)
 # AI 调用専用 logger：所有 prompt 和计时数据写入 ai_calls.log
@@ -33,6 +73,13 @@ class AIService:
     CACHE_TTL = 300  # 缓存 5 分钟
     _provider_cache = [] # 缓存供应商列表
     _provider_cache_time = 0
+
+    @staticmethod
+    def _format_exception(e: Exception) -> str:
+        msg = str(e).strip()
+        if msg:
+            return msg
+        return e.__class__.__name__
 
     @staticmethod
     def _normalize_user_model_base_url(raw_base_url: str | None) -> str:
@@ -228,10 +275,9 @@ class AIService:
         logger.info(f"[AI] 调用 {provider_key}/{model_id} (prompt {len(prompt)}字符)")
 
         base_url = custom_url or provider_config.base_url
-        # AI 推理模型（如 DeepSeek-R1）响应时间长，最低保证 300s 超时
-        # 取数据库配置值和 300s 的最大值，防止数据库被误改小导致提前超时
-        _db_timeout = provider_config.timeout_seconds or 300
-        timeout = max(_db_timeout, 300)
+        # 以数据库配置为准，设置最小 30s，避免误配到过小值导致频繁超时
+        _db_timeout = provider_config.timeout_seconds or 120
+        timeout = max(_db_timeout, 30)
 
         # OpenAI 兼容接口
         url = f"{base_url.rstrip('/')}/chat/completions"
@@ -273,7 +319,7 @@ class AIService:
         except httpx.TimeoutException as e:
             elapsed = time.monotonic() - call_start
             ai_call_logger.error(
-                f"[TIMEOUT] {provider_key}: {e}",
+                f"[TIMEOUT] {provider_key}: {AIService._format_exception(e)}",
                 extra={"provider": provider_key, "phase": "timeout", "total_s": round(elapsed, 3)}
             )
             logger.warning(f"[AI] 请求超时 ({provider_key}, {elapsed:.1f}s)")
@@ -306,7 +352,9 @@ class AIService:
             logger.warning(f"[AI] {provider_key} 返回 {response.status_code} ({elapsed:.1f}s)")
             if response.status_code in [401, 402]:
                 raise ValueError(f"Auth Error: {response.status_code}")
-            raise
+            raise RuntimeError(
+                f"{provider_key} HTTP {response.status_code}: {(error_text or '').strip()[:300]}"
+            )
 
         result = response.json()
         content = result["choices"][0]["message"]["content"]
@@ -328,12 +376,22 @@ class AIService:
         cls,
         prompt: str,
         api_key: str,
-        model: str = "deepseek-v3",
+        model: Optional[str] = None,
         db: Optional[AsyncSession] = None,
         base_url: Optional[str] = None,
     ) -> str:
         """兼容现有宏观服务调用的 SiliconFlow 快捷入口。"""
-        model_config = await cls.get_model_config(model, db)
+        target_model = model
+        if not target_model:
+            # 避免 DEFAULT_AI_MODEL 指向其他供应商（如 dashscope）导致向 siliconflow 发送不存在的模型 ID
+            target_model = await cls.get_default_model_for_provider("siliconflow", db)
+
+        model_config = await cls.get_model_config(target_model, db)
+        if model_config.provider != "siliconflow":
+            model_id = await cls.get_default_model_for_provider("siliconflow", db)
+        else:
+            model_id = model_config.model_id
+
         provider_config = ProviderRuntimeConfig(
             provider_key="siliconflow",
             base_url=base_url or "https://api.siliconflow.cn/v1",
@@ -341,7 +399,7 @@ class AIService:
         )
         return await cls.call_provider(
             provider_config,
-            model_config.model_id,
+            model_id,
             prompt,
             api_key,
             base_url,
@@ -446,49 +504,54 @@ class AIService:
         if not cls._provider_cache:
             return f"**Error**: AI 服务暂时不可用 (没有可用的 AI 供应商)"
 
-        # 2. 确定目标供应商
-        provider = next((p for p in cls._provider_cache if p['provider_key'] == model_config.provider), None)
-        
-        if not provider:
-            # 如果没找到匹配的供应商，尝试列表中的第一个（通常是 SiliconFlow）
-            if cls._provider_cache:
-                provider = cls._provider_cache[0]
-            else:
-                return f"**Error**: AI 服务暂时不可用 (没有找到匹配供应商 {model_config.provider})"
+        preferred_key = model_config.provider
+        ordered_providers = sorted(
+            cls._provider_cache,
+            key=lambda p: (0 if p["provider_key"] == preferred_key else 1),
+        )
+        provider_errors: List[str] = []
+        attempted = 0
 
-        try:
-            # 解析 API Key & Custom URL
-            api_key, custom_url = await cls._resolve_api_key(provider['provider_key'], user, db)
-            
-            if not api_key:
-                return f"**Error**: 供应商 {provider['provider_key']} 缺少 API Key"
-            
-            current_model_id = (
-                model_config.model_id
-                if provider['provider_key'] == model_config.provider
-                else await cls.get_default_model_for_provider(provider['provider_key'], db)
-            )
+        for provider in ordered_providers:
+            provider_key = provider["provider_key"]
+            try:
+                api_key, custom_url = await cls._resolve_api_key(provider_key, user, db)
+                if not api_key:
+                    provider_errors.append(f"{provider_key}: 缺少 API Key")
+                    continue
 
-            logger.info(f"使用供应商 {provider['provider_key']} (Model: {current_model_id}) URL: {custom_url or 'default'}")
-            
-            # 使用 Pydantic 模型传递配置
-            provider_config = ProviderRuntimeConfig(
-                provider_key=provider['provider_key'],
-                base_url=custom_url or provider['base_url'],
-                timeout_seconds=provider.get('timeout_seconds', 300),
-            )
-            
-            return await cls.call_provider(provider_config, current_model_id, prompt, api_key, custom_url)
+                current_model_id = (
+                    model_config.model_id
+                    if provider_key == preferred_key
+                    else await cls.get_default_model_for_provider(provider_key, db)
+                )
+                logger.info(f"使用供应商 {provider_key} (Model: {current_model_id}) URL: {custom_url or 'default'}")
 
-        except Exception as e:
-            logger.error(f"供应商 {provider['provider_key']} 调用失败: {e}")
-            return f"**Error**: AI 调用失败 ({provider['provider_key']})。错误: {e}"
+                provider_config = ProviderRuntimeConfig(
+                    provider_key=provider_key,
+                    base_url=custom_url or provider["base_url"],
+                    timeout_seconds=provider.get("timeout_seconds", 120),
+                )
+                attempted += 1
+                return await cls.call_provider(provider_config, current_model_id, prompt, api_key, custom_url)
+            except Exception as e:
+                err = cls._format_exception(e)
+                provider_errors.append(f"{provider_key}: {err}")
+                logger.error(f"供应商 {provider_key} 调用失败: {err}")
+                continue
+
+        if attempted == 0:
+            return f"**Error**: AI 服务暂时不可用 (没有可用的供应商凭据)。详情: {' | '.join(provider_errors[:3])}"
+
+        last_error = provider_errors[-1] if provider_errors else "unknown"
+        return f"**Error**: AI 服务暂时不可用 (尝试了 {attempted} 个供应商)。最后错误: {last_error}"
 
     @classmethod
     async def generate_analysis(cls, ticker: str, market_data: dict, news_data: list = None, 
                                 macro_context: str = None, fundamental_data: dict = None, previous_analysis: dict = None, 
-                                model: str = "deepseek-v3", db: AsyncSession = None, user_id: str = None) -> str:
+                                model: Optional[str] = None, db: AsyncSession = None, user_id: str = None) -> str:
         """主方法：生成个股深度诊断"""
+        model_key = model or settings.DEFAULT_AI_MODEL
         
         user = None
         if user_id and db:
@@ -509,26 +572,27 @@ class AIService:
         )
 
         if user and db:
-            user_model = await cls.get_user_ai_model(model, user.id, db)
+            user_model = await cls.get_user_ai_model(model_key, user.id, db)
             if user_model:
                 try:
                     return await cls.call_user_ai_model(user_model, prompt)
                 except Exception as e:
-                    logger.warning(f"用户自定义模型 {model} 调用失败: {e}")
+                    logger.warning(f"用户自定义模型 {model_key} 调用失败: {e}")
                     if not user:
                         return f"**Error**: AI 调用失败。错误: {e}"
                     # 即使失败也不再回滚
-                    return f"**Error**: 用户自定义模型 {model} 调用失败。错误: {e}"
+                    return f"**Error**: 用户自定义模型 {model_key} 调用失败。错误: {e}"
 
-        model_config = await cls.get_model_config(model, db)
+        model_config = await cls.get_model_config(model_key, db)
         return await cls._dispatch_with_fallback(prompt, model_config, user, db)
 
     @classmethod
     async def generate_portfolio_analysis(cls, portfolio_items: list, market_news: str = None, macro_context: str = None, 
-                                          model: str = "deepseek-v3", db: AsyncSession = None, user_id: str = None) -> str:
+                                          model: Optional[str] = None, db: AsyncSession = None, user_id: str = None) -> str:
         """生成全量持仓健康诊断报告"""
         if not portfolio_items:
             return json.dumps({"error": "暂无持仓数据"})
+        model_key = model or settings.DEFAULT_AI_MODEL
 
         user = None
         if user_id and db:
@@ -539,15 +603,15 @@ class AIService:
         prompt = build_portfolio_analysis_prompt(portfolio_items, market_news, macro_context)
 
         if user and db:
-            user_model = await cls.get_user_ai_model(model, user.id, db)
+            user_model = await cls.get_user_ai_model(model_key, user.id, db)
             if user_model:
                 try:
                     return await cls.call_user_ai_model(user_model, prompt)
                 except Exception as e:
-                    logger.warning(f"用户自定义组合模型 {model} 调用失败: {e}")
+                    logger.warning(f"用户自定义组合模型 {model_key} 调用失败: {e}")
                     return json.dumps({"error": f"AI 服务暂时不可用: {e}"})
 
-        model_config = await cls.get_model_config(model, db)
+        model_config = await cls.get_model_config(model_key, db)
         return await cls._dispatch_with_fallback(prompt, model_config, user, db)
 
 

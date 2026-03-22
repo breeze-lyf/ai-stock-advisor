@@ -20,6 +20,7 @@ class ProviderQuote(BaseModel):
     additional_data: Dict[str, Any] = Field(default_factory=dict)
 
 class ProviderFundamental(BaseModel):
+    name: Optional[str] = None
     sector: Optional[str] = None
     industry: Optional[str] = None
     market_cap: Optional[float] = None

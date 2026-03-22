@@ -16,6 +16,7 @@ import { Zap } from "lucide-react";
 import { useDashboardStockDetailData } from "@/features/dashboard/hooks/useDashboardStockDetailData";
 import { PortfolioItem } from "@/types";
 import { refreshStock } from "@/features/portfolio/api";
+import { fetchStockHistory } from "@/features/market/api";
 import type { AIData } from "./stock-detail/types";
 
 // --- L2 板块子组件导入 ---
@@ -57,6 +58,41 @@ export function StockDetail({
         selectedItem?.ticker || null,
         refreshTimestamp
     );
+
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [mergedHistoryData, setMergedHistoryData] = useState<any[]>([]);
+
+    // Sync merged history with initial history data
+    useEffect(() => {
+        if (historyData) {
+            setMergedHistoryData(historyData);
+        }
+    }, [historyData]);
+
+    const handleLoadMore = async (earliestTime: string) => {
+        if (!selectedItem || isLoadingMore) return;
+        
+        setIsLoadingMore(true);
+        try {
+            // Fetch 1 year more data ending at the current earliest time
+            const moreData = await fetchStockHistory(selectedItem.ticker, "1y", earliestTime);
+            
+            if (Array.isArray(moreData) && moreData.length > 0) {
+                // Filter out any overlap (the data provider might return includes the end_date)
+                const newItems = moreData.filter(
+                    (item: any) => !mergedHistoryData.some((existing: any) => existing.time === item.time)
+                );
+                
+                if (newItems.length > 0) {
+                    setMergedHistoryData(prev => [...newItems, ...prev]);
+                }
+            }
+        } catch (err) {
+            console.error("Failed to load more history:", err);
+        } finally {
+            setIsLoadingMore(false);
+        }
+    };
 
     // 图层切换开关
     const [showBb, setShowBb] = useState(true);
@@ -143,7 +179,7 @@ export function StockDetail({
 
             {/* 板块 1: 动态行情分析 */}
             <MarketAnalysis
-                historyData={historyData}
+                historyData={mergedHistoryData}
                 ticker={selectedItem.ticker}
                 showBb={showBb}
                 showRsi={showRsi}
@@ -151,6 +187,8 @@ export function StockDetail({
                 onToggleBb={() => setShowBb(!showBb)}
                 onToggleRsi={() => setShowRsi(!showRsi)}
                 onToggleMacd={() => setShowMacd(!showMacd)}
+                onLoadMore={handleLoadMore}
+                isLoadingMore={isLoadingMore}
             />
 
             {/* 板块 2: AI 智能判研指标 */}

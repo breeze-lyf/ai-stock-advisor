@@ -15,8 +15,10 @@ import {
   Plus,
   RefreshCcw,
   Save,
+  Search,
   Settings2,
   Shield,
+  Smartphone,
   Sparkles,
   Sun,
 } from "lucide-react";
@@ -34,6 +36,7 @@ import {
   getProfile,
   listAIModels,
   testAIConnection,
+  testTavilyConnection,
   updateSettings,
   type AIModelConfigItem,
   type CreateAIModelConfigInput,
@@ -101,7 +104,10 @@ export default function SettingsPage() {
 
   const [feishuUrl, setFeishuUrl] = useState("");
   const [tavilyApiKey, setTavilyApiKey] = useState("");
+  const [tavilyEnabled, setTavilyEnabled] = useState(true);
   const [hasSavedTavilyKey, setHasSavedTavilyKey] = useState(false);
+  const [testingTavily, setTestingTavily] = useState(false);
+  const [tavilyTestMessage, setTavilyTestMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
   const [passwordForm, setPasswordForm] = useState({
     old_password: "",
     new_password: "",
@@ -117,6 +123,7 @@ export default function SettingsPage() {
     setFeishuUrl(authUser.feishu_webhook_url || "");
     const tavilyCredential = authUser.provider_credentials?.tavily;
     setHasSavedTavilyKey(Boolean(tavilyCredential?.has_key));
+    setTavilyEnabled(tavilyCredential?.is_enabled ?? true);
     setTavilyApiKey("");
     if (authUser.theme && currentTheme !== authUser.theme) setTheme(authUser.theme);
   }, [authUser, currentTheme, setTheme]);
@@ -138,6 +145,7 @@ export default function SettingsPage() {
       setFeishuUrl(data.feishu_webhook_url || "");
       const tavilyCredential = data.provider_credentials?.tavily;
       setHasSavedTavilyKey(Boolean(tavilyCredential?.has_key));
+      setTavilyEnabled(tavilyCredential?.is_enabled ?? true);
       setTavilyApiKey("");
       if (data.theme && currentTheme !== data.theme) setTheme(data.theme);
     } catch (error) {
@@ -399,28 +407,62 @@ export default function SettingsPage() {
     }
   };
 
-  const handleSaveTavilyCredential = async () => {
+  const handleSaveTavilyCredential = async (withApiKey: boolean = true) => {
     setSaving(true);
     setMessage(null);
+    setTavilyTestMessage(null);
     try {
+      const tavilyPayload: { api_key?: string; is_enabled: boolean } = {
+        is_enabled: tavilyEnabled,
+      };
+      if (withApiKey) {
+        tavilyPayload.api_key = tavilyApiKey.trim();
+      }
       await updateSettings({
         provider_credentials: {
-          tavily: {
-            api_key: tavilyApiKey.trim(),
-            is_enabled: true,
-          },
+          tavily: tavilyPayload,
         },
       });
       await loadProfile();
       setMessage({
-        text: tavilyApiKey.trim() ? "Tavily API Key 已保存。" : "Tavily API Key 已清空。",
+        text: withApiKey
+          ? (tavilyApiKey.trim() ? "Tavily 配置已保存。" : "Tavily API Key 已清空，开关状态已更新。")
+          : "Tavily 开关状态已保存。",
         type: "success",
       });
     } catch (error) {
       console.error("Failed to save Tavily API key", error);
-      setMessage({ text: "保存 Tavily API Key 失败。", type: "error" });
+      setMessage({ text: "保存 Tavily 配置失败。", type: "error" });
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleTestTavily = async () => {
+    setTestingTavily(true);
+    setTavilyTestMessage(null);
+    try {
+      const result = await testTavilyConnection({
+        api_key: tavilyApiKey.trim() || undefined,
+      });
+      setTavilyTestMessage({
+        text: result.message,
+        type: result.status === "success" ? "success" : "error",
+      });
+    } catch (error: unknown) {
+      const errorMessage =
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        typeof (error as { response?: { data?: { detail?: string } } }).response?.data?.detail === "string"
+          ? (error as { response?: { data?: { detail?: string } } }).response?.data?.detail
+          : "Tavily 测试失败。";
+      setTavilyTestMessage({
+        text: errorMessage || "Tavily 测试失败。",
+        type: "error",
+      });
+    } finally {
+      setTestingTavily(false);
     }
   };
 
@@ -512,43 +554,6 @@ export default function SettingsPage() {
 
   const renderAiSection = () => (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-slate-200 px-5 py-5 dark:border-slate-800">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Tavily 搜索 API</h3>
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              用于全球宏观与新闻检索。留空并保存可清空已保存密钥。
-            </p>
-          </div>
-          <span
-            className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
-              hasSavedTavilyKey
-                ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                : "border-slate-200 text-slate-500 dark:border-slate-700 dark:text-slate-400"
-            }`}
-          >
-            {hasSavedTavilyKey ? "已保存密钥" : "未保存密钥"}
-          </span>
-        </div>
-        <div className="mt-4 flex flex-col gap-3 md:flex-row">
-          <Input
-            type="password"
-            placeholder={hasSavedTavilyKey ? "已保存，输入新值可覆盖" : "输入 Tavily API Key"}
-            value={tavilyApiKey}
-            onChange={(e) => setTavilyApiKey(e.target.value)}
-          />
-          <Button
-            variant="outline"
-            onClick={handleSaveTavilyCredential}
-            disabled={saving}
-            className="md:min-w-[132px]"
-          >
-            <Save className="mr-2 h-4 w-4" />
-            保存密钥
-          </Button>
-        </div>
-      </div>
-
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">我的模型</h3>
@@ -581,7 +586,7 @@ export default function SettingsPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="model-id">模型名称标识</Label>
-                <Input id="model-id" placeholder="例如：deepseek-v3 / deepseek-r1 / qwen-max" value={customModel.model_id} onChange={(e) => setCustomModel((prev) => ({ ...prev, model_id: e.target.value }))} />
+                <Input id="model-id" placeholder="例如：qwen3.5-plus / deepseek-r1 / gpt-4o-mini" value={customModel.model_id} onChange={(e) => setCustomModel((prev) => ({ ...prev, model_id: e.target.value }))} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="model-base-url">Base URL</Label>
@@ -706,6 +711,21 @@ export default function SettingsPage() {
         </Button>
       </div>
 
+      <div className="space-y-4">
+        <div className="flex items-center justify-between rounded-2xl border border-slate-900/5 bg-slate-50 p-6 dark:border-white/5 dark:bg-white/5">
+          <div>
+            <div className="text-base font-semibold text-slate-900 dark:text-slate-100">全局通知开关</div>
+            <div className="mt-1 text-sm text-slate-500 dark:text-slate-400">开启或关闭系统所有自动推送（如价格预警、每日报告等）。</div>
+          </div>
+          <Switch
+            checked={Boolean(profile?.notifications_enabled ?? authUser?.notifications_enabled ?? true)}
+            disabled={saving}
+            onCheckedChange={(checked) => handleToggleSwitch("notifications_enabled", checked)}
+            className="data-[state=checked]:bg-emerald-500"
+          />
+        </div>
+      </div>
+
       <div className="border-t border-slate-200 pt-6 dark:border-slate-800">
         <div className="space-y-3">
           {[
@@ -721,7 +741,7 @@ export default function SettingsPage() {
               </div>
               <Switch
                 checked={Boolean(profile?.[item.key] ?? authUser?.[item.key])}
-                disabled={saving}
+                disabled={saving || !Boolean(profile?.notifications_enabled ?? authUser?.notifications_enabled ?? true)}
                 onCheckedChange={(checked) => handleToggleSwitch(item.key, checked)}
               />
             </div>
@@ -768,6 +788,83 @@ export default function SettingsPage() {
 
   const renderDataSection = () => (
     <div className="space-y-8">
+      <div className="rounded-2xl border border-slate-200 px-5 py-5 dark:border-slate-800">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Tavily 搜索 API</h3>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              用于全球宏观与新闻检索。支持独立开关、连接测试与密钥更新。
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span
+              className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
+                hasSavedTavilyKey
+                  ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                  : "border-slate-200 text-slate-500 dark:border-slate-700 dark:text-slate-400"
+              }`}
+            >
+              {hasSavedTavilyKey ? "已保存密钥" : "未保存密钥"}
+            </span>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="tavily-enabled" className="text-xs text-slate-500 dark:text-slate-400">启用</Label>
+              <Switch
+                id="tavily-enabled"
+                checked={tavilyEnabled}
+                disabled={saving}
+                onCheckedChange={(checked) => setTavilyEnabled(checked)}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 flex flex-col gap-3 md:flex-row">
+          <Input
+            type="password"
+            placeholder={hasSavedTavilyKey ? "已保存，输入新值可覆盖" : "输入 Tavily API Key"}
+            value={tavilyApiKey}
+            onChange={(e) => setTavilyApiKey(e.target.value)}
+          />
+          <Button
+            variant="outline"
+            onClick={() => handleSaveTavilyCredential(true)}
+            disabled={saving}
+            className="md:min-w-[132px]"
+          >
+            <Save className="mr-2 h-4 w-4" />
+            保存配置
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleTestTavily}
+            disabled={testingTavily}
+            className="md:min-w-[132px]"
+          >
+            {testingTavily ? "测试中..." : "测试连接"}
+          </Button>
+        </div>
+        {tavilyTestMessage && (
+          <div
+            className={`mt-3 rounded-xl border px-4 py-3 text-sm ${
+              tavilyTestMessage.type === "success"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300"
+                : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300"
+            }`}
+          >
+            {tavilyTestMessage.text}
+          </div>
+        )}
+        <div className="mt-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleSaveTavilyCredential(false)}
+            disabled={saving}
+          >
+            仅保存开关状态
+          </Button>
+        </div>
+      </div>
+
       <div className="grid gap-4 md:grid-cols-3">
         <div className="border-r border-slate-200 pr-4 dark:border-slate-800">
           <div className="text-xs uppercase tracking-[0.2em] text-slate-500">我的模型</div>

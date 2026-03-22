@@ -39,11 +39,24 @@ class NotificationService:
         """
         发送飞书富文本卡片消息，包含 24 小时去重逻辑
         """
-        # --- 1. 24 小时去重检查 (带异常保护) ---
         from app.core.database import SessionLocal
+        from app.models.user import User
         from app.models.notification import NotificationLog
         from sqlalchemy.future import select
         from datetime import datetime, timedelta
+
+        # --- 1. 总开关校验 (仅当提供了 user_id 时) ---
+        if user_id:
+            try:
+                async with SessionLocal() as db:
+                    user = await db.get(User, user_id)
+                    if user and not getattr(user, "notifications_enabled", True):
+                        logger.info(f"Notification master switch is OFF for user {user_id}. Terminating.")
+                        return False
+            except Exception as e:
+                logger.warning(f"Master notification switch check failed: {e}. Proceeding.")
+
+        # --- 2. 24 小时去重检查 (带异常保护) ---
 
         try:
             async with SessionLocal() as db:

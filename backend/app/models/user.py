@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship
 import uuid
 from datetime import datetime
 from app.core.database import Base
+from app.core.config import settings
 import enum
 
 # 定义用户特权等级 (用枚举确保数据一致性)
@@ -13,8 +14,8 @@ class MembershipTier(str, enum.Enum):
 
 # 数据源选项 (用户偏好设置)
 class MarketDataSource(str, enum.Enum):
-    ALPHA_VANTAGE = "ALPHA_VANTAGE"
-    YFINANCE = "YFINANCE"
+    AKSHARE = "AKSHARE"
+    IBKR = "IBKR"
 
 # AI 模型选项 (用户可以在个人设置中切换默认模型)
 class AIModel(str, enum.Enum):
@@ -51,8 +52,8 @@ class User(Base):
     api_key_siliconflow = Column(String, nullable=True) 
     
     # 偏好设置：用户可以自定义使用哪里的行情，以及默认喜欢哪个分析师(AI模型)。
-    preferred_data_source = Column(String, default=MarketDataSource.ALPHA_VANTAGE.value) 
-    preferred_ai_model = Column(String, default=AIModel.DEEPSEEK_V3.value)
+    preferred_data_source = Column(String, default=MarketDataSource.AKSHARE.value) 
+    preferred_ai_model = Column(String, default=settings.DEFAULT_AI_MODEL)
     timezone = Column(String, default="Asia/Shanghai")
     theme = Column(String, default="light")
     feishu_webhook_url = Column(String, nullable=True) 
@@ -64,6 +65,7 @@ class User(Base):
     fallback_enabled = Column(Boolean, default=True)
     
     # --- 通知精细化控制开关 (Notification Switches) ---
+    notifications_enabled = Column(Boolean, default=True) # 总通知开关 (Master Switch)
     enable_price_alerts = Column(Boolean, default=True)   # 价格/风险预警 (Price/Risk Alerts)
     enable_hourly_summary = Column(Boolean, default=True) # 持仓整点摘要 (Hourly AI Summary)
     enable_daily_report = Column(Boolean, default=True)   # 每日持仓报告 (Daily Deep Report)

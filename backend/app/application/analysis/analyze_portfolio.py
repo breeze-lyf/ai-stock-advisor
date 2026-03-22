@@ -6,6 +6,7 @@ from typing import Any
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.security import sanitize_float
 from app.application.portfolio.query_portfolio import GetPortfolioSummaryUseCase
 from app.infrastructure.db.repositories.portfolio_repository import PortfolioRepository
@@ -34,7 +35,7 @@ class AnalyzePortfolioUseCase:
         holdings_data = self._build_holdings_data(summary.holdings)
         market_news_context = await self._build_market_news_context(summary.holdings)
         macro_context = await self._build_macro_context()
-        preferred_model = self.current_user.preferred_ai_model or "deepseek-v3"
+        preferred_model = self.current_user.preferred_ai_model or settings.DEFAULT_AI_MODEL
 
         ai_raw_response = await AIService.generate_portfolio_analysis(
             portfolio_items=holdings_data,

@@ -11,6 +11,20 @@ import { StockNewsList } from "../StockNewsList";
 import { NewsFeedProps, AIData } from "./types";
 import { ReferenceCitation } from "./shared";
 
+function toStockNewsItems(news: NewsFeedProps["news"]) {
+    return news.map((item, index) => ({
+        id: typeof item.id === "string" ? item.id : `${item.url || item.title || "news"}-${index}`,
+        title: item.title || "Untitled",
+        publisher: typeof item.publisher === "string" ? item.publisher : (typeof item.source === "string" ? item.source : "Unknown"),
+        link: typeof item.link === "string" ? item.link : (typeof item.url === "string" ? item.url : "#"),
+        publish_time:
+            typeof item.publish_time === "string"
+                ? item.publish_time
+                : (typeof item.published_at === "string" ? item.published_at : new Date().toISOString()),
+        summary: typeof item.summary === "string" ? item.summary : undefined,
+    }));
+}
+
 export const NewsFeed = React.memo(function NewsFeed({ news, aiData }: NewsFeedProps & { aiData?: AIData | null }) {
     return (
         <div className="space-y-8 pt-4">
@@ -40,37 +54,37 @@ export const NewsFeed = React.memo(function NewsFeed({ news, aiData }: NewsFeedP
                                 <div className="text-[12px] leading-snug text-slate-600 dark:text-zinc-400">
                                     <ReactMarkdown
                                         components={{
-                                            h3: ({ node, ...props }) => (
+                                            h3: ({ ...props }) => (
                                                 <h3 className="font-bold text-blue-600 dark:text-blue-400 mt-4 mb-2 first:mt-0 text-sm block">
                                                     {props.children}
                                                 </h3>
                                             ),
-                                            h4: ({ node, ...props }) => (
+                                            h4: ({ ...props }) => (
                                                 <h4 className="font-bold text-blue-600 dark:text-blue-400 mt-3 mb-1 first:mt-0 text-sm block">
                                                     {props.children}
                                                 </h4>
                                             ),
-                                            strong: ({ node, ...props }) => (
+                                            strong: ({ ...props }) => (
                                                 <strong className="font-bold text-blue-600 dark:text-blue-400">
                                                     {props.children}
                                                 </strong>
                                             ),
-                                            ul: ({ node, ...props }) => (
+                                            ul: ({ ...props }) => (
                                                 <ul className="list-disc pl-4 mt-0 mb-4 space-y-2 last:mb-0 text-slate-600 dark:text-zinc-400 block w-full">
                                                     {props.children}
                                                 </ul>
                                             ),
-                                            ol: ({ node, ...props }) => (
+                                            ol: ({ ...props }) => (
                                                 <ol className="list-decimal pl-4 mt-0 mb-4 space-y-2 last:mb-0 text-slate-600 dark:text-zinc-400 block w-full">
                                                     {props.children}
                                                 </ol>
                                             ),
-                                            li: ({ node, ...props }) => (
+                                            li: ({ ...props }) => (
                                                 <li className="m-0 p-0">
                                                     {props.children}
                                                 </li>
                                             ),
-                                            p: ({ node, ...props }) => {
+                                            p: ({ ...props }) => {
                                                 const children = React.Children.toArray(props.children);
                                                 const processed = children.flatMap((child) => {
                                                     if (typeof child !== 'string') return child;
@@ -101,7 +115,7 @@ export const NewsFeed = React.memo(function NewsFeed({ news, aiData }: NewsFeedP
 
             {/* 内容区：缩进 */}
             <div className="px-4 md:px-10">
-                <StockNewsList news={news} />
+                <StockNewsList news={toStockNewsItems(news)} />
             </div>
         </div>
     );

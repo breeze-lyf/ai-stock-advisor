@@ -150,8 +150,10 @@ function splitScenario(value?: string) {
 function AIVerdictContent({
     selectedItem,
     aiData,
-    analysisHistory,
-    currency,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    analysisHistory: _analysisHistory,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    currency: _currency,
     sanitizePrice
 }: {
     selectedItem: AIVerdictProps["selectedItem"];
@@ -209,7 +211,8 @@ function AIVerdictContent({
     if (current > axisMax) axisMax = current + buffer;
 
     const totalRange = axisMax - axisMin;
-    const getPos = (val: number) => ((val - axisMin) / totalRange) * 100;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _getPos = (val: number) => ((val - axisMin) / totalRange) * 100;
 
     const zones = [
         { name: (selectedItem?.quantity || 0) > 0 ? "止损" : "预设止损", start: axisMin, end: stop, color: "bg-rose-600", darkColor: "bg-rose-600/80", textColor: "text-rose-600 dark:text-rose-400", bgColor: "bg-rose-50 dark:bg-rose-600/10", borderColor: "border-rose-200 dark:border-rose-600/20" },
@@ -750,7 +753,7 @@ function TruthTracker({
     analysisHistory,
     selectedItem
 }: {
-    analysisHistory: any[];
+    analysisHistory: AIVerdictProps["analysisHistory"];
     selectedItem: AIVerdictProps["selectedItem"];
 }) {
     return (
@@ -782,14 +785,14 @@ function TruthTracker({
                             <div className="flex justify-between items-start mb-3">
                                 <div className="flex flex-col">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter" suppressHydrationWarning>
-                                        {format(new Date(report.created_at + (report.created_at.includes('Z') ? '' : 'Z')), "MMM dd, yyyy", { locale: zhCN })}
+                                        {report.created_at ? format(new Date(report.created_at + (report.created_at.includes('Z') ? '' : 'Z')), "MMM dd, yyyy", { locale: zhCN }) : "--"}
                                     </span>
                                     <span className={clsx(
                                         "text-xs font-black uppercase mt-1",
                                         report.immediate_action?.includes("买") ? "text-emerald-600" :
                                             report.immediate_action?.includes("卖") ? "text-rose-600" : "text-slate-500"
                                     )}>
-                                        {report.immediate_action}
+                                        {report.immediate_action || "--"}
                                     </span>
                                 </div>
                                 <div className="flex flex-col items-end">
@@ -812,10 +815,10 @@ function TruthTracker({
                                 </div>
                                 <div className="flex gap-1.5 overflow-hidden">
                                     <span className="text-[8px] font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded uppercase">
-                                        {report.risk_level || "中"}险
+                                        {String(report.risk_level || "中")}险
                                     </span>
                                     <span className="text-[8px] font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded uppercase">
-                                        {report.confidence_level || "70"}%信心
+                                        {String(report.confidence_level || "70")}%信心
                                     </span>
                                 </div>
                             </div>

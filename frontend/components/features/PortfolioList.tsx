@@ -15,11 +15,6 @@ import {
 } from "@/features/portfolio/api";
 import { refreshAllStocks } from "@/features/market/api";
 import { ArrowUpToLine, Plus, Pencil, Trash2, Filter, X, RefreshCw } from "lucide-react";
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 interface PortfolioListProps {
     portfolio: PortfolioItem[];
@@ -40,7 +35,6 @@ export function PortfolioList({
     onOpenSearch,
     onlyHoldings,
     onToggleOnlyHoldings,
-    fullView = false, // 默认为窄边栏模式
 }: PortfolioListProps) {
     const [editingTicker, setEditingTicker] = useState<string | null>(null);
     const [editForm, setEditForm] = useState({ quantity: "", cost: "" });
@@ -106,7 +100,7 @@ export function PortfolioList({
             await reorderPortfolio(newOrders);
             onRefresh();
             setSortBy("manual"); // 强制切换回手动排序视图
-        } catch (err) {
+        } catch {
             alert("排序更新失败");
         }
     };
@@ -120,7 +114,7 @@ export function PortfolioList({
             );
             onRefresh();
             setEditingTicker(null);
-        } catch (err) {
+        } catch {
             alert("更新失败");
         }
     };
@@ -132,9 +126,10 @@ export function PortfolioList({
             await deletePortfolioItem(ticker);
             // 只有当 API 真正返回成功（或至少没有抛错）时才执行
             onRefresh();
-        } catch (err: any) {
+        } catch (err: unknown) {
             // 如果是 404，说明已经删除了，不应该报错
-            if (err.response?.status !== 404) {
+            const axiosErr = err as { response?: { status?: number } };
+            if (axiosErr.response?.status !== 404) {
                 alert("删除失败");
             } else {
                 onRefresh();

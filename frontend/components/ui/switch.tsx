@@ -20,6 +20,7 @@ export function Switch({ checked = false, disabled = false, onCheckedChange, cla
       role="switch"
       aria-checked={checked}
       disabled={disabled}
+      {...props}
       onClick={() => {
         if (!disabled) onCheckedChange?.(!checked);
       }}

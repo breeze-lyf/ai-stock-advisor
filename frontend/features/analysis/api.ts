@@ -111,8 +111,9 @@ export async function getLatestAnalysis(ticker: string): Promise<AnalysisRespons
   try {
     const response = await api.get(`/api/v1/analysis/${ticker}`);
     return normalizeAnalysisResponse(response.data);
-  } catch (error: any) {
-    if (error.response?.status === 404) {
+  } catch (error: unknown) {
+    const axiosErr = error as { response?: { status?: number } };
+    if (axiosErr.response?.status === 404) {
       return null;
     }
     throw error;
@@ -133,8 +134,9 @@ export async function getLatestPortfolioAnalysis(): Promise<PortfolioAnalysisRes
   try {
     const response = await api.get("/api/v1/analysis/portfolio");
     return response.data;
-  } catch (error: any) {
-    if (error.response?.status === 404) {
+  } catch (error: unknown) {
+    const axiosErr = error as { response?: { status?: number } };
+    if (axiosErr.response?.status === 404) {
       return null;
     }
     throw error;

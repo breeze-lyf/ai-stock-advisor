@@ -62,8 +62,8 @@ export function SearchDialog({
             try {
                 // 等待刷新完成，确保后端同步落库
                 await refreshStock(ticker, false);
-            } catch (e: any) {
-                console.error("Initial deep refresh failed", e);
+            } catch {
+                console.error("Initial deep refresh failed");
             }
 
             // 核心修复：先关闭弹窗

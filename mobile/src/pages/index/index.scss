@@ -1,0 +1,326 @@
+.index-page {
+  min-height: 100vh;
+  background-color: #0f0f23;
+  padding: 24px 32px;
+  padding-bottom: 180px; // 给 tabBar 留空间
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 32px 0 24px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.alert-btn {
+  width: 72px;
+  height: 72px;
+  background-color: #16213e;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:active {
+    opacity: 0.8;
+  }
+  
+  .alert-icon {
+    font-size: 32px;
+  }
+}
+
+.search-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.search-input {
+  flex: 1;
+  height: 80px;
+  background-color: #16213e;
+  border-radius: 16px;
+  padding: 0 24px;
+  font-size: 28px;
+  color: #ffffff;
+}
+
+.search-btn {
+  width: 120px;
+  height: 80px;
+  background-color: #6366f1;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:active {
+    opacity: 0.8;
+  }
+  
+  text {
+    font-size: 28px;
+    color: #ffffff;
+  }
+}
+
+.greeting {
+  .greeting-text {
+    display: block;
+    font-size: 40px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 8px;
+  }
+  
+  .greeting-subtitle {
+    display: block;
+    font-size: 28px;
+    color: #a1a1aa;
+  }
+}
+
+.summary-card {
+  background: linear-gradient(135deg, #1e1e3f 0%, #16213e 100%);
+  border-radius: 24px;
+  padding: 40px;
+  margin-bottom: 40px;
+}
+
+.card-title {
+  display: block;
+  font-size: 28px;
+  color: #a1a1aa;
+  margin-bottom: 24px;
+}
+
+.total-value {
+  margin-bottom: 32px;
+  
+  .value-label {
+    display: block;
+    font-size: 24px;
+    color: #71717a;
+    margin-bottom: 8px;
+  }
+  
+  .value-amount {
+    display: block;
+    font-size: 56px;
+    font-weight: 700;
+    color: #ffffff;
+  }
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.stat-item {
+  .stat-label {
+    display: block;
+    font-size: 24px;
+    color: #71717a;
+    margin-bottom: 8px;
+  }
+  
+  .stat-value {
+    display: block;
+    font-size: 32px;
+    font-weight: 600;
+  }
+}
+
+.holdings-count {
+  text {
+    font-size: 26px;
+    color: #a1a1aa;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 0;
+  
+  .empty-text {
+    display: block;
+    color: #71717a;
+    font-size: 28px;
+    margin-bottom: 24px;
+  }
+  
+  .empty-action {
+    display: inline-block;
+    padding: 16px 32px;
+    background-color: #6366f1;
+    border-radius: 12px;
+    
+    text {
+      color: #ffffff;
+      font-size: 28px;
+    }
+  }
+}
+
+.quick-actions {
+  margin-bottom: 40px;
+}
+
+.section-title {
+  display: block;
+  font-size: 32px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 24px;
+}
+
+.action-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.action-item {
+  width: calc(50% - 12px);
+  background-color: #16213e;
+  border-radius: 16px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.action-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 16px;
+}
+
+.analysis-icon {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+}
+
+.macro-icon {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.trade-icon {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.settings-icon {
+  background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+}
+
+.action-label {
+  font-size: 28px;
+  color: #e4e4e7;
+}
+
+.hot-holdings {
+  margin-bottom: 40px;
+}
+
+.holdings-list {
+  background-color: #16213e;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.holding-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28px 32px;
+  border-bottom: 1px solid #27272a;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:active {
+    background-color: rgba(99, 102, 241, 0.1);
+  }
+}
+
+.holding-info {
+  .holding-ticker {
+    display: block;
+    font-size: 30px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 4px;
+  }
+  
+  .holding-name {
+    display: block;
+    font-size: 24px;
+    color: #71717a;
+  }
+}
+
+.holding-price {
+  text-align: right;
+  
+  .price {
+    display: block;
+    font-size: 30px;
+    font-weight: 500;
+    color: #ffffff;
+    margin-bottom: 4px;
+  }
+  
+  .change {
+    display: block;
+    font-size: 26px;
+    font-weight: 500;
+  }
+}
+
+.price-up {
+  color: #22c55e;
+}
+
+.price-down {
+  color: #ef4444;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #27272a;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

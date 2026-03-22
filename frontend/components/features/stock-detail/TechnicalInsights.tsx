@@ -14,7 +14,7 @@ import {
     LineChart, PieChart, Zap
 } from "lucide-react";
 import { TechnicalInsightsProps } from "./types";
-import { ReferenceCitation, getRSIColor } from "./shared";
+import { getRSIColor } from "./shared";
 
 export const TechnicalInsights = React.memo(function TechnicalInsights({
     selectedItem,
@@ -118,9 +118,8 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
 
                         {/* Mini MACD Visualizer */}
                         <div className="absolute bottom-0 left-0 w-full h-8 flex items-end gap-[1px] px-1 opacity-20 group-hover:opacity-40 transition-opacity">
-                            {isMounted && [...Array(24)].map((_, i) => {
-                                const h = Math.random() * 20 + 5;
-                                const isPos = Math.random() > 0.4;
+                            {isMounted && [15, 20, 12, 18, 25, 10, 22, 16, 19, 8, 21, 14, 17, 23, 11, 20, 13, 24, 9, 18, 15, 22, 12, 19].map((h, i) => {
+                                const isPos = i % 3 !== 0;
                                 return (
                                     <div 
                                         key={i} 
@@ -213,7 +212,7 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                                     const current = selectedItem?.price || selectedItem?.current_price || 0;
                                     const range = upper - lower;
                                     if (range <= 0 || current <= 0) return null;
-                                    let pos = ((current - lower) / range) * 100;
+                                    const pos = ((current - lower) / range) * 100;
                                     const clampedPos = Math.max(-5, Math.min(105, pos)); 
                                     return (
                                         <div 
@@ -305,37 +304,37 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                                 <div className="text-[12px] leading-snug text-slate-600 dark:text-zinc-400">
                                     <ReactMarkdown
                                         components={{
-                                            h3: ({ node, ...props }) => (
+                                            h3: ({ ...props }) => (
                                                 <h3 className="font-bold text-blue-600 dark:text-blue-400 mt-4 mb-2 first:mt-0 text-sm block">
                                                     {props.children}
                                                 </h3>
                                             ),
-                                            h4: ({ node, ...props }) => (
+                                            h4: ({ ...props }) => (
                                                 <h4 className="font-bold text-blue-600 dark:text-blue-400 mt-3 mb-1 first:mt-0 text-sm block">
                                                     {props.children}
                                                 </h4>
                                             ),
-                                            strong: ({ node, ...props }) => (
+                                            strong: ({ ...props }) => (
                                                 <strong className="font-bold text-blue-600 dark:text-blue-400">
                                                     {props.children}
                                                 </strong>
                                             ),
-                                            ul: ({ node, ...props }) => (
+                                            ul: ({ ...props }) => (
                                                 <ul className="list-disc pl-4 mt-0 mb-4 space-y-2 last:mb-0 text-slate-600 dark:text-zinc-400 block w-full">
                                                     {props.children}
                                                 </ul>
                                             ),
-                                            ol: ({ node, ...props }) => (
+                                            ol: ({ ...props }) => (
                                                 <ol className="list-decimal pl-4 mt-0 mb-4 space-y-2 last:mb-0 text-slate-600 dark:text-zinc-400 block w-full">
                                                     {props.children}
                                                 </ol>
                                             ),
-                                            li: ({ node, ...props }) => (
+                                            li: ({ ...props }) => (
                                                 <li className="m-0 p-0">
                                                     {props.children}
                                                 </li>
                                             ),
-                                            p: ({ node, ...props }) => {
+                                            p: ({ ...props }) => {
                                                 const children = React.Children.toArray(props.children);
                                                 return (
                                                     <p className="mt-0 mb-2 last:mb-0 block w-full">

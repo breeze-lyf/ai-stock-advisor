@@ -17,7 +17,7 @@ import { useDashboardStockDetailData } from "@/features/dashboard/hooks/useDashb
 import { PortfolioItem } from "@/types";
 import { refreshStock } from "@/features/portfolio/api";
 import { fetchStockHistory } from "@/features/market/api";
-import type { AIData } from "./stock-detail/types";
+import type { AIData, AnalysisHistoryItem } from "./stock-detail/types";
 
 // --- L2 板块子组件导入 ---
 import { sanitizePrice, getCurrencySymbol } from "./stock-detail/shared";
@@ -30,6 +30,17 @@ import { TechnicalInsights } from "./stock-detail/TechnicalInsights";
 import { FundamentalCard } from "./stock-detail/FundamentalCard";
 import { NewsFeed } from "./stock-detail/NewsFeed";
 
+// --- Types ---
+interface HistoryDataItem {
+    time: string;
+    open?: number;
+    high?: number;
+    low?: number;
+    close?: number;
+    volume?: number;
+    [key: string]: unknown;
+}
+
 // --- Props 接口 ---
 interface StockDetailProps {
     selectedItem: PortfolioItem | null;
@@ -38,7 +49,7 @@ interface StockDetailProps {
     onBack?: () => void;
     analyzing: boolean;
     aiData: AIData | null;
-    news?: any[];
+    news?: Array<{ title?: string; url?: string; published_at?: string; source?: string; [key: string]: unknown }>;
     refreshTimestamp?: number;
 }
 
@@ -54,18 +65,32 @@ export function StockDetail({
 }: StockDetailProps) {
     // --- 全局状态管理 ---
     const [refreshing, setRefreshing] = useState(false);
-    const { analysisHistory, historyData } = useDashboardStockDetailData(
+    const { analysisHistory, historyData, historyLoading } = useDashboardStockDetailData(
         selectedItem?.ticker || null,
         refreshTimestamp
     );
 
     const [isLoadingMore, setIsLoadingMore] = useState(false);
-    const [mergedHistoryData, setMergedHistoryData] = useState<any[]>([]);
+    const [mergedHistoryData, setMergedHistoryData] = useState<HistoryDataItem[]>([]);
 
-    // Sync merged history with initial history data
+    // Reset merged data when ticker changes to prevent cross-ticker data bleed
     useEffect(() => {
-        if (historyData) {
-            setMergedHistoryData(historyData);
+        setMergedHistoryData([]);
+    }, [selectedItem?.ticker]);
+
+    // Sync merged history with initial history data while preserving manually loaded past history
+    useEffect(() => {
+        if (historyData && historyData.length > 0) {
+            setMergedHistoryData((prev) => {
+                // If it's a completely new ticker load (prev is empty)
+                if (prev.length === 0) return historyData as HistoryDataItem[];
+                
+                // If the most recent data differs significantly, it might be a refresh.
+                // We merge historyData (latest truth) into prev (existing history).
+                const freshTimes = new Set((historyData as HistoryDataItem[]).map((d) => d.time));
+                const historicalBase = prev.filter((d) => !freshTimes.has(d.time));
+                return [...historicalBase, ...(historyData as HistoryDataItem[])].sort((a, b) => String(a.time).localeCompare(String(b.time)));
+            });
         }
     }, [historyData]);
 
@@ -78,14 +103,12 @@ export function StockDetail({
             const moreData = await fetchStockHistory(selectedItem.ticker, "1y", earliestTime);
             
             if (Array.isArray(moreData) && moreData.length > 0) {
-                // Filter out any overlap (the data provider might return includes the end_date)
-                const newItems = moreData.filter(
-                    (item: any) => !mergedHistoryData.some((existing: any) => existing.time === item.time)
-                );
-                
-                if (newItems.length > 0) {
-                    setMergedHistoryData(prev => [...newItems, ...prev]);
-                }
+                setMergedHistoryData((prev) => {
+                    const existingTimes = new Set(prev.map((d) => d.time));
+                    const newItems = (moreData as HistoryDataItem[]).filter((item) => !existingTimes.has(item.time));
+                    if (newItems.length === 0) return prev;
+                    return [...newItems, ...prev].sort((a, b) => String(a.time).localeCompare(String(b.time)));
+                });
             }
         } catch (err) {
             console.error("Failed to load more history:", err);
@@ -189,13 +212,14 @@ export function StockDetail({
                 onToggleMacd={() => setShowMacd(!showMacd)}
                 onLoadMore={handleLoadMore}
                 isLoadingMore={isLoadingMore}
+                isLoading={historyLoading}
             />
 
             {/* 板块 2: AI 智能判研指标 */}
             <AIVerdict
                 selectedItem={selectedItem}
                 aiData={aiData}
-                analysisHistory={analysisHistory}
+                analysisHistory={analysisHistory as AnalysisHistoryItem[]}
                 analyzing={analyzing}
                 onAnalyze={onAnalyze}
                 currency={currency}

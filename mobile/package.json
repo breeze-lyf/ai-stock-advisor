@@ -1,0 +1,68 @@
+{
+  "name": "ai-stock-advisor-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI Stock Advisor Mobile App - 支持 iOS/Android/小程序",
+  "templateInfo": {
+    "name": "react-ts",
+    "typescript": true,
+    "css": "sass"
+  },
+  "scripts": {
+    "dev:weapp": "taro build --type weapp --watch",
+    "dev:rn": "taro build --type rn --watch",
+    "dev:h5": "taro build --type h5 --watch",
+    "build:weapp": "taro build --type weapp",
+    "build:rn": "taro build --type rn",
+    "build:h5": "taro build --type h5",
+    "build:alipay": "taro build --type alipay",
+    "lint": "eslint src --ext .ts,.tsx",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix"
+  },
+  "browserslist": [
+    "last 3 versions",
+    "Android >= 4.1",
+    "ios >= 8"
+  ],
+  "author": "",
+  "dependencies": {
+    "@babel/runtime": "^7.24.0",
+    "@tarojs/components": "4.1.11",
+    "@tarojs/helper": "4.1.11",
+    "@tarojs/plugin-framework-react": "4.1.11",
+    "@tarojs/plugin-platform-alipay": "4.1.11",
+    "@tarojs/plugin-platform-h5": "4.1.11",
+    "@tarojs/plugin-platform-weapp": "4.1.11",
+    "@tarojs/react": "4.1.11",
+    "@tarojs/runtime": "4.1.11",
+    "@tarojs/shared": "4.1.11",
+    "@tarojs/taro": "4.1.11",
+    "echarts": "^6.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zustand": "^4.5.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@babel/preset-env": "^7.29.2",
+    "@babel/preset-react": "^7.28.5",
+    "@babel/preset-typescript": "^7.28.5",
+    "@tarojs/cli": "4.1.11",
+    "@tarojs/taro-loader": "4.1.11",
+    "@tarojs/webpack5-runner": "4.1.11",
+    "@types/node": "^25.5.0",
+    "@types/react": "^18.3.1",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "babel-preset-taro": "4.1.11",
+    "eslint": "^8.57.0",
+    "eslint-config-taro": "4.1.11",
+    "eslint-plugin-react": "^7.34.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "postcss": "^8.4.35",
+    "sass": "^1.71.0",
+    "stylelint": "^16.2.1",
+    "typescript": "^5.4.0",
+    "webpack": "^5.90.0"
+  }
+}

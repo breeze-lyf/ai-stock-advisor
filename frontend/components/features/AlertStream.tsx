@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, Zap, TrendingUp, AlertTriangle, Calendar, Clock, ChevronRight } from 'lucide-react';
+import { Bell, Zap, TrendingUp, Calendar, Clock, ChevronRight } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { useAuth } from '@/context/AuthContext';

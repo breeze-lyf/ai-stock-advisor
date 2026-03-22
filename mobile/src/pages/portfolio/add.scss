@@ -1,0 +1,188 @@
+.add-page {
+  min-height: 100vh;
+  background-color: #0f0f23;
+  padding: 32px;
+}
+
+.section-title {
+  display: block;
+  font-size: 28px;
+  color: #a1a1aa;
+  margin-bottom: 20px;
+}
+
+.search-section {
+  margin-bottom: 40px;
+}
+
+.search-input {
+  width: 100%;
+  height: 96px;
+  background-color: #16213e;
+  border: 2px solid #27272a;
+  border-radius: 16px;
+  padding: 0 32px;
+  font-size: 30px;
+  color: #ffffff;
+  box-sizing: border-box;
+}
+
+.input-placeholder {
+  color: #71717a;
+}
+
+.search-results {
+  max-height: 480px;
+  background-color: #16213e;
+  border-radius: 16px;
+  margin-top: 16px;
+  overflow: hidden;
+}
+
+.result-item {
+  display: flex;
+  align-items: center;
+  padding: 28px 32px;
+  border-bottom: 1px solid #27272a;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:active {
+    background-color: rgba(99, 102, 241, 0.1);
+  }
+}
+
+.result-ticker {
+  font-size: 30px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-right: 20px;
+  min-width: 160px;
+}
+
+.result-name {
+  flex: 1;
+  font-size: 26px;
+  color: #a1a1aa;
+}
+
+.result-exchange {
+  font-size: 24px;
+  color: #71717a;
+}
+
+.searching {
+  padding: 32px;
+  text-align: center;
+  
+  text {
+    color: #71717a;
+    font-size: 26px;
+  }
+}
+
+.selected-section {
+  margin-bottom: 40px;
+}
+
+.selected-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #16213e;
+  border: 2px solid #6366f1;
+  border-radius: 16px;
+  padding: 28px 32px;
+}
+
+.selected-info {
+  .selected-ticker {
+    display: block;
+    font-size: 32px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 8px;
+  }
+  
+  .selected-name {
+    display: block;
+    font-size: 26px;
+    color: #a1a1aa;
+  }
+}
+
+.selected-remove {
+  padding: 16px 24px;
+  background-color: rgba(239, 68, 68, 0.2);
+  border-radius: 12px;
+  
+  text {
+    color: #ef4444;
+    font-size: 26px;
+  }
+  
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.form-section {
+  margin-bottom: 40px;
+}
+
+.form-item {
+  margin-bottom: 32px;
+}
+
+.form-label {
+  display: block;
+  font-size: 28px;
+  color: #e4e4e7;
+  margin-bottom: 16px;
+}
+
+.form-input {
+  width: 100%;
+  height: 96px;
+  background-color: #16213e;
+  border: 2px solid #27272a;
+  border-radius: 16px;
+  padding: 0 32px;
+  font-size: 30px;
+  color: #ffffff;
+  box-sizing: border-box;
+  
+  &:focus {
+    border-color: #6366f1;
+  }
+}
+
+.submit-section {
+  padding: 32px 0;
+}
+
+.submit-btn {
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  border-radius: 16px;
+  
+  text {
+    color: #ffffff;
+    font-size: 32px;
+    font-weight: 600;
+  }
+  
+  &:active {
+    opacity: 0.9;
+  }
+  
+  &.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}

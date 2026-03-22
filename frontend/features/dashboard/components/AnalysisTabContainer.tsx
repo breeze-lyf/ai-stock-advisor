@@ -53,7 +53,7 @@ export function AnalysisTabContainer({
       unrealized_pl: 0,
       pl_percent: 0,
       market_value: 0,
-    } as any;
+    } as PortfolioItem;
   }
 
   return (

@@ -31,16 +31,16 @@
 - [backend/migrations/versions/ae1b8335eea2_add_user_ai_configs.py](file://backend/migrations/versions/ae1b8335eea2_add_user_ai_configs.py)
 - [frontend/app/settings/page.tsx](file://frontend/app/settings/page.tsx)
 - [backend/tests/test_byok_dispatch.py](file://backend/tests/test_byok_dispatch.py)
+- [backend/tests/unit/test_byok_dispatch.py](file://backend/tests/unit/test_byok_dispatch.py)
 </cite>
 
 ## 更新摘要
 **变更内容**
-- 新增AI模型运行时配置系统，支持动态模型配置和缓存机制
-- AI服务架构重构，移除Google Gemini依赖，更新默认模型为deepseek-v3
-- 引入用户AI模型管理系统，支持BYOK（Bring Your Own Key）和自定义供应商配置
-- 新增统一的供应商凭据管理，支持用户级API Key和Base URL配置
-- 更新AI模型配置表，支持多模型动态切换和优先级管理
-- 增强故障转移机制，支持用户级回退开关控制
+- 新增Python 3.14兼容性处理机制，解决httpx 0.28+版本的兼容性问题
+- 增强AI服务错误处理机制，包括代理环境变量设置和兼容性补丁
+- 优化供应商配置缓存机制，提升故障转移性能
+- 改进BYOK（Bring Your Own Key）配置解析的健壮性
+- 增强AI调用日志记录和监控能力
 
 ## 目录
 1. [简介](#简介)
@@ -155,6 +155,7 @@ ENV --> C
   - **新增**：AI模型配置缓存机制，提高响应速度
   - **新增**：供应商优先级排序和超时控制
   - **更新**：移除Google Gemini依赖，默认模型更新为deepseek-v3
+  - **新增**：Python 3.14兼容性处理，解决httpx 0.28+版本的兼容性问题
 - 市场数据服务
   - 多数据源优先策略（Alpha Vantage优先，yfinance备选），缓存技术指标，回退模拟数据
 - 数据模型
@@ -276,6 +277,7 @@ ReturnOK --> End
   - 构建中文提示词（技术面、消息面、持仓背景、历史上下文）
   - 调用AI模型生成内容，强制JSON响应
   - 异常降级：JSON模式失败时回退普通文本
+  - **新增**：Python 3.14兼容性处理，解决httpx 0.28+版本的兼容性问题
 - 提示工程要点
   - 明确角色（资深美股投资顾问）
   - **新增**：历史上下文集成，支持适应性调整而非僵化策略
@@ -342,7 +344,24 @@ AIService --> ProviderRuntimeConfig : uses
 - [backend/app/schemas/ai_config.py:4-16](file://backend/app/schemas/ai_config.py#L4-L16)
 - [backend/app/models/user_ai_model.py:9-26](file://backend/app/models/user_ai_model.py#L9-L26)
 
-### 组件C：AI模型运行时配置系统
+### 组件C：Python 3.14兼容性处理机制
+- **新增**：Python 3.14兼容性处理，解决httpx 0.28+版本的兼容性问题
+- **核心功能**
+  - 自动设置代理环境变量（HTTP_PROXY、HTTPS_PROXY、NO_PROXY）
+  - httpx AsyncClient兼容性补丁，处理proxies参数和_limits属性
+  - 在模块加载时即应用兼容性补丁，避免依赖启动时机
+- **实现细节**
+  - 检查settings中的代理配置并设置环境变量
+  - 修复httpx 0.28+版本中AsyncClient构造函数签名变化
+  - 兼容旧版SDK读取client._limits的行为
+  - 处理proxies参数从字典到单值的转换
+
+**章节来源**
+- [backend/app/services/ai_service.py:1-11](file://backend/app/services/ai_service.py#L1-L11)
+- [backend/app/services/ai_service.py:31-64](file://backend/app/services/ai_service.py#L31-L64)
+- [backend/app/main.py:60-101](file://backend/app/main.py#L60-L101)
+
+### 组件D：AI模型运行时配置系统
 - 功能职责
   - **新增**：AI模型运行时配置系统，支持动态模型配置和缓存机制
   - **新增**：AIModelRuntimeConfig Pydantic模型，解耦SQLAlchemy ORM
@@ -362,7 +381,7 @@ AIService --> ProviderRuntimeConfig : uses
 - [backend/app/schemas/ai_config.py:4-16](file://backend/app/schemas/ai_config.py#L4-L16)
 - [backend/app/services/ai_service.py:107-140](file://backend/app/services/ai_service.py#L107-L140)
 
-### 组件D：用户AI模型管理系统
+### 组件E：用户AI模型管理系统
 - 功能职责
   - **新增**：用户AI模型管理，支持BYOK和自定义供应商配置
   - **新增**：UserAIModel模型，存储用户自定义的AI模型配置
@@ -388,7 +407,7 @@ AIService --> ProviderRuntimeConfig : uses
 - [backend/app/models/user_provider_credential.py:9-23](file://backend/app/models/user_provider_credential.py#L9-L23)
 - [backend/app/services/ai_service.py:44-80](file://backend/app/services/ai_service.py#L44-L80)
 
-### 组件E：供应商配置管理
+### 组件F：供应商配置管理
 - 功能职责
   - **新增**：集中式供应商配置管理
   - **新增**：供应商优先级排序（数字越小优先级越高）
@@ -409,7 +428,7 @@ AIService --> ProviderRuntimeConfig : uses
 - [backend/app/models/provider_config.py:12-48](file://backend/app/models/provider_config.py#L12-L48)
 - [backend/migrations/versions/ab4e342e4749_create_provider_configs_v4.py:24-49](file://backend/migrations/versions/ab4e342e4749_create_provider_configs_v4.py#L24-L49)
 
-### 组件F：提示词模板中心（prompts.py）
+### 组件G：提示词模板中心（prompts.py）
 - 功能职责
   - **新增**：集中式提示词模板管理
   - **新增**：合规性免责声明标准化
@@ -426,7 +445,7 @@ AIService --> ProviderRuntimeConfig : uses
 **章节来源**
 - [backend/app/core/prompts.py:1-192](file://backend/app/core/prompts.py#L1-L192)
 
-### 组件G：AI响应解析器（ai_response_parser.py）
+### 组件H：AI响应解析器（ai_response_parser.py）
 - 功能职责
   - **新增**：统一的AI响应JSON提取与清洗逻辑
   - **新增**：错误前缀检测和降级处理
@@ -442,7 +461,7 @@ AIService --> ProviderRuntimeConfig : uses
 **章节来源**
 - [backend/app/utils/ai_response_parser.py:1-125](file://backend/app/utils/ai_response_parser.py#L1-L125)
 
-### 组件H：市场数据服务（market_data.py）
+### 组件I：市场数据服务（market_data.py）
 - 功能职责
   - 多数据源优先策略：Alpha Vantage优先，yfinance备选
   - 缓存机制：1分钟内命中缓存，避免重复抓取
@@ -481,7 +500,7 @@ ReturnData --> End
 **章节来源**
 - [backend/app/services/market_data.py:14-170](file://backend/app/services/market_data.py#L14-L170)
 
-### 组件I：数据模型（models）
+### 组件J：数据模型（models）
 - 用户（user.py）
   - 会员等级、加密存储的API Key、首选数据源、**新增**：首选AI模型
   - **新增**：BYOK支持（api_configs字段）
@@ -674,7 +693,7 @@ USER_PROVIDER_CREDENTIALS ||--o{ ANALYSIS_REPORTS : "用户凭据"
 - [backend/app/models/user_ai_model.py:9-26](file://backend/app/models/user_ai_model.py#L9-L26)
 - [backend/app/models/user_provider_credential.py:9-23](file://backend/app/models/user_provider_credential.py#L9-L23)
 
-### 组件J：配置与依赖（config.py, requirements.txt, .env.example）
+### 组件K：配置与依赖（config.py, requirements.txt, .env.example）
 - 配置项
   - 数据库URL、JWT密钥与算法、过期时间
   - **新增**：多提供商API Key支持（SiliconFlow、DeepSeek、DashScope）
@@ -690,7 +709,7 @@ USER_PROVIDER_CREDENTIALS ||--o{ ANALYSIS_REPORTS : "用户凭据"
 - [backend/requirements.txt:1-75](file://backend/requirements.txt#L1-L75)
 - [.env.example:1-9](file://.env.example#L1-L9)
 
-### 组件K：批量分析与性能测试（test_batch_collection.py）
+### 组件L：批量分析与性能测试（test_batch_collection.py）
 - 目的
   - 批量抓取历史最久的缓存项，验证多数据源与缓存更新
 - 行为
@@ -700,7 +719,7 @@ USER_PROVIDER_CREDENTIALS ||--o{ ANALYSIS_REPORTS : "用户凭据"
 **章节来源**
 - [backend/scripts/test_batch_collection.py:16-85](file://backend/scripts/test_batch_collection.py#L16-L85)
 
-### 组件L：BYOK测试（test_byok_dispatch.py）
+### 组件M：BYOK测试（test_byok_dispatch.py）
 - 功能测试
   - **新增**：用户自定义API配置解析测试
   - **新增**：系统级API Key回退测试
@@ -714,6 +733,7 @@ USER_PROVIDER_CREDENTIALS ||--o{ ANALYSIS_REPORTS : "用户凭据"
 
 **章节来源**
 - [backend/tests/test_byok_dispatch.py:1-99](file://backend/tests/test_byok_dispatch.py#L1-L99)
+- [backend/tests/unit/test_byok_dispatch.py:1-99](file://backend/tests/unit/test_byok_dispatch.py#L1-L99)
 
 ## 依赖分析
 - 组件耦合
@@ -795,6 +815,7 @@ Market --> Config
   - **新增**：供应商配置错误：检查PROVIDER_CONFIGS表配置
   - **新增**：BYOK配置解析失败：检查用户api_configs字段
   - **更新**：移除Google Gemini依赖相关的错误
+  - **新增**：Python 3.14兼容性问题：检查httpx版本和代理设置
 - 定位步骤
   - 检查.env配置与密钥
   - 查看日志与异常堆栈
@@ -803,6 +824,7 @@ Market --> Config
   - **新增**：检查AI模型配置表和历史分析上下文
   - **新增**：验证用户AI模型和供应商凭据配置
   - **新增**：验证供应商配置和API Key解析
+  - **新增**：检查Python 3.14兼容性补丁是否生效
 - 降级策略
   - 缓存数据波动更新
   - 模拟合理范围内的价格与涨跌幅
@@ -822,6 +844,8 @@ Market --> Config
 
 **重要更新**：系统已移除Google Gemini依赖，更新默认模型为deepseek-v3，增强了AI模型运行时配置系统和用户AI模型管理能力。通过AI模型运行时配置系统，实现了动态模型配置和缓存机制；通过用户AI模型管理系统，支持用户自定义供应商配置和API Key管理。
 
+**新增稳定性改进**：系统现已具备完整的Python 3.14兼容性处理机制，解决了httpx 0.28+版本的兼容性问题，包括代理环境变量设置和AsyncClient兼容性补丁。这确保了系统在最新的Python版本下能够稳定运行。
+
 通过集中式提示词模板管理，确保了提示工程的标准化和可维护性。AI模型配置缓存和供应商配置缓存机制大幅提升了响应性能。故障转移机制和超时控制确保了服务的高可用性。
 
 **新增功能亮点**：
@@ -834,6 +858,7 @@ Market --> Config
 - 提示词模板中心化管理
 - AI模型配置缓存机制
 - 供应商故障转移和超时控制
+- **新增**：Python 3.14兼容性处理机制
 
 未来可在缓存、队列、监控与更多AI模型扩展方面持续演进。
 
@@ -904,6 +929,9 @@ Market --> Config
 - **新增**：供应商配置异常
   - 供应商不可用时的故障转移
   - API Key解析失败时的回退机制
+- **新增**：Python 3.14兼容性异常
+  - httpx版本不兼容时的自动修复
+  - 代理环境变量设置失败的降级处理
 - **更新**：移除Google Gemini相关的错误处理
 
 **章节来源**
@@ -951,6 +979,7 @@ Market --> Config
   - **新增**：AI提示词日志记录
   - **新增**：BYOK配置测试工具
   - **新增**：用户AI模型调试工具
+  - **新增**：Python 3.14兼容性测试工具
 - 性能监控
   - 请求耗时与成功率统计
   - 缓存命中率与外部API延迟
@@ -958,6 +987,7 @@ Market --> Config
   - **新增**：供应商配置缓存命中率
   - **新增**：用户AI模型缓存命中率
   - **新增**：故障转移成功率
+  - **新增**：Python 3.14兼容性监控
   - 建议引入APM与指标面板
 
 **章节来源**
@@ -1201,3 +1231,24 @@ Market --> Config
 **章节来源**
 - [backend/app/models/user_provider_credential.py:9-23](file://backend/app/models/user_provider_credential.py#L9-L23)
 - [backend/app/services/ai_service.py:143-202](file://backend/app/services/ai_service.py#L143-L202)
+
+### Python 3.14兼容性处理详解
+- **核心问题**
+  - httpx 0.28+版本对AsyncClient构造函数签名的破坏性变更
+  - Python 3.14环境下代理环境变量的处理差异
+- **解决方案**
+  - 自动设置HTTP_PROXY、HTTPS_PROXY、NO_PROXY环境变量
+  - 在模块加载时应用httpx兼容性补丁
+  - 修复proxies参数从字典到单值的转换
+  - 兼容旧版SDK读取client._limits的行为
+- **实施细节**
+  - 在ai_service.py顶部设置代理环境变量
+  - 定义_httpx_asyncclient_compat_local函数处理兼容性
+  - 在main.py中提供全局兼容性补丁
+  - 支持代理可达性检测和自动配置
+
+**章节来源**
+- [backend/app/services/ai_service.py:1-11](file://backend/app/services/ai_service.py#L1-L11)
+- [backend/app/services/ai_service.py:31-64](file://backend/app/services/ai_service.py#L31-L64)
+- [backend/app/main.py:60-101](file://backend/app/main.py#L60-L101)
+- [backend/app/main.py:115-149](file://backend/app/main.py#L115-L149)

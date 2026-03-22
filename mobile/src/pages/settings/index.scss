@@ -1,0 +1,111 @@
+.settings-page {
+  min-height: 100vh;
+  background-color: #0f0f23;
+}
+
+.content {
+  padding-bottom: 180px;
+}
+
+.user-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 32px;
+  background: linear-gradient(180deg, #1a1a2e 0%, #0f0f23 100%);
+}
+
+.avatar {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  
+  text {
+    font-size: 56px;
+    font-weight: 700;
+    color: #ffffff;
+  }
+}
+
+.email {
+  font-size: 32px;
+  color: #e4e4e7;
+}
+
+.menu-section {
+  padding: 24px 32px;
+}
+
+.section-title {
+  display: block;
+  font-size: 26px;
+  color: #71717a;
+  margin-bottom: 16px;
+  padding-left: 8px;
+}
+
+.menu-list {
+  background-color: #16213e;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px;
+  border-bottom: 1px solid #27272a;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:active {
+    background-color: rgba(99, 102, 241, 0.1);
+  }
+}
+
+.menu-label {
+  font-size: 30px;
+  color: #ffffff;
+}
+
+.menu-value {
+  font-size: 28px;
+  color: #71717a;
+}
+
+.menu-arrow {
+  font-size: 36px;
+  color: #71717a;
+}
+
+.logout-section {
+  padding: 48px 32px;
+}
+
+.logout-btn {
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 16px;
+  
+  text {
+    font-size: 32px;
+    color: #ef4444;
+    font-weight: 500;
+  }
+  
+  &:active {
+    background-color: rgba(239, 68, 68, 0.25);
+  }
+}

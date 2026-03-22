@@ -89,7 +89,7 @@ export const MarkdownWithRefs = ({ content }: { content: string }) => {
         <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
-                h3: ({ node, ...props }) => {
+                h3: ({ ...props }) => {
                     const style = h3Styles[Math.min(h3Counter, h3Styles.length - 1)];
                     const isFirst = h3Counter === 0;
                     h3Counter++;
@@ -100,16 +100,16 @@ export const MarkdownWithRefs = ({ content }: { content: string }) => {
                         />
                     );
                 },
-                strong: ({ node, ...props }) => (
+                strong: ({ ...props }) => (
                     <strong className="font-bold text-slate-900 dark:text-white px-1 py-0.5 rounded bg-blue-50 dark:bg-blue-600/10" {...props} />
                 ),
-                ul: ({ node, ...props }) => (
+                ul: ({ ...props }) => (
                     <ul className="space-y-1 mt-2 list-none p-0" {...props} />
                 ),
-                li: ({ node, ...props }) => (
+                li: ({ ...props }) => (
                     <li className="flex items-start gap-2 before:content-['•'] before:text-blue-600 before:font-black" {...props} />
                 ),
-                p: ({ node, ...props }) => {
+                p: ({ ...props }) => {
                     const children = React.Children.toArray(props.children);
                     const processed = children.flatMap((child) => {
                         if (typeof child !== 'string') return child;
@@ -125,21 +125,21 @@ export const MarkdownWithRefs = ({ content }: { content: string }) => {
                     });
                     return <p className="mt-1.5 text-slate-500 dark:text-slate-400">{processed}</p>;
                 },
-                table: ({ node, ...props }) => (
+                table: ({ ...props }) => (
                     <div className="my-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
                         <table className="w-full border-collapse text-xs" {...props} />
                     </div>
                 ),
-                thead: ({ node, ...props }) => (
+                thead: ({ ...props }) => (
                     <thead className="bg-slate-50 dark:bg-slate-800/50" {...props} />
                 ),
-                th: ({ node, ...props }) => (
+                th: ({ ...props }) => (
                     <th className="border-b border-slate-200 dark:border-slate-700 px-3 py-2 text-left font-bold text-slate-900 dark:text-slate-100" {...props} />
                 ),
-                td: ({ node, ...props }) => (
+                td: ({ ...props }) => (
                     <td className="border-b border-slate-200 dark:border-slate-700 px-3 py-2 text-slate-600 dark:text-slate-400" {...props} />
                 ),
-                tr: ({ node, ...props }) => (
+                tr: ({ ...props }) => (
                     <tr className="last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors" {...props} />
                 )
             }}

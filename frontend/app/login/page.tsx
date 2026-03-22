@@ -34,8 +34,9 @@ export default function LoginPage() {
 
             const token = response.data.access_token;
             login(token);
-        } catch (err: any) {
-            setError(err.response?.data?.detail || "Login failed");
+        } catch (err: unknown) {
+            const axiosErr = err as { response?: { data?: { detail?: string } } };
+            setError(axiosErr.response?.data?.detail || "Login failed");
         } finally {
             setLoading(false);
         }
@@ -78,7 +79,7 @@ export default function LoginPage() {
                             {loading ? "Logging in..." : "Login"}
                         </Button>
                         <div className="text-sm text-center text-muted-foreground">
-                            Don't have an account? <Link href="/register" className="underline">Register</Link>
+                            Don&apos;t have an account? <Link href="/register" className="underline">Register</Link>
                         </div>
                     </CardFooter>
                 </form>

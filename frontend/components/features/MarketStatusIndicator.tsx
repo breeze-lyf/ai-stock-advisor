@@ -34,7 +34,7 @@ export function MarketStatusIndicator({ className }: MarketStatusIndicatorProps)
 
             let text = "";
             let countdown = "";
-            let status: 'open' | 'closed' = isOpen ? 'open' : 'closed';
+            const status: 'open' | 'closed' = isOpen ? 'open' : 'closed';
 
             if (isOpen) {
                 text = "美股盘中 (OPEN)";

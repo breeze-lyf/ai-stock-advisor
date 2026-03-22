@@ -1,0 +1,172 @@
+name: Mobile App CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/mobile-deploy.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'mobile/**'
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  # 代码质量检查
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install dependencies
+        working-directory: mobile
+        run: npm ci
+
+      - name: Run ESLint
+        working-directory: mobile
+        run: npm run lint
+
+      - name: Type check
+        working-directory: mobile
+        run: npx tsc --noEmit
+
+  # H5 构建
+  build-h5:
+    name: Build H5
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install dependencies
+        working-directory: mobile
+        run: npm ci
+
+      - name: Build H5
+        working-directory: mobile
+        run: npm run build:h5
+        env:
+          TARO_APP_API_BASE_URL: ${{ secrets.API_BASE_URL }}
+
+      - name: Upload H5 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: h5-dist
+          path: mobile/dist/h5
+          retention-days: 7
+
+  # 微信小程序构建
+  build-weapp:
+    name: Build WeChat Mini Program
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install dependencies
+        working-directory: mobile
+        run: npm ci
+
+      - name: Build WeChat Mini Program
+        working-directory: mobile
+        run: npm run build:weapp
+        env:
+          TARO_APP_API_BASE_URL: ${{ secrets.API_BASE_URL }}
+
+      - name: Upload WeApp artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: weapp-dist
+          path: mobile/dist/weapp
+          retention-days: 7
+
+  # 部署 H5 到 Vercel（可选）
+  deploy-h5:
+    name: Deploy H5 to Vercel
+    runs-on: ubuntu-latest
+    needs: build-h5
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download H5 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: h5-dist
+          path: mobile/dist/h5
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: mobile/dist/h5
+          vercel-args: '--prod'
+
+  # 上传微信小程序（需要配置 miniprogram-ci）
+  upload-weapp:
+    name: Upload WeChat Mini Program
+    runs-on: ubuntu-latest
+    needs: build-weapp
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Download WeApp artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: weapp-dist
+          path: mobile/dist/weapp
+
+      - name: Install miniprogram-ci
+        run: npm install -g miniprogram-ci
+
+      - name: Upload to WeChat
+        working-directory: mobile
+        run: |
+          npx miniprogram-ci upload \
+            --pp ./dist/weapp \
+            --pkp "${{ secrets.WEAPP_PRIVATE_KEY }}" \
+            --appid ${{ secrets.WEAPP_APPID }} \
+            --uv ${{ github.sha }} \
+            -r 1 \
+            --desc "CI 自动上传: ${{ github.event.head_commit.message }}"
+        env:
+          WEAPP_PRIVATE_KEY: ${{ secrets.WEAPP_PRIVATE_KEY }}
+          WEAPP_APPID: ${{ secrets.WEAPP_APPID }}

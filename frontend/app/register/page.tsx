@@ -29,8 +29,9 @@ export default function RegisterPage() {
 
             const token = response.data.access_token;
             login(token);
-        } catch (err: any) {
-            setError(err.response?.data?.detail || "Registration failed");
+        } catch (err: unknown) {
+            const axiosErr = err as { response?: { data?: { detail?: string } } };
+            setError(axiosErr.response?.data?.detail || "Registration failed");
         } finally {
             setLoading(false);
         }

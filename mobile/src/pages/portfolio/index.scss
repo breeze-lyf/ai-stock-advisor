@@ -1,0 +1,195 @@
+.portfolio-page {
+  min-height: 100vh;
+  background-color: #0f0f23;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px;
+  background-color: #1a1a2e;
+  
+  .title {
+    font-size: 36px;
+    font-weight: 600;
+    color: #ffffff;
+  }
+  
+  .actions {
+    display: flex;
+    gap: 16px;
+  }
+  
+  .action-btn {
+    padding: 16px 28px;
+    border-radius: 12px;
+    background-color: #16213e;
+    
+    text {
+      font-size: 26px;
+      color: #e4e4e7;
+    }
+    
+    &.primary {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      
+      text {
+        color: #ffffff;
+      }
+    }
+    
+    &:active {
+      opacity: 0.8;
+    }
+  }
+}
+
+.content {
+  flex: 1;
+  padding: 24px 32px;
+  padding-bottom: 180px;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 0;
+}
+
+.loading-spinner {
+  width: 64px;
+  height: 64px;
+  border: 4px solid #27272a;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 24px;
+}
+
+.loading-text {
+  font-size: 28px;
+  color: #71717a;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 0;
+}
+
+.empty-icon {
+  font-size: 96px;
+  margin-bottom: 24px;
+}
+
+.empty-text {
+  font-size: 32px;
+  color: #a1a1aa;
+  margin-bottom: 12px;
+}
+
+.empty-hint {
+  font-size: 26px;
+  color: #71717a;
+}
+
+.stock-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.stock-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #16213e;
+  border-radius: 16px;
+  padding: 28px 32px;
+  
+  &:active {
+    background-color: rgba(99, 102, 241, 0.1);
+  }
+}
+
+.stock-info {
+  flex: 1;
+}
+
+.stock-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  
+  .ticker {
+    font-size: 32px;
+    font-weight: 600;
+    color: #ffffff;
+  }
+  
+  .name {
+    font-size: 26px;
+    color: #71717a;
+  }
+}
+
+.stock-meta {
+  display: flex;
+  gap: 24px;
+  
+  .meta-item {
+    font-size: 24px;
+    color: #a1a1aa;
+  }
+}
+
+.stock-price {
+  text-align: right;
+  
+  .current-price {
+    display: block;
+    font-size: 32px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 8px;
+  }
+  
+  .price-change {
+    display: block;
+    font-size: 28px;
+    font-weight: 500;
+    
+    &.up {
+      color: #22c55e;
+    }
+    
+    &.down {
+      color: #ef4444;
+    }
+  }
+}
+
+.footer-hint {
+  padding: 24px;
+  text-align: center;
+  background-color: #1a1a2e;
+  
+  text {
+    font-size: 24px;
+    color: #71717a;
+  }
+}

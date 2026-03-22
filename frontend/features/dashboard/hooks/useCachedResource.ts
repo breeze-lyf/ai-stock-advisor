@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import type { CacheValue, DashboardCacheEntry } from "@/features/dashboard/hooks/dashboardCache";
 import {
@@ -31,7 +31,7 @@ export function useCachedResource<T>({
   const [data, setData] = useState<CacheValue<T>>(cacheEntry ? readDashboardCache(cacheEntry) : null);
   const [loading, setLoading] = useState(cacheEntry ? !readDashboardCache(cacheEntry) : false);
 
-  const refresh = async (options?: RefreshOptions) => {
+  const refresh = useCallback(async (options?: RefreshOptions) => {
     if (!cacheEntry) {
       setLoading(false);
       return null;
@@ -52,16 +52,16 @@ export function useCachedResource<T>({
     } finally {
       setLoading(false);
     }
-  };
+  }, [cacheEntry, fetcher, onError]);
 
-  const updateData = (value: CacheValue<T>) => {
+  const updateData = useCallback((value: CacheValue<T>) => {
     if (!cacheEntry) {
       setData(value);
       return value;
     }
     setData(writeDashboardCache(cacheEntry, value));
     return value;
-  };
+  }, [cacheEntry]);
 
   useEffect(() => {
     if (!cacheEntry) {
@@ -100,7 +100,7 @@ export function useCachedResource<T>({
     }, refreshIntervalMs);
 
     return () => clearInterval(timer);
-  }, [cacheEntry, enabled, refreshIntervalMs]);
+  }, [cacheEntry, enabled, refresh, refreshIntervalMs]);
 
   return {
     data,

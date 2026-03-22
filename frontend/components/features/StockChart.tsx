@@ -8,8 +8,24 @@
 import React, { useEffect, useRef } from 'react';
 import { createChart, ColorType, IChartApi, ISeriesApi, CandlestickSeries, HistogramSeries, LineSeries } from 'lightweight-charts';
 
+export interface ChartDataPoint {
+    time: string;
+    open: number;
+    high: number;
+    low: number;
+    close: number;
+    volume?: number;
+    bb_upper?: number;
+    bb_middle?: number;
+    bb_lower?: number;
+    rsi?: number;
+    macd?: number;
+    macd_signal?: number;
+    macd_hist?: number;
+}
+
 interface StockChartProps {
-    data: any[];
+    data: ChartDataPoint[];
     ticker: string;
     showBb?: boolean;
     showRsi?: boolean;
@@ -50,9 +66,18 @@ export const StockChart: React.FC<StockChartProps> = ({
     const bbUpperSeriesRef = useRef<ISeriesApi<"Line"> | null>(null);
     const bbMiddleSeriesRef = useRef<ISeriesApi<"Line"> | null>(null);
     const bbLowerSeriesRef = useRef<ISeriesApi<"Line"> | null>(null);
+    const latestDataRef = useRef(data);
+    const onLoadMoreRef = useRef(onLoadMore);
+    const isLoadingMoreRef = useRef(isLoadingMore);
 
     // 防止内存泄漏：卸载哨兵 (Unmount Sentinel)
     const isUnmounted = useRef(false);
+
+    useEffect(() => {
+        latestDataRef.current = data;
+        onLoadMoreRef.current = onLoadMore;
+        isLoadingMoreRef.current = isLoadingMore;
+    }, [data, isLoadingMore, onLoadMore]);
     
     // 副作用 1：初始化图表实例与联动逻辑 (Initialize Charts & Sync)
     useEffect(() => {
@@ -139,7 +164,7 @@ export const StockChart: React.FC<StockChartProps> = ({
             });
         }
 
-        const syncItems: { chart: IChartApi; series: any }[] = [
+        const syncItems: Array<{ chart: IChartApi; series: ISeriesApi<"Candlestick"> | ISeriesApi<"Line"> }> = [
             { chart: mainChart, series: candlestickSeries },
         ];
 
@@ -198,10 +223,12 @@ export const StockChart: React.FC<StockChartProps> = ({
                 
                 // --- 懒加载触发逻辑 (Lazy Loading Disclosure) ---
                 // 当逻辑范围的开始位置小于 10 (接近左边界) 且不在加载中时触发
-                if (range.from < 10 && onLoadMore && !isLoadingMore && data.length > 0) {
-                    const earliestData = data[0];
+                const latestData = latestDataRef.current;
+                const loadMore = onLoadMoreRef.current;
+                if (range.from < 10 && loadMore && !isLoadingMoreRef.current && latestData.length > 0) {
+                    const earliestData = latestData[0];
                     if (earliestData && earliestData.time) {
-                        onLoadMore(String(earliestData.time));
+                        loadMore(String(earliestData.time));
                     }
                 }
 
@@ -210,7 +237,7 @@ export const StockChart: React.FC<StockChartProps> = ({
                     if (index !== otherIndex && otherItem.chart) {
                         try {
                             otherItem.chart.timeScale().setVisibleLogicalRange(range);
-                        } catch (e) {}
+                        } catch {/* ignore */}
                     }
                 });
                 isSyncing = false;
@@ -218,12 +245,13 @@ export const StockChart: React.FC<StockChartProps> = ({
 
             // B. 十字线指向联动 (Crosshair Move Sync)
             item.chart.subscribeCrosshairMove((param) => {
-                if (isUnmounted.current) return;
+                if (isUnmounted.current || param.time === undefined) return;
+                const crosshairTime = param.time;
                 syncItems.forEach((otherItem, otherIndex) => {
                     if (index !== otherIndex && otherItem.chart && otherItem.series) {
                         try {
-                            otherItem.chart.setCrosshairPosition(0, param.time as any, otherItem.series);
-                        } catch (e) {}
+                            otherItem.chart.setCrosshairPosition(0, crosshairTime, otherItem.series);
+                        } catch {/* ignore */}
                     }
                 });
             });
@@ -253,7 +281,7 @@ export const StockChart: React.FC<StockChartProps> = ({
                 mainChart.applyOptions({ width });
                 rsiChart?.applyOptions({ width });
                 macdChart?.applyOptions({ width });
-            } catch (e) {}
+            } catch {/* ignore */}
         };
 
         window.addEventListener('resize', handleResize);
@@ -266,7 +294,7 @@ export const StockChart: React.FC<StockChartProps> = ({
                 mainChart.remove();
                 rsiChart?.remove();
                 macdChart?.remove();
-            } catch (e) {}
+            } catch {/* ignore */}
         };
     }, [ticker, showBb, showRsi, showMacd]); // 切换标的或图层时重建图表实例
 
@@ -342,9 +370,11 @@ export const StockChart: React.FC<StockChartProps> = ({
                     const bbMiddleData = normalizedData.map(item => ({ time: item.time, value: item.bb_middle ?? undefined }));
                     const bbLowerData = normalizedData.map(item => ({ time: item.time, value: item.bb_lower ?? undefined }));
                     
+                    /* eslint-disable @typescript-eslint/no-explicit-any */
                     bbUpperSeriesRef.current.setData(bbUpperData as any);
                     bbMiddleSeriesRef.current.setData(bbMiddleData as any);
                     bbLowerSeriesRef.current.setData(bbLowerData as any);
+                    /* eslint-enable @typescript-eslint/no-explicit-any */
                 }
                 
                 // RSI 数据更新
@@ -353,6 +383,7 @@ export const StockChart: React.FC<StockChartProps> = ({
                         time: item.time, 
                         value: item.rsi !== null ? item.rsi : undefined 
                     }));
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     rsiSeriesRef.current.setData(rsiData as any);
                 }
                 
@@ -372,9 +403,11 @@ export const StockChart: React.FC<StockChartProps> = ({
                         color: (item.macd_hist ?? 0) >= 0 ? 'rgba(16, 185, 129, 0.5)' : 'rgba(244, 63, 94, 0.5)',
                     }));
                     
+                    /* eslint-disable @typescript-eslint/no-explicit-any */
                     macdSeriesRef.current.setData(macdData as any);
                     macdSignalSeriesRef.current.setData(macdSignalData as any);
                     macdHistSeriesRef.current.setData(macdHistData as any);
+                    /* eslint-enable @typescript-eslint/no-explicit-any */
                 }
                 
                 // 默认填充整个屏幕视图 (Fit view) - 仅在初始加载时

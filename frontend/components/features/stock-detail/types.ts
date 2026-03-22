@@ -73,9 +73,40 @@ export interface HeaderIdentityProps {
     onBack?: () => void;
 }
 
+/** 历史数据项类型 */
+export interface HistoryDataItem {
+    time: string;
+    open?: number;
+    high?: number;
+    low?: number;
+    close?: number;
+    volume?: number;
+    [key: string]: unknown;
+}
+
+/** 分析历史项类型 */
+export interface AnalysisHistoryItem {
+    id?: string;
+    created_at?: string;
+    immediate_action?: string;
+    history_price?: number;
+    risk_level?: string;
+    confidence_level?: number | string;
+    [key: string]: unknown;
+}
+
+/** 新闻项类型 */
+export interface NewsItem {
+    title?: string;
+    url?: string;
+    published_at?: string;
+    source?: string;
+    [key: string]: unknown;
+}
+
 /** 动态行情分析 Props */
 export interface MarketAnalysisProps {
-    historyData: any[];
+    historyData: HistoryDataItem[];
     ticker: string;
     showBb: boolean;
     showRsi: boolean;
@@ -85,13 +116,14 @@ export interface MarketAnalysisProps {
     onToggleMacd: () => void;
     onLoadMore?: (earliestTime: string) => void;
     isLoadingMore?: boolean;
+    isLoading?: boolean;
 }
 
 /** AI 智能判研指标 Props */
 export interface AIVerdictProps {
     selectedItem: PortfolioItem;
     aiData: AIData | null;
-    analysisHistory: any[];
+    analysisHistory: AnalysisHistoryItem[];
     analyzing: boolean;
     onAnalyze: (force?: boolean) => void;
     currency: string;
@@ -113,5 +145,5 @@ export interface FundamentalCardProps {
 
 /** 实时资讯流 Props */
 export interface NewsFeedProps {
-    news: any[];
+    news: NewsItem[];
 }

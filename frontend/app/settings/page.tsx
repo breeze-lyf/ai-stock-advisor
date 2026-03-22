@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import {
@@ -8,17 +8,14 @@ import {
   Bell,
   Bot,
   ChevronRight,
-  Database,
   HardDrive,
   Moon,
   Pencil,
   Plus,
   RefreshCcw,
   Save,
-  Search,
   Settings2,
   Shield,
-  Smartphone,
   Sparkles,
   Sun,
 } from "lucide-react";
@@ -64,15 +61,6 @@ function maskText(value: string, keep = 40) {
   return `${value.slice(0, keep)}...`;
 }
 
-async function copyText(value: string, onDone: (message: { text: string; type: "success" | "error" }) => void) {
-  try {
-    await navigator.clipboard.writeText(value);
-    onDone({ text: "已复制到剪贴板。", type: "success" });
-  } catch {
-    onDone({ text: "复制失败。", type: "error" });
-  }
-}
-
 export default function SettingsPage() {
   const { token, user: authUser, isAuthenticated, loading: authLoading } = useAuth();
   const { theme: currentTheme, setTheme } = useTheme();
@@ -85,7 +73,7 @@ export default function SettingsPage() {
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
   const [availableModels, setAvailableModels] = useState<AIModelConfigItem[]>([]);
-  const [modelsLoading, setModelsLoading] = useState(false);
+  const [, setModelsLoading] = useState(false);
   const [isAddModelOpen, setIsAddModelOpen] = useState(false);
   const [addingModel, setAddingModel] = useState(false);
   const [testingModel, setTestingModel] = useState(false);
@@ -128,16 +116,7 @@ export default function SettingsPage() {
     if (authUser.theme && currentTheme !== authUser.theme) setTheme(authUser.theme);
   }, [authUser, currentTheme, setTheme]);
 
-  useEffect(() => {
-    if (authLoading) return;
-    if (!token && !isAuthenticated) {
-      return;
-    }
-    void loadProfile();
-    void loadModels();
-  }, [authLoading, token, isAuthenticated]);
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     setProfileLoading(true);
     try {
       const data = await getProfile();
@@ -153,9 +132,9 @@ export default function SettingsPage() {
     } finally {
       setProfileLoading(false);
     }
-  };
+  }, [currentTheme, setTheme]);
 
-  const loadModels = async () => {
+  const loadModels = useCallback(async () => {
     setModelsLoading(true);
     try {
       setAvailableModels(await listAIModels());
@@ -165,7 +144,16 @@ export default function SettingsPage() {
     } finally {
       setModelsLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!token && !isAuthenticated) {
+      return;
+    }
+    void loadProfile();
+    void loadModels();
+  }, [authLoading, isAuthenticated, loadModels, loadProfile, token]);
 
   const selectedModel = useMemo(
     () => availableModels.find((model) => model.key === (profile?.preferred_ai_model || "")) || null,
@@ -259,8 +247,9 @@ export default function SettingsPage() {
       if (needsProfileUpdate) {
           setTimeout(() => loadProfile(), 1000); // Debounced background sync
       }
-    } catch (error: any) {
-      setMessage({ text: error.response?.data?.detail || (editingModelKey ? "更新模型失败。" : "添加模型失败。"), type: "error" });
+    } catch (error: unknown) {
+      const axiosErr = error as { response?: { data?: { detail?: string } } };
+      setMessage({ text: axiosErr.response?.data?.detail || (editingModelKey ? "更新模型失败。" : "添加模型失败。"), type: "error" });
     } finally {
       setAddingModel(false);
     }
@@ -291,9 +280,10 @@ export default function SettingsPage() {
         text: result.message,
         type: result.status === "success" ? "success" : "error",
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const axiosErr = error as { response?: { data?: { detail?: string } } };
       setModelTestMessage({
-        text: error.response?.data?.detail || "测试连接失败。",
+        text: axiosErr.response?.data?.detail || "测试连接失败。",
         type: "error",
       });
     } finally {
@@ -343,8 +333,9 @@ export default function SettingsPage() {
       setAvailableModels((prev) => prev.filter((model) => model.key !== modelKey));
       await loadProfile();
       setMessage({ text: response.message || "模型已删除。", type: "success" });
-    } catch (error: any) {
-      setMessage({ text: error.response?.data?.detail || "删除模型失败。", type: "error" });
+    } catch (error: unknown) {
+      const axiosErr = error as { response?: { data?: { detail?: string } } };
+      setMessage({ text: axiosErr.response?.data?.detail || "删除模型失败。", type: "error" });
     } finally {
       setDeletingModelKey(null);
     }
@@ -482,8 +473,9 @@ export default function SettingsPage() {
       await changePassword({ old_password: passwordForm.old_password, new_password: passwordForm.new_password });
       setPasswordForm({ old_password: "", new_password: "", confirm_password: "" });
       setPasswordMessage({ text: "密码更新成功。", type: "success" });
-    } catch (error: any) {
-      setPasswordMessage({ text: error.response?.data?.detail || "更新密码失败。", type: "error" });
+    } catch (error: unknown) {
+      const axiosErr = error as { response?: { data?: { detail?: string } } };
+      setPasswordMessage({ text: axiosErr.response?.data?.detail || "更新密码失败。", type: "error" });
     } finally {
       setPasswordLoading(false);
     }

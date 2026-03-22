@@ -14,10 +14,7 @@ import {
     BrainCircuit,
     PieChart,
     ChevronRight,
-    Search,
     BookOpen,
-    ExternalLink,
-    X
 } from "lucide-react";
 import Link from "next/link";
 import { analyzePortfolio } from "@/features/analysis/api";
@@ -77,7 +74,7 @@ export default function PortfolioPage() {
         } else if (typeof window !== 'undefined' && !localStorage.getItem("token")) {
             router.push("/login");
         }
-    }, [isAuthenticated]);
+    }, [isAuthenticated, router]);
 
     const handleAnalyze = async () => {
         setAnalyzing(true);

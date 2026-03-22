@@ -14,7 +14,7 @@ import type { AnalysisResponse } from "@/types";
 
 const STOCK_HISTORY_TTL_MS = 10 * 60_000;
 const ANALYSIS_HISTORY_TTL_MS = 10 * 60_000;
-const EMPTY_ARRAY: any[] = [];
+const EMPTY_ARRAY: unknown[] = [];
 
 
 export function useDashboardStockDetailData(
@@ -78,7 +78,7 @@ export function useDashboardStockDetailData(
       stockHistoryResource.refresh({ showLoading: true }),
       analysisHistoryResource.refresh({ showLoading: false }),
     ]);
-  }, [analysisHistoryEntry, refreshTimestamp, selectedTicker, stockHistoryEntry]);
+  }, [analysisHistoryResource, refreshTimestamp, selectedTicker, stockHistoryResource]);
 
   return {
     analysisHistory: analysisHistoryResource.data || EMPTY_ARRAY,

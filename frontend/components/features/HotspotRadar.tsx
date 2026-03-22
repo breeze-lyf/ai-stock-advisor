@@ -171,15 +171,19 @@ export function HotspotRadar({ loading, onRefresh, onSelectTicker, topics }: Hot
 }
 
 // Helper Button (Reuse components in same file for brevity)
-function Button({ className, variant, size, children, ...props }: any) {
-  const variants: any = {
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'outline';
+  size?: 'sm';
+}
+function Button({ className, variant, size, children, ...props }: ButtonProps) {
+  const variants: Record<string, string> = {
     outline: "border border-slate-200 bg-white hover:bg-slate-100 text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:text-slate-100"
   };
-  const sizes: any = {
+  const sizes: Record<string, string> = {
     sm: "h-9 px-3 text-xs"
   };
   return (
-    <button className={clsx("inline-flex items-center justify-center rounded-md font-medium transition-colors disabled:opacity-50", variants[variant], sizes[size], className)} {...props}>
+    <button className={clsx("inline-flex items-center justify-center rounded-md font-medium transition-colors disabled:opacity-50", variant && variants[variant], size && sizes[size], className)} {...props}>
       {children}
     </button>
   );

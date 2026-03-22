@@ -9,6 +9,8 @@ import os
 import requests
 import json
 import subprocess
+import urllib3
+from io import StringIO
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 from contextlib import contextmanager
@@ -335,71 +337,206 @@ class AkShareProvider(MarketDataProvider):
                     return df.dropna(subset=["Date"]).tail(num_days)
             except Exception as e:
                 last_error = e
-                logger.error(f"EM hist attempt for {ticker} with secid {secid} failed: {e}")
+                # 候选测试期间降低日志级别
+                logger.debug(f"EM hist attempt for {ticker} with secid {secid} failed: {e}")
                 continue
 
-        # 尝试 3: 新浪 Fallback (子进程方式，解决 uvicorn 环境下 MiniRacer 符号冲突)
+    async def _get_us_hist_em_direct(self, ticker: str, num_days: int = 250, end_date: Optional[str] = None) -> Optional[pd.DataFrame]:
+        """直接请求东方财富 API 获取 K 线 (支持美股/A股)，绕过 AkShare 封装以提高连通性"""
+        symbol = ticker.upper().strip()
+        last_error = None
+        
+        # 识别候选 secid: 
+        # 105: NASDAQ, 106: NYSE, 107: AMEX
+        # 0: 深交所, 1: 上交所
+        if self._is_us_stock(ticker):
+             secid_candidates = [f"105.{symbol}", f"106.{symbol}", f"107.{symbol}"]
+             # 尝试从缓存获取确切的 secid
+             if AkShareProvider._cached_us_spot_df is not None:
+                 df_spot = AkShareProvider._cached_us_spot_df
+                 row = df_spot[df_spot['代码'].str.contains(symbol, na=False)]
+                 if not row.empty:
+                     exact_secid = str(row.iloc[0]['代码'])
+                     if '.' in exact_secid:
+                         secid_candidates = [exact_secid] + [c for c in secid_candidates if c != exact_secid]
+        else:
+             numeric_symbol = "".join(filter(str.isdigit, symbol))
+             if symbol.endswith(".SH") or numeric_symbol.startswith("6"):
+                 secid_candidates = [f"1.{numeric_symbol}"]
+             else:
+                 secid_candidates = [f"0.{numeric_symbol}"]
+
+        loop = asyncio.get_event_loop()
+        
+        for secid in secid_candidates:
+            try:
+                # 字段说明: f51:日期, f52:开盘, f53:收盘, f54:最高, f55:最低, f56:成交量
+                # klt=101:日线, fqt=1:前复权
+                end_str = end_date.replace("-", "") if end_date else "20500101"
+                url = f"https://push2his.eastmoney.com/api/qt/stock/kline/get?secid={secid}&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61&klt=101&fqt=1&end={end_str}&lmt={num_days}"
+                
+                def fetch_em():
+                    _tls.bypass_proxy = True
+                    headers = {
+                        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                        "Referer": "https://quote.eastmoney.com/",
+                        "Connection": "close"
+                    }
+                    # 环境级禁用代理
+                    old_proxies = {var: os.environ.get(var) for var in ['HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY', 'http_proxy', 'https_proxy', 'all_proxy']}
+                    for var in old_proxies:
+                        if var in os.environ: del os.environ[var]
+                    try:
+                        resp = requests.get(url, headers=headers, timeout=5, proxies={'http': None, 'https': None})
+                        if resp.status_code == 200:
+                            return resp.json()
+                        return None
+                    finally:
+                        for var, val in old_proxies.items():
+                            if val: os.environ[var] = val
+
+                res_json = await loop.run_in_executor(None, fetch_em)
+                if not res_json or not res_json.get("data") or not res_json["data"].get("klines"):
+                    continue
+                
+                klines = res_json["data"]["klines"]
+                rows = [k.split(',') for k in klines]
+                df = pd.DataFrame(rows, columns=['Date', 'Open', 'Close', 'High', 'Low', 'Volume', 'CHG', 'CHG_PCT', 'TURNOVER', 'AMT', 'AMPLITUDE'])
+                
+                # 类型转换
+                df['Date'] = pd.to_datetime(df['Date'])
+                for col in ['Open', 'High', 'Low', 'Close', 'Volume']:
+                    df[col] = pd.to_numeric(df[col], errors='coerce')
+                
+                if df is not None and not df.empty:
+                    logger.info(f"✅ [AkShareProvider] Direct EM fetch success for {secid}, len={len(df)}")
+                    return df[['Date', 'Open', 'High', 'Low', 'Close', 'Volume']]
+            except Exception as e:
+                last_error = e
+                # 候选试错阶段，对连接性错误已降级，非核心错误日志
+                if "RemoteDisconnected" in str(e) or "Connection aborted" in str(e):
+                    logger.debug(f"Direct EM hist attempt failed for {secid}: {e}")
+                else:
+                    logger.warning(f"Direct EM hist attempt failed for {secid}: {e}")
+                continue
+
+        # 尝试 3: 优先尝试腾讯源 (由于其高频连通性更好)
         try:
-            logger.info("Trying Sina fallback (subprocess) for %s", ticker)
+            logger.info(f"🔍 [AkShareProvider] EM failed, trying Tencent backup for {ticker}")
+            df = await self._get_tencent_hist(ticker, num_days=num_days, end_date=end_date)
+            # 校验数据量，防止腾讯源只返回 2 条极简数据 (起止点)
+            if df is not None and len(df) > 10:
+                logger.info(f"✅ [AkShareProvider] Tencent backup fetch success for {ticker}, len={len(df)}")
+                return df
+            elif df is not None:
+                logger.warning(f"⚠️ [AkShareProvider] Tencent backup for {ticker} returned only {len(df)} rows (incomplete), skipping...")
+        except Exception as te:
+            logger.warning(f"⚠️ [AkShareProvider] Tencent backup failed for {ticker}: {te}")
+
+        # 尝试 4: 新浪 Subprocess Fallback (仅作为最后的稳健手段)
+        try:
+            logger.info(f"🔍 [AkShareProvider] Tencent failed, trying Sina subprocess for {ticker}")
             
             # 使用相对路径寻找脚本
             script_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "utils", "fetch_us_stock.py")
-            
-            args = ["python3", script_path, ticker]
-            if end_date:
-                args.append(end_date)
-
-            process = await asyncio.create_subprocess_exec(
-                *args,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
-            stdout, stderr = await process.communicate()
-            
-            if process.returncode == 0 and stdout:
-                raw_data = stdout.decode().strip()
-                if raw_data.startswith("["):
-                    df_sina = pd.read_json(raw_data)
-                    if df_sina is not None and not df_sina.empty:
-                        logger.info("Sina subprocess fallback for %s returned df with len=%s", ticker, len(df_sina))
-                        
-                        # 重命名与清洗
-                        rename_sina = {
-                            "date": "Date",
-                            "open": "Open",
-                            "high": "High",
-                            "low": "Low",
-                            "close": "Close",
-                            "volume": "Volume"
-                        }
-                        df_sina = df_sina.rename(columns=rename_sina)
-                        
-                        # 日期处理
-                        df_sina["Date"] = pd.to_datetime(df_sina["Date"], errors="coerce").dt.date
-                        
-                        # 数值转换
-                        for col in ["Open", "High", "Low", "Close", "Volume"]:
-                            if col in df_sina.columns:
-                                df_sina[col] = pd.to_numeric(df_sina[col], errors="coerce")
-                        
-                        return df_sina.dropna(subset=["Date", "Close"]).tail(num_days)
-                elif "error" in raw_data:
-                    logger.warning("Sina subprocess returned error for %s: %s", ticker, raw_data)
+            if os.path.exists(script_path):
+                args = ["python3", script_path, ticker]
+                if end_date: args.append(end_date)
+                
+                process = await asyncio.create_subprocess_exec(
+                    *args,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE
+                )
+                stdout, stderr = await process.communicate()
+                
+                if process.returncode == 0 and stdout:
+                    raw_data = stdout.decode().strip()
+                    if raw_data.startswith("["):
+                        from io import StringIO
+                        df_sina = pd.read_json(StringIO(raw_data))
+                        if df_sina is not None and not df_sina.empty:
+                            logger.info(f"✅ [AkShareProvider] Sina subprocess success for {ticker}, len={len(df_sina)}")
+                            rename_sina = {
+                                "date": "Date",
+                                "open": "Open",
+                                "high": "High",
+                                "low": "Low",
+                                "close": "Close",
+                                "volume": "Volume"
+                            }
+                            df_sina = df_sina.rename(columns=rename_sina)
+                            df_sina["Date"] = pd.to_datetime(df_sina["Date"], errors="coerce").dt.date
+                            for col in ["Open", "High", "Low", "Close", "Volume"]:
+                                if col in df_sina.columns:
+                                    df_sina[col] = pd.to_numeric(df_sina[col], errors="coerce")
+                            return df_sina.dropna(subset=["Date", "Close"]).tail(num_days)
             else:
-                err_msg = stderr.decode().strip()
-                logger.warning("Sina subprocess failed for %s: %s", ticker, err_msg)
-        except Exception as e:
-            last_error = e
-
-        # 尝试 4: 腾讯 (通常数据较少或受限)
-        try:
-            df = await self._get_tencent_hist(ticker)
-            if df is not None and not df.empty:
-                return df.tail(num_days)
-        except: pass
+                logger.warning(f"⚠️ [AkShareProvider] Sina script not found at {script_path}")
+        except Exception as se:
+            logger.warning(f"⚠️ [AkShareProvider] Sina subprocess failed for {ticker}: {se}")
 
         if last_error:
-            logger.warning("All US hist sources failed for %s: %s", ticker, last_error)
+            logger.warning(f"⚠️ [AkShareProvider] All domestic sources failed for {ticker}, error: {last_error}. Trying Yahoo...")
+        
+        # 尝试 5: Yahoo Finance Chart API 最终兜底 (通常需要代理/海外连通性)
+        try:
+            logger.info(f"🔍 [AkShareProvider] Trying Yahoo backup for {ticker}")
+            df = await self._get_yahoo_hist(ticker, num_days=num_days)
+            if df is not None and not df.empty:
+                logger.info(f"✅ [AkShareProvider] Yahoo Finance backup success for {ticker}, len={len(df)}")
+                return df
+        except Exception as ye:
+            logger.warning(f"⚠️ [AkShareProvider] Yahoo Finance backup failed for {ticker}: {ye}")
+
+        return None
+
+    async def _get_yahoo_hist(self, ticker: str, num_days: int = 250) -> Optional[pd.DataFrame]:
+        """Yahoo Finance Chart API 兜底 (针对某些标的在国内源数据残缺的情况)"""
+        symbol = ticker.upper().strip()
+        # 转换一些特殊代码 (指数)
+        if symbol == ".INX": symbol = "^GSPC"
+        elif symbol == ".IXIC": symbol = "^IXIC"
+        elif symbol == ".DJI": symbol = "^DJI"
+        
+        # 映射合理的时间跨度
+        if num_days <= 30: r = "1mo"
+        elif num_days <= 95: r = "3mo"
+        elif num_days <= 190: r = "6mo"
+        elif num_days <= 380: r = "1y"
+        else: r = "max"
+        
+        url = f"https://query2.finance.yahoo.com/v8/finance/chart/{symbol}?interval=1d&range={r}"
+        
+        try:
+            import httpx
+            # 注意: 这里保持默认代理环境，因为用户环境中的雅虎连通性经测试(test_yahoo_nvda.py)是良好的
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                headers = {'User-Agent': 'Mozilla/5.0'}
+                res = await client.get(url, headers=headers)
+                if res.status_code == 200:
+                    data = res.json()
+                    result = data.get("chart", {}).get("result", [{}])[0]
+                    timestamps = result.get("timestamp", [])
+                    indicators = result.get("indicators", {}).get("quote", [{}])[0]
+                    adj_close = result.get("indicators", {}).get("adjclose", [{}])[0].get("adjclose", [])
+                    
+                    if not timestamps: return None
+                    
+                    # 优先取复权收盘价 adj_close
+                    close_prices = adj_close if adj_close else indicators.get("close")
+                    
+                    df = pd.DataFrame({
+                        "Date": pd.to_datetime(timestamps, unit='s'),
+                        "Open": indicators.get("open"),
+                        "High": indicators.get("high"),
+                        "Low": indicators.get("low"),
+                        "Close": close_prices,
+                        "Volume": indicators.get("volume")
+                    })
+                    return df.dropna(subset=["Date", "Close"]).tail(num_days)
+        except Exception as e:
+            logger.debug(f"Yahoo hist fetch failed for {ticker}: {e}")
         return None
 
     def _get_sina_symbol(self, ticker: str) -> str:
@@ -1009,37 +1146,67 @@ class AkShareProvider(MarketDataProvider):
                 df = None
                 
                 if is_index:
-                    # 指数优先走腾讯 K 线，避免 AkShare 新浪指数接口在部分环境触发 mini_racer 崩溃
-                    logger.info(f"Attempting Tencent hist for US index {ticker}")
-                    df = await self._get_tencent_hist(ticker, num_days=500)
+                    # 指数优先走腾讯 K 线
+                    logger.info(f"DEBUG: Attempting Tencent hist for US index {ticker}")
+                    df = await self._get_tencent_hist(ticker, num_days=1000, end_date=end_date)
                     if df is not None and not df.empty:
-                        df = self.apply_indicators(df)
+                        logger.info(f"DEBUG: Tencent hist for US index {ticker} success, len={len(df)}")
                     else:
-                        logger.info(f"Tencent hist for US index {ticker} returned empty or None.")
+                        logger.info(f"DEBUG: Tencent hist for US index {ticker} failed.")
 
                 if df is None or df.empty:
-                    # 个股（或指数失败）走东方财富历史接口（不依赖 mini_racer，稳定性更高）
-                    # 根据 period 动态调整天数 (简单转换)
+                    # 尝试 1: 直接 EM API (加 50 天做指标预热)
                     days_map = {"1mo": 30, "3mo": 90, "6mo": 180, "1y": 250, "5y": 1250}
                     req_days = days_map.get(period, 250)
-                    df = await self._get_us_hist_em_df(ticker, num_days=req_days)
+                    logger.info(f"DEBUG: Attempting Direct EM API for {ticker}, end_date={end_date}, days={req_days+50}")
+                    df = await self._get_us_hist_em_direct(ticker, num_days=req_days + 50, end_date=end_date)
+                    if df is not None and not df.empty:
+                        logger.info(f"DEBUG: Direct EM API for {ticker} success, len={len(df)}")
+                    else:
+                        logger.info(f"DEBUG: Direct EM API for {ticker} failed.")
+                
+                if df is None or df.empty:
+                    # 尝试 2: 腾讯源 (US 股票备选)
+                    logger.info(f"DEBUG: Attempting Tencent hist for {ticker}")
+                    df = await self._get_tencent_hist(ticker, num_days=req_days + 50, end_date=end_date)
+                    if df is not None and not df.empty:
+                        logger.info(f"DEBUG: Tencent hist for {ticker} success, len={len(df)}")
+                    else:
+                        logger.info(f"DEBUG: Tencent hist for {ticker} failed.")
+
+                if df is None or df.empty:
+                    # 尝试 3: 原有的 AkShare EM (最后兜底)
+                    logger.info(f"DEBUG: Attempting AkShare EM hist for {ticker}")
+                    df = await self._get_us_hist_em_df(ticker, num_days=req_days + 50, end_date=end_date)
+                    if df is not None and not df.empty:
+                        logger.info(f"DEBUG: AkShare EM hist for {ticker} success, len={len(df)}")
+                    else:
+                        logger.info(f"DEBUG: AkShare EM hist for {ticker} failed.")
+
                 if df is not None and not df.empty:
                     df = df.sort_values("Date")
                     df.set_index('Date', inplace=True)
-                else:
-                    # 备选：腾讯源 (作为极速备选，尽管数据点可能较少)
-                    df = await self._get_tencent_hist(ticker, num_days=req_days)
-                    if df is not None and not df.empty:
-                        df.set_index('Date', inplace=True)
             else:
-                # A 股改用腾讯源，绕开被封锁的东财/AkShare 原生接口
+                # A 股改用腾讯源，绕开被封锁的东财 / AkShare 原生接口 (仅针对基础获取)
+                # 若有 end_date，优先尝试更精准的 Direct EM Hist API
                 days_map = {"1mo": 30, "3mo": 90, "6mo": 180, "1y": 250, "5y": 1250}
                 req_days = days_map.get(period, 250)
-                df = await self._get_tencent_hist(ticker, num_days=req_days)
+                
+                if end_date:
+                    logger.info(f"DEBUG: End date provided for A-share {ticker}, attempting Direct EM API first (with 50d warm-up)")
+                    df = await self._get_us_hist_em_direct(ticker, num_days=req_days + 50, end_date=end_date)
+                
+                if df is None or df.empty:
+                    # 腾讯源兜底 (A 股)
+                    logger.info(f"DEBUG: Attempting Tencent hist for A-share {ticker}")
+                    df = await self._get_tencent_hist(ticker, num_days=req_days + 50, end_date=end_date)
+                
                 if df is not None and not df.empty:
+                    logger.info(f"DEBUG: Hist fetch for A-share {ticker} success, len={len(df)}")
+                    df = df.sort_values("Date")
                     df.set_index('Date', inplace=True)
                 else:
-                    # 备选：原有的 AkShare 方式
+                    logger.info(f"DEBUG: Hist fetch for A-share {ticker} failed all paths.")
                     symbol = self._normalize_symbol(ticker)
                     @retry_on_network_error(max_retries=2)
                     def _fetch_hist():
@@ -1181,7 +1348,18 @@ class AkShareProvider(MarketDataProvider):
 
                 if df is None or df.empty:
                     try:
-                        # 个股优先走东方财富历史接口，避免 stock_us_daily 的 mini_racer 兼容问题
+                        # 优先尝试更稳定的 Direct EM Hist 接口 (加长 50d 预热)
+                        days_map = {"1mo": 40, "3mo": 100, "6mo": 200, "1y": 300, "5y": 1300}
+                        req_days = days_map.get(period, 300)
+                        df = await self._get_us_hist_em_direct(ticker, num_days=req_days + 50, end_date=end_date)
+                        if df is not None and not df.empty:
+                            logger.info(f"🚀 [AkShareProvider] get_ohlcv: Direct EM fetch success for {ticker}, len={len(df)}")
+                    except Exception as e:
+                        logger.warning(f"⚠️ [AkShareProvider] get_ohlcv: Direct EM fetch failed for {ticker}: {e}")
+
+                if df is None or df.empty:
+                    try:
+                        # 兜底走原有 EM DF 接口
                         df = await self._get_us_hist_em_df(ticker, end_date=end_date)
                     except: pass
 

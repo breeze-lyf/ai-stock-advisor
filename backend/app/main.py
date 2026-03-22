@@ -5,6 +5,8 @@ import logging
 import traceback
 import os
 import socket
+import asyncio
+from contextlib import asynccontextmanager
 from urllib.parse import urlparse
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -157,10 +159,38 @@ def _normalize_proxy_env() -> None:
 # 尽早应用兼容补丁，覆盖可能在 startup 前初始化的第三方客户端。
 _patch_httpx_asyncclient_compat()
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    _patch_py_mini_racer_cleanup_bug()
+    _patch_httpx_asyncclient_compat()
+    _normalize_proxy_env()
+
+    from app.core.database import SessionLocal
+    from app.services.system_ai_registry import ensure_system_ai_registry
+    from app.services.scheduler import start_scheduler
+
+    async with SessionLocal() as db:
+        await ensure_system_ai_registry(db)
+
+    scheduler_task = asyncio.create_task(start_scheduler())
+    app.state.scheduler_task = scheduler_task
+    logger.info("PHASE: Background scheduler task launched & DB synced.")
+
+    try:
+        yield
+    finally:
+        scheduler_task.cancel()
+        try:
+            await scheduler_task
+        except asyncio.CancelledError:
+            logger.info("PHASE: Background scheduler task cancelled.")
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     description="AI 智能投资助手后端 API，集成多源数据与 LLM 分析能力",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan,
 )
 
 # 2. 全局异常处理器 (Global Exception Handler)
@@ -269,28 +299,6 @@ from app.api.v1.api import api_router
 
 
 app.include_router(api_router, prefix="/api/v1")
-
-# 6. 后端后台任务启动 (Background Task Startup)
-@app.on_event("startup")
-async def startup_event():
-    _patch_py_mini_racer_cleanup_bug()
-    _patch_httpx_asyncclient_compat()
-    _normalize_proxy_env()
-
-    # 自动创建缺失的数据库表 (包括 notification_logs)
-    from app.core.database import engine, Base, SessionLocal
-    from app.models.notification import NotificationLog
-    from app.services.system_ai_registry import ensure_system_ai_registry
-    # 数据库同步现已通过 entrypoint.sh 中的 alembic upgrade head 统一处理
-
-    async with SessionLocal() as db:
-        await ensure_system_ai_registry(db)
-    
-    from app.services.scheduler import start_scheduler
-    import asyncio
-    # 使用 create_task 将调度循环挂在后台，不阻塞 Uvicorn 主进程启动
-    asyncio.create_task(start_scheduler())
-    logger.info("PHASE: Background scheduler task launched & DB synced.")
 
 @app.get("/health", tags=["System"])
 async def health_check():

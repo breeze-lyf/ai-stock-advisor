@@ -5,3 +5,4 @@ export { analysisApi, type AnalysisResponse, type PortfolioAnalysisResponse } fr
 export { macroApi, type MacroRadarItem, type GlobalNews, type MacroRadarResponse } from './macro'
 export { alertsApi, type NotificationLog } from './alerts'
 export { aiModelApi, type AIModelConfigItem, type CreateAIModelInput } from './aiModel'
+export { paperTradingApi, type SimulatedTrade, type TradeStatus, type CreateSimulatedTradeRequest } from './paperTrading'

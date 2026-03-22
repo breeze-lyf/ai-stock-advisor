@@ -1,7 +1,9 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
     PROJECT_NAME: str = "AI Smart Investment Advisor"
     DATABASE_URL: str = "sqlite+aiosqlite:///./ai_advisor.db"
     
@@ -33,9 +35,5 @@ class Settings(BaseSettings):
     IBKR_PORT: int = 7497              # 默认 Paper Trading 端口 (Live=7496, Gateway Live=4001, Gateway Paper=4002)
     IBKR_CLIENT_ID: int = 10           # 客户端 ID，避免与交易终端冲突
     IBKR_ENABLED: bool = False         # 总开关：设为 True 以启用 IBKR 数据源
-
-    class Config:
-        env_file = ".env"
-        extra = "ignore"
 
 settings = Settings()

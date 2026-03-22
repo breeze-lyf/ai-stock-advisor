@@ -98,7 +98,9 @@ export const portfolioApi = {
    * 搜索股票
    */
   searchStocks: async (query: string): Promise<SearchResult[]> => {
-    return httpClient.get<SearchResult[]>(`/stocks/search?query=${encodeURIComponent(query)}`)
+    return httpClient.get<SearchResult[]>(
+      `/portfolio/search?query=${encodeURIComponent(query)}&remote=true`
+    )
   },
 }
 

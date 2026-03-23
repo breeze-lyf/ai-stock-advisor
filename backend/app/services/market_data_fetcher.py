@@ -10,6 +10,7 @@ from app.core import security
 from app.infrastructure.db.repositories.user_provider_credential_repository import UserProviderCredentialRepository
 from app.schemas.market_data import FullMarketData, ProviderFundamental, ProviderTechnical
 from app.services.market_providers import ProviderFactory
+from app.utils.time import utc_now_naive
 
 logger = logging.getLogger(__name__)
 
@@ -187,7 +188,7 @@ class MarketDataFetcher:
                     logger.warning(f"News task for {ticker} failed with: {result}")
 
             def sort_key(item):
-                publish_time = item.publish_time if item.publish_time else datetime.utcnow()
+                publish_time = item.publish_time if item.publish_time else utc_now_naive()
                 if publish_time.tzinfo is not None:
                     publish_time = publish_time.replace(tzinfo=None)
                 return publish_time

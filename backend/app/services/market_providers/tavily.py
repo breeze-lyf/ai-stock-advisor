@@ -1,11 +1,11 @@
 import httpx
 import asyncio
 import logging
-from datetime import datetime
 from typing import List, Optional, Dict, Any
 from app.core.config import settings
 from app.schemas.market_data import ProviderNews
 from app.services.market_providers.base import MarketDataProvider
+from app.utils.time import utc_now_naive
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +75,7 @@ class TavilyProvider(MarketDataProvider):
                             publisher=res.get("url").split("/")[2] if res.get("url") else "Tavily Search",
                             link=res.get("url"),
                             summary=content,
-                            publish_time=datetime.utcnow()
+                            publish_time=utc_now_naive()
                         ))
                     
                     return processed_news[:5] # 返回过滤后的前 5 条

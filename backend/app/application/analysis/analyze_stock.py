@@ -25,6 +25,7 @@ from app.services.ai_service import AIService
 from app.services.macro_service import MacroService
 from app.services.market_data import MarketDataService
 from app.utils.ai_response_parser import parse_ai_json
+from app.utils.time import utc_now_naive
 
 logger = logging.getLogger(__name__)
 
@@ -230,7 +231,7 @@ class AnalyzeStockUseCase:
             "thought_process": parsed_data.get("thought_process"),
             "is_cached": False,
             "model_used": preferred_model,
-            "created_at": new_report.created_at if new_report else datetime.utcnow(),
+            "created_at": new_report.created_at if new_report else utc_now_naive(),
         }
 
     async def _check_free_tier_limit(self):
@@ -241,7 +242,7 @@ class AnalyzeStockUseCase:
         if await self._has_personal_api_key():
             return
 
-        today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        today_start = utc_now_naive().replace(hour=0, minute=0, second=0, microsecond=0)
         count = await self.repo.count_reports_since(self.current_user.id, today_start)
         if count >= 3:
             raise HTTPException(
@@ -370,7 +371,7 @@ class AnalyzeStockUseCase:
         if not last_report:
             return None
 
-        diff = datetime.utcnow() - last_report.created_at
+        diff = utc_now_naive() - last_report.created_at
         if diff.days > 0:
             time_ago = f"{diff.days}天前"
         elif diff.seconds > 3600:

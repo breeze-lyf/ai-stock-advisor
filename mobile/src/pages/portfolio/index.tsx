@@ -1,7 +1,8 @@
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { useCallback } from 'react'
-import { usePortfolioStore, PortfolioItem } from '@/store/portfolioStore'
+import { usePortfolioStore } from '@/store/portfolioStore'
+import type { PortfolioItem } from '@/types/domain'
 import './index.scss'
 
 export default function PortfolioPage() {

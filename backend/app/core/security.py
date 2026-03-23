@@ -5,6 +5,7 @@ from jose import jwt
 import bcrypt
 from cryptography.fernet import Fernet
 from app.core.config import settings
+from app.utils.time import utc_now_naive
 
 ALGORITHM = "HS256"
 
@@ -45,9 +46,9 @@ def sanitize_float(val: Any, default: Any = None) -> Any:
 
 def create_access_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = utc_now_naive() + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = utc_now_naive() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     
     to_encode = {"exp": expire, "sub": str(subject)}
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)

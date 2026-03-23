@@ -1,7 +1,8 @@
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro, { useDidShow } from '@tarojs/taro'
 import { useCallback, useState } from 'react'
-import { paperTradingApi, SimulatedTrade } from '@/services'
+import { paperTradingApi } from '@/services'
+import type { SimulatedTrade } from '@/types/domain'
 import './index.scss'
 
 export default function PaperTradingPage() {

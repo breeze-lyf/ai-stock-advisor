@@ -8,6 +8,7 @@ import time
 from datetime import datetime, timedelta, timezone
 from typing import Dict, Any, Optional, List
 from app.core.config import settings
+from app.utils.time import utc_now_naive
 
 logger = logging.getLogger(__name__)
 
@@ -64,9 +65,9 @@ class NotificationService:
                 # 这些类型应仅在 1 分钟内去重，防止并发冲突
                 SKIP_24H_DEDUPE = ["MACRO_SUMMARY", "HOURLY_NEWS_SUMMARY"]
                 
-                one_day_ago = datetime.utcnow() - timedelta(hours=24 if msg_type not in SKIP_24H_DEDUPE else 0)
+                one_day_ago = utc_now_naive() - timedelta(hours=24 if msg_type not in SKIP_24H_DEDUPE else 0)
                 # 对于跳过 24h 的类型，设定更稳健的 30 分钟防重窗口（防止整点触发逻辑重叠）
-                one_summary_window = datetime.utcnow() - timedelta(minutes=30)
+                one_summary_window = utc_now_naive() - timedelta(minutes=30)
                 
                 check_threshold = one_day_ago if msg_type not in SKIP_24H_DEDUPE else one_summary_window
 

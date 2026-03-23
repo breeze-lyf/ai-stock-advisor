@@ -27,7 +27,7 @@ logger = setup_logging(
     log_level=log_level,
     service_name="ai-stock-advisor",
     environment=environment,
-    log_file="app.log"
+    log_file="runtime-logs/app.log"
 )
 
 def _patch_py_mini_racer_cleanup_bug() -> None:

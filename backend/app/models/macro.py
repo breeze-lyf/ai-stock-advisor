@@ -1,7 +1,7 @@
 from sqlalchemy import Column, String, DateTime, Float, JSON, Text, Boolean
-from datetime import datetime
 import uuid
 from app.core.database import Base
+from app.utils.time import utc_now_naive
 
 class MacroTopic(Base):
     __tablename__ = "macro_topics"
@@ -15,7 +15,7 @@ class MacroTopic(Base):
     impact_analysis = Column(JSON)
     
     source_links = Column(JSON)                   # 来源链接列表
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(DateTime, default=utc_now_naive, onupdate=utc_now_naive)
 
     def __repr__(self):
         return f"<MacroTopic(title='{self.title}', heat={self.heat_score})>"
@@ -34,7 +34,7 @@ class GlobalNews(Base):
     # 是否为头条/深度报道
     is_headline = Column(Boolean, default=False)
     
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
 
     def __repr__(self):
         return f"<GlobalNews(time='{self.published_at}', title='{self.title[:20]}...')>"
@@ -54,7 +54,7 @@ class GlobalHourlyReport(Base):
     sentiment = Column(String)                     # 整体情绪定调
     news_count = Column(Float)                     # 本小时汇总的消息数量
     
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utc_now_naive)
 
     def __repr__(self):
         return f"<GlobalHourlyReport(hour='{self.hour_key}', news={self.news_count})>"

@@ -1,4 +1,4 @@
-import type { PortfolioItem, PortfolioSummary } from '@/store/portfolioStore'
+import type { PortfolioItem, PortfolioSummary } from '@/types/domain'
 import httpClient from './client'
 
 interface AddItemRequest {

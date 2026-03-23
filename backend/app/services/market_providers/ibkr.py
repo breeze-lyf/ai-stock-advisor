@@ -27,6 +27,7 @@ from app.schemas.market_data import (
     ProviderQuote, ProviderFundamental, ProviderNews,
     ProviderTechnical, FullMarketData, MarketStatus, OHLCVItem
 )
+from app.utils.time import utc_now_naive
 
 logger = logging.getLogger(__name__)
 
@@ -176,7 +177,7 @@ class IBKRProvider(MarketDataProvider):
 
             # 判断市场状态
             market_status = MarketStatus.OPEN
-            now = datetime.utcnow()
+            now = utc_now_naive()
             # 简化判断：UTC 时间 14:30-21:00 为美股交易时间
             if now.hour < 14 or (now.hour == 14 and now.minute < 30) or now.hour >= 21:
                 market_status = MarketStatus.CLOSED
@@ -191,7 +192,7 @@ class IBKRProvider(MarketDataProvider):
                 change_percent=round(change_pct, 2),
                 name=contract.symbol,  # IBKR 只返回 symbol，不提供公司全名
                 market_status=market_status,
-                last_updated=datetime.utcnow()
+                last_updated=utc_now_naive()
             )
 
         except asyncio.TimeoutError:

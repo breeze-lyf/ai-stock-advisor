@@ -4,8 +4,9 @@
 import json
 import logging
 import os
-from datetime import datetime
 from typing import Any, Dict, Optional
+
+from app.utils.time import utc_now_naive
 
 
 class JSONFormatter(logging.Formatter):
@@ -39,7 +40,7 @@ class JSONFormatter(logging.Formatter):
         
         # 基础字段
         log_data: Dict[str, Any] = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": utc_now_naive().isoformat() + "Z",
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
@@ -120,6 +121,10 @@ def setup_logging(
     root_logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
     root_logger.handlers.clear()
 
+    log_dir = os.path.dirname(log_file)
+    if log_dir:
+        os.makedirs(log_dir, exist_ok=True)
+
     json_formatter = JSONFormatter(service_name, environment)
     text_formatter = StandardFormatter(
         fmt="%(asctime)s  %(levelname)-8s  %(name)s  %(message)s",
@@ -142,7 +147,7 @@ def setup_logging(
         root_logger.warning(f"Failed to setup file logging: {e}")
 
     # ── AI 调用专用日志文件 ───────────────────────────────────────────
-    ai_log_path = os.path.join(os.path.dirname(log_file) or ".", "ai_calls.log")
+    ai_log_path = os.path.join(log_dir or ".", "ai_calls.log")
     try:
         ai_file_handler = logging.FileHandler(ai_log_path, encoding="utf-8")
         ai_file_handler.setLevel(logging.DEBUG)

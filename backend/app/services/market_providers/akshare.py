@@ -14,6 +14,7 @@ from io import StringIO
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 from contextlib import contextmanager
+from app.utils.time import utc_now_naive
 
 def retry_on_network_error(max_retries=3, initial_delay=1):
     """
@@ -624,7 +625,7 @@ class AkShareProvider(MarketDataProvider):
                                 price=float(parts[3]),
                                 change_percent=float(parts[32]),
                                 name=parts[1],
-                                last_updated=datetime.utcnow(),
+                                last_updated=utc_now_naive(),
                                 additional_data=additional
                             )
                 return None
@@ -823,7 +824,7 @@ class AkShareProvider(MarketDataProvider):
                         price=float(target.get('最新价', 0)),
                         change_percent=float(target.get('涨跌幅', 0)),
                         name=str(target.get('名称', ticker)),
-                        last_updated=datetime.utcnow()
+                        last_updated=utc_now_naive()
                     )
 
             # 3. 兜底路径 A：Sina 实时行情
@@ -837,7 +838,7 @@ class AkShareProvider(MarketDataProvider):
                         price=float(target.get('now', 0)),
                         change_percent=0.0,
                         name=str(target.get('name', ticker)),
-                        last_updated=datetime.utcnow()
+                        last_updated=utc_now_naive()
                     )
             except: pass
 
@@ -869,7 +870,7 @@ class AkShareProvider(MarketDataProvider):
                         price=float(d.get('f43', 0) / 100), # 价格通常放大了100倍
                         change_percent=float(d.get('f170', 0) / 100),
                         name=str(d.get('f58', ticker)),
-                        last_updated=datetime.utcnow()
+                        last_updated=utc_now_naive()
                     )
             except: pass
 
@@ -885,7 +886,7 @@ class AkShareProvider(MarketDataProvider):
             except: pass
 
             if price is not None:
-                return ProviderQuote(ticker=ticker, price=price, change_percent=change_percent, name=name or ticker, last_updated=datetime.utcnow())
+                return ProviderQuote(ticker=ticker, price=price, change_percent=change_percent, name=name or ticker, last_updated=utc_now_naive())
 
             return None
         except Exception as e:
@@ -928,7 +929,7 @@ class AkShareProvider(MarketDataProvider):
                     change_percent=0.0, # 极速报价暂不计算涨跌幅
                     name=ticker, 
                     market_status=MarketStatus.OPEN,
-                    last_updated=datetime.utcnow()
+                    last_updated=utc_now_naive()
                 )
 
             # --- 回退路径 2：AkShare A 股/美股实时快照缓存 (国内镜像源) ---
@@ -955,7 +956,7 @@ class AkShareProvider(MarketDataProvider):
                             price=float(target.get('最新价', 0)),
                             change_percent=float(target.get('涨跌幅', 0)),
                             name=str(target.get('名称', ticker)),
-                            last_updated=datetime.utcnow()
+                            last_updated=utc_now_naive()
                         )
             except Exception as e:
                 logger.error(f"AkShare US spot fallback failed for {ticker}: {e}")
@@ -982,7 +983,7 @@ class AkShareProvider(MarketDataProvider):
                     price=float(latest.get(close_key, 0)),
                     change_percent=0.0,
                     name=ticker, 
-                    last_updated=datetime.utcnow()
+                    last_updated=utc_now_naive()
                 )
             return None
         except Exception as e:
@@ -1192,6 +1193,7 @@ class AkShareProvider(MarketDataProvider):
                 days_map = {"1mo": 30, "3mo": 90, "6mo": 180, "1y": 250, "5y": 1250}
                 req_days = days_map.get(period, 250)
                 
+                df = None
                 if end_date:
                     logger.info(f"DEBUG: End date provided for A-share {ticker}, attempting Direct EM API first (with 50d warm-up)")
                     df = await self._get_us_hist_em_direct(ticker, num_days=req_days + 50, end_date=end_date)

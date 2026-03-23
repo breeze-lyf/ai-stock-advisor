@@ -11,6 +11,7 @@ from app.models.trade import TradeHistoryLog, TradeStatus
 from app.services.macro_service import MacroService
 from app.services.market_data import MarketDataService
 from app.services.notification_service import NotificationService
+from app.utils.time import utc_now_naive
 
 logger = logging.getLogger(__name__)
 
@@ -208,17 +209,17 @@ async def run_refresh_simulated_trades_job(db) -> tuple[int, int]:
         if trade.target_price and curr_price >= trade.target_price:
             trade.status = TradeStatus.CLOSED_PROFIT
             trade.exit_price = curr_price
-            trade.exit_date = datetime.utcnow()
+            trade.exit_date = utc_now_naive()
             trade.realized_pnl_pct = trade.unrealized_pnl_pct
             closed_count += 1
         elif trade.stop_loss_price and curr_price <= trade.stop_loss_price:
             trade.status = TradeStatus.CLOSED_LOSS
             trade.exit_price = curr_price
-            trade.exit_date = datetime.utcnow()
+            trade.exit_date = utc_now_naive()
             trade.realized_pnl_pct = trade.unrealized_pnl_pct
             closed_count += 1
 
-        today = datetime.utcnow().date()
+        today = utc_now_naive().date()
         existing_log = await repo.get_today_trade_log(
             trade.id,
             datetime.combine(today, datetime.min.time()),
@@ -230,7 +231,7 @@ async def run_refresh_simulated_trades_job(db) -> tuple[int, int]:
             repo.add_trade_log(
                 TradeHistoryLog(
                     trade_id=trade.id,
-                    log_date=datetime.utcnow(),
+                    log_date=utc_now_naive(),
                     price=curr_price,
                     pnl_pct=trade.unrealized_pnl_pct,
                 )

@@ -70,6 +70,8 @@ start_dev() {
     trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
 
     echo "Starting local development stack..."
+    local runtime_log_dir="$ROOT_DIR/backend/runtime-logs"
+    mkdir -p "$runtime_log_dir"
 
     if ! command -v npm >/dev/null 2>&1; then
         echo "Error: npm is not installed"
@@ -101,7 +103,7 @@ start_dev() {
     "$python_exec" -m uvicorn app.main:app --reload --host "$DEV_HOST" --port "$BACKEND_PORT" &
 
     echo "Starting market auto-refresh worker..."
-    "$python_exec" scripts/auto_refresh_market_data.py > auto_refresh.log 2>&1 &
+    "$python_exec" scripts/auto_refresh_market_data.py > "$runtime_log_dir/auto_refresh.log" 2>&1 &
 
     echo "Starting frontend on http://$DEV_HOST:$FRONTEND_PORT ..."
     cd "$ROOT_DIR/frontend"

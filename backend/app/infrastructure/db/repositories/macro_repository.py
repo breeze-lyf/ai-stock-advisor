@@ -7,6 +7,7 @@ from sqlalchemy.future import select
 from app.models.macro import GlobalHourlyReport, GlobalNews, MacroTopic
 from app.models.portfolio import Portfolio
 from app.models.user import User
+from app.utils.time import utc_now_naive
 
 
 class MacroRepository:
@@ -42,7 +43,7 @@ class MacroRepository:
                 existing_topic.heat_score = topic_data.get("heat_score", 50.0)
                 existing_topic.impact_analysis = impact_analysis
                 existing_topic.source_links = topic_data.get("sources", [])
-                existing_topic.updated_at = datetime.utcnow()
+                existing_topic.updated_at = utc_now_naive()
                 new_topics.append(existing_topic)
                 continue
 
@@ -100,7 +101,7 @@ class MacroRepository:
         return list(result.scalars().all())
 
     async def get_recent_news_for_radar(self, hours: int = 24, limit: int = 30) -> list[dict]:
-        cutoff = datetime.utcnow() - timedelta(hours=hours)
+        cutoff = utc_now_naive() - timedelta(hours=hours)
         stmt = (
             select(GlobalNews)
             .where(GlobalNews.created_at >= cutoff)
@@ -115,7 +116,7 @@ class MacroRepository:
         ]
 
     async def get_recent_news_for_hourly_report(self, hours: int = 1):
-        cutoff = datetime.utcnow() - timedelta(hours=hours)
+        cutoff = utc_now_naive() - timedelta(hours=hours)
         stmt = select(GlobalNews).where(GlobalNews.created_at >= cutoff).order_by(GlobalNews.created_at.desc())
         result = await self.db.execute(stmt)
         return list(result.scalars().all())

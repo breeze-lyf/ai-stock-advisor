@@ -1,7 +1,8 @@
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useState, useEffect, useCallback } from 'react'
-import { analysisApi, PortfolioAnalysisResponse } from '@/services/analysis'
+import { analysisApi } from '@/services/analysis'
+import type { PortfolioAnalysisResponse } from '@/types/domain'
 import './portfolio.scss'
 
 export default function PortfolioAnalysisPage() {

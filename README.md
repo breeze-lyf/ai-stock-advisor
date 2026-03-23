@@ -1,6 +1,6 @@
 # 🤖 AI Smart Investment Advisor (AI 智能股票策略顾问)
 
-> **AI 投资分析与组合辅助系统**。前端基于 Next.js App Router，后端基于 FastAPI，整合行情、新闻、宏观和 LLM 研判能力。
+> **AI 投资分析与组合辅助系统**。当前包含 Web 前端、FastAPI 后端以及 Taro 移动端，整合行情、新闻、宏观和 LLM 研判能力。
 
 ---
 
@@ -47,8 +47,9 @@
 
 - 前端：Next.js 开发服务器
 - 后端：Uvicorn `--reload`
-- 数据库：`backend/.env` 中配置的数据库，当前推荐使用 Neon Postgres
-- 后台任务：FastAPI 启动后自动挂起常驻调度协程
+- 数据库：`backend/.env` 中配置的数据库
+- 后台任务：FastAPI lifespan 中自动启动调度协程
+- 日志目录：默认写入 `backend/runtime-logs/`
 
 启动命令：
 
@@ -63,6 +64,7 @@
 - 已准备好 `backend/.env`
 
 启动脚本现在会在启动前自动检查 `3000/8000` 端口占用，并复用依赖缓存，避免每次重复安装依赖。
+本地 `dev` 模式还会启动独立的行情自动刷新 worker，日志同样写入 `backend/runtime-logs/auto_refresh.log`。
 
 若需要分别启动，也可以手动执行：
 
@@ -142,6 +144,11 @@ docker compose up --build -d
 - **交互组件**: Radix UI + Lucide Icons
 - **接口层**: Axios + OpenAPI 生成类型
 
+### 移动端 (Mobile)
+- **核心框架**: Taro + React 18
+- **当前已接通页面**: 登录、注册、组合概览、持仓管理、个股分析、组合分析、宏观雷达、通知历史、AI 模型管理、密码修改、模拟交易列表/创建
+- **CI**: `.github/workflows/mobile-deploy.yml` 支持 lint、类型检查、H5/小程序构建
+
 ### 后端 (Backend)
 - **核心框架**: FastAPI (Python 3.10+)
 - **任务调度**: 常驻后台协程 (轮询精度 60s)
@@ -166,6 +173,14 @@ docker compose up --build -d
 - `frontend/types/schema.d.ts`: 基于后端 OpenAPI 生成的类型定义。
 - `frontend/lib/utils.ts`: 全局 `formatDateTime` 时区转换方案。
 - `frontend/app/settings/page.tsx`: 左侧导航式设置页，当前包含通用设置、AI 配置、通知、安全、数据管理。
+
+### 移动端核心目录
+- `mobile/src/pages/index/index.tsx`: 首页与组合概览入口。
+- `mobile/src/pages/stock/detail.tsx`: 个股分析页。
+- `mobile/src/pages/macro/index.tsx`: 宏观雷达与财联社资讯。
+- `mobile/src/pages/paper-trading/index.tsx`: 模拟交易列表。
+- `mobile/src/pages/paper-trading/create.tsx`: 模拟交易创建页。
+- `mobile/src/services/*.ts`: 移动端接口适配层。
 
 ---
 
@@ -225,6 +240,17 @@ docker compose up --build -d
 
 ---
 
+## 📱 当前功能状态
+
+### Web 端
+- 已接通：登录/注册、组合概览、个股详情与历史图表、个股 AI 分析、组合 AI 分析、宏观雷达、通知流、AI 模型配置、密码修改、模拟交易总览。
+
+### 移动端
+- 已接通：登录/注册、首页概览、持仓列表与新增/删除、个股 AI 分析、组合分析、宏观雷达、通知历史、AI 模型管理、密码修改、模拟交易列表与创建。
+- 当前限制：移动端模拟交易已支持“创建 + 列表查看”，但暂未提供平仓/编辑等更完整生命周期操作。
+
+---
+
 ## 🔄 OpenAPI 类型同步
 
 后端接口变更后，使用下面的流程同步前端类型：
@@ -258,6 +284,7 @@ npm run generate-types
    - `backend/scripts/data/`：行情/新闻采集与刷新
    - `backend/scripts/dev/`：本地并发与性能诊断
 6. 生产部署优先使用 Docker Compose，不建议直接运行开发态脚本。
+7. 运行日志默认写入 `backend/runtime-logs/`，不建议再把日志文件直接放在仓库根目录或 `backend/` 根目录。
 
 ---
 

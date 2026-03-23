@@ -11,6 +11,7 @@ from app.models.user import User
 from app.schemas.portfolio import PortfolioCreate
 from app.services.market_data import MarketDataService
 from app.services.market_data_persistence import MarketDataPersistence
+from app.utils.time import utc_now_naive
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +57,7 @@ class AddPortfolioItemUseCase:
         needs_fetch = (
             not cache
             or cache.rsi_14 is None
-            or (datetime.utcnow() - cache.last_updated if cache and cache.last_updated else timedelta(days=1))
+            or (utc_now_naive() - cache.last_updated if cache and cache.last_updated else timedelta(days=1))
             > timedelta(minutes=30)
         )
         if needs_fetch:
@@ -130,7 +131,7 @@ class RefreshPortfolioStockUseCase:
                     data,
                     existing_cache,
                     self.db,
-                    datetime.utcnow(),
+                    utc_now_naive(),
                 )
                 cache = await self.repo.get_market_cache(ticker)
 
@@ -163,7 +164,7 @@ class RefreshPortfolioStockUseCase:
         async with SessionLocal() as bg_db:
             try:
                 existing_cache = await MarketDataPersistence.get_market_cache(bg_db, ticker)
-                await MarketDataService.persist_market_data(ticker, data, existing_cache, bg_db, datetime.utcnow())
+                await MarketDataService.persist_market_data(ticker, data, existing_cache, bg_db, utc_now_naive())
             except Exception as exc:
                 logger.error(f"Background DB sync failed for {ticker}: {exc}")
 

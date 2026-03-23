@@ -1,23 +1,6 @@
 import { create } from 'zustand'
 import { portfolioApi } from '@/services/portfolio'
-
-export interface PortfolioItem {
-  ticker: string
-  name: string
-  quantity: number
-  cost_basis: number
-  price?: number | null
-  weight?: number | null
-  market_status?: string | null
-}
-
-export interface PortfolioSummary {
-  total_market_value: number
-  total_unrealized_pl: number
-  total_pl_percent: number
-  day_change: number
-  holdings: PortfolioItem[]
-}
+import type { PortfolioItem, PortfolioSummary } from '@/types/domain'
 
 interface PortfolioState {
   items: PortfolioItem[]

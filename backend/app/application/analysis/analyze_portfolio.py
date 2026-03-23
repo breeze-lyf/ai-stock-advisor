@@ -17,6 +17,7 @@ from app.services.ai_service import AIService
 from app.services.macro_service import MacroService
 from app.services.market_data import MarketDataService
 from app.utils.ai_response_parser import parse_portfolio_ai_json
+from app.utils.time import utc_now_naive
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +61,7 @@ class AnalyzePortfolioUseCase:
             top_opportunities=parsed_data.get("top_opportunities", []),
             detailed_report=str(parsed_data.get("detailed_report", ai_raw_response)),
             model_used=preferred_model,
-            created_at=new_portfolio_report.created_at if new_portfolio_report else datetime.utcnow(),
+            created_at=new_portfolio_report.created_at if new_portfolio_report else utc_now_naive(),
         )
 
     def _build_holdings_data(self, holdings: list[Any]) -> list[dict[str, Any]]:

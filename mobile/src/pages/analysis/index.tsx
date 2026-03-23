@@ -1,7 +1,8 @@
 import { View, Text, ScrollView } from '@tarojs/components'
 import Taro, { useRouter } from '@tarojs/taro'
 import { useState, useEffect, useCallback } from 'react'
-import { analysisApi, AnalysisResponse } from '@/services/analysis'
+import { analysisApi } from '@/services/analysis'
+import type { AnalysisResponse } from '@/types/domain'
 import './index.scss'
 
 export default function AnalysisPage() {

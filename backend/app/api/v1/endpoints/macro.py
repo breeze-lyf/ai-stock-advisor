@@ -7,6 +7,7 @@ from app.models.user import User
 from app.api import deps
 from app.services.macro_service import MacroService
 from app.core import security
+from app.utils.time import utc_now_naive
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +29,7 @@ async def get_macro_radar(
         should_auto_update = True
     else:
         last_updated = topics[0].updated_at
-        if datetime.utcnow() - last_updated > timedelta(hours=5):
+        if utc_now_naive() - last_updated > timedelta(hours=5):
             should_auto_update = True
             
     if refresh or should_auto_update:
@@ -62,7 +63,7 @@ async def get_cls_news(
             should_update = True
         else:
             # 以第一条（最新的）的时间为准
-            if datetime.utcnow() - news_items[0].created_at > timedelta(minutes=10):
+            if utc_now_naive() - news_items[0].created_at > timedelta(minutes=10):
                 should_update = True
             
     if should_update:

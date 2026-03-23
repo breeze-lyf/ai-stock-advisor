@@ -1,36 +1,5 @@
+import type { CreateSimulatedTradeRequest, SimulatedTrade, TradeStatus } from '@/types/domain'
 import httpClient from './client'
-
-export type TradeStatus =
-  | 'OPEN'
-  | 'CLOSED_PROFIT'
-  | 'CLOSED_LOSS'
-  | 'CLOSED_MANUAL'
-
-export interface SimulatedTrade {
-  id: string
-  user_id: string
-  ticker: string
-  status: TradeStatus
-  entry_date: string
-  entry_price: number
-  entry_reason?: string | null
-  target_price?: number | null
-  stop_loss_price?: number | null
-  current_price?: number | null
-  unrealized_pnl_pct?: number | null
-  exit_date?: string | null
-  exit_price?: number | null
-  realized_pnl_pct?: number | null
-  exit_reason?: string | null
-}
-
-export interface CreateSimulatedTradeRequest {
-  ticker: string
-  entry_price: number
-  entry_reason: string
-  target_price?: number
-  stop_loss_price?: number
-}
 
 export const paperTradingApi = {
   getTrades: async (status?: TradeStatus): Promise<SimulatedTrade[]> => {

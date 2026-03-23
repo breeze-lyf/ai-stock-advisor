@@ -10,6 +10,7 @@ from app.models.macro import MacroTopic, GlobalNews, GlobalHourlyReport
 from app.services.macro_ai_service import MacroAIService
 from app.services.macro_fetcher import MacroFetcher
 from app.services.macro_notifier import MacroNotifier
+from app.utils.time import utc_now_naive
 
 logger = logging.getLogger(__name__)
 
@@ -142,7 +143,7 @@ class MacroService:
         if not news_items:
             return None
 
-        now = datetime.utcnow()
+        now = utc_now_naive()
         hour_key = now.strftime("%Y-%m-%d-%H")
 
         # 缓存检查：同一小时不再重复生成

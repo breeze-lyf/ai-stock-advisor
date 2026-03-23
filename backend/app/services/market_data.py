@@ -8,6 +8,7 @@ from app.models.stock import MarketDataCache
 from app.schemas.market_data import FullMarketData
 from app.services.market_data_fetcher import MarketDataFetcher
 from app.services.market_data_policy import MarketDataCachePolicy
+from app.utils.time import utc_now_naive
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,7 @@ class MarketDataService:
         if ticker.lower() == "portfolio":
             return None
 
-        now = datetime.utcnow()
+        now = utc_now_naive()
         repo = MarketDataService._repo(db)
         cache = await repo.get_market_cache(ticker)
         if MarketDataCachePolicy.can_use_cache(cache, now, force_refresh, price_only):

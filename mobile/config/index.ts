@@ -16,8 +16,6 @@ export default defineConfig<'webpack5'>(async (merge) => {
     sourceRoot: 'src',
     outputRoot: `dist/${process.env.TARO_ENV}`,
     plugins: [
-      '@tarojs/plugin-platform-weapp',
-      '@tarojs/plugin-platform-alipay',
       '@tarojs/plugin-platform-h5',
     ],
     defineConstants: {},

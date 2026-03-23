@@ -9,13 +9,10 @@
     "css": "sass"
   },
   "scripts": {
-    "dev:weapp": "taro build --type weapp --watch",
     "dev:rn": "taro build --type rn --watch",
     "dev:h5": "taro build --type h5 --watch",
-    "build:weapp": "taro build --type weapp",
     "build:rn": "taro build --type rn",
     "build:h5": "taro build --type h5",
-    "build:alipay": "taro build --type alipay",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix"
   },
@@ -30,9 +27,7 @@
     "@tarojs/components": "4.1.11",
     "@tarojs/helper": "4.1.11",
     "@tarojs/plugin-framework-react": "4.1.11",
-    "@tarojs/plugin-platform-alipay": "4.1.11",
     "@tarojs/plugin-platform-h5": "4.1.11",
-    "@tarojs/plugin-platform-weapp": "4.1.11",
     "@tarojs/react": "4.1.11",
     "@tarojs/runtime": "4.1.11",
     "@tarojs/shared": "4.1.11",

@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+dump_compose_diagnostics() {
+  echo "Deployment failed. Collecting compose diagnostics..."
+  ${COMPOSE_CMD} -f docker-compose.prod.yml ps || true
+  docker inspect stock_backend --format '{{json .State.Health}}' 2>/dev/null || true
+  ${COMPOSE_CMD} -f docker-compose.prod.yml logs --tail=200 backend || true
+  ${COMPOSE_CMD} -f docker-compose.prod.yml logs --tail=80 frontend || true
+}
+
 if ! command -v docker >/dev/null 2>&1; then
   echo "docker is required"
   exit 1
@@ -14,6 +22,8 @@ else
   echo "docker compose or docker-compose is required"
   exit 1
 fi
+
+trap dump_compose_diagnostics ERR
 
 if [ ! -f "./backend/.env" ]; then
   echo "missing ./backend/.env"
@@ -39,9 +49,6 @@ ${COMPOSE_CMD} -f docker-compose.prod.yml pull
 
 echo "Starting containers..."
 ${COMPOSE_CMD} -f docker-compose.prod.yml up -d
-
-echo "Running migrations..."
-${COMPOSE_CMD} -f docker-compose.prod.yml exec -T backend alembic upgrade head
 
 echo "Deployment completed"
 ${COMPOSE_CMD} -f docker-compose.prod.yml ps

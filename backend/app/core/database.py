@@ -1,15 +1,16 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy import event, text
-from sqlalchemy.engine import make_url
 from app.core.config import settings
+from app.core.database_url import (
+    build_postgres_connect_args,
+    normalize_async_database_url,
+)
 
 # 数据库引擎核心配置 (Database Engine Config)
 
 # 确保 URL 使用异步驱动 (Normalize DATABASE_URL)
-db_url = settings.DATABASE_URL
-if db_url.startswith("postgresql://") and "+asyncpg" not in db_url:
-    db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+db_url = normalize_async_database_url(settings.DATABASE_URL)
 
 # 判断是否为 PostgreSQL (Neon 等)
 is_postgresql = "postgresql" in db_url
@@ -22,20 +23,7 @@ if "sqlite" in db_url:
         "timeout": 30,
     }
 elif is_postgresql:
-    from sqlalchemy.engine import make_url
-    parsed_url = make_url(db_url)
-    host = (parsed_url.host or "").strip().lower()
-    sslmode = str(parsed_url.query.get("sslmode", "")).strip().lower()
-    is_local_postgres = host in {"127.0.0.1", "localhost"}
-    is_neon = host.endswith(".neon.tech")
-
-    connect_args = {"command_timeout": 60}
-    # 仅在 Neon 或显式声明 require 时开启 SSL，避免本地 Postgres 启动失败。
-    if sslmode in {"require", "verify-ca", "verify-full"} or is_neon:
-        connect_args["ssl"] = "require"
-    elif is_local_postgres:
-        # 显式禁用本地 SSL 协商，防止 asyncpg 默认行为导致的连接失败
-        connect_args["ssl"] = False
+    connect_args = build_postgres_connect_args(db_url)
 
 engine = create_async_engine(
     db_url,

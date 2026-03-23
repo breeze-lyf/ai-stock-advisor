@@ -13,6 +13,10 @@ from alembic import context
 
 from app.core.config import settings
 from app.core.database import Base
+from app.core.database_url import (
+    build_postgres_connect_args,
+    normalize_async_database_url,
+)
 # 显式导入所有模型以确保被 metadata 捕获
 import app.models # noqa: F401, E402
 
@@ -29,9 +33,7 @@ target_metadata = Base.metadata
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
-    url = settings.DATABASE_URL
-    if url.startswith("postgresql://") and "+asyncpg" not in url:
-        url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    url = normalize_async_database_url(settings.DATABASE_URL)
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -56,25 +58,13 @@ async def run_async_migrations() -> None:
     and associate a connection with the context.
     """
     configuration = config.get_section(config.config_ini_section, {})
-    url = settings.DATABASE_URL
-    if url.startswith("postgresql://") and "+asyncpg" not in url:
-        url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    url = normalize_async_database_url(settings.DATABASE_URL)
     configuration["sqlalchemy.url"] = url
     
     # 针对 Neon/PostgreSQL 的 SSL 配置
     connect_args = {}
     if "postgresql" in url:
-        from sqlalchemy.engine import make_url
-        parsed_url = make_url(url)
-        host = (parsed_url.host or "").strip().lower()
-        sslmode = str(parsed_url.query.get("sslmode", "")).strip().lower()
-        is_local_postgres = host in {"127.0.0.1", "localhost"}
-        is_neon = host.endswith(".neon.tech")
-
-        if sslmode in {"require", "verify-ca", "verify-full"} or is_neon:
-            connect_args["ssl"] = "require"
-        elif is_local_postgres:
-            connect_args["ssl"] = False
+        connect_args = build_postgres_connect_args(url)
 
     connectable = async_engine_from_config(
         configuration,

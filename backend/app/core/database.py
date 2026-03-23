@@ -6,18 +6,24 @@ from app.core.config import settings
 
 # 数据库引擎核心配置 (Database Engine Config)
 
+# 确保 URL 使用异步驱动 (Normalize DATABASE_URL)
+db_url = settings.DATABASE_URL
+if db_url.startswith("postgresql://") and "+asyncpg" not in db_url:
+    db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+
 # 判断是否为 PostgreSQL (Neon 等)
-is_postgresql = "postgresql" in settings.DATABASE_URL
+is_postgresql = "postgresql" in db_url
 
 # 数据库引擎配置
 connect_args = {}
-if "sqlite" in settings.DATABASE_URL:
+if "sqlite" in db_url:
     connect_args = {
         "check_same_thread": False,
         "timeout": 30,
     }
 elif is_postgresql:
-    parsed_url = make_url(settings.DATABASE_URL)
+    from sqlalchemy.engine import make_url
+    parsed_url = make_url(db_url)
     host = (parsed_url.host or "").strip().lower()
     sslmode = str(parsed_url.query.get("sslmode", "")).strip().lower()
     is_local_postgres = host in {"127.0.0.1", "localhost"}
@@ -32,7 +38,7 @@ elif is_postgresql:
         connect_args["ssl"] = False
 
 engine = create_async_engine(
-    settings.DATABASE_URL,
+    db_url,
     echo=False,  
     pool_pre_ping=True,
     # PostgreSQL 连接池优化

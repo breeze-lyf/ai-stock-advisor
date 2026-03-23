@@ -30,6 +30,8 @@ target_metadata = Base.metadata
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
     url = settings.DATABASE_URL
+    if url.startswith("postgresql://") and "+asyncpg" not in url:
+        url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -54,13 +56,16 @@ async def run_async_migrations() -> None:
     and associate a connection with the context.
     """
     configuration = config.get_section(config.config_ini_section, {})
-    configuration["sqlalchemy.url"] = settings.DATABASE_URL
+    url = settings.DATABASE_URL
+    if url.startswith("postgresql://") and "+asyncpg" not in url:
+        url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    configuration["sqlalchemy.url"] = url
     
     # 针对 Neon/PostgreSQL 的 SSL 配置
     connect_args = {}
-    if "postgresql" in settings.DATABASE_URL:
+    if "postgresql" in url:
         from sqlalchemy.engine import make_url
-        parsed_url = make_url(settings.DATABASE_URL)
+        parsed_url = make_url(url)
         host = (parsed_url.host or "").strip().lower()
         sslmode = str(parsed_url.query.get("sslmode", "")).strip().lower()
         is_local_postgres = host in {"127.0.0.1", "localhost"}

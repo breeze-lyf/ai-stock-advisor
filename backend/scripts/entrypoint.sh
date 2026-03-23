@@ -2,9 +2,21 @@
 set -e
 
 # 运行数据库迁移 (Alembic)
+echo "PHASE: Checking database connectivity..."
+
+# 提取并脱敏打印 DATABASE_URL (仅用于诊断，生产环境请根据安全需求调整)
+# 注意：这里假设 URL 格式为 postgresql+asyncpg://user:pass@host:port/db
+if [[ "$DATABASE_URL" == *"postgresql"* ]]; then
+    CLEAN_URL=$(echo $DATABASE_URL | sed -e 's/\/\/.*@/\/\/****:****@/g')
+    echo "Using DATABASE_URL: $CLEAN_URL"
+fi
+
 echo "Running database migrations..."
-# 确保在 /app 目录下执行，这样才能找到 alembic.ini 和 migrations/
-alembic upgrade head
+# 尝试运行迁移，如果失败则输出详细错误并退出
+if ! alembic upgrade head; then
+    echo "ERROR: Database migration failed!"
+    exit 1
+fi
 
 # 启动 Gunicorn + Uvicorn
 echo "Starting backend server..."

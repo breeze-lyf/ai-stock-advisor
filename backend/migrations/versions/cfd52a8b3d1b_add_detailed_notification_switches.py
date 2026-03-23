@@ -39,11 +39,19 @@ def upgrade() -> None:
 
     # 2. Restore missing tables
     if 'simulated_trades' not in tables:
+        # Check if tradestatus enum exists in Postgres
+        if bind.dialect.name == 'postgresql':
+            # Create the type if it doesn't exist
+            op.execute("DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'tradestatus') THEN CREATE TYPE tradestatus AS ENUM ('OPEN', 'CLOSED_PROFIT', 'CLOSED_LOSS', 'CLOSED_MANUAL'); END IF; END $$;")
+            trade_status_enum = postgresql.ENUM('OPEN', 'CLOSED_PROFIT', 'CLOSED_LOSS', 'CLOSED_MANUAL', name='tradestatus', create_type=False)
+        else:
+            trade_status_enum = sa.Enum('OPEN', 'CLOSED_PROFIT', 'CLOSED_LOSS', 'CLOSED_MANUAL', name='tradestatus')
+
         op.create_table('simulated_trades',
             sa.Column('id', sa.String(), nullable=False),
             sa.Column('user_id', sa.String(), nullable=False),
             sa.Column('ticker', sa.String(), nullable=False),
-            sa.Column('status', sa.Enum('OPEN', 'CLOSED_PROFIT', 'CLOSED_LOSS', 'CLOSED_MANUAL', name='tradestatus'), nullable=False),
+            sa.Column('status', trade_status_enum, nullable=False),
             sa.Column('entry_date', sa.DateTime(), nullable=False),
             sa.Column('entry_price', sa.Float(), nullable=False),
             sa.Column('entry_reason', sa.Text(), nullable=True),
@@ -88,4 +96,3 @@ def downgrade() -> None:
     
     op.drop_table('trade_history_logs')
     op.drop_table('simulated_trades')
-    # Optional: drop enum if needed, but safer to keep it

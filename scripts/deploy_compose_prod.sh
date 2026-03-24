@@ -59,6 +59,8 @@ echo "Running database preflight check with ${BACKEND_IMAGE}..."
 docker run --rm \
   --env-file ./backend/.env \
   --add-host host.docker.internal:host-gateway \
+  --workdir /app \
+  -e PYTHONPATH=/app \
   --entrypoint python \
   "${BACKEND_IMAGE}" \
   /app/scripts/check_database_connectivity.py

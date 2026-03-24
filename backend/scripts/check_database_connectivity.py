@@ -1,4 +1,9 @@
 import asyncio
+import os
+import sys
+
+# 将项目根目录添加到 python 路径，确保在容器中运行脚本时能正确导入 app 模块
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError

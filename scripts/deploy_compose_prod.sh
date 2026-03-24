@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+DEPLOY_STAGE="preflight"
+
 dump_compose_diagnostics() {
+  if [ "$DEPLOY_STAGE" = "preflight" ]; then
+    echo "Deployment failed before containers were updated."
+    return
+  fi
   echo "Deployment failed. Collecting compose diagnostics..."
   ${COMPOSE_CMD} -f docker-compose.prod.yml ps || true
   docker inspect stock_backend --format '{{json .State.Health}}' 2>/dev/null || true
@@ -47,7 +53,18 @@ echo "Using compose command: ${COMPOSE_CMD}"
 echo "Pulling images..."
 ${COMPOSE_CMD} -f docker-compose.prod.yml pull
 
+BACKEND_IMAGE="${ACR_REGISTRY}/ai-stock-advisor/stock-backend:${APP_IMAGE_TAG:-latest}"
+
+echo "Running database preflight check with ${BACKEND_IMAGE}..."
+docker run --rm \
+  --env-file ./backend/.env \
+  --add-host host.docker.internal:host-gateway \
+  --entrypoint python \
+  "${BACKEND_IMAGE}" \
+  /app/scripts/check_database_connectivity.py
+
 echo "Starting containers..."
+DEPLOY_STAGE="compose-up"
 ${COMPOSE_CMD} -f docker-compose.prod.yml up -d
 
 echo "Deployment completed"

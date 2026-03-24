@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+ALEMBIC_LOG=$(mktemp)
+cleanup() {
+    rm -f "$ALEMBIC_LOG"
+}
+trap cleanup EXIT
+
 # 运行数据库迁移 (Alembic)
 echo "PHASE: Checking database connectivity..."
 
@@ -13,7 +19,10 @@ fi
 
 echo "Running database migrations..."
 # 尝试运行迁移，如果失败则输出详细错误并退出
-if ! alembic upgrade head; then
+if ! alembic upgrade head 2>&1 | tee "$ALEMBIC_LOG"; then
+    if grep -qi "compute time quota" "$ALEMBIC_LOG"; then
+        echo "ERROR: Neon compute time quota exceeded. Resume or upgrade the Neon project before redeploying."
+    fi
     echo "ERROR: Database migration failed!"
     exit 1
 fi

@@ -1,4 +1,5 @@
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.ai_config import AIModelConfig
@@ -23,9 +24,23 @@ class AIModelRepository:
 
     async def save(self, config: AIModelConfig):
         self.db.add(config)
-        await self.db.commit()
-        await self.db.refresh(config)
-        return config
+        try:
+            await self.db.commit()
+            await self.db.refresh(config)
+            return config
+        except IntegrityError:
+            await self.db.rollback()
+            existing = await self.get_by_key(config.key)
+            if existing is None:
+                raise
+
+            existing.provider = config.provider
+            existing.model_id = config.model_id
+            existing.is_active = config.is_active
+            existing.description = config.description
+            await self.db.commit()
+            await self.db.refresh(existing)
+            return existing
 
     async def deactivate(self, config: AIModelConfig):
         config.is_active = False

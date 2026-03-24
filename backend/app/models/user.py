@@ -15,7 +15,7 @@ class MembershipTier(str, enum.Enum):
 # 数据源选项 (用户偏好设置)
 class MarketDataSource(str, enum.Enum):
     AKSHARE = "AKSHARE"
-    IBKR = "IBKR"
+    YFINANCE = "YFINANCE"
 
 # AI 模型选项 (用户可以在个人设置中切换默认模型)
 class AIModel(str, enum.Enum):

@@ -74,3 +74,4 @@ websockets>=13.0,<15.0
 gunicorn==23.0.0
 akshare
 ib_async
+yfinance==0.2.66

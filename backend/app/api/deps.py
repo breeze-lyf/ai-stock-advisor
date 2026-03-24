@@ -14,6 +14,11 @@ reusable_oauth2 = OAuth2PasswordBearer(
     tokenUrl="/api/auth/login"
 )
 
+optional_oauth2 = OAuth2PasswordBearer(
+    tokenUrl="/api/auth/login",
+    auto_error=False,
+)
+
 async def get_current_user(
     db: AsyncSession = Depends(get_db),
     token: str = Depends(reusable_oauth2)
@@ -37,3 +42,24 @@ async def get_current_user(
         raise HTTPException(status_code=404, detail="User not found")
     
     return user
+
+
+async def get_optional_current_user(
+    db: AsyncSession = Depends(get_db),
+    token: Optional[str] = Depends(optional_oauth2),
+) -> Optional[User]:
+    if not token:
+        return None
+
+    try:
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
+        )
+    except (JWTError, ValidationError):
+        return None
+
+    user_id = payload.get("sub")
+    if not user_id:
+        return None
+
+    return await UserRepository(db).get_by_id(user_id)

@@ -478,18 +478,10 @@ class AkShareProvider(MarketDataProvider):
             logger.warning(f"⚠️ [AkShareProvider] Sina subprocess failed for {ticker}: {se}")
 
         if last_error:
-            logger.warning(f"⚠️ [AkShareProvider] All domestic sources failed for {ticker}, error: {last_error}. Trying Yahoo...")
-        
-        # 尝试 5: Yahoo Finance Chart API 最终兜底 (通常需要代理/海外连通性)
-        try:
-            logger.info(f"🔍 [AkShareProvider] Trying Yahoo backup for {ticker}")
-            df = await self._get_yahoo_hist(ticker, num_days=num_days)
-            if df is not None and not df.empty:
-                logger.info(f"✅ [AkShareProvider] Yahoo Finance backup success for {ticker}, len={len(df)}")
-                return df
-        except Exception as ye:
-            logger.warning(f"⚠️ [AkShareProvider] Yahoo Finance backup failed for {ticker}: {ye}")
-
+            logger.warning(
+                f"⚠️ [AkShareProvider] All domestic sources failed for {ticker}, error: {last_error}. "
+                "AKSHARE mode will not fall back to Yahoo."
+            )
         return None
 
     async def _get_yahoo_hist(self, ticker: str, num_days: int = 250) -> Optional[pd.DataFrame]:
@@ -792,12 +784,20 @@ class AkShareProvider(MarketDataProvider):
 
         if self._is_us_stock(ticker):
             # 1. 优先使用腾讯源 (腾讯源支持美股指数 .INX 等)
-            quote = await self._get_tencent_quote(ticker)
-            if quote: return quote
+            try:
+                quote = await self._get_tencent_quote(ticker)
+                if quote:
+                    return quote
+            except Exception as e:
+                logger.warning(f"Tencent US quote fetch failed for {ticker}: {e}")
             
             # 2. 备选方案：新浪或东财
-            quote = await self._get_us_quote(ticker)
-            if quote: return quote
+            try:
+                quote = await self._get_us_quote(ticker)
+                if quote:
+                    return quote
+            except Exception as e:
+                logger.warning(f"AkShare US quote fallback failed for {ticker}: {e}")
             
             return None
             

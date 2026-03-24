@@ -31,12 +31,14 @@ import {
   createAIModel,
   deleteAIModel,
   getProfile,
+  listMarketDataSources,
   listAIModels,
   testAIConnection,
   testTavilyConnection,
   updateSettings,
   type AIModelConfigItem,
   type CreateAIModelConfigInput,
+  type MarketDataSourceOption,
 } from "@/features/user/api";
 import type { UserProfile } from "@/types";
 
@@ -73,6 +75,7 @@ export default function SettingsPage() {
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
   const [availableModels, setAvailableModels] = useState<AIModelConfigItem[]>([]);
+  const [availableDataSources, setAvailableDataSources] = useState<MarketDataSourceOption[]>([]);
   const [, setModelsLoading] = useState(false);
   const [isAddModelOpen, setIsAddModelOpen] = useState(false);
   const [addingModel, setAddingModel] = useState(false);
@@ -146,6 +149,15 @@ export default function SettingsPage() {
     }
   }, []);
 
+  const loadDataSources = useCallback(async () => {
+    try {
+      setAvailableDataSources(await listMarketDataSources());
+    } catch (error) {
+      console.error("Failed to load market data sources", error);
+      setAvailableDataSources([]);
+    }
+  }, []);
+
   useEffect(() => {
     if (authLoading) return;
     if (!token && !isAuthenticated) {
@@ -153,11 +165,17 @@ export default function SettingsPage() {
     }
     void loadProfile();
     void loadModels();
-  }, [authLoading, isAuthenticated, loadModels, loadProfile, token]);
+    void loadDataSources();
+  }, [authLoading, isAuthenticated, loadDataSources, loadModels, loadProfile, token]);
 
   const selectedModel = useMemo(
     () => availableModels.find((model) => model.key === (profile?.preferred_ai_model || "")) || null,
     [availableModels, profile?.preferred_ai_model],
+  );
+
+  const selectedDataSource = useMemo(
+    () => availableDataSources.find((item) => item.key === (profile?.preferred_data_source || "AKSHARE")) || null,
+    [availableDataSources, profile?.preferred_data_source],
   );
 
   const handleSetDefaultModel = async (modelKey: string) => {
@@ -379,6 +397,22 @@ export default function SettingsPage() {
     } catch (error) {
       console.error("Failed to update notification setting", error);
       setMessage({ text: "更新通知偏好失败。", type: "error" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handlePreferredDataSourceUpdate = async (dataSource: string) => {
+    setSaving(true);
+    setMessage(null);
+    try {
+      const updated = await updateSettings({ preferred_data_source: dataSource });
+      setProfile(updated);
+      setMessage({ text: `默认数据源已切换为 ${dataSource}。`, type: "success" });
+    } catch (error: unknown) {
+      console.error("Failed to update preferred data source", error);
+      const axiosErr = error as { response?: { data?: { detail?: string } } };
+      setMessage({ text: axiosErr.response?.data?.detail || "切换数据源失败。", type: "error" });
     } finally {
       setSaving(false);
     }
@@ -783,6 +817,67 @@ export default function SettingsPage() {
       <div className="rounded-2xl border border-slate-200 px-5 py-5 dark:border-slate-800">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">默认行情数据源</h3>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              选择账户默认使用的数据源。不同服务器环境可看到不同的可用源状态。
+            </p>
+          </div>
+          <span className="rounded-full border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-500 dark:border-slate-700 dark:text-slate-400">
+            当前: {selectedDataSource?.label || profile?.preferred_data_source || "AKSHARE"}
+          </span>
+        </div>
+        <div className="mt-4 space-y-3">
+          {availableDataSources.map((source) => {
+            const active = (profile?.preferred_data_source || "AKSHARE") === source.key;
+            return (
+              <div
+                key={source.key}
+                className={`rounded-2xl border px-4 py-4 transition ${
+                  active
+                    ? "border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-950"
+                    : "border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950"
+                }`}
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm font-semibold">{source.label}</div>
+                      {source.is_default && (
+                        <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${active ? "border-white/30 text-white/80 dark:border-slate-500 dark:text-slate-700" : "border-sky-500/20 bg-sky-500/10 text-sky-600 dark:text-sky-400"}`}>
+                          系统默认
+                        </span>
+                      )}
+                      <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${source.is_available ? (active ? "border-white/30 text-white/80 dark:border-slate-500 dark:text-slate-700" : "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400") : "border-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-400"}`}>
+                        {source.is_available ? "可用" : "当前不可用"}
+                      </span>
+                    </div>
+                    <p className={`mt-2 text-sm ${active ? "text-white/80 dark:text-slate-700" : "text-slate-500 dark:text-slate-400"}`}>
+                      {source.description}
+                    </p>
+                  </div>
+                  <Button
+                    variant={active ? "secondary" : "outline"}
+                    size="sm"
+                    disabled={saving || !source.is_available || active}
+                    onClick={() => handlePreferredDataSourceUpdate(source.key)}
+                  >
+                    {active ? "当前使用中" : "设为默认"}
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
+          {availableDataSources.length === 0 && (
+            <div className="rounded-xl border border-dashed border-slate-300 px-4 py-6 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+              暂未获取到可选数据源。
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-slate-200 px-5 py-5 dark:border-slate-800">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
             <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Tavily 搜索 API</h3>
             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
               用于全球宏观与新闻检索。支持独立开关、连接测试与密钥更新。
@@ -874,9 +969,13 @@ export default function SettingsPage() {
 
       <div className="border-t border-slate-200 pt-6 dark:border-slate-800">
         <div className="flex flex-wrap gap-3">
-          <Button variant="outline" onClick={() => { void loadProfile(); void loadModels(); }}>
+          <Button variant="outline" onClick={() => { void loadProfile(); void loadModels(); void loadDataSources(); }}>
             <RefreshCcw className="mr-2 h-4 w-4" />
             重新同步配置
+          </Button>
+          <Button variant="outline" onClick={() => { void loadDataSources(); }}>
+            <RefreshCcw className="mr-2 h-4 w-4" />
+            刷新数据源状态
           </Button>
           <Button
             variant="outline"

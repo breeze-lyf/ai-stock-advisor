@@ -1,9 +1,9 @@
 from typing import Dict
 import logging
 
-from app.core.config import settings
 from app.services.market_providers.base import MarketDataProvider
 from app.services.market_providers.akshare import AkShareProvider
+from app.services.market_providers.yfinance import YFinanceProvider
 
 logger = logging.getLogger(__name__)
 
@@ -16,27 +16,14 @@ class ProviderFactory:
     @classmethod
     def get_provider(cls, ticker: str, preferred_source: str = "AKSHARE") -> MarketDataProvider:
         """
-        核心分流逻辑（默认关闭 IBKR）：
-        1. 默认统一走 AkShare。
-        2. 只有 preferred_source 明确指定为 IBKR 且 IBKR_ENABLED=true 时，才尝试 IBKR。
-        3. IBKR 不可用时自动回退 AkShare。
+        核心分流逻辑：
+        1. 用户显式选择 AKSHARE 或 YFINANCE 时，优先尊重用户设置。
+        2. 未识别的来源统一回退到 AKSHARE。
         """
         source = (preferred_source or "AKSHARE").upper()
-        ibkr_enabled = bool(getattr(settings, "IBKR_ENABLED", False))
-
-        if source == "IBKR" and ibkr_enabled and cls._is_ibkr_available():
-            return cls._get_instance("IBKR")
-
+        if source == "YFINANCE":
+            return cls._get_instance("YFINANCE")
         return cls._get_instance("AKSHARE")
-
-    @classmethod
-    def _is_ibkr_available(cls) -> bool:
-        """检查 IBKR Provider 是否可用（不建立真实连接，仅检查配置和库依赖）"""
-        try:
-            from app.services.market_providers.ibkr import IBKRProvider
-            return IBKRProvider.is_available()
-        except ImportError:
-            return False
 
     @classmethod
     def _get_instance(cls, source: str) -> MarketDataProvider:
@@ -44,12 +31,10 @@ class ProviderFactory:
         内部方法：单例模式获取 Provider 实例
         """
         if source not in cls._instances:
-            if source == "IBKR":
-                from app.services.market_providers.ibkr import IBKRProvider
-                cls._instances[source] = IBKRProvider()
-            elif source == "AKSHARE":
+            if source == "AKSHARE":
                 cls._instances[source] = AkShareProvider()
+            elif source == "YFINANCE":
+                cls._instances[source] = YFinanceProvider()
             else:
-                # 兜底：不再使用 YFinance，统一回退到 AKSHARE
                 cls._instances[source] = AkShareProvider()
         return cls._instances[source]

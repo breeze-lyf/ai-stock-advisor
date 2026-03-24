@@ -11,12 +11,14 @@ from app.services.market_data import MarketDataService
 from app.models.portfolio import Portfolio
 from sqlalchemy.future import select
 
+from app.api.deps import get_optional_current_user
 from app.core.database import get_db
 from app.core.security import sanitize_float
 from app.schemas.market_data import OHLCVItem
 from app.schemas.portfolio import PortfolioItem
 from app.infrastructure.db.repositories.stock_repository import StockRepository
 from app.services.market_providers.akshare import AkShareProvider
+from app.models.user import User
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -116,6 +118,7 @@ def _snapshot_to_portfolio_item(ticker: str, cache, stock) -> PortfolioItem:
 async def get_stock_snapshot(
     ticker: str,
     db: AsyncSession = Depends(get_db),
+    current_user: User | None = Depends(get_optional_current_user),
 ):
     """
     接口：获取单只股票的详情快照。
@@ -124,7 +127,13 @@ async def get_stock_snapshot(
     ticker = ticker.upper().strip()
 
     try:
-        cache = await MarketDataService.get_real_time_data(ticker, db)
+        preferred_source = current_user.preferred_data_source if current_user else "AKSHARE"
+        cache = await MarketDataService.get_real_time_data(
+            ticker,
+            db,
+            preferred_source=preferred_source,
+            user_id=current_user.id if current_user else None,
+        )
         stock = await StockRepository(db).get_stock(ticker)
 
         if not cache and not stock:
@@ -142,7 +151,8 @@ async def get_stock_history(
     period: str = "1y",     # 时间跨度，如 1y (一年), 1mo (一月), 5d (五天)
     interval: str = "1d",   # 频率，如 1d (日线), 1hk (小时线)
     end_date: Optional[str] = Query(None, description="回溯加载时的截止日期 (YYYY-MM-DD)"),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User | None = Depends(get_optional_current_user),
 ):
     """
     接口：获取股票的历史行情数据，专为 K 线图打造。
@@ -154,7 +164,8 @@ async def get_stock_history(
         
         # 工厂模式：它会根据 Ticker 自动判断去哪抓数据。
         # 比如输入 'AAPL' 会去美股源，输入 '600519.SH' 则会自动切换到 A 股源。
-        provider = ProviderFactory.get_provider(ticker)
+        preferred_source = current_user.preferred_data_source if current_user else "AKSHARE"
+        provider = ProviderFactory.get_provider(ticker, preferred_source)
         data = await provider.get_ohlcv(ticker, interval=interval, period=period, end_date=end_date)
 
         logger.info(
@@ -164,11 +175,10 @@ async def get_stock_history(
             len(data) if data else 0,
         )
 
-        # 非 A 股场景：IBKR 常见失败模式是“可用但未连上网关”，此时回退 AkShare 避免前端趋势图空白。
         is_cn = (ticker.isdigit() and len(ticker) == 6) or any(
             suffix in ticker.upper() for suffix in [".SS", ".SZ"]
         )
-        if (not data) and (not is_cn) and provider.__class__.__name__ == "IBKRProvider":
+        if (not data) and (not is_cn) and provider.__class__.__name__ == "YFinanceProvider":
             try:
                 fallback_provider = AkShareProvider()
                 data = await fallback_provider.get_ohlcv(ticker, interval=interval, period=period, end_date=end_date)

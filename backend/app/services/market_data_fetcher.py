@@ -112,8 +112,9 @@ class MarketDataFetcher:
             if fundamental_task:
                 fundamental = await MarketDataFetcher._build_fundamental(provider, ticker, fundamental_task)
 
+            news = []
             if news_tasks:
-                await MarketDataFetcher._collect_news(ticker, news_tasks)
+                news = await MarketDataFetcher._collect_news(ticker, news_tasks)
 
             if quote and not isinstance(quote, Exception):
                 _log_duration(f"{ticker} 全量数据获取", total_start)
@@ -123,6 +124,7 @@ class MarketDataFetcher:
                     technical=ProviderTechnical(indicators=indicators)
                     if not isinstance(indicators, Exception) and indicators
                     else None,
+                    news=news,
                 )
         except Exception as exc:
             logger.error(f"从 {type(provider).__name__} 获取 {ticker} 数据时发生错误: {exc}")

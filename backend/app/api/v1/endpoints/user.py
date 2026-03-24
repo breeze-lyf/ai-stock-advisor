@@ -18,6 +18,7 @@ from app.models.user_ai_model import UserAIModel
 from app.schemas.user_settings import (
     AIModelConfigCreate,
     AIModelConfigResponse,
+    MarketDataSourceOption,
     PasswordChange,
     ProviderConfigResponse,
     TavilyTestRequest,
@@ -31,6 +32,7 @@ from app.core import security
 
 router = APIRouter()
 PUBLIC_SYSTEM_MODEL_KEYS = {"qwen3.5-plus"}
+SUPPORTED_DATA_SOURCES = {"AKSHARE", "YFINANCE"}
 
 
 def build_model_key(display_name: str) -> str:
@@ -44,6 +46,41 @@ def mask_secret(secret: str | None) -> str | None:
     if len(secret) <= 8:
         return f"{secret[:2]}****"
     return f"{secret[:4]}{'•' * max(4, min(8, len(secret) - 8))}{secret[-4:]}"
+
+
+def get_market_data_source_options() -> list[MarketDataSourceOption]:
+    return [
+        MarketDataSourceOption(
+            key="AKSHARE",
+            label="AkShare",
+            description="适合国内服务器环境，优先走东方财富、腾讯、新浪等国内可达数据链路。",
+            is_available=True,
+            is_default=True,
+        ),
+        MarketDataSourceOption(
+            key="YFINANCE",
+            label="Yahoo Finance",
+            description="适合海外服务器环境，使用 yfinance 直连 Yahoo Finance 行情与历史数据。",
+            is_available=True,
+            is_default=False,
+        ),
+    ]
+
+
+def normalize_preferred_data_source(raw_value: str | None) -> str | None:
+    if raw_value is None:
+        return None
+
+    normalized = raw_value.strip().upper()
+    if normalized not in SUPPORTED_DATA_SOURCES:
+        raise HTTPException(status_code=400, detail="不支持的数据源")
+
+    options = {item.key: item for item in get_market_data_source_options()}
+    option = options.get(normalized)
+    if option is None or not option.is_available:
+        raise HTTPException(status_code=400, detail=f"数据源 {normalized} 当前不可用")
+
+    return normalized
 
 
 def serialize_user_profile(current_user: User, provider_credentials: dict[str, UserProviderCredentialResponse] | None = None) -> UserProfile:
@@ -101,6 +138,11 @@ async def read_users_me(
     provider_credentials = await build_provider_credential_map(db, current_user.id)
     return serialize_user_profile(current_user, provider_credentials)
 
+
+@router.get("/market-data-sources", response_model=list[MarketDataSourceOption])
+async def list_market_data_sources(_: User = Depends(get_current_user)):
+    return get_market_data_source_options()
+
 @router.put("/password")
 async def change_password(
     data: PasswordChange,
@@ -157,7 +199,7 @@ async def update_user_settings(
         current_user.fallback_enabled = settings.fallback_enabled
 
     if settings.preferred_data_source is not None:
-        current_user.preferred_data_source = settings.preferred_data_source
+        current_user.preferred_data_source = normalize_preferred_data_source(settings.preferred_data_source)
 
     if settings.preferred_ai_model is not None:
         current_user.preferred_ai_model = settings.preferred_ai_model

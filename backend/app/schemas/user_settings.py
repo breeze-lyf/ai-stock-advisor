@@ -52,6 +52,14 @@ class ProviderConfigResponse(BaseModel):
     is_active: bool
 
 
+class MarketDataSourceOption(BaseModel):
+    key: str
+    label: str
+    description: str
+    is_available: bool
+    is_default: bool = False
+
+
 class UserSettingsUpdate(BaseModel):
     api_key_deepseek: str | None = None
     api_key_siliconflow: str | None = None

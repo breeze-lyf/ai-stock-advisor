@@ -73,10 +73,12 @@ export type UserProviderCredentialResponse = {
 export type UserProfile = components["schemas"]["UserProfile"] & {
     notifications_enabled?: boolean;
     provider_credentials?: Record<string, UserProviderCredentialResponse> | null;
+    preferred_data_source?: string;
 };
 export type UserSettingsUpdate = components["schemas"]["UserSettingsUpdate"] & {
     notifications_enabled?: boolean;
     provider_credentials?: Record<string, UserProviderCredentialInput> | null;
+    preferred_data_source?: string | null;
 };
 export type PasswordChange = components["schemas"]["PasswordChange"];
 export type TestConnectionRequest = components["schemas"]["TestConnectionRequest"];

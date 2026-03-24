@@ -26,6 +26,14 @@ export type ProviderConfigItem = {
   is_active: boolean;
 };
 
+export type MarketDataSourceOption = {
+  key: string;
+  label: string;
+  description: string;
+  is_available: boolean;
+  is_default: boolean;
+};
+
 export type CreateAIModelConfigInput = {
   display_name: string;
   provider_note?: string;
@@ -81,6 +89,11 @@ export async function createAIModel(input: CreateAIModelConfigInput): Promise<AI
 
 export async function listProviders(): Promise<ProviderConfigItem[]> {
   const response = await api.get("/api/v1/user/providers");
+  return response.data;
+}
+
+export async function listMarketDataSources(): Promise<MarketDataSourceOption[]> {
+  const response = await api.get("/api/v1/user/market-data-sources");
   return response.data;
 }
 

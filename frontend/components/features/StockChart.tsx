@@ -323,15 +323,33 @@ export const StockChart: React.FC<StockChartProps> = ({
             data && data.length > 0
         ) {
             try {
-                const normalizedData = [...data]
-                    .filter((item) =>
+                // 1. 使用 Map 进行去重 (Deduplicate using Map to ensure unique timestamps)
+                const dataMap = new Map<string, ChartDataPoint>();
+                
+                data.forEach((item) => {
+                    if (
                         item?.time &&
                         Number.isFinite(Number(item?.open)) &&
                         Number.isFinite(Number(item?.high)) &&
                         Number.isFinite(Number(item?.low)) &&
                         Number.isFinite(Number(item?.close))
-                    )
-                    .sort((a, b) => String(a.time).localeCompare(String(b.time)));
+                    ) {
+                        dataMap.set(String(item.time), item); // 如果有重复 time，保留后出现的那一个
+                    }
+                });
+
+                // 2. 将 Map 转换为数组并排序 (Convert back to array and sort)
+                const normalizedData = Array.from(dataMap.values()).sort((a, b) => {
+                    const timeA = String(a.time);
+                    const timeB = String(b.time);
+                    
+                    // 如果 time 是纯数字字符串 (Unix Timestamp)，按数字大小排序以防长度不一致
+                    if (!isNaN(Number(timeA)) && !isNaN(Number(timeB))) {
+                        return Number(timeA) - Number(timeB);
+                    }
+                    // 否则按字符串（如 YYYY-MM-DD）正序排列
+                    return timeA.localeCompare(timeB);
+                });
 
                 if (normalizedData.length === 0) {
                     candlestickSeriesRef.current.setData([]);

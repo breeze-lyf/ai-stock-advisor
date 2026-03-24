@@ -8,7 +8,7 @@ services:
     environment:
       - LOG_FORMAT=${LOG_FORMAT:-json}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - WEB_CONCURRENCY=${WEB_CONCURRENCY:-2}
+      - WEB_CONCURRENCY=${WEB_CONCURRENCY:-1}
       - GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT:-120}
     ports:
       - "8000:8000"

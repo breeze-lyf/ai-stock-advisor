@@ -1389,6 +1389,10 @@ class AkShareProvider(MarketDataProvider):
             if df is None or df.empty: return []
             
             df['Date'] = pd.to_datetime(df['Date'])
+            
+            # 关键修复：确保日期唯一且有序，防止前端 K 线图断言失败 (Assertion failed: data must be asc ordered by time)
+            df = df.drop_duplicates(subset=['Date']).sort_values('Date')
+            
             calc_df = TechnicalIndicators.add_historical_indicators(df)
             
             # 优化 1: 截断历史数据 (保留指标前提下)

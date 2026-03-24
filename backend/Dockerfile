@@ -24,9 +24,9 @@ COPY . .
 # 暴露业务端口
 EXPOSE 8000
 
-# 2G 机器默认值：2 个 worker，避免内存抖动；可通过 WEB_CONCURRENCY 覆盖
+# 小内存机器默认值：1 个 worker，优先保证稳定性；可通过 WEB_CONCURRENCY 覆盖
 ENV PYTHONPATH=/app
-ENV WEB_CONCURRENCY=2
+ENV WEB_CONCURRENCY=1
 ENV GUNICORN_TIMEOUT=120
 
 # 数据库自动迁移集成

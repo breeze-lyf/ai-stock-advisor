@@ -64,8 +64,8 @@ export function UserMenu({ user }: UserMenuProps) {
                                 <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">{user.email}</p>
                             </div>
 
-                            <DropdownMenu.Item className="group flex h-9 items-center px-2 text-sm font-medium text-slate-700 dark:text-slate-300 outline-none hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer">
-                                <Link href="/settings" className="flex items-center w-full gap-2.5">
+                            <DropdownMenu.Item asChild>
+                                <Link href="/settings" className="group flex h-9 items-center gap-2.5 rounded-lg px-2 text-sm font-medium text-slate-700 outline-none transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
                                     <Settings className="h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
                                     <span>设置 (Settings)</span>
                                 </Link>

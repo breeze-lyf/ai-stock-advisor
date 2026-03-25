@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
     Dialog,
     DialogContent,
@@ -34,18 +34,133 @@ export function SearchDialog({
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
     const [searching, setSearching] = useState(false);
     const [addingTicker, setAddingTicker] = useState<string | null>(null);
+    const [hasSearched, setHasSearched] = useState(false);
+    const [searchHint, setSearchHint] = useState("输入时先检索本地已缓存标的，点击右侧搜索或按回车会触发全市场远程检索。");
+    const localRequestIdRef = useRef(0);
+    const remoteRequestIdRef = useRef(0);
+    const remoteAbortRef = useRef<AbortController | null>(null);
+    const localDebounceRef = useRef<number | null>(null);
 
-    const handleRemoteSearch = async () => {
-        if (!searchQuery.trim()) return;
-        setSearching(true);
-        try {
-            const res = await searchStocks(searchQuery.trim(), true);
-            setSearchResults(res);
-        } catch (err) {
-            console.error("Remote search failed", err);
-        } finally {
+    useEffect(() => {
+        if (!isOpen) {
+            remoteAbortRef.current?.abort();
+            remoteAbortRef.current = null;
+            if (localDebounceRef.current) {
+                window.clearTimeout(localDebounceRef.current);
+                localDebounceRef.current = null;
+            }
             setSearching(false);
         }
+    }, [isOpen]);
+
+    useEffect(() => {
+        return () => {
+            remoteAbortRef.current?.abort();
+            if (localDebounceRef.current) {
+                window.clearTimeout(localDebounceRef.current);
+            }
+        };
+    }, []);
+
+    const clearSearch = () => {
+        remoteAbortRef.current?.abort();
+        remoteAbortRef.current = null;
+        if (localDebounceRef.current) {
+            window.clearTimeout(localDebounceRef.current);
+            localDebounceRef.current = null;
+        }
+        setSearchResults([]);
+        setHasSearched(false);
+        setSearching(false);
+        setSearchHint("输入时先检索本地已缓存标的，点击右侧搜索或按回车会触发全市场远程检索。");
+    };
+
+    const runLocalSearch = async (rawQuery: string) => {
+        const query = rawQuery.trim();
+        if (!query) {
+            clearSearch();
+            return;
+        }
+
+        if (query.length < 2) {
+            setSearchResults([]);
+            setHasSearched(false);
+            setSearchHint("至少输入 2 个字符后再开始本地检索。");
+            return;
+        }
+
+        const requestId = ++localRequestIdRef.current;
+        setHasSearched(true);
+        setSearchHint("正在检索本地已缓存标的...");
+
+        try {
+            const res = await searchStocks(query, false);
+            if (requestId !== localRequestIdRef.current) {
+                return;
+            }
+            setSearchResults(res);
+            setSearchHint(
+                res.length > 0
+                    ? `已找到 ${res.length} 个结果`
+                    : "本地未命中，可点击右侧搜索触发远程检索。"
+            );
+        } catch (err) {
+            if (requestId !== localRequestIdRef.current) {
+                return;
+            }
+            console.error("Local search failed", err);
+            setSearchResults([]);
+            setSearchHint("本地搜索失败，请稍后重试。");
+        }
+    };
+
+    const runRemoteSearch = async (rawQuery: string) => {
+        const query = rawQuery.trim();
+        if (!query) {
+            clearSearch();
+            return;
+        }
+
+        const requestId = ++remoteRequestIdRef.current;
+        remoteAbortRef.current?.abort();
+
+        const controller = new AbortController();
+        remoteAbortRef.current = controller;
+        const timeout = window.setTimeout(() => controller.abort(), 4000);
+
+        setSearching(true);
+        setHasSearched(true);
+        setSearchHint("正在执行全市场远程检索...");
+
+        try {
+            const res = await searchStocks(query, true, { signal: controller.signal });
+            if (requestId !== remoteRequestIdRef.current) {
+                return;
+            }
+            setSearchResults(res);
+            setSearchHint(res.length > 0 ? `已找到 ${res.length} 个结果` : "未找到相关标的，已停止远程搜索。");
+        } catch (err) {
+            if (requestId !== remoteRequestIdRef.current) {
+                return;
+            }
+            const isAbort = err instanceof Error && (err.name === "CanceledError" || err.name === "AbortError");
+            setSearchResults([]);
+            if (isAbort) {
+                setSearchHint("远程搜索超时，已停止本次搜索。");
+            } else {
+                console.error("Remote search failed", err);
+                setSearchHint("远程搜索失败，已停止本次搜索。");
+            }
+        } finally {
+            window.clearTimeout(timeout);
+            if (requestId === remoteRequestIdRef.current) {
+                setSearching(false);
+            }
+        }
+    };
+
+    const handleRemoteSearch = async () => {
+        await runRemoteSearch(searchQuery);
     };
 
     const handleAddTicker = async (ticker: string) => {
@@ -107,52 +222,84 @@ export function SearchDialog({
                                 onChange={async (e) => {
                                     const val = e.target.value;
                                     setSearchQuery(val);
-                                    if (val.trim()) {
-                                        setSearching(true);
-                                        try {
-                                            const res = await searchStocks(val.trim(), false);
-                                            setSearchResults(res);
-                                        } catch (err) {
-                                            console.error(err);
-                                        } finally {
-                                            setSearching(false);
-                                        }
-                                    } else {
-                                        setSearchResults([]);
+                                    if (localDebounceRef.current) {
+                                        window.clearTimeout(localDebounceRef.current);
                                     }
+
+                                    if (!val.trim()) {
+                                        clearSearch();
+                                        return;
+                                    }
+
+                                    localDebounceRef.current = window.setTimeout(() => {
+                                        void runLocalSearch(val);
+                                    }, 250);
                                 }}
                                 onKeyDown={handleSearchKeyPress}
+                                className="h-12 rounded-2xl border-slate-200 bg-white pr-11 text-base shadow-sm transition focus-visible:ring-2 focus-visible:ring-blue-500/30 dark:border-slate-700 dark:bg-slate-950"
                             />
                             {searching && (
-                                <Loader2 className="absolute right-3 top-3 h-4 w-4 animate-spin text-slate-400" />
+                                <Loader2 className="absolute right-4 top-4 h-4 w-4 animate-spin text-slate-400" />
                             )}
                         </div>
                         <Button
                             onClick={handleRemoteSearch}
                             disabled={searching}
-                            className="bg-blue-600 hover:bg-blue-700"
+                            className="h-12 rounded-2xl bg-blue-600 px-4 hover:bg-blue-700"
                         >
                             <Search className="h-4 w-4" />
                         </Button>
                     </div>
 
-                    <ScrollArea className="h-[300px] border rounded-md p-2">
-                        {searchResults.length === 0 && !searching && (
-                            <div className="text-center text-sm text-slate-400 p-8 italic">
-                                未找到相关股票
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1 font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                            支持代码
+                        </span>
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1 dark:bg-slate-800">AAPL / ASTS</span>
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1 dark:bg-slate-800">700 / 00700.HK</span>
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1 dark:bg-slate-800">510300</span>
+                        <span className="rounded-full bg-slate-100 px-2.5 py-1 dark:bg-slate-800">Apple / 腾讯 / 沪深300ETF</span>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-200 bg-slate-50/80 px-3 py-2 text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-400">
+                        {searchHint}
+                    </div>
+
+                    <ScrollArea className="h-[320px] rounded-2xl border border-slate-200 bg-white p-2 shadow-inner dark:border-slate-800 dark:bg-slate-950">
+                        {searchResults.length === 0 && !searching && !hasSearched && (
+                            <div className="flex h-full min-h-[260px] flex-col items-center justify-center text-center">
+                                <div className="mb-3 rounded-2xl bg-blue-50 p-3 text-blue-600 dark:bg-blue-950/40 dark:text-blue-300">
+                                    <Search className="h-5 w-5" />
+                                </div>
+                                <div className="text-sm font-semibold text-slate-700 dark:text-slate-200">开始搜索标的</div>
+                                <div className="mt-2 max-w-[280px] text-xs leading-6 text-slate-500 dark:text-slate-400">
+                                    你可以按代码或名称查找美股、港股、A 股和国内基金，再一键加入自选。
+                                </div>
+                            </div>
+                        )}
+
+                        {searchResults.length === 0 && !searching && hasSearched && (
+                            <div className="flex h-full min-h-[260px] flex-col items-center justify-center text-center">
+                                <div className="mb-3 rounded-2xl bg-slate-100 p-3 text-slate-400 dark:bg-slate-800 dark:text-slate-500">
+                                    <Search className="h-5 w-5" />
+                                </div>
+                                <div className="text-sm font-semibold text-slate-700 dark:text-slate-200">未找到相关标的</div>
+                                <div className="mt-2 max-w-[280px] text-xs leading-6 text-slate-500 dark:text-slate-400">
+                                    试试更完整的代码格式，或点击搜索按钮触发远程检索。
+                                </div>
                             </div>
                         )}
                         {searchResults.map((stock) => (
                             <div
                                 key={stock.ticker}
-                                className="flex flex-col border-b last:border-0"
+                                className="flex flex-col"
                             >
-                                <div className="flex justify-between items-center p-3 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors group cursor-default">
+                                <div className="group mb-2 flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/70 p-3 transition-colors hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900/70 dark:hover:bg-slate-800">
                                     <div>
-                                        <div className="font-bold text-sm text-slate-700 dark:text-slate-300">
+                                        <div className="text-sm font-black tracking-wide text-slate-800 dark:text-slate-100">
                                             {stock.ticker}
                                         </div>
-                                        <div className="text-[11px] text-slate-500">{stock.name}</div>
+                                        <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">{stock.name}</div>
                                     </div>
                                     <Button
                                         size="sm"
@@ -161,7 +308,7 @@ export function SearchDialog({
                                                 ? "secondary"
                                                 : "default"
                                         }
-                                        className="h-8"
+                                        className="h-9 rounded-xl px-4"
                                         disabled={
                                             addingTicker === stock.ticker ||
                                             portfolio.some((p) => p.ticker === stock.ticker)

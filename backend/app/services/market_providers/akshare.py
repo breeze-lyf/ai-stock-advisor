@@ -117,6 +117,10 @@ class AkShareProvider(MarketDataProvider):
     _last_spot_update = 0
     _cached_us_spot_df = None
     _last_us_spot_update = 0
+    _cached_hk_spot_df = None
+    _last_hk_spot_update = 0
+    _cached_fund_df = None
+    _last_fund_update = 0
     
     _async_lock = None 
     _CACHE_TTL = 60  # 缓存有效期 60 秒
@@ -245,6 +249,150 @@ class AkShareProvider(MarketDataProvider):
         loop = asyncio.get_event_loop()
         async with self._get_semaphore():
             return await loop.run_in_executor(None, run_with_forced_proxy)
+
+    @classmethod
+    async def _update_hk_spot_cache(cls):
+        async with cls._get_semaphore():
+            now = time.time()
+            if cls._cached_hk_spot_df is not None and (now - cls._last_hk_spot_update) < cls._CACHE_TTL:
+                return
+
+            try:
+                loop = asyncio.get_event_loop()
+                df = await loop.run_in_executor(None, ak.stock_hk_spot_em)
+                if df is not None and not df.empty:
+                    cls._cached_hk_spot_df = df
+                    cls._last_hk_spot_update = now
+            except Exception as e:
+                logger.error(f"Failed to update AkShare HK spot cache: {e}")
+
+    @classmethod
+    async def _update_fund_cache(cls):
+        async with cls._get_semaphore():
+            now = time.time()
+            if cls._cached_fund_df is not None and (now - cls._last_fund_update) < cls._CACHE_TTL:
+                return
+
+            try:
+                loop = asyncio.get_event_loop()
+
+                def fetch():
+                    frames = []
+                    for func in (ak.fund_etf_spot_em, ak.fund_name_em):
+                        try:
+                            df = func()
+                            if df is not None and not df.empty:
+                                frames.append(df)
+                        except Exception:
+                            continue
+                    if not frames:
+                        return None
+                    return pd.concat(frames, ignore_index=True, sort=False).drop_duplicates()
+
+                df = await loop.run_in_executor(None, fetch)
+                if df is not None and not df.empty:
+                    cls._cached_fund_df = df
+                    cls._last_fund_update = now
+            except Exception as e:
+                logger.error(f"Failed to update AkShare fund cache: {e}")
+
+    @staticmethod
+    def _extract_search_results(
+        df: Optional[pd.DataFrame],
+        query: str,
+        *,
+        code_columns: list[str],
+        name_columns: list[str],
+        suffix: str = "",
+        limit: int = 10,
+    ) -> list[dict[str, str]]:
+        if df is None or df.empty:
+            return []
+
+        query_lower = query.strip().lower()
+        if not query_lower:
+            return []
+
+        code_col = next((col for col in code_columns if col in df.columns), None)
+        name_col = next((col for col in name_columns if col in df.columns), None)
+        if not code_col or not name_col:
+            return []
+
+        work_df = df[[code_col, name_col]].copy()
+        work_df[code_col] = work_df[code_col].astype(str).str.strip()
+        work_df[name_col] = work_df[name_col].astype(str).str.strip()
+        mask = (
+            work_df[code_col].str.lower().str.contains(query_lower, na=False)
+            | work_df[name_col].str.lower().str.contains(query_lower, na=False)
+        )
+        matched = work_df[mask].drop_duplicates(subset=[code_col]).head(limit)
+
+        results: list[dict[str, str]] = []
+        for _, row in matched.iterrows():
+            ticker = str(row[code_col]).strip().upper()
+            name = str(row[name_col]).strip() or ticker
+            if suffix and not ticker.endswith(suffix):
+                ticker = f"{ticker}{suffix}"
+            results.append({"ticker": ticker, "name": name})
+        return results
+
+    async def search_instruments(self, query: str, limit: int = 10) -> list[dict[str, str]]:
+        await self._update_spot_cache()
+        await self._update_hk_spot_cache()
+        await self._update_fund_cache()
+
+        results: list[dict[str, str]] = []
+        seen: set[str] = set()
+
+        datasets = [
+            (
+                AkShareProvider._cached_spot_df,
+                {"code_columns": ["代码"], "name_columns": ["名称"], "suffix": ""},
+            ),
+            (
+                AkShareProvider._cached_hk_spot_df,
+                {"code_columns": ["代码"], "name_columns": ["名称"], "suffix": ".HK"},
+            ),
+            (
+                AkShareProvider._cached_fund_df,
+                {
+                    "code_columns": ["代码", "基金代码"],
+                    "name_columns": ["名称", "基金简称", "基金名称"],
+                    "suffix": "",
+                },
+            ),
+            (
+                AkShareProvider._cached_us_spot_df,
+                {"code_columns": ["代码"], "name_columns": ["名称"], "suffix": ""},
+            ),
+        ]
+
+        if AkShareProvider._cached_us_spot_df is None:
+            try:
+                now = time.time()
+                async with self._get_semaphore():
+                    us_df = await self._run_sync(ak.stock_us_spot_em)
+                    if us_df is not None and not us_df.empty:
+                        AkShareProvider._cached_us_spot_df = us_df
+                        AkShareProvider._last_us_spot_update = now
+                datasets[-1] = (
+                    AkShareProvider._cached_us_spot_df,
+                    {"code_columns": ["代码"], "name_columns": ["名称"], "suffix": ""},
+                )
+            except Exception as e:
+                logger.warning(f"AkShare US search cache update failed for {query}: {e}")
+
+        for df, options in datasets:
+            matches = self._extract_search_results(df, query, limit=limit, **options)
+            for item in matches:
+                if item["ticker"] in seen:
+                    continue
+                seen.add(item["ticker"])
+                results.append(item)
+                if len(results) >= limit:
+                    return results
+
+        return results
 
     def _normalize_symbol(self, ticker: str) -> str:
         """

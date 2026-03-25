@@ -10,6 +10,7 @@ from app.application.portfolio.manage_portfolio import (
     RefreshPortfolioStockUseCase,
     ReorderPortfolioUseCase,
 )
+from app.application.portfolio.search_engine import PortfolioSearchEngine
 from app.application.portfolio.query_portfolio import GetPortfolioSummaryUseCase, GetPortfolioUseCase
 from app.infrastructure.db.repositories.stock_repository import StockRepository
 from app.models.user import User
@@ -21,7 +22,12 @@ logger.info("PHASE: Portfolio router module importing...")
 router = APIRouter()
 
 @router.get("/search", response_model=List[SearchResult])
-async def search_stocks(query: str = "", remote: bool = False, db: AsyncSession = Depends(get_db)):
+async def search_stocks(
+    query: str = "",
+    remote: bool = False,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     """
     股票搜索接口
     - 同时支持本地数据库模糊搜索和远程 API 实时搜索
@@ -31,33 +37,16 @@ async def search_stocks(query: str = "", remote: bool = False, db: AsyncSession 
     if not query:
         return []
     repo = StockRepository(db)
-
-    stocks = await repo.search(query, limit=10)
-    
-    # 2. 远程搜索：如果没有本地完全匹配的记录，且用户请求了远程搜索
-    exact_match = any(s.ticker.upper() == query for s in stocks)
-    
-    if remote and not exact_match and len(query) <= 10:
-        try:
-            from app.services.market_providers import ProviderFactory
-            provider = ProviderFactory.get_provider(query)
-            
-            # 获取实时报价以确认该股票代码有效
-            quote = await provider.get_quote(query)
-            
-            if quote:
-                # 如果代码有效但本地没有，则存入数据库，方便下次直接搜到
-                existing_stock = await repo.get_stock(query)
-                
-                if not existing_stock:
-                    await repo.add_stock_with_cache(query, quote.name or query, quote.price)
-                
-                # 重新查询以便返回结果
-                stocks = await repo.search(query, limit=10)
-        except Exception as e:
-            logger.error(f"Remote search failed for {query}: {e}")
-
-    return [SearchResult(ticker=s.ticker, name=s.name) for s in stocks]
+    try:
+        return await PortfolioSearchEngine(repo).search(
+            query,
+            preferred_source=current_user.preferred_data_source,
+            remote=remote,
+            limit=10,
+        )
+    except Exception as e:
+        logger.error(f"Search failed for {query}: {e}", exc_info=True)
+        return []
 
 
 

@@ -59,6 +59,51 @@ class YFinanceProvider(MarketDataProvider):
     async def _run_sync(self, func, *args, **kwargs):
         return await asyncio.to_thread(func, *args, **kwargs)
 
+    async def search_instruments(self, query: str, limit: int = 8) -> list[dict[str, str]]:
+        normalized = (query or "").strip()
+        if not normalized:
+            return []
+
+        try:
+            def run_search() -> list[dict[str, Any]]:
+                search = yf.Search(
+                    normalized,
+                    max_results=limit,
+                    news_count=0,
+                    lists_count=0,
+                    recommended=limit,
+                    include_cb=False,
+                    enable_fuzzy_query=True,
+                    raise_errors=False,
+                )
+                return list(getattr(search, "quotes", []) or [])
+
+            quotes = await self._run_sync(run_search)
+            results: list[dict[str, str]] = []
+            seen: set[str] = set()
+            for item in quotes:
+                ticker = str(item.get("symbol") or "").strip().upper()
+                if not ticker or ticker in seen:
+                    continue
+
+                quote_type = str(item.get("quoteType") or "").upper()
+                if quote_type and quote_type not in {"EQUITY", "ETF", "MUTUALFUND"}:
+                    continue
+
+                name = (
+                    str(item.get("shortname") or "").strip()
+                    or str(item.get("longname") or "").strip()
+                    or ticker
+                )
+                seen.add(ticker)
+                results.append({"ticker": ticker, "name": name})
+                if len(results) >= limit:
+                    break
+            return results
+        except Exception as exc:
+            logger.warning(f"YFinance search_instruments failed for {query}: {exc}")
+            return []
+
     def _history_to_dataframe(self, history: pd.DataFrame) -> Optional[pd.DataFrame]:
         if history is None or history.empty:
             return None

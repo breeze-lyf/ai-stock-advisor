@@ -1,5 +1,6 @@
 import type { PortfolioItem, PortfolioSummary, SearchResult } from "@/types";
 import api from "@/shared/api/client";
+import type { AxiosRequestConfig } from "axios";
 
 export async function getPortfolioSummary(): Promise<PortfolioSummary> {
   const response = await api.get("/api/v1/portfolio/summary");
@@ -26,8 +27,12 @@ export async function refreshStock(ticker: string, priceOnly = false): Promise<P
   return response.data;
 }
 
-export async function searchStocks(query: string, remote = false): Promise<SearchResult[]> {
-  const response = await api.get(`/api/v1/portfolio/search?query=${query}&remote=${remote}`);
+export async function searchStocks(
+  query: string,
+  remote = false,
+  config?: AxiosRequestConfig,
+): Promise<SearchResult[]> {
+  const response = await api.get(`/api/v1/portfolio/search?query=${query}&remote=${remote}`, config);
   return response.data;
 }
 

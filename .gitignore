@@ -57,6 +57,8 @@ coverage/
 *.log
 logs/
 tmp/
+/.local/
+/backend/.local/
 backend/runtime-logs/
 
 # Environment

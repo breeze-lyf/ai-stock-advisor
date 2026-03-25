@@ -11,6 +11,14 @@ from app.models.analysis import AnalysisReport
 from app.utils.ai_response_parser import parse_ai_json
 
 
+def _list_of_dicts_or_none(value: Any) -> list[dict[str, Any]] | None:
+    if not isinstance(value, list):
+        return None
+
+    cleaned = [item for item in value if isinstance(item, dict)]
+    return cleaned or None
+
+
 def serialize_analysis_report(
     report: AnalysisReport,
     rr_ratio: str | None = None,
@@ -24,7 +32,7 @@ def serialize_analysis_report(
         "decision_mode": to_str(raw_payload.get("decision_mode")),
         "dominant_driver": to_str(raw_payload.get("dominant_driver")),
         "trade_setup_status": to_str(raw_payload.get("trade_setup_status")),
-        "sentiment_score": float(report.sentiment_score) if report.sentiment_score else None,
+        "sentiment_score": to_float(report.sentiment_score),
         "summary_status": report.summary_status,
         "risk_level": report.risk_level,
         "trigger_condition": to_str(raw_payload.get("trigger_condition")),
@@ -56,8 +64,8 @@ def serialize_analysis_report(
         "bull_case": to_str(raw_payload.get("bull_case")),
         "base_case": to_str(raw_payload.get("base_case")),
         "bear_case": to_str(raw_payload.get("bear_case")),
-        "scenario_tags": report.scenario_tags,
-        "thought_process": report.thought_process,
+        "scenario_tags": _list_of_dicts_or_none(report.scenario_tags),
+        "thought_process": _list_of_dicts_or_none(report.thought_process),
         "is_cached": True,
         "model_used": report.model_used,
         "report_scope": getattr(report, "report_scope", None),

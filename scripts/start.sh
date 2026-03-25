@@ -70,7 +70,7 @@ start_dev() {
     trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
 
     echo "Starting local development stack..."
-    local runtime_log_dir="$ROOT_DIR/backend/runtime-logs"
+    local runtime_log_dir="$ROOT_DIR/backend/.local/runtime-logs"
     mkdir -p "$runtime_log_dir"
 
     if ! command -v npm >/dev/null 2>&1; then

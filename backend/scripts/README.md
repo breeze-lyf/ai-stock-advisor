@@ -5,6 +5,7 @@
 - `scripts/db/`: schema/data migration and database maintenance
 - `scripts/data/`: background data collection and refresh jobs
 - `scripts/dev/`: local diagnostics and performance experiments
+- `scripts/oneoff/`: one-time verification or repair scripts kept for manual execution
 - `scripts/dev/diagnostics/`: issue triage and one-off verification scripts
 
 Backward compatibility:

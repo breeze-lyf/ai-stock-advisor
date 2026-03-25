@@ -49,7 +49,7 @@
 - 后端：Uvicorn `--reload`
 - 数据库：`backend/.env` 中配置的数据库
 - 后台任务：FastAPI lifespan 中自动启动调度协程
-- 日志目录：默认写入 `backend/runtime-logs/`
+- 日志目录：默认写入 `backend/.local/runtime-logs/`
 
 启动命令：
 
@@ -64,7 +64,7 @@
 - 已准备好 `backend/.env`
 
 启动脚本现在会在启动前自动检查 `3000/8000` 端口占用，并复用依赖缓存，避免每次重复安装依赖。
-本地 `dev` 模式还会启动独立的行情自动刷新 worker，日志同样写入 `backend/runtime-logs/auto_refresh.log`。
+本地 `dev` 模式还会启动独立的行情自动刷新 worker，日志同样写入 `backend/.local/runtime-logs/auto_refresh.log`。
 
 若需要分别启动，也可以手动执行：
 
@@ -158,6 +158,14 @@ docker compose up --build -d
 ---
 
 ## 📂 项目结构布局
+
+### 项目目录说明
+- `.local/`: 仓库根目录下的本地私有文件区，放 SSH 密钥、临时数据库、测试结果和一次性日志，不参与版本控制。
+- `backend/.local/`: 后端本地运行状态目录，统一放本地 SQLite、运行日志和缓存型产物；当前约定的本地开发数据库位置是 `backend/.local/db/dev.db`。
+- `.agent/`、`.agents/`、`.claude/`、`.qoder/`: 不同 AI/IDE 工具的本地规则与技能配置。它们并不共同生效，保留它们是为了兼容不同工作流。
+- `monitoring/`: 监控栈相关配置，主要用于 Loki / Grafana 这类观测组件，不属于应用主业务代码。
+- `mobile/`: Taro 移动端应用，与 Web 前端并行维护。
+- `backend/backups/`: 数据库备份和迁移归档，属于运维资产，不应当作为应用运行时目录。
 
 ### 后端核心目录
 - `backend/app/services/macro_service.py`: 宏观雷达与财联社快讯降级逻辑核心。
@@ -282,9 +290,11 @@ npm run generate-types
 5. 初始化数据库或补种子数据时，优先使用 `backend/scripts/` 分组目录：
    - `backend/scripts/db/`：数据库初始化、迁移、种子
    - `backend/scripts/data/`：行情/新闻采集与刷新
-   - `backend/scripts/dev/`：本地并发与性能诊断
+   - `backend/scripts/dev/`：本地并发、性能诊断与实验脚本
+   - `backend/scripts/oneoff/`：一次性修复或人工核验脚本
 6. 生产部署优先使用 Docker Compose，不建议直接运行开发态脚本。
-7. 运行日志默认写入 `backend/runtime-logs/`，不建议再把日志文件直接放在仓库根目录或 `backend/` 根目录。
+7. 运行日志默认写入 `backend/.local/runtime-logs/`，不建议再把日志文件直接放在仓库根目录或 `backend/` 根目录。
+8. 本地缓存和产物清理统一使用 `./scripts/clean-local.sh`，避免手工删除时误伤业务文件。
 
 ---
 

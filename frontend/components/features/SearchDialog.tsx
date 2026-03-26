@@ -144,12 +144,19 @@ export function SearchDialog({
                 return;
             }
             const isAbort = err instanceof Error && (err.name === "CanceledError" || err.name === "AbortError");
-            setSearchResults([]);
             if (isAbort) {
-                setSearchHint("远程搜索超时，已停止本次搜索。");
+                setSearchHint(
+                    searchResults.length > 0
+                        ? "远程搜索超时，已保留当前结果。"
+                        : "远程搜索超时，已停止本次搜索。"
+                );
             } else {
                 console.error("Remote search failed", err);
-                setSearchHint("远程搜索失败，已停止本次搜索。");
+                setSearchHint(
+                    searchResults.length > 0
+                        ? "远程搜索失败，已保留当前结果。"
+                        : "远程搜索失败，已停止本次搜索。"
+                );
             }
         } finally {
             window.clearTimeout(timeout);

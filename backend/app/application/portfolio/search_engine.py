@@ -31,6 +31,9 @@ class PortfolioSearchEngine:
             return results
 
         exact_match = any(item.ticker.upper() in search_candidates for item in results)
+        if exact_match:
+            return results[:limit]
+
         for source in build_provider_order(preferred_source, query):
             provider = ProviderFactory.get_provider(normalized, preferred_source=source)
 

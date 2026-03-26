@@ -24,6 +24,16 @@ def _log_duration(label: str, start: float) -> float:
 
 class MarketDataFetcher:
     @staticmethod
+    def _extract_indicator_payload(indicator_result):
+        if not isinstance(indicator_result, dict):
+            return indicator_result
+
+        nested = indicator_result.get("indicators")
+        if isinstance(nested, dict):
+            return nested
+        return indicator_result
+
+    @staticmethod
     async def _resolve_tavily_api_key(db: AsyncSession | None, user_id: str | None) -> str | None:
         if not db or not user_id:
             return None
@@ -117,12 +127,13 @@ class MarketDataFetcher:
                 news = await MarketDataFetcher._collect_news(ticker, news_tasks)
 
             if quote and not isinstance(quote, Exception):
+                normalized_indicators = MarketDataFetcher._extract_indicator_payload(indicators)
                 _log_duration(f"{ticker} 全量数据获取", total_start)
                 return FullMarketData(
                     quote=quote,
                     fundamental=fundamental if not isinstance(fundamental, Exception) else None,
-                    technical=ProviderTechnical(indicators=indicators)
-                    if not isinstance(indicators, Exception) and indicators
+                    technical=ProviderTechnical(indicators=normalized_indicators)
+                    if not isinstance(indicators, Exception) and normalized_indicators
                     else None,
                     news=news,
                 )

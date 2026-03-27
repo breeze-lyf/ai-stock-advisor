@@ -64,6 +64,7 @@ backend/runtime-logs/
 # Environment
 .env
 .env.local
+.env.bak
 
 # Test Scripts
 backend/test_*.py

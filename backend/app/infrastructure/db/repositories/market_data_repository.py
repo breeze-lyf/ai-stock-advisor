@@ -181,7 +181,10 @@ class MarketDataRepository:
         update_cols = {key: value for key, value in stock_values.items() if key != "ticker"}
         if stock_values["name"] == ticker:
             update_cols.pop("name", None)
-        stock_upsert = stock_upsert.on_conflict_do_update(index_elements=["ticker"], set_=update_cols)
+        if update_cols:
+            stock_upsert = stock_upsert.on_conflict_do_update(index_elements=["ticker"], set_=update_cols)
+        else:
+            stock_upsert = stock_upsert.on_conflict_do_nothing(index_elements=["ticker"])
         await self.db.execute(stock_upsert)
 
     async def _upsert_market_cache(self, cache: Optional[MarketDataCache], cache_values: dict):
@@ -190,7 +193,10 @@ class MarketDataRepository:
         if cache and cache.is_ai_strategy:
             for key in ["resistance_1", "resistance_2", "support_1", "support_2", "risk_reward_ratio"]:
                 update_set.pop(key, None)
-        cache_upsert = cache_upsert.on_conflict_do_update(index_elements=["ticker"], set_=update_set)
+        if update_set:
+            cache_upsert = cache_upsert.on_conflict_do_update(index_elements=["ticker"], set_=update_set)
+        else:
+            cache_upsert = cache_upsert.on_conflict_do_nothing(index_elements=["ticker"])
         await self.db.execute(cache_upsert)
 
     async def _persist_news(self, ticker: str, data: FullMarketData, now: datetime):

@@ -177,22 +177,15 @@ export function SearchDialog({
         try {
             await addPortfolioItem(ticker, 0, 0);
             
-            // 稍作延迟并触发深度刷新
-            // 延迟是为了给后端 addPortfolioItem 的 background_tasks 一点启动时间
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // 后端 addPortfolioItem 已经触发了 background_fetch，
+            // 这里我们不需要阻塞式等待深度刷新，直接关闭弹窗并刷新列表即可。
             
-            try {
-                // 等待刷新完成，确保后端同步落库
-                await refreshStock(ticker, false);
-            } catch {
-                console.error("Initial deep refresh failed");
-            }
-
-            // 核心修复：先关闭弹窗
+            // 立即关闭弹窗
             onOpenChange(false);
             
-            // 刷新列表
-            await onRefresh();
+            // 异步刷新列表
+            void onRefresh();
+            
             // 自动跳转
             if (onSelectTicker) {
                 onSelectTicker(ticker);

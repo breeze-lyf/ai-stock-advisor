@@ -50,6 +50,9 @@ fi
 fuser -k 8000/tcp 3000/tcp 2>/dev/null || true
 
 echo "Using compose command: ${COMPOSE_CMD}"
+echo "Cleaning up disk space (proactive prune)..."
+docker system prune -af --volumes || true
+
 echo "Pulling images..."
 ${COMPOSE_CMD} -f docker-compose.prod.yml pull
 

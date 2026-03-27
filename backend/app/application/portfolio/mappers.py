@@ -2,7 +2,7 @@ from app.schemas.portfolio import PortfolioItem, PortfolioSummary, SectorExposur
 
 
 def portfolio_item_from_row(portfolio, market_cache, stock) -> PortfolioItem:
-    current_price = market_cache.current_price if market_cache else 0.0
+    current_price = (market_cache.current_price if market_cache and market_cache.current_price is not None else 0.0)
     market_value = current_price * portfolio.quantity
     unrealized_pl = (current_price - portfolio.avg_cost) * portfolio.quantity
     pl_percent = (
@@ -80,7 +80,7 @@ def portfolio_summary_from_rows(rows) -> PortfolioSummary:
         total_unrealized_pl += item.unrealized_pl
         total_cost += portfolio.avg_cost * portfolio.quantity
 
-        if market_cache and market_cache.change_percent:
+        if market_cache and market_cache.change_percent is not None:
             day_chg_ratio = market_cache.change_percent / 100
             total_day_change += item.market_value * (day_chg_ratio / (1 + day_chg_ratio))
 

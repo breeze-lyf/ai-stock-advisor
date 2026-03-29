@@ -158,13 +158,19 @@ async def get_stock_history(
     接口：获取股票的历史行情数据，专为 K 线图打造。
     """
     ticker = ticker.upper().strip()
+
+    is_a_share = (ticker.isdigit() and len(ticker) == 6) or any(
+        suffix in ticker for suffix in [".SS", ".SZ", ".SH"]
+    )
+    is_hk = ticker.endswith(".HK") or (ticker.isdigit() and len(ticker) <= 5)
     
     try:
         from app.services.market_providers import ProviderFactory
         
         # 工厂模式：它会根据 Ticker 自动判断去哪抓数据。
         # 比如输入 'AAPL' 会去美股源，输入 '600519.SH' 则会自动切换到 A 股源。
-        preferred_source = current_user.preferred_data_source if current_user else "AKSHARE"
+        user_preferred_source = current_user.preferred_data_source if current_user else "AKSHARE"
+        preferred_source = "AKSHARE" if (is_a_share or is_hk) else user_preferred_source
         provider = ProviderFactory.get_provider(ticker, preferred_source)
         data = await provider.get_ohlcv(ticker, interval=interval, period=period, end_date=end_date)
 
@@ -175,10 +181,7 @@ async def get_stock_history(
             len(data) if data else 0,
         )
 
-        is_cn = (ticker.isdigit() and len(ticker) == 6) or any(
-            suffix in ticker.upper() for suffix in [".SS", ".SZ"]
-        )
-        if (not data) and (not is_cn) and provider.__class__.__name__ == "YFinanceProvider":
+        if (not data) and (not is_a_share) and (not is_hk) and provider.__class__.__name__ == "YFinanceProvider":
             try:
                 fallback_provider = AkShareProvider()
                 data = await fallback_provider.get_ohlcv(ticker, interval=interval, period=period, end_date=end_date)

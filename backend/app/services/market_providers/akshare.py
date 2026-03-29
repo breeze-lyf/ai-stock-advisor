@@ -803,12 +803,28 @@ class AkShareProvider(MarketDataProvider):
                             import json
                             data = json.loads(json_str)
                             data_root = data.get("data", {})
+                            if isinstance(data_root, list):
+                                # If data_root is a list, it means Tencent returned empty or failed data in an unexpected format.
+                                logger.info(f"Tencent returned 'data' as a list for {ticker}, expected a dict (no data).")
+                                return None
+                                
                             stock_data = data_root.get(tencent_symbol, {})
+                            if not isinstance(stock_data, dict):
+                                # Ensure stock_data is a dict before calling .get()
+                                stock_data = {}
+                                
                             if not stock_data:
                                 # 容错：部分标的返回 key 可能是无前缀代码
                                 stock_data = data_root.get(symbol, {})
+                                if not isinstance(stock_data, dict):
+                                    stock_data = {}
+                            
                             if not stock_data and data_root:
-                                stock_data = next(iter(data_root.values()), {})
+                                # Final attempt to find any dictionary among values
+                                for val in data_root.values():
+                                    if isinstance(val, dict):
+                                        stock_data = val
+                                        break
                             # 优先取前复权数据 qfqday
                             kline = stock_data.get("qfqday", stock_data.get("day", []))
                             if kline:
@@ -1179,7 +1195,10 @@ class AkShareProvider(MarketDataProvider):
                         if mc_val and mc_val != '-': mc = float(mc_val)
                     if not name: name = data.get('股票简称')
             except Exception as e:
-                logger.warning(f"EM individual info failed for {ticker} (likely connection reset): {e}")
+                if "all scalar values" in str(e):
+                    logger.info(f"EM individual info for {ticker} unavailable (no data found).")
+                else:
+                    logger.warning(f"EM individual info failed for {ticker} (likely connection reset): {e}")
 
             # --- 优先级 3: 直接请求 East Money API (如果 AkShare 失败) ---
             if not mc or not sector:

@@ -53,6 +53,7 @@ export function useDashboardStockDetailData(
     onError: (error) => {
       console.error("Failed to fetch stock history for", selectedTicker, error);
     },
+    shouldRevalidate: (cached) => !Array.isArray(cached) || cached.length === 0,
   });
   const analysisHistoryResource = useCachedResource<AnalysisResponse[]>({
     cacheEntry: analysisHistoryEntry,
@@ -79,6 +80,11 @@ export function useDashboardStockDetailData(
       analysisHistoryResource.refresh({ showLoading: false }),
     ]);
   }, [analysisHistoryResource, refreshTimestamp, selectedTicker, stockHistoryResource]);
+
+  useEffect(() => {
+    if (!selectedTicker) return;
+    console.debug("[history] ticker=%s loading=%s len=%s", selectedTicker, stockHistoryResource.loading, Array.isArray(stockHistoryResource.data) ? stockHistoryResource.data.length : "null");
+  }, [selectedTicker, stockHistoryResource.data, stockHistoryResource.loading]);
 
   return {
     analysisHistory: analysisHistoryResource.data || EMPTY_ARRAY,

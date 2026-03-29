@@ -94,6 +94,13 @@ export function StockDetail({
         }
     }, [historyData]);
 
+    useEffect(() => {
+        if (!selectedItem?.ticker) return;
+        if (Array.isArray(historyData) && historyData.length > 0 && mergedHistoryData.length === 0) {
+            setMergedHistoryData(historyData as HistoryDataItem[]);
+        }
+    }, [historyData, mergedHistoryData.length, selectedItem?.ticker]);
+
     const handleLoadMore = async (earliestTime: string) => {
         if (!selectedItem || isLoadingMore) return;
         

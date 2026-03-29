@@ -19,6 +19,7 @@ interface UseCachedResourceOptions<T> {
   fetcher: () => Promise<CacheValue<T>>;
   onError?: (error: unknown) => void;
   refreshIntervalMs?: number;
+  shouldRevalidate?: (cached: CacheValue<T>) => boolean;
 }
 
 export function useCachedResource<T>({
@@ -27,6 +28,7 @@ export function useCachedResource<T>({
   fetcher,
   onError,
   refreshIntervalMs,
+  shouldRevalidate,
 }: UseCachedResourceOptions<T>) {
   const [data, setData] = useState<CacheValue<T>>(cacheEntry ? readDashboardCache(cacheEntry) : null);
   const [loading, setLoading] = useState(cacheEntry ? !readDashboardCache(cacheEntry) : false);
@@ -85,7 +87,10 @@ export function useCachedResource<T>({
       return;
     }
 
-    if (shouldRevalidateDashboardCache(cacheEntry)) {
+    const cached = readDashboardCache(cacheEntry);
+    const needsCustomRevalidate = shouldRevalidate ? shouldRevalidate(cached) : false;
+
+    if (shouldRevalidateDashboardCache(cacheEntry) || needsCustomRevalidate) {
       refresh({ showLoading: !readDashboardCache(cacheEntry) });
     } else {
       setLoading(false);
@@ -100,7 +105,7 @@ export function useCachedResource<T>({
     }, refreshIntervalMs);
 
     return () => clearInterval(timer);
-  }, [cacheEntry, enabled, refresh, refreshIntervalMs]);
+  }, [cacheEntry, enabled, refresh, refreshIntervalMs, shouldRevalidate]);
 
   return {
     data,

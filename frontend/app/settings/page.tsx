@@ -116,8 +116,7 @@ export default function SettingsPage() {
     setHasSavedTavilyKey(Boolean(tavilyCredential?.has_key));
     setTavilyEnabled(tavilyCredential?.is_enabled ?? true);
     setTavilyApiKey("");
-    if (authUser.theme && currentTheme !== authUser.theme) setTheme(authUser.theme);
-  }, [authUser, currentTheme, setTheme]);
+  }, [authUser]);
 
   const loadProfile = useCallback(async () => {
     setProfileLoading(true);
@@ -129,13 +128,12 @@ export default function SettingsPage() {
       setHasSavedTavilyKey(Boolean(tavilyCredential?.has_key));
       setTavilyEnabled(tavilyCredential?.is_enabled ?? true);
       setTavilyApiKey("");
-      if (data.theme && currentTheme !== data.theme) setTheme(data.theme);
     } catch (error) {
       console.error("Failed to load profile", error);
     } finally {
       setProfileLoading(false);
     }
-  }, [currentTheme, setTheme]);
+  }, []);
 
   const loadModels = useCallback(async () => {
     setModelsLoading(true);
@@ -360,14 +358,21 @@ export default function SettingsPage() {
   };
 
   const handleThemeUpdate = async (theme: string) => {
+    if (saving || currentTheme === theme) return;
     setSaving(true);
+    setMessage(null);
     setTheme(theme);
     try {
-      await updateSettings({ theme });
-      await loadProfile();
+      const updatedProfile = await updateSettings({ theme });
+      setProfile(updatedProfile);
       setMessage({ text: "外观主题已更新。", type: "success" });
     } catch (error) {
       console.error("Failed to update theme", error);
+      if (profile?.theme) {
+        setTheme(profile.theme);
+      } else if (authUser?.theme) {
+        setTheme(authUser.theme);
+      }
       setMessage({ text: "更新主题失败。", type: "error" });
     } finally {
       setSaving(false);

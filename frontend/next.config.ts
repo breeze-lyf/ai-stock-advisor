@@ -1,15 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   output: "standalone",
   typescript: {
     ignoreBuildErrors: true,
   },
-  // 如果 eslint 属性报错，我们直接使用这种通配方式
-  experimental: {
-    // 某些版本可能需要这个
-  }
+  // Prevent Next.js from 308-redirecting trailing-slash URLs.
+  // FastAPI expects trailing slashes on some routes; without this flag Next.js
+  // strips the slash before middleware sees the request.
+  skipTrailingSlashRedirect: true,
 };
 
 export default nextConfig;

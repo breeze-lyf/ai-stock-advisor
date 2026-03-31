@@ -1,13 +1,17 @@
 import axios from "axios";
 
 function getApiBaseURL(): string {
+  // Browser: ALWAYS use relative URLs so Next.js rewrites proxy to the backend.
+  // Must be checked FIRST - NEXT_PUBLIC_* vars are inlined at build time (always truthy),
+  // so checking them first would make this branch unreachable.
+  if (typeof window !== "undefined") {
+    return "";
+  }
+
+  // Server-side rendering: use the explicit backend URL
   const configured = process.env.NEXT_PUBLIC_API_URL?.trim();
   if (configured) {
     return configured.replace(/\/api\/?$/, "");
-  }
-
-  if (typeof window !== "undefined") {
-    return window.location.origin.replace(/\/$/, "");
   }
 
   return "http://localhost:8000";
@@ -40,13 +44,12 @@ api.interceptors.response.use(
   async (error) => {
     const config = error.config;
 
+    // Do NOT clear the token or hard-redirect here.
+    // AuthContext's route guard handles auth state and redirects.
+    // The old logic cleared localStorage and did window.location.href="/login"
+    // on every 401, which caused a logout loop when 401s came from
+    // FastAPI trailing-slash redirects that dropped the Authorization header.
     if (error.response?.status === 401 || error.response?.status === 403) {
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("token");
-        if (!window.location.pathname.includes("/login")) {
-          window.location.href = "/login";
-        }
-      }
       return Promise.reject(error);
     }
 

@@ -20,15 +20,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const PUBLIC_ROUTES = ["/login", "/register"];
 
 function getApiBaseURL(): string {
+    // Browser: use relative URLs so Next.js rewrites proxy to the backend
+    if (typeof window !== "undefined") {
+        return "";
+    }
     const configured = process.env.NEXT_PUBLIC_API_URL?.trim();
     if (configured) {
         return configured.replace(/\/api\/?$/, "");
     }
-
-    if (typeof window !== "undefined") {
-        return window.location.origin.replace(/\/$/, "");
-    }
-
     return "http://localhost:8000";
 }
 
@@ -84,19 +83,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
     }, []);
 
-    // Handle route guard after initialization; keep loading stable across page switches.
+    // Route guard: runs after loading completes and whenever token or pathname changes.
+    // Navigation is handled HERE (not inside login()) to avoid race conditions where
+    // router.push() fires before React flushes setToken(), causing the new page to
+    // see token=null and immediately redirect back to /login.
     useEffect(() => {
         if (loading) return;
-        if (!token && !PUBLIC_ROUTES.includes(pathname)) {
-            router.replace("/login");
+
+        if (token && PUBLIC_ROUTES.includes(pathname)) {
+            // Authenticated user landed on a public route (e.g. /login) → go to dashboard
+            router.replace("/");
+        } else if (!token && !PUBLIC_ROUTES.includes(pathname)) {
+            // Not authenticated on a protected route → go to login
+            // Check localStorage as extra safety (e.g. if React state lags storage)
+            const storedToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+            if (!storedToken) {
+                router.replace("/login");
+            }
         }
     }, [loading, token, pathname, router]);
 
     const login = (newToken: string) => {
         localStorage.setItem("token", newToken);
         setToken(newToken);
-        setLoading(false);
-        router.push("/");
+        // Do NOT call router.push here. The route guard effect above will redirect
+        // to "/" once React re-renders with the new token value.
     };
 
     const logout = () => {

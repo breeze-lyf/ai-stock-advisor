@@ -148,12 +148,15 @@ class AkShareProvider(MarketDataProvider):
                     _tls.bypass_proxy = True
                     env_vars = ['HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY', 'http_proxy', 'https_proxy', 'all_proxy', 'no_proxy', 'NO_PROXY']
                     old_vals = {var: os.environ.get(var) for var in env_vars}
-                    for var in env_vars: os.environ.pop(var, None)
+                    for var in env_vars:
+                        os.environ.pop(var, None)
                     
                     try:
                         with requests.Session() as s:
                             s.trust_env = False
-                            # 增加重试
+                            # 核心修复：硬编码直连环境，消除本地 Clash 等代理干扰
+                            s.proxies = {'http': None, 'https': None}
+                            
                             @retry_on_network_error(max_retries=2)
                             def _inner_fetch():
                                 return ak.stock_zh_a_spot_em()
@@ -161,7 +164,8 @@ class AkShareProvider(MarketDataProvider):
                     finally:
                         _tls.bypass_proxy = False
                         for var, val in old_vals.items():
-                            if val is not None: os.environ[var] = val
+                            if val is not None:
+                                os.environ[var] = val
 
                 loop = asyncio.get_event_loop()
                 df = await loop.run_in_executor(None, fetch)
@@ -194,6 +198,10 @@ class AkShareProvider(MarketDataProvider):
                 with requests.Session() as s:
                     # bypass=true 时禁用系统代理；否则允许读取环境代理
                     s.trust_env = not bypass_proxy
+                    if bypass_proxy:
+                        # 核心修复点：强制解除本地代理对同步任务的干扰
+                        s.proxies = {'http': None, 'https': None}
+
                     if func == requests.get:
                         return s.get(*args, **kwargs)
                     if func == requests.post:
@@ -371,16 +379,28 @@ class AkShareProvider(MarketDataProvider):
             try:
                 now = time.time()
                 async with self._get_semaphore():
+                    # 优先尝试直连获取东财美股
                     us_df = await self._run_sync(ak.stock_us_spot_em)
                     if us_df is not None and not us_df.empty:
                         AkShareProvider._cached_us_spot_df = us_df
                         AkShareProvider._last_us_spot_update = now
+                
+                # 更新对应数据集索引
                 datasets[-1] = (
                     AkShareProvider._cached_us_spot_df,
                     {"code_columns": ["代码"], "name_columns": ["名称"], "suffix": ""},
                 )
             except Exception as e:
-                logger.warning(f"AkShare US search cache update failed for {query}: {e}")
+                logger.warning(f"AkShare US search cache update failed, attempting Tencent Fallback for {query}: {e}")
+                # 核心修复点：针对单个 Query 的 Tencent 行情 Fallback 逻辑
+                if not any(item["ticker"] == query.upper() for item in results):
+                    try:
+                        quote = await self._get_tencent_quote(query)
+                        if quote:
+                            results.append(SearchResult(ticker=quote.ticker, name=quote.name))
+                            seen.add(quote.ticker.upper())
+                    except Exception as te:
+                        logger.error(f"Tencent search fallback failed for {query}: {te}")
 
         for df, options in datasets:
             matches = self._extract_search_results(df, query, limit=limit, **options)

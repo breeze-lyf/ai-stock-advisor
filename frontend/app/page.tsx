@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AnalysisTabContainer } from "@/features/dashboard/components/AnalysisTabContainer";
 import { AlertsTabContainer } from "@/features/dashboard/components/AlertsTabContainer";
@@ -21,7 +20,6 @@ import { HotspotRadar } from "@/components/features/HotspotRadar";
 
 function DashboardContent() {
   const { isAuthenticated, loading: authLoading } = useAuth();
-  const router = useRouter();
   const [onlyHoldings, setOnlyHoldings] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { activeTab, changeTab, selectedTicker, selectTicker } = useDashboardRouteState();
@@ -40,11 +38,7 @@ function DashboardContent() {
   } = useDashboardAnalysisData(selectedTicker, fetchPortfolioData);
   const { fetchRadar, loading: radarLoading, topics } = useDashboardRadarData();
 
-  useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.replace("/login");
-    }
-  }, [authLoading, isAuthenticated, router]);
+  // Auth redirect is handled by AuthContext route guard — no duplicate check needed here.
 
   const handleAnalyze = async (force = false) => {
     if (!selectedTicker) {

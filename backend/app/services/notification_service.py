@@ -57,6 +57,25 @@ class NotificationService:
             except Exception as e:
                 logger.warning(f"Master notification switch check failed: {e}. Proceeding.")
 
+        # --- 1.5. Redis webhook 级去重 (防止多账号共用同一 Webhook 时重复推送) ---
+        # 以 hash(webhook_url) + msg_type + ticker + 日期 为 key，24 小时内只发一次
+        _eff_url = webhook_url or settings.FEISHU_WEBHOOK_URL
+        if _eff_url and msg_type not in ("MACRO_SUMMARY", "HOURLY_NEWS_SUMMARY"):
+            try:
+                import hashlib
+                from app.core.redis_client import get_redis
+                _url_hash = hashlib.md5(_eff_url.encode()).hexdigest()[:12]
+                _date_str = datetime.utcnow().strftime("%Y-%m-%d")
+                _redis_key = f"notif_dedup:{_url_hash}:{msg_type}:{ticker or 'none'}:{_date_str}"
+                _redis = await get_redis()
+                if _redis:
+                    _already = not await _redis.set(_redis_key, "1", nx=True, ex=86400)
+                    if _already:
+                        logger.info(f"[Dedup/Redis] Webhook-level dedup hit: {msg_type}/{ticker}")
+                        return True
+            except Exception as _re:
+                logger.debug(f"[Dedup/Redis] Graceful fallback to DB dedup: {_re}")
+
         # --- 2. 24 小时去重检查 (带异常保护) ---
 
         try:
@@ -105,7 +124,7 @@ class NotificationService:
         }
         card["elements"].append({
             "tag": "note",
-            "elements": [{"tag": "plain_text", "content": f"通知周期: {time.strftime('%Y-%m-%d %H:%M:%S')}"}]
+            "elements": [{"tag": "plain_text", "content": f"通知周期: {datetime.now(timezone(timedelta(hours=8))).strftime('%Y-%m-%d %H:%M:%S')} (北京时间)"}]
         })
 
         payload = {"msg_type": "interactive", "card": card}

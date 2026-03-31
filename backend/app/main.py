@@ -12,9 +12,21 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from jose import jwt
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 from app.core.config import settings
 from app.core import security
+from app.core.rate_limiter import limiter
 from app.utils.json_logger import setup_logging
+
+# Prometheus metrics instrumentation
+try:
+    from prometheus_fastapi_instrumentator import Instrumentator as _Instrumentator
+    _prometheus_available = True
+except ImportError:
+    _prometheus_available = False
+
+# 全局速率限制器实例由 app/core/rate_limiter.py 统一管理
 
 # 1. 全局日志配置 (Global Logging Configuration)
 # 支持JSON格式日志，便于Loki聚合分析
@@ -185,6 +197,8 @@ async def lifespan(app: FastAPI):
             await scheduler_task
         except asyncio.CancelledError:
             logger.info("PHASE: Background scheduler task cancelled.")
+        from app.core.redis_client import close_redis
+        await close_redis()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -193,8 +207,12 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# 速率限制异常处理
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 # 2. 全局异常处理器 (Global Exception Handler)
-# 捕获所有未处理的异常，返回结构化错误信息而不是让 worker 崩溃
+# 捕获所有未处理的异常，返回通用错误信息（不暴露内部细节）
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(
@@ -206,12 +224,10 @@ async def global_exception_handler(request: Request, exc: Exception):
             "stack_trace": traceback.format_exc()
         }
     )
+    # Return a generic message — never expose exception type or details to clients
     return JSONResponse(
         status_code=500,
-        content={
-            "detail": f"Internal server error: {type(exc).__name__}",
-            "message": str(exc)[:200]  # 截断避免泄露过多内部信息
-        }
+        content={"detail": "Internal server error"}
     )
 
 # 3. HTTP 请求拦截中间件 (Custom Logging Middleware)
@@ -300,10 +316,54 @@ from app.api.v1.api import api_router
 
 app.include_router(api_router, prefix="/api/v1")
 
+# Prometheus 指标暴露（若依赖包已安装）
+if _prometheus_available:
+    _Instrumentator(
+        should_group_status_codes=True,
+        excluded_handlers=["/health", "/readiness", "/metrics"],
+    ).instrument(app).expose(app, include_in_schema=False, tags=["System"])
+
 @app.get("/health", tags=["System"])
 async def health_check():
     """健康检查接口：确保后端服务在线"""
     return {"status": "ok", "message": "Service is healthy"}
+
+@app.get("/readiness", tags=["System"])
+async def readiness_check():
+    """就绪检查接口：验证数据库和 Redis 连接正常后才对外提供服务"""
+    from sqlalchemy import text
+    from app.core.database import SessionLocal
+    from app.core.redis_client import get_redis
+
+    checks: dict[str, str] = {}
+
+    # Check database connectivity
+    try:
+        async with SessionLocal() as db:
+            await db.execute(text("SELECT 1"))
+        checks["database"] = "ok"
+    except Exception as exc:
+        logger.error(f"Readiness DB check failed: {exc}")
+        checks["database"] = "error"
+
+    # Check Redis connectivity (optional — degrades gracefully)
+    try:
+        redis = await get_redis()
+        if redis:
+            await redis.ping()
+            checks["redis"] = "ok"
+        else:
+            checks["redis"] = "unavailable"
+    except Exception as exc:
+        logger.warning(f"Readiness Redis check failed: {exc}")
+        checks["redis"] = "error"
+
+    all_critical_ok = checks.get("database") == "ok"
+    status_code = 200 if all_critical_ok else 503
+    return JSONResponse(
+        status_code=status_code,
+        content={"status": "ready" if all_critical_ok else "not_ready", "checks": checks},
+    )
 
 @app.get("/", include_in_schema=False)
 async def root():

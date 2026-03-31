@@ -20,8 +20,15 @@ services:
   redis:
     image: redis:7-alpine
     container_name: stock_redis
-    restart: always
-    # 不暴露到外部，只允许 Docker 内部访问
+    restart: always    # 启用 AOF 持久化 + 每 60 秒至少 1 次写入时触发 RDB 快照
+    command: redis-server --appendonly yes --save 60 1
+    volumes:
+      - redis_data:/data
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M    # 不暴露到外部，只允许 Docker 内部访问
 
   # 后端服务
   backend:
@@ -42,6 +49,11 @@ services:
       - app_logs:/var/log/app
     ports:
       - "8000:8000"
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
     logging:
       driver: json-file
       options:
@@ -61,6 +73,11 @@ services:
       - backend
     ports:
       - "3000:3000"
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
     logging:
       driver: json-file
       options:
@@ -132,6 +149,7 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
   loki_data:
   promtail_positions:
   grafana_data:

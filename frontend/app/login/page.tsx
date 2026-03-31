@@ -31,8 +31,8 @@ export default function LoginPage() {
         },
       });
 
-      const token = response.data.access_token;
-      login(token);
+      const { access_token, refresh_token } = response.data;
+      login(access_token, refresh_token);
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { detail?: string } } };
       setError(axiosErr.response?.data?.detail || "Login failed");

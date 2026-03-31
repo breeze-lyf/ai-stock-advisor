@@ -63,6 +63,11 @@ class SchedulerRepository:
         res = await self.db.execute(stmt)
         return res.scalar_one_or_none()
 
+    async def get_all_portfolio_tickers(self) -> list[str]:
+        """返回所有用户持仓中的不重复 ticker 列表"""
+        result = await self.db.execute(select(Portfolio.ticker).distinct())
+        return [row[0] for row in result.fetchall()]
+
     async def get_active_hourly_summary_users(self):
         stmt = select(User).join(Portfolio, User.id == Portfolio.user_id).distinct()
         res = await self.db.execute(stmt)

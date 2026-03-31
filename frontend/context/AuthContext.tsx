@@ -9,7 +9,7 @@ interface AuthContextType {
     token: string | null;
     user: UserProfile | null;
     loading: boolean;
-    login: (token: string) => void;
+    login: (token: string, refreshToken?: string) => void;
     logout: () => void;
     isAuthenticated: boolean;
     refreshProfile: () => Promise<void>;
@@ -50,8 +50,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (response.ok) {
                 const data = await response.json();
                 setUser(data);
-            } else if (response.status === 401 || response.status === 403) {
+                    } else if (response.status === 401 || response.status === 403) {
                 localStorage.removeItem("token");
+                localStorage.removeItem("refreshToken");
                 setToken(null);
                 setUser(null);
             }
@@ -103,8 +104,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, [loading, token, pathname, router]);
 
-    const login = (newToken: string) => {
+    const login = (newToken: string, newRefreshToken?: string) => {
         localStorage.setItem("token", newToken);
+        if (newRefreshToken) localStorage.setItem("refreshToken", newRefreshToken);
         setToken(newToken);
         // Do NOT call router.push here. The route guard effect above will redirect
         // to "/" once React re-renders with the new token value.
@@ -112,6 +114,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const logout = () => {
         localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
         setToken(null);
         setUser(null);
         setLoading(false);

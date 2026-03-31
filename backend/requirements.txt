@@ -75,3 +75,6 @@ gunicorn==23.0.0
 akshare
 ib_async
 yfinance==0.2.66
+slowapi>=0.1.9
+redis[asyncio]>=5.0.0
+prometheus-fastapi-instrumentator>=7.0.0

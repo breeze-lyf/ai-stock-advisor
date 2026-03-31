@@ -60,6 +60,38 @@ async def get_analysis_history(
 ):
     return await GetAnalysisHistoryUseCase(db, current_user).execute(ticker=ticker, limit=limit)
 
+
+@router.get("/{ticker}/status")
+async def get_analysis_status(
+    ticker: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """轻量轮询端点：返回最新分析时间戳和陈旧状态，供前端 banner 判断是否有新版"""
+    from datetime import datetime
+    from app.infrastructure.db.repositories.scheduler_repository import SchedulerRepository
+    from app.services.scheduler_jobs import should_auto_analyze
+
+    repo = SchedulerRepository(db)
+    report = await repo.get_latest_shared_analysis_report(ticker.upper())
+
+    last_analyzed_at = None
+    age_minutes: int | None = None
+    is_stale = True
+
+    if report:
+        last_analyzed_at = report.created_at
+        age_minutes = int((datetime.utcnow() - report.created_at).total_seconds() / 60)
+        is_stale = should_auto_analyze(ticker, report)
+
+    return {
+        "ticker": ticker.upper(),
+        "last_analyzed_at": last_analyzed_at,
+        "age_minutes": age_minutes,
+        "is_stale": is_stale,
+    }
+
+
 @router.get("/{ticker}", response_model=AnalysisResponse)
 async def get_latest_analysis(
     ticker: str,

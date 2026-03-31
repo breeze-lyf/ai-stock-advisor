@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import field_validator
 from typing import Optional
 
 class Settings(BaseSettings):
@@ -8,13 +9,35 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite+aiosqlite:///./ai_advisor.db"
     
     # Security
-    SECRET_KEY: str = "dev_secret_key_change_me_in_production"
+    SECRET_KEY: str  # Required — no default. Must be set in .env
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60  # 1 hour
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     ALLOWED_ORIGINS: list[str] = []
-    
-    # Encryption for API Keys (32 byte base64 encoded string)
+
+    # Data retention: analysis reports older than this many days are purged nightly
+    DATA_RETENTION_DAYS: int = 90
+
+    @field_validator("SECRET_KEY")
+    @classmethod
+    def validate_secret_key(cls, v: str) -> str:
+        insecure_defaults = {
+            "dev_secret_key_change_me_in_production",
+            "secret",
+            "changeme",
+        }
+        if v.lower() in insecure_defaults or len(v) < 32:
+            raise ValueError(
+                "SECRET_KEY is insecure. Set a random value (>= 32 chars) in .env. "
+                "Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\""
+            )
+        return v
+
+    # Encryption for API Keys (Fernet 32-byte base64-encoded key)
     ENCRYPTION_KEY: Optional[str] = None
+
+    # Redis (optional — used for caching and distributed locks)
+    REDIS_URL: Optional[str] = None
     GEMINI_API_KEY: Optional[str] = None
     DEEPSEEK_API_KEY: Optional[str] = None
     SILICONFLOW_API_KEY: Optional[str] = None

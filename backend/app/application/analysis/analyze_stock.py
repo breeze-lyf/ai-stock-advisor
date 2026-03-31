@@ -421,27 +421,35 @@ class AnalyzeStockUseCase:
         return None
 
     def _resolve_rr_ratio(self, parsed_data: dict[str, Any], market_data: dict[str, Any]) -> Optional[str]:
-        final_rr_str = to_str(parsed_data.get("rr_ratio"))
-        if final_rr_str:
-            import re
-
-            colon_match = re.search(r"[:：]\s*(\d+(?:\.\d+)?)", final_rr_str)
-            if colon_match:
-                return f"{float(colon_match.group(1)):.2f}"
-
-            number_match = re.search(r"(\d+(?:\.\d+)?)", final_rr_str)
-            if number_match:
-                return f"{float(number_match.group(1)):.2f}"
-
+        """
+        从 target / stop / entry 推算计划阶段盈亏比 (Plan-phase RRR)。
+        以建仓区间中位价为参照基准，不随股价漂移，符合 CFA/CMT 专业定义。
+        故意忽略 AI 自报的 rr_ratio —— LLM 算术容易出错，不如直接从价格推算。
+        """
         target = to_float(parsed_data.get("target_price"))
         stop = to_float(parsed_data.get("stop_loss_price"))
-        curr_p = market_data.get("current_price") or 0.0
-        if target and stop and curr_p:
-            reward = target - curr_p
-            risk = curr_p - stop
-            if risk > 0 and reward > 0:
-                return f"{reward/risk:.2f}"
-        return final_rr_str
+        if not target or not stop:
+            return None
+
+        # 优先：建仓区间中位价（一旦策略确定，RRR 不再随现价漂移）
+        entry_low = to_float(parsed_data.get("entry_price_low"))
+        entry_high = to_float(parsed_data.get("entry_price_high"))
+        if entry_low and entry_high:
+            ref_price = (entry_low + entry_high) / 2
+        elif entry_low:
+            ref_price = entry_low
+        else:
+            # 降级：无建仓区间时用分析时现价（确保不丢失数据）
+            ref_price = market_data.get("current_price") or 0.0
+
+        if not ref_price:
+            return None
+
+        reward = target - ref_price
+        risk = ref_price - stop
+        if risk > 0 and reward > 0:
+            return f"{reward / risk:.2f}"
+        return None
 
     async def _persist_report(
         self,
@@ -540,19 +548,27 @@ class AnalyzeStockUseCase:
             if not cache_to_sync:
                 return
 
+            # rr_ratio 已由 _resolve_rr_ratio 基于建仓价计算，直接信任
             effective_rrr = None
             try:
                 if new_report.rr_ratio:
-                    effective_rrr = float(new_report.rr_ratio)
+                    effective_rrr = round(float(new_report.rr_ratio), 2)
             except (ValueError, TypeError):
                 effective_rrr = None
 
+            # 兜底：rr_ratio 字段缺失时，用建仓区间中位价重算
             if effective_rrr is None and new_report.target_price and new_report.stop_loss_price:
-                curr_p = market_data.get("current_price") or 0.0
-                reward = new_report.target_price - curr_p
-                risk = curr_p - new_report.stop_loss_price
-                if risk > 0 and reward > 0:
-                    effective_rrr = round(reward / risk, 2)
+                if new_report.entry_price_low and new_report.entry_price_high:
+                    ref_p = (new_report.entry_price_low + new_report.entry_price_high) / 2
+                elif new_report.entry_price_low:
+                    ref_p = new_report.entry_price_low
+                else:
+                    ref_p = market_data.get("current_price") or 0.0
+                if ref_p:
+                    reward = new_report.target_price - ref_p
+                    risk = ref_p - new_report.stop_loss_price
+                    if risk > 0 and reward > 0:
+                        effective_rrr = round(reward / risk, 2)
 
             if effective_rrr is None:
                 return

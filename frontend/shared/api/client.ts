@@ -21,7 +21,7 @@ const baseURL = getApiBaseURL();
 
 const api = axios.create({
   baseURL,
-  timeout: 300000,
+  timeout: 30000, // 30s — use per-request config for long AI calls
   headers: {
     "Content-Type": "application/json",
   },
@@ -37,6 +37,15 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// -- Refresh token state --
+let _isRefreshing = false;
+let _refreshSubscribers: Array<(token: string) => void> = [];
+
+function _onTokenRefreshed(newToken: string) {
+  _refreshSubscribers.forEach((cb) => cb(newToken));
+  _refreshSubscribers = [];
+}
+
 const MAX_RETRIES = 2;
 
 api.interceptors.response.use(
@@ -44,18 +53,65 @@ api.interceptors.response.use(
   async (error) => {
     const config = error.config;
 
-    // Do NOT clear the token or hard-redirect here.
-    // AuthContext's route guard handles auth state and redirects.
-    // The old logic cleared localStorage and did window.location.href="/login"
-    // on every 401, which caused a logout loop when 401s came from
-    // FastAPI trailing-slash redirects that dropped the Authorization header.
-    if (error.response?.status === 401 || error.response?.status === 403) {
+    // -- 401: attempt token refresh --
+    if (error.response?.status === 401 && typeof window !== "undefined") {
+      // Don't retry the refresh endpoint itself
+      if (config?.url?.includes("/auth/refresh")) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        window.location.href = "/login";
+        return Promise.reject(error);
+      }
+
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (!refreshToken || config?._retry) {
+        // No refresh token available — let AuthContext handle the redirect
+        return Promise.reject(error);
+      }
+
+      if (_isRefreshing) {
+        // Queue this request until the in-flight refresh completes
+        return new Promise((resolve) => {
+          _refreshSubscribers.push((newToken: string) => {
+            config.headers.Authorization = `Bearer ${newToken}`;
+            resolve(api(config));
+          });
+        });
+      }
+
+      config._retry = true;
+      _isRefreshing = true;
+
+      try {
+        const res = await axios.post(`${baseURL}/api/v1/auth/refresh`, {
+          refresh_token: refreshToken,
+        });
+        const { access_token, refresh_token: newRefresh } = res.data;
+        localStorage.setItem("token", access_token);
+        if (newRefresh) localStorage.setItem("refreshToken", newRefresh);
+        api.defaults.headers.common.Authorization = `Bearer ${access_token}`;
+        _onTokenRefreshed(access_token);
+        config.headers.Authorization = `Bearer ${access_token}`;
+        return api(config);
+      } catch {
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        window.location.href = "/login";
+        return Promise.reject(error);
+      } finally {
+        _isRefreshing = false;
+      }
+    }
+
+    // 403 — forbidden, just reject
+    if (error.response?.status === 403) {
       return Promise.reject(error);
     }
 
+    // Retry on transient 5xx (not POST to avoid duplicate side-effects)
     const isRetryable =
       (!error.response || (error.response.status >= 500 && error.response.status < 600)) &&
-      config.method?.toLowerCase() !== "post"; // Skip post requests to avoid double-triggers on slow tasks
+      config?.method?.toLowerCase() !== "post";
 
     if (isRetryable && config && !config.__isRetry) {
       config.__retryCount = config.__retryCount || 0;

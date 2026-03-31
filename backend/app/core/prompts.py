@@ -12,7 +12,7 @@ COMPLIANCE_DISCLAIMER = (
 )
 
 STOCK_ANALYSIS_PROMPT_TEMPLATE = """
-{compliance_prefix}你是一位资深美股投资顾问和量化策略专家。请基于以下多维数据为代码 [{ticker}] 提供严谨的诊断。
+{compliance_prefix}你是一位资深全球多市场投资顾问和量化策略专家，精通美股（纳斯达克/纽交所）、A股（汪深两市）及港股的不同交易结构与市场特性。请基于以下多维数据为代码 [{ticker}] 提供严谨的诊断。
 注意：这是**标的级公共分析**，不面向某个具体用户持仓；禁止根据个体仓位、成本价、盈亏情况输出个性化持仓建议。
 
 **1. 基础面概览 (Fundamental Context)**:
@@ -29,11 +29,12 @@ STOCK_ANALYSIS_PROMPT_TEMPLATE = """
 - [REF_T1] 当前价格: ${current_price}
 - [REF_T2] 今日涨跌: {change_percent}%
 - [REF_T3] RSI (14): {rsi_14}
+- [REF_T3.5] 量比 (Vol vs 20MA): {volume_ratio} (参考: >1.5 = 放量有效，0.5-1.5 = 正常，<0.5 = 缩量萌退)
 - [REF_T4] KDJ (K): {k_line} / (D): {d_line} / (J): {j_line}
 - [REF_T5] MACD: {macd_val} (柱状图: {macd_hist}, 斜率: {macd_hist_slope})
 - [REF_T6] 布林带 (BB): 上轨: {bb_upper} | 均线: {bb_middle} | 下轨: {bb_lower}
 - [REF_T7] MA 均线: [20: {ma_20}, 50: {ma_50}, 200: {ma_200}]
-- [REF_T8] 趋势强度 (ADX): {adx_14} | ATR: {atr_14}
+- [REF_T8] 趋势强度 (ADX): {adx_14}（参考: >25=趋势确立可跟趋，20-25=趋势形成中，<20=区间震荡慎跟）| ATR: {atr_14}
 - [REF_T9] 枢轴参考 (Pivots): 阻力位 R1: {resistance_1} / R2: {resistance_2} | 支撑位 S1: {support_1} / S2: {support_2}
 
 **4. 实时个股消息面与资金流 (News & Capital Flow)**:
@@ -72,7 +73,7 @@ STOCK_ANALYSIS_PROMPT_TEMPLATE = """
 - 严禁在 `news_summary` 中编造具体事件名称、会议、监管动作或日期；引用事件时必须能在 `news_context` 找到依据。
 - `fundamental_analysis` 只允许基于基础面与估值数据，禁止引用新闻与宏观。
 - `macro_risk_note` 只允许基于 `macro_context`，并说明影响传导链，不得伪装成个股新闻结论。
-- `rr_ratio` 只允许返回**纯数字字符串**，例如 `"1.30"`、`"2.15"`。
+- `entry_price_low` / `entry_price_high` 是盈亏比计算核心依据，**必须给出具体价格**，且严格满足：`stop_loss_price` < `entry_price_low` ≤ `entry_price_high` < `target_price`。
 
 JSON 结果结构:
 {{
@@ -86,7 +87,7 @@ JSON 结果结构:
     "trigger_condition": "计划生效条件",
     "invalidation_condition": "计划失效条件",
     "next_review_point": "下一次复核价格或时间点",
-    "rr_ratio": "纯数字字符串，例如 1.30",
+    "catalyst": "本次交易的核心催化剂（技术突破/消息事件/估值修复），简洁单句",
     "entry_price_low": Float,
     "entry_price_high": Float,
     "add_on_trigger": "加仓触发条件",
@@ -96,7 +97,7 @@ JSON 结果结构:
     "stop_loss_price": Float,
     "max_position_pct": Float,
     "risk_level": "低/中/高",
-    "investment_horizon": "建议持仓期限",
+    "investment_horizon": "日内 | 0-5天 | 1-2周 | 1-3月 | 3月以上",
     "confidence_level": 0-100,
     "thought_process": [
         {{"step": "观察", "content": "..."}},
@@ -104,7 +105,7 @@ JSON 结果结构:
         {{"step": "结论", "content": "..."}}
     ],
     "scenario_tags": [
-        {{"category": "技术形态", "value": "..."}}
+        {{"category": "技术形态 | 市场结构 | 基本面驱动 | 宏观风险 | 情绪极値 | 量价关系", "value": "简短标签，如: 双底突破/强支撑测试/RSI超卖/主力流入"}}
     ],
     "technical_analysis": "核心技术位解读。结论先行。",
     "news_summary": "基于消息面的综述。",
@@ -177,6 +178,7 @@ def build_stock_analysis_prompt(ticker: str, market_data: dict, fundamental_data
         current_price=current_price,
         change_percent=change_percent,
         rsi_14=market_data.get('rsi_14', 'N/A'),
+        volume_ratio=market_data.get('volume_ratio', 'N/A'),
         k_line=market_data.get('k_line', 'N/A'),
         d_line=market_data.get('d_line', 'N/A'),
         j_line=market_data.get('j_line', 'N/A'),

@@ -20,6 +20,7 @@ export const metadata: Metadata = {
 import { AuthProvider } from "@/context/AuthContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function RootLayout({
   children,
@@ -39,9 +40,11 @@ export default function RootLayout({
         >
           <AuthProvider>
             <TooltipProvider>
-              <main className="flex-1 flex flex-col">
-                {children}
-              </main>
+              <ErrorBoundary>
+                <main className="flex-1 flex flex-col">
+                  {children}
+                </main>
+              </ErrorBoundary>
             </TooltipProvider>
           </AuthProvider>
         </ThemeProvider>

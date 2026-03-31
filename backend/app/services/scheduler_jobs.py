@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import pytz
 
@@ -328,3 +328,91 @@ async def run_daily_portfolio_report_job(db) -> int:
         )
 
     return len(users)
+
+
+# ---------------------------------------------------------------------------
+# 自动刷新陈旧分析 (Auto-refresh stale AI analysis)
+# ---------------------------------------------------------------------------
+
+def _is_market_open_for(ticker: str) -> bool:
+    """轻量判断：当前是否处于该 ticker 的交易时段"""
+    from datetime import time as dt_time
+    import pytz as _pytz
+    now_utc = datetime.now(_pytz.utc)
+    ticker_up = ticker.upper()
+    if ticker_up.isdigit() and len(ticker_up) == 6:  # A股
+        tz = _pytz.timezone("Asia/Shanghai")
+        t = now_utc.astimezone(tz).time()
+        return (dt_time(9, 15) <= t <= dt_time(11, 30)) or (dt_time(13, 0) <= t <= dt_time(15, 0))
+    elif ticker_up.endswith(".HK"):  # 港股
+        tz = _pytz.timezone("Asia/Shanghai")
+        t = now_utc.astimezone(tz).time()
+        return (dt_time(9, 30) <= t <= dt_time(12, 0)) or (dt_time(13, 0) <= t <= dt_time(16, 0))
+    else:  # 美股
+        tz = _pytz.timezone("America/New_York")
+        t = now_utc.astimezone(tz).time()
+        return dt_time(9, 30) <= t <= dt_time(16, 0)
+
+
+def should_auto_analyze(ticker: str, report) -> bool:
+    """
+    判断是否需要自动触发 AI 分析：
+    - 从未分析过 → True
+    - 盘中且分析超过 4 小时 → True
+    - 盘外且分析超过 24 小时 → True
+    """
+    if report is None:
+        return True
+    age = datetime.utcnow() - report.created_at
+    threshold = timedelta(hours=4) if _is_market_open_for(ticker) else timedelta(hours=24)
+    return age > threshold
+
+
+async def run_auto_refresh_stale_analysis_job(session_factory, max_per_run: int = 3) -> int:
+    """
+    扫描所有用户持仓 ticker，找出陈旧分析并自动触发 AI 更新。
+    - 每次最多处理 max_per_run 个（成本保护）
+    - AI 调用串行执行（避免并发爆破 LLM 限额）
+    - 使用独立的数据库 session（不阻塞主调度循环）
+    """
+    stale: list[tuple[str, datetime | None]] = []
+
+    async with session_factory() as db:
+        repo = SchedulerRepository(db)
+        tickers = await repo.get_all_portfolio_tickers()
+        for ticker in tickers:
+            report = await repo.get_latest_shared_analysis_report(ticker)
+            if should_auto_analyze(ticker, report):
+                age_h = None
+                if report:
+                    age_h = (datetime.utcnow() - report.created_at).total_seconds() / 3600
+                stale.append((ticker, age_h))
+
+    if not stale:
+        logger.debug("[AutoRefresh] 所有持仓分析均为最新，跳过本轮")
+        return 0
+
+    # 按陈旧程度降序排列（未分析的 age=None 优先）
+    stale.sort(key=lambda x: (x[1] is not None, -(x[1] or 0)))
+    to_refresh = stale[:max_per_run]
+
+    logger.info(f"[AutoRefresh] 发现 {len(stale)} 个陈旧分析，本轮处理 {len(to_refresh)} 个: "
+                f"{[t for t, _ in to_refresh]}")
+
+    refreshed = 0
+    for ticker, age_h in to_refresh:
+        async with session_factory() as db:
+            try:
+                repo = SchedulerRepository(db)
+                users = await repo.get_users_holding_ticker(ticker)
+                if not users:
+                    continue
+                age_str = f"{age_h:.1f}h" if age_h is not None else "未分析"
+                logger.info(f"[AutoRefresh] 触发 {ticker} 分析 (陈旧度: {age_str})")
+                await AnalyzeStockUseCase(db, users[0]).execute(ticker, force=True)
+                refreshed += 1
+            except Exception as exc:
+                logger.error(f"[AutoRefresh] {ticker} 自动分析失败: {exc}")
+
+    logger.info(f"[AutoRefresh] 本轮完成，成功更新 {refreshed}/{len(to_refresh)} 个分析")
+    return refreshed

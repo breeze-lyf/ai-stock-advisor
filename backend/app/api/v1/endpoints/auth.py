@@ -1,82 +1,220 @@
 from typing import Any
-from datetime import timedelta
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
+from pydantic import BaseModel, EmailStr
+from jose import JWTError
 
 from app.core import security
-from app.core.config import settings
 from app.core.database import get_db
+from app.core.rate_limiter import limiter
 from app.infrastructure.db.repositories.user_repository import UserRepository
 from app.models.user import User
-from pydantic import BaseModel, EmailStr
 
 router = APIRouter()
+
 
 class UserCreate(BaseModel):
     email: EmailStr
     password: str
 
+
 class Token(BaseModel):
     access_token: str
+    refresh_token: str
     token_type: str
 
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
+
+def _issue_tokens(user_id) -> dict:
+    """Create a matched access + refresh token pair for a user."""
+    return {
+        "access_token": security.create_access_token(user_id),
+        "refresh_token": security.create_refresh_token(user_id),
+        "token_type": "bearer",
+    }
+
+
 @router.post("/login", response_model=Token)
+@limiter.limit("10/minute")
 async def login_access_token(
-    db: AsyncSession = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    form_data: OAuth2PasswordRequestForm = Depends(),
 ) -> Any:
     """
-    用户登录接口 (获取 Access Token)
-    1. 验证邮箱和密码
-    2. 生成 JWT Token
+    用户登录接口 — 返回 Access Token + Refresh Token。
+    限流：每 IP 每分钟最多 10 次登录尝试。
     """
-    # 查询用户
     user = await UserRepository(db).get_by_email(form_data.username)
-    
-    # 验证密码
     if not user or not security.verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Incorrect email or password",
         )
-    
-    # 生成 Token
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = security.create_access_token(
-        user.id, expires_delta=access_token_expires
-    )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return _issue_tokens(user.id)
+
 
 @router.post("/register", response_model=Token)
 async def register_user(
     user_in: UserCreate, db: AsyncSession = Depends(get_db)
 ) -> Any:
     """
-    用户注册接口
-    1. 检查邮箱是否已存在
-    2. 创建新用户并加密密码
-    3. 自动登录 (返回 Token)
+    用户注册接口 — 注册成功后直接返回 Token 实现自动登录。
     """
-    # 检查邮箱是否存在
     repo = UserRepository(db)
     existing_user = await repo.get_by_email(user_in.email)
-    
     if existing_user:
         raise HTTPException(
             status_code=400,
             detail="The user with this email already exists in the system.",
         )
-    
-    # 创建用户
+
     user = User(
         email=user_in.email,
-        hashed_password=security.get_password_hash(user_in.password)
+        hashed_password=security.get_password_hash(user_in.password),
     )
     user = await repo.create(user)
-    
-    # 注册成功后直接签发 Token，实现自动登录
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = security.create_access_token(
-        user.id, expires_delta=access_token_expires
+    return _issue_tokens(user.id)
+
+
+@router.post("/refresh", response_model=Token)
+async def refresh_access_token(
+    body: RefreshRequest,
+    db: AsyncSession = Depends(get_db),
+) -> Any:
+    """
+    用 Refresh Token 换取新的 Access Token + Refresh Token 对（rolling refresh）。
+    """
+    credentials_error = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid or expired refresh token",
+        headers={"WWW-Authenticate": "Bearer"},
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+
+    try:
+        payload = security.decode_token(body.refresh_token)
+    except JWTError:
+        raise credentials_error
+
+    if payload.get("type") != "refresh":
+        raise credentials_error
+
+    user_id = payload.get("sub")
+    if not user_id:
+        raise credentials_error
+
+    user = await UserRepository(db).get_by_id(user_id)
+    if not user:
+        raise credentials_error
+
+    return _issue_tokens(user.id)
+
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class Token(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str
+
+
+class RefreshRequest(BaseModel):
+    refresh_token: str
+
+
+def _issue_tokens(user_id) -> dict:
+    """Create a matched access + refresh token pair for a user."""
+    access_token = security.create_access_token(user_id)
+    refresh_token = security.create_refresh_token(user_id)
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer",
+    }
+
+
+@router.post("/login", response_model=Token)
+async def login_access_token(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+    form_data: OAuth2PasswordRequestForm = Depends(),
+) -> Any:
+    """
+    用户登录接口 (获取 Access Token + Refresh Token)
+    限流: 每 IP 每分钟最多 10 次
+    """
+    from app.main import limiter
+    await limiter._check_request_limit(request, "10/minute")  # type: ignore[attr-defined]
+
+    user = await UserRepository(db).get_by_email(form_data.username)
+    if not user or not security.verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Incorrect email or password",
+        )
+    return _issue_tokens(user.id)
+
+
+@router.post("/register", response_model=Token)
+async def register_user(
+    user_in: UserCreate, db: AsyncSession = Depends(get_db)
+) -> Any:
+    """
+    用户注册接口 — 注册成功后直接返回 Token 实现自动登录
+    """
+    repo = UserRepository(db)
+    existing_user = await repo.get_by_email(user_in.email)
+    if existing_user:
+        raise HTTPException(
+            status_code=400,
+            detail="The user with this email already exists in the system.",
+        )
+
+    user = User(
+        email=user_in.email,
+        hashed_password=security.get_password_hash(user_in.password),
+    )
+    user = await repo.create(user)
+    return _issue_tokens(user.id)
+
+
+@router.post("/refresh", response_model=Token)
+async def refresh_access_token(
+    body: RefreshRequest,
+    db: AsyncSession = Depends(get_db),
+) -> Any:
+    """
+    用 Refresh Token 换取新的 Access Token + Refresh Token 对。
+    Refresh Token 为单次消费 (rolling refresh)。
+    """
+    credentials_error = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid or expired refresh token",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    try:
+        payload = security.decode_token(body.refresh_token)
+    except JWTError:
+        raise credentials_error
+
+    if payload.get("type") != "refresh":
+        raise credentials_error
+
+    user_id = payload.get("sub")
+    if not user_id:
+        raise credentials_error
+
+    user = await UserRepository(db).get_by_id(user_id)
+    if not user:
+        raise credentials_error
+
+    # Rolling refresh: issue a completely new token pair
+    return _issue_tokens(user.id)

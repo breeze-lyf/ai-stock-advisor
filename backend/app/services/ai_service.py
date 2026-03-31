@@ -1,7 +1,11 @@
+"""
+AI Service — 业务编排层
+职责：模型配置解析、API Key 路由、故障转移分发、分析报告生成。
+HTTP 传输逻辑已解耦至 app.services.ai_provider_client。
+"""
 # 设置代理环境变量（解决 Python 3.14 + httpx 兼容性问题）
 import os
 from app.core.config import settings
-import inspect
 if settings.HTTP_PROXY:
     os.environ.setdefault("HTTP_PROXY", settings.HTTP_PROXY)
     os.environ.setdefault("HTTPS_PROXY", settings.HTTP_PROXY)
@@ -11,12 +15,11 @@ if settings.NO_PROXY:
 
 from app.core import security
 from app.core.prompts import build_stock_analysis_prompt, build_portfolio_analysis_prompt
+from app.services.ai_provider_client import call_provider, infer_provider_key  # noqa: F401 (re-exported)
 import logging
 import httpx
 import json
-import asyncio
 import time
-from datetime import datetime
 from typing import Optional, List, Any, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -28,44 +31,9 @@ from app.models.user_provider_credential import UserProviderCredential
 from app.schemas.ai_config import AIModelRuntimeConfig, ProviderRuntimeConfig
 
 
-def _patch_httpx_asyncclient_compat_local() -> None:
-    """
-    在 AIService 模块加载时即打补丁，避免依赖 FastAPI startup 时机。
-    """
-    async_client_cls = httpx.AsyncClient
-    if getattr(async_client_cls, "_compat_init_patched", False):
-        return
-
-    original_init = async_client_cls.__init__
-    accepts_proxies = "proxies" in inspect.signature(original_init).parameters
-
-    def _compat_init(self, *args, **kwargs):
-        if "proxies" in kwargs and "proxy" not in kwargs and not accepts_proxies:
-            raw_proxies = kwargs.pop("proxies")
-            if isinstance(raw_proxies, dict):
-                proxy_val = (
-                    raw_proxies.get("https://")
-                    or raw_proxies.get("http://")
-                    or raw_proxies.get("https")
-                    or raw_proxies.get("http")
-                )
-            else:
-                proxy_val = raw_proxies
-            kwargs["proxy"] = proxy_val
-        limits = kwargs.get("limits")
-        original_init(self, *args, **kwargs)
-        if not hasattr(self, "_limits"):
-            self._limits = limits
-
-    async_client_cls.__init__ = _compat_init  # type: ignore[method-assign]
-    async_client_cls._compat_init_patched = True  # type: ignore[attr-defined]
-
-
-_patch_httpx_asyncclient_compat_local()
-
 # 配置日志
 logger = logging.getLogger(__name__)
-# AI 调用専用 logger：所有 prompt 和计时数据写入 ai_calls.log
+# AI 调用专用 logger（与 ai_provider_client 共享同一 logger 名）
 ai_call_logger = logging.getLogger("app.ai_calls")
 
 class AIService:
@@ -124,7 +92,7 @@ class AIService:
                 "timeout_seconds": 300,
             },
         )()
-        return await cls.call_provider(provider_config, model.model_id, prompt, api_key, base_url)
+        return await call_provider(provider_config, model.model_id, prompt, api_key, base_url)
 
     @classmethod
     async def get_default_model_for_provider(cls, provider_key: str, db: Optional[AsyncSession] = None) -> str:
@@ -250,126 +218,15 @@ class AIService:
 
     @staticmethod
     async def call_provider(
-        provider_config: Any, 
-        model_id: str, 
-        prompt: str, 
-        api_key: str, 
+        provider_config: Any,
+        model_id: str,
+        prompt: str,
+        api_key: str,
         custom_url: str = None,
-        require_json: bool = True
+        require_json: bool = True,
     ) -> str:
-        """通用供应商调用器"""
-        call_start = time.monotonic()
-        provider_key = provider_config.provider_key
-
-        # 将完整 prompt 写入专用日志，不打终端
-        ai_call_logger.info(
-            f"[PROMPT] {provider_key}/{model_id}",
-            extra={
-                "provider": provider_key,
-                "model": model_id,
-                "prompt_len": len(prompt),
-                "prompt": prompt,          # 完整 prompt
-                "phase": "request",
-            }
-        )
-        logger.info(f"[AI] 调用 {provider_key}/{model_id} (prompt {len(prompt)}字符)")
-
-        base_url = custom_url or provider_config.base_url
-        # 以数据库配置为准，设置最小 30s，避免误配到过小值导致频繁超时
-        _db_timeout = provider_config.timeout_seconds or 120
-        timeout = max(_db_timeout, 30)
-
-        # OpenAI 兼容接口
-        url = f"{base_url.rstrip('/')}/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
-        }
-
-        async def _do_call(use_json: bool):
-            payload = {
-                "model": model_id,
-                "messages": [{"role": "user", "content": prompt}],
-                "temperature": 0.3
-            }
-            if use_json:
-                payload["response_format"] = {"type": "json_object"}
-
-            client_kwargs = {
-                "timeout": httpx.Timeout(timeout, connect=10.0),
-                "trust_env": True
-            }
-            t_send = time.monotonic()
-            async with httpx.AsyncClient(**client_kwargs) as client:
-                response = await client.post(url, json=payload, headers=headers)
-            t_recv = time.monotonic()
-            ai_call_logger.debug(
-                f"[HTTP] {provider_key} http={response.status_code}",
-                extra={
-                    "provider": provider_key, "phase": "http",
-                    "http_status": response.status_code,
-                    "request_s": round(t_recv - t_send, 3),
-                    "total_s": round(t_recv - call_start, 3),
-                }
-            )
-            return response
-
-        try:
-            response = await _do_call(use_json=require_json)
-        except httpx.TimeoutException as e:
-            elapsed = time.monotonic() - call_start
-            ai_call_logger.error(
-                f"[TIMEOUT] {provider_key}: {AIService._format_exception(e)}",
-                extra={"provider": provider_key, "phase": "timeout", "total_s": round(elapsed, 3)}
-            )
-            logger.warning(f"[AI] 请求超时 ({provider_key}, {elapsed:.1f}s)")
-            raise
-        except Exception:
-            raise
-
-        if response.status_code == 400 and require_json:
-            error_data = {}
-            try:
-                if response.headers.get("content-type") == "application/json":
-                    error_data = response.json()
-            except Exception:
-                pass
-            error_msg = error_data.get("error", {}).get("message", "").lower()
-            if "response_format" in error_msg or "json_object" in error_msg:
-                logger.info(f"[AI] 降级重试 (no json_object)...")
-                response = await _do_call(use_json=False)
-
-        if response.status_code != 200:
-            error_text = response.text
-            elapsed = time.monotonic() - call_start
-            ai_call_logger.error(
-                f"[FAIL] {provider_key} HTTP {response.status_code}",
-                extra={"provider": provider_key, "phase": "error",
-                       "http_status": response.status_code,
-                       "response_body": error_text[:500],
-                       "total_s": round(elapsed, 3)}
-            )
-            logger.warning(f"[AI] {provider_key} 返回 {response.status_code} ({elapsed:.1f}s)")
-            if response.status_code in [401, 402]:
-                raise ValueError(f"Auth Error: {response.status_code}")
-            raise RuntimeError(
-                f"{provider_key} HTTP {response.status_code}: {(error_text or '').strip()[:300]}"
-            )
-
-        result = response.json()
-        content = result["choices"][0]["message"]["content"]
-        elapsed = time.monotonic() - call_start
-        ai_call_logger.info(
-            f"[DONE] {provider_key}/{model_id}",
-            extra={
-                "provider": provider_key, "model": model_id, "phase": "done",
-                "total_s": round(elapsed, 3),
-                "response_len": len(content),
-                "response": content,  # 记录完整回答
-            }
-        )
-        logger.info(f"[AI] {provider_key} 完成 ✔  {elapsed:.1f}s | {len(content)}字符")
-        return content
+        """通用供应商调用器 — 委托至 ai_provider_client.call_provider"""
+        return await call_provider(provider_config, model_id, prompt, api_key, custom_url, require_json)
 
     @classmethod
     async def call_siliconflow(
@@ -455,25 +312,8 @@ class AIService:
 
     @staticmethod
     def infer_provider_key(base_url: Optional[str] = None, provider_hint: Optional[str] = None) -> str:
-        hint = (provider_hint or "").strip().lower()
-        url = (base_url or "").strip().lower()
-
-        combined = f"{hint} {url}"
-        if any(token in combined for token in ["gemini", "googleapis.com", "generativelanguage"]):
-            return "gemini"
-        if "siliconflow" in combined:
-            return "siliconflow"
-        if "deepseek" in combined:
-            return "deepseek"
-        if "dashscope" in combined or "aliyuncs.com" in combined or "qwen" in combined:
-            return "dashscope"
-        if "minimax" in combined:
-            return "minimax"
-        if "anthropic" in combined or "claude" in combined:
-            return "anthropic"
-        if "openrouter" in combined:
-            return "openrouter"
-        return "openai-compatible"
+        """委托至 ai_provider_client.infer_provider_key"""
+        return infer_provider_key(base_url, provider_hint)
 
     @classmethod
     async def _dispatch_with_fallback(cls, prompt: str, model_config: AIModelRuntimeConfig, user: Optional[User], db: AsyncSession) -> str:

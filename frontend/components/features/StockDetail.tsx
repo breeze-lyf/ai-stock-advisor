@@ -14,6 +14,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Zap } from "lucide-react";
 import { useDashboardStockDetailData } from "@/features/dashboard/hooks/useDashboardStockDetailData";
+import { useAnalysisStatus } from "@/features/analysis/useAnalysisStatus";
 import { PortfolioItem } from "@/types";
 import { refreshStock } from "@/features/portfolio/api";
 import { fetchStockHistory } from "@/features/market/api";
@@ -72,6 +73,12 @@ export function StockDetail({
 
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [mergedHistoryData, setMergedHistoryData] = useState<HistoryDataItem[]>([]);
+
+    // --- 自动刷新通知 ---
+    const { hasNewAnalysis, dismiss: dismissNewAnalysis } = useAnalysisStatus(
+        selectedItem?.ticker ?? null,
+        aiData?.created_at
+    );
 
     // Reset merged data when ticker changes to prevent cross-ticker data bleed
     useEffect(() => {
@@ -206,6 +213,25 @@ export function StockDetail({
                 onRefresh={handleRefresh}
                 onBack={onBack}
             />
+
+            {/* 自动刷新通知 Banner */}
+            {hasNewAnalysis && (
+                <div
+                    className="flex items-center justify-between mx-4 mt-3 px-4 py-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 cursor-pointer hover:bg-blue-500/20 transition-colors"
+                    onClick={() => { dismissNewAnalysis(); onAnalyze(false); }}
+                >
+                    <div className="flex items-center gap-2 text-sm text-blue-400 font-medium">
+                        <span className="animate-pulse">✦</span>
+                        新版 AI 诊断已生成 · 点击查看
+                    </div>
+                    <button
+                        onClick={(e) => { e.stopPropagation(); dismissNewAnalysis(); }}
+                        className="text-blue-400/60 hover:text-blue-400 text-xs ml-3"
+                    >
+                        ✕
+                    </button>
+                </div>
+            )}
 
             {/* 板块 1: 动态行情分析 */}
             <MarketAnalysis

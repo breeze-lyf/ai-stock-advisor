@@ -19,7 +19,7 @@ import { useDashboardRadarData } from "@/features/dashboard/hooks/useDashboardRa
 import { HotspotRadar } from "@/components/features/HotspotRadar";
 
 function DashboardContent() {
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [onlyHoldings, setOnlyHoldings] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { activeTab, changeTab, selectedTicker, selectTicker } = useDashboardRouteState();

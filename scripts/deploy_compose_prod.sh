@@ -36,6 +36,18 @@ if [ ! -f "./backend/.env" ]; then
   exit 1
 fi
 
+# Auto-configure server environment if not already set
+if grep -q "IS_SERVER_ENV=true" ./backend/.env; then
+  echo "IS_SERVER_ENV already configured"
+else
+  echo "Configuring IS_SERVER_ENV=true for server deployment..."
+  if grep -q "^IS_SERVER_ENV=" ./backend/.env; then
+    sed -i.bak 's/^IS_SERVER_ENV=.*/IS_SERVER_ENV=true/' ./backend/.env
+  else
+    echo "IS_SERVER_ENV=true" >> ./backend/.env
+  fi
+fi
+
 if [ -z "${ACR_REGISTRY:-}" ]; then
   echo "ACR_REGISTRY is required"
   exit 1

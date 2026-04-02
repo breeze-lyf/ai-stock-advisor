@@ -295,14 +295,22 @@ npm run generate-types
 4. 大陆网络环境建议使用镜像源安装依赖：
    - Python: `pip install -i https://pypi.tuna.tsinghua.edu.cn/simple`
    - Node: `npm --registry=https://registry.npmmirror.com`
-5. 初始化数据库或补种子数据时，优先使用 `backend/scripts/` 分组目录：
+5. **数据源智能路由**：系统根据 `IS_SERVER_ENV` 环境变量自动选择美股数据源
+   - `IS_SERVER_ENV=false` (默认，本地环境): 美股用 YFinance，A 股/港股用 AkShare
+   - `IS_SERVER_ENV=true` (服务器环境): 美股和 A 股/港股都用 AkShare
+   - 说明：本地通常有代理，YFinance 美股数据更全；服务器无代理，AkShare 更可靠
+6. **Yahoo Finance 代理**（可选）: 服务器环境可通过 Cloudflare Worker 中转访问 Yahoo
+   - 部署：`cloudflare-worker/yahoo-proxy.js` 到 Cloudflare Workers（免费）
+   - 配置：`CLOUDFLARE_WORKER_URL` 和 `CLOUDFLARE_WORKER_KEY`
+   - 效果：服务器也可获取完整美股数据
+7. 初始化数据库或补种子数据时，优先使用 `backend/scripts/` 分组目录：
    - `backend/scripts/db/`：数据库初始化、迁移、种子
    - `backend/scripts/data/`：行情/新闻采集与刷新
    - `backend/scripts/dev/`：本地并发、性能诊断与实验脚本
    - `backend/scripts/oneoff/`：一次性修复或人工核验脚本
-6. 生产部署优先使用 Docker Compose，不建议直接运行开发态脚本。
-7. 运行日志默认写入 `backend/.local/runtime-logs/`，不建议再把日志文件直接放在仓库根目录或 `backend/` 根目录。
-8. 本地缓存和产物清理统一使用 `./scripts/clean-local.sh`，避免手工删除时误伤业务文件。
+8. 生产部署优先使用 Docker Compose，不建议直接运行开发态脚本。
+9. 运行日志默认写入 `backend/.local/runtime-logs/`，不建议再把日志文件直接放在仓库根目录或 `backend/` 根目录。
+10. 本地缓存和产物清理统一使用 `./scripts/clean-local.sh`，避免手工删除时误伤业务文件。
 
 ---
 

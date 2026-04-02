@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import httpx
+import json
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -12,6 +14,7 @@ from app.schemas.market_data import MarketStatus, OHLCVItem, ProviderFundamental
 from app.services.indicators import TechnicalIndicators
 from app.services.market_providers.base import MarketDataProvider
 from app.utils.time import utc_now_naive
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +35,11 @@ class YFinanceProvider(MarketDataProvider):
         "1wk": "1wk",
         "1mo": "1mo",
     }
+
+    # Cloudflare Worker 代理配置 (可选)
+    # 如果配置了，将优先通过 Worker 访问 Yahoo，解决服务器被墙问题
+    _worker_url: Optional[str] = getattr(settings, "CLOUDFLARE_WORKER_URL", None)
+    _worker_key: Optional[str] = getattr(settings, "CLOUDFLARE_WORKER_KEY", None)
 
     @staticmethod
     def _normalize_ticker(ticker: str) -> str:
@@ -132,12 +140,93 @@ class YFinanceProvider(MarketDataProvider):
         yf_period = self.PERIOD_MAP.get(period, "1y")
         yf_interval = self.INTERVAL_MAP.get(interval, "1d")
 
-        def fetch_history() -> pd.DataFrame:
-            stock = yf.Ticker(symbol)
-            return stock.history(period=yf_period, interval=yf_interval, auto_adjust=False, actions=False)
+        # 优先尝试 Cloudflare Worker 代理（如果配置了）
+        if self._worker_url and self._worker_key:
+            try:
+                df = await self._get_history_df_via_worker(symbol, yf_period, yf_interval)
+                if df is not None and not df.empty:
+                    logger.info(f"[YFinance] Successfully fetched {ticker} via Cloudflare Worker")
+                    return df
+            except Exception as e:
+                logger.warning(f"[YFinance] Worker proxy failed for {ticker}, falling back to yfinance: {e}")
 
-        history = await self._run_sync(fetch_history)
-        return self._history_to_dataframe(history)
+        # 回退到 yfinance 直连
+        try:
+            history = await self._run_sync(lambda: yf.Ticker(symbol).history(
+                period=yf_period, interval=yf_interval, auto_adjust=False, actions=False
+            ))
+            return self._history_to_dataframe(history)
+        except Exception as e:
+            logger.warning(f"[YFinance] Direct yfinance failed for {ticker}: {e}")
+            return None
+
+    async def _get_history_df_via_worker(
+        self,
+        symbol: str,
+        period: str = "1y",
+        interval: str = "1d"
+    ) -> Optional[pd.DataFrame]:
+        """
+        通过 Cloudflare Worker 代理获取 Yahoo 历史数据
+        """
+        if not self._worker_url or not self._worker_key:
+            return None
+
+        # 构建 Yahoo Finance Chart API URL
+        yahoo_url = f"https://query2.finance.yahoo.com/v8/finance/chart/{symbol}?interval={interval}&range={period}"
+
+        try:
+            # 通过 Worker 代理请求
+            worker_request_url = f"{self._worker_url.rstrip('/')}/?url={httpx.URL(yahoo_url)}"
+
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                response = await client.get(
+                    worker_request_url,
+                    headers={"X-Proxy-Key": self._worker_key},
+                    follow_redirects=True,
+                )
+
+                if response.status_code != 200:
+                    logger.warning(f"[Worker] HTTP {response.status_code} for {symbol}")
+                    return None
+
+                data = response.json()
+
+                # 解析 Yahoo Chart API 响应
+                result = data.get("chart", {}).get("result", [])
+                if not result:
+                    return None
+
+                quote = result[0]
+                meta = quote.get("meta", {})
+                timestamps = quote.get("timestamp", [])
+                ind = quote.get("indicators", {}).get("quote", [{}])[0]
+
+                if not timestamps:
+                    return None
+
+                # 构建 DataFrame
+                df = pd.DataFrame({
+                    "Date": pd.to_datetime(timestamps, unit='s'),
+                    "Open": ind.get("open", []),
+                    "High": ind.get("high", []),
+                    "Low": ind.get("low", []),
+                    "Close": ind.get("close", []),
+                    "Volume": ind.get("volume", []),
+                })
+
+                # 清理数据
+                df = df.dropna(subset=["Close"])
+                df.set_index("Date", inplace=True)
+
+                return df if not df.empty else None
+
+        except httpx.TimeoutException:
+            logger.warning(f"[Worker] Timeout for {symbol}")
+            return None
+        except Exception as e:
+            logger.warning(f"[Worker] Error for {symbol}: {e}")
+            return None
 
     async def get_quote(self, ticker: str) -> Optional[ProviderQuote]:
         symbol = self._normalize_ticker(ticker)

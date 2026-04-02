@@ -59,4 +59,16 @@ class Settings(BaseSettings):
     IBKR_CLIENT_ID: int = 10           # 客户端 ID，避免与交易终端冲突
     IBKR_ENABLED: bool = False         # 总开关：设为 True 以启用 IBKR 数据源
 
+    # 市场环境标识：用于数据源智能路由
+    # True = 服务器环境（如阿里云，无代理，AkShare 更可靠）
+    # False = 本地环境（有代理，YFinance 美股数据更全）
+    IS_SERVER_ENV: bool = False
+
+    # Cloudflare Worker 代理配置 (用于绕过 Yahoo Finance 访问限制)
+    # 部署在 Cloudflare Workers 的代理脚本 URL
+    # 例如：https://yahoo-proxy.your-account.workers.dev
+    CLOUDFLARE_WORKER_URL: Optional[str] = None
+    # Worker 鉴权密钥 (需与 Worker 环境变量 PROXY_KEY 一致)
+    CLOUDFLARE_WORKER_KEY: Optional[str] = None
+
 settings = Settings()

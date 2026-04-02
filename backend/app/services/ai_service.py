@@ -16,10 +16,12 @@ if settings.NO_PROXY:
 from app.core import security
 from app.core.prompts import build_stock_analysis_prompt, build_portfolio_analysis_prompt
 from app.services.ai_provider_client import call_provider, infer_provider_key  # noqa: F401 (re-exported)
+from app.core.redis_client import cache_get, cache_set
 import logging
 import httpx
 import json
 import time
+import hashlib
 from typing import Optional, List, Any, Tuple
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -37,10 +39,18 @@ logger = logging.getLogger(__name__)
 ai_call_logger = logging.getLogger("app.ai_calls")
 
 class AIService:
-    _model_config_cache = {}  
+    _model_config_cache = {}
     CACHE_TTL = 300  # 缓存 5 分钟
     _provider_cache = [] # 缓存供应商列表
     _provider_cache_time = 0
+    # AI 响应缓存：{ prompt_hash: (response, timestamp) }
+    _response_cache = {}
+    RESPONSE_CACHE_TTL = 600  # 10 分钟
+
+    @staticmethod
+    def _hash_prompt(prompt: str) -> str:
+        """生成 prompt 的 MD5 哈希值，用于缓存键"""
+        return hashlib.md5(prompt.encode("utf-8")).hexdigest()
 
     @staticmethod
     def _format_exception(e: Exception) -> str:
@@ -109,7 +119,7 @@ class AIService:
                 if config:
                     return config.model_id
             except Exception as e:
-                logger.warning(f"查询供应商 {provider_key} 默认模型失败: {e}")
+                logger.warning(f"查询供应商 {provider_key} 默认模型失败：{e}")
 
         provider_defaults = {
             "siliconflow": "deepseek-ai/DeepSeek-V3",
@@ -142,15 +152,15 @@ class AIService:
                     cls._model_config_cache[model_key] = (config_data, time.time())
                     return AIModelRuntimeConfig(**config_data)
             except Exception as e:
-                logger.error(f"查询 AI 模型配置失败: {e}")
+                logger.error(f"查询 AI 模型配置失败：{e}")
 
         # 兜底回退
         fallback_map = {
-            "deepseek-v3": "Pro/deepseek-ai/DeepSeek-V3.2",
+            "deepseek-v3": "Pro/deepseek-ai/DeepSeek-V3",
             "deepseek-r1": "Pro/deepseek-ai/DeepSeek-R1",
             "qwen-3-vl-thinking": "Qwen/Qwen3-VL-235B-A22B-Thinking",
         }
-        fallback_id = fallback_map.get(model_key, "Pro/deepseek-ai/DeepSeek-V3.2")
+        fallback_id = fallback_map.get(model_key, "Pro/deepseek-ai/DeepSeek-V3")
         provider = "dashscope" if ("qwen" in model_key or "dashscope" in model_key) else "siliconflow"
         return AIModelRuntimeConfig(key=model_key, provider=provider, model_id=fallback_id)
 
@@ -162,10 +172,10 @@ class AIService:
     ) -> Tuple[Optional[str], Optional[str]]:
         """
         统一 API Key & URL 解析器：优先级 用户级加密 Key > 系统级 Key
-        返回: (api_key, custom_base_url)
+        返回：(api_key, custom_base_url)
         """
         custom_base_url = None
-        
+
         if user:
             # 0. 优先从统一凭据表中读取
             if db:
@@ -183,11 +193,11 @@ class AIService:
                             try:
                                 decrypted_key = security.decrypt_api_key(credential.encrypted_api_key)
                             except Exception as e:
-                                logger.error(f"解密用户 {provider_key} 统一凭据失败: {e}")
+                                logger.error(f"解密用户 {provider_key} 统一凭据失败：{e}")
                         if decrypted_key or credential.base_url:
                             return decrypted_key, credential.base_url
                 except Exception as e:
-                    logger.warning(f"查询用户 {user.id} 的统一 Provider 凭据失败: {e}")
+                    logger.warning(f"查询用户 {user.id} 的统一 Provider 凭据失败：{e}")
 
             # 1. 尝试从 api_configs JSON 中解析自定义配置
             if user.api_configs:
@@ -196,7 +206,7 @@ class AIService:
                     if provider_key in configs:
                         custom_base_url = configs[provider_key].get("base_url")
                 except Exception as e:
-                    logger.warning(f"解析用户 {user.id} 的 api_configs 失败: {e}")
+                    logger.warning(f"解析用户 {user.id} 的 api_configs 失败：{e}")
 
             # 2. 从用户表获取加密的 Key
             user_key_attr = f"api_key_{provider_key}"
@@ -206,7 +216,7 @@ class AIService:
                     try:
                         return security.decrypt_api_key(encrypted_key), custom_base_url
                     except Exception as e:
-                        logger.error(f"解密用户 {provider_key} API Key 失败: {e}")
+                        logger.error(f"解密用户 {provider_key} API Key 失败：{e}")
 
         # 3. 降级到系统环境变量
         env_key_map = {
@@ -283,7 +293,7 @@ class AIService:
                     if provider:
                         default_url = provider.base_url
                 except Exception as e:
-                    logger.warning(f"查询供应商 {provider_key} 默认地址失败: {e}")
+                    logger.warning(f"查询供应商 {provider_key} 默认地址失败：{e}")
 
             if not default_url:
                 default_url = "https://api.siliconflow.cn/v1" if provider_key == "siliconflow" else ""
@@ -291,24 +301,24 @@ class AIService:
             provider_config = ProviderRuntimeConfig(
                 provider_key=provider_key,
                 base_url=default_url,
-                timeout_seconds=10
+                timeout_seconds=60  # thinking 模型冷启动可能需要 30s+
             )
-            
+
             test_prompt = "Say ok"
             # 根据供应商选择一个轻量模型进行测试
             test_model = model_id or await cls.get_default_model_for_provider(provider_key, db)
-            
-            print(f"\n[AI_DEBUG] 开始测试连接: {provider_key}")
+
+            print(f"\n[AI_DEBUG] 开始测试连接：{provider_key}")
             await cls.call_provider(provider_config, test_model, test_prompt, api_key, base_url, require_json=False)
             print(f"[AI_DEBUG] 测试连接成功")
             return True, "连接成功"
         except httpx.ReadTimeout:
-            logger.warning(f"AI 供应商 {provider_key} 连接测试超时 (10s)")
-            return False, "连接失败: 请求超时 (10s)，供应商无响应"
+            logger.warning(f"AI 供应商 {provider_key} 连接测试超时")
+            return False, "连接失败：请求超时，供应商无响应（thinking 模型首次响应可能需要更长时间）"
         except Exception as e:
             error_msg = str(e) or e.__class__.__name__
-            logger.warning(f"AI 供应商 {provider_key} 连接测试失败: {error_msg}")
-            return False, f"连接失败: {error_msg}"
+            logger.warning(f"AI 供应商 {provider_key} 连接测试失败：{error_msg}")
+            return False, f"连接失败：{error_msg}"
 
     @staticmethod
     def infer_provider_key(base_url: Optional[str] = None, provider_hint: Optional[str] = None) -> str:
@@ -318,7 +328,7 @@ class AIService:
     @classmethod
     async def _dispatch_with_fallback(cls, prompt: str, model_config: AIModelRuntimeConfig, user: Optional[User], db: AsyncSession) -> str:
         """核心路由：带故障转移的提供商分发"""
-        
+
         # 1. 获取所有可用的供应商列表，按优先级排序
         # 注意：缓存时提取属性值，避免 ORM 对象在 session 关闭后无法访问
         try:
@@ -337,10 +347,10 @@ class AIService:
                 ]
                 cls._provider_cache_time = time.time()
         except Exception as e:
-            logger.warning(f"获取供应商配置失败: {e}，使用内存缓存的供应商列表")
+            logger.warning(f"获取供应商配置失败：{e}，使用内存缓存的供应商列表")
             if not cls._provider_cache:
-                return f"**Error**: AI 服务暂时不可用 (无法获取供应商配置: {e})"
-        
+                return f"**Error**: AI 服务暂时不可用 (无法获取供应商配置：{e})"
+
         if not cls._provider_cache:
             return f"**Error**: AI 服务暂时不可用 (没有可用的 AI 供应商)"
 
@@ -377,22 +387,22 @@ class AIService:
             except Exception as e:
                 err = cls._format_exception(e)
                 provider_errors.append(f"{provider_key}: {err}")
-                logger.error(f"供应商 {provider_key} 调用失败: {err}")
+                logger.error(f"供应商 {provider_key} 调用失败：{err}")
                 continue
 
         if attempted == 0:
-            return f"**Error**: AI 服务暂时不可用 (没有可用的供应商凭据)。详情: {' | '.join(provider_errors[:3])}"
+            return f"**Error**: AI 服务暂时不可用 (没有可用的供应商凭据)。详情：{' | '.join(provider_errors[:3])}"
 
         last_error = provider_errors[-1] if provider_errors else "unknown"
-        return f"**Error**: AI 服务暂时不可用 (尝试了 {attempted} 个供应商)。最后错误: {last_error}"
+        return f"**Error**: AI 服务暂时不可用 (尝试了 {attempted} 个供应商)。最后错误：{last_error}"
 
     @classmethod
-    async def generate_analysis(cls, ticker: str, market_data: dict, news_data: list = None, 
-                                macro_context: str = None, fundamental_data: dict = None, previous_analysis: dict = None, 
+    async def generate_analysis(cls, ticker: str, market_data: dict, news_data: list = None,
+                                macro_context: str = None, fundamental_data: dict = None, previous_analysis: dict = None,
                                 model: Optional[str] = None, db: AsyncSession = None, user_id: str = None) -> str:
-        """主方法：生成个股深度诊断"""
+        """主方法：生成个股深度诊断（带缓存）"""
         model_key = model or settings.DEFAULT_AI_MODEL
-        
+
         user = None
         if user_id and db:
             try:
@@ -400,7 +410,7 @@ class AIService:
                 user_result = await db.execute(user_stmt)
                 user = user_result.scalar_one_or_none()
             except Exception as e:
-                logger.warning(f"获取用户信息失败: {e}")
+                logger.warning(f"获取用户信息失败：{e}")
 
         prompt = build_stock_analysis_prompt(
             ticker=ticker,
@@ -411,25 +421,53 @@ class AIService:
             previous_analysis=previous_analysis
         )
 
+        # 1. 检查内存缓存 (相同 prompt 直接返回)
+        prompt_hash = cls._hash_prompt(prompt)
+        if prompt_hash in cls._response_cache:
+            cached_response, cached_time = cls._response_cache[prompt_hash]
+            if time.time() - cached_time < cls.RESPONSE_CACHE_TTL:
+                logger.info(f"[AI Cache] HIT (memory) for {ticker}")
+                return cached_response
+
+        # 2. 检查 Redis 缓存
+        redis_cache_key = f"ai:analysis:{prompt_hash}"
+        cached = await cache_get(redis_cache_key)
+        if cached:
+            logger.info(f"[AI Cache] HIT (redis) for {ticker}")
+            cls._response_cache[prompt_hash] = (cached, time.time())
+            return cached
+
         if user and db:
             user_model = await cls.get_user_ai_model(model_key, user.id, db)
             if user_model:
                 try:
-                    return await cls.call_user_ai_model(user_model, prompt)
+                    result = await cls.call_user_ai_model(user_model, prompt)
+                    # 缓存结果
+                    cls._response_cache[prompt_hash] = (result, time.time())
+                    await cache_set(redis_cache_key, result, ttl_seconds=cls.RESPONSE_CACHE_TTL)
+                    return result
                 except Exception as e:
-                    logger.warning(f"用户自定义模型 {model_key} 调用失败: {e}")
+                    logger.warning(f"用户自定义模型 {model_key} 调用失败：{e}")
                     if not user:
-                        return f"**Error**: AI 调用失败。错误: {e}"
-                    # 即使失败也不再回滚
-                    return f"**Error**: 用户自定义模型 {model_key} 调用失败。错误: {e}"
+                        return f"**Error**: AI 调用失败。错误：{e}"
+                    return f"**Error**: 用户自定义模型 {model_key} 调用失败。错误：{e}"
 
         model_config = await cls.get_model_config(model_key, db)
-        return await cls._dispatch_with_fallback(prompt, model_config, user, db)
+        result = await cls._dispatch_with_fallback(prompt, model_config, user, db)
+
+        # 缓存结果 (错误信息短暂缓存)
+        if not result.startswith("**Error**"):
+            cls._response_cache[prompt_hash] = (result, time.time())
+            await cache_set(redis_cache_key, result, ttl_seconds=cls.RESPONSE_CACHE_TTL)
+        else:
+            await cache_set(redis_cache_key, result, ttl_seconds=60)
+
+        return result
 
     @classmethod
-    async def generate_portfolio_analysis(cls, portfolio_items: list, market_news: str = None, macro_context: str = None, 
+    async def generate_portfolio_analysis(cls, portfolio_items: list, market_news: str = None, macro_context: str = None,
                                           model: Optional[str] = None, db: AsyncSession = None, user_id: str = None) -> str:
-        """生成全量持仓健康诊断报告"""
+        """生成全量持仓健康诊断报告（带缓存）"""
         if not portfolio_items:
             return json.dumps({"error": "暂无持仓数据"})
         model_key = model or settings.DEFAULT_AI_MODEL
@@ -442,17 +480,42 @@ class AIService:
 
         prompt = build_portfolio_analysis_prompt(portfolio_items, market_news, macro_context)
 
+        # 检查缓存
+        prompt_hash = cls._hash_prompt(prompt)
+        if prompt_hash in cls._response_cache:
+            cached_response, cached_time = cls._response_cache[prompt_hash]
+            if time.time() - cached_time < cls.RESPONSE_CACHE_TTL:
+                logger.info(f"[AI Cache] HIT (memory) for portfolio analysis")
+                return cached_response
+
+        redis_cache_key = f"ai:portfolio:{prompt_hash}"
+        cached = await cache_get(redis_cache_key)
+        if cached:
+            logger.info(f"[AI Cache] HIT (redis) for portfolio analysis")
+            cls._response_cache[prompt_hash] = (cached, time.time())
+            return cached
+
         if user and db:
             user_model = await cls.get_user_ai_model(model_key, user.id, db)
             if user_model:
                 try:
-                    return await cls.call_user_ai_model(user_model, prompt)
+                    result = await cls.call_user_ai_model(user_model, prompt)
+                    cls._response_cache[prompt_hash] = (result, time.time())
+                    await cache_set(redis_cache_key, result, ttl_seconds=cls.RESPONSE_CACHE_TTL)
+                    return result
                 except Exception as e:
-                    logger.warning(f"用户自定义组合模型 {model_key} 调用失败: {e}")
-                    return json.dumps({"error": f"AI 服务暂时不可用: {e}"})
+                    logger.warning(f"用户自定义组合模型 {model_key} 调用失败：{e}")
+                    return json.dumps({"error": f"AI 服务暂时不可用：{e}"})
 
         model_config = await cls.get_model_config(model_key, db)
-        return await cls._dispatch_with_fallback(prompt, model_config, user, db)
+        result = await cls._dispatch_with_fallback(prompt, model_config, user, db)
+
+        # 缓存结果
+        if not result.startswith("**Error**") and not result.startswith('{"error"'):
+            cls._response_cache[prompt_hash] = (result, time.time())
+            await cache_set(redis_cache_key, result, ttl_seconds=cls.RESPONSE_CACHE_TTL)
+
+        return result
 
 
 ai_service = AIService

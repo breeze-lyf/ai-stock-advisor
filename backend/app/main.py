@@ -148,6 +148,30 @@ def _normalize_proxy_env() -> None:
         os.environ.setdefault("NO_PROXY", no_proxy)
         os.environ.setdefault("no_proxy", no_proxy)
 
+    # 当配置了代理且 AKSHARE_BYPASS_PROXY=True 时，
+    # 把 AkShare 依赖的国内数据源域名追加到 NO_PROXY，从进程级实现直连
+    if (http_proxy or https_proxy) and getattr(settings, "AKSHARE_BYPASS_PROXY", True):
+        akshare_domains = [
+            "push2.eastmoney.com",
+            "push2his.eastmoney.com",
+            "push2ex.eastmoney.com",
+            "datacenter-web.eastmoney.com",
+            "data.eastmoney.com",
+            "stock.gtimg.cn",
+            "hq.sinajs.cn",
+            "money.finance.sina.com.cn",
+            "*.eastmoney.com",
+            "*.sinajs.cn",
+            "*.gtimg.cn",
+        ]
+        existing = os.environ.get("NO_PROXY", "") or os.environ.get("no_proxy", "")
+        existing_set = {d.strip() for d in existing.split(",") if d.strip()}
+        merged = existing_set | set(akshare_domains)
+        no_proxy_value = ",".join(sorted(merged))
+        os.environ["NO_PROXY"] = no_proxy_value
+        os.environ["no_proxy"] = no_proxy_value
+        logger.info(f"AkShare bypass: added domestic domains to NO_PROXY ({len(akshare_domains)} domains)")
+
     if not getattr(settings, "AUTO_DISABLE_UNAVAILABLE_PROXY", True):
         return
 

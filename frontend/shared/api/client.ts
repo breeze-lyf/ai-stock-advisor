@@ -65,7 +65,10 @@ api.interceptors.response.use(
 
       const refreshToken = localStorage.getItem("refreshToken");
       if (!refreshToken || config?._retry) {
-        // No refresh token available — let AuthContext handle the redirect
+        // No way to recover the session — clear and redirect immediately
+        localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
+        window.location.href = "/login";
         return Promise.reject(error);
       }
 

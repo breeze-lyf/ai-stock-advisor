@@ -39,7 +39,7 @@ async def create_simulated_trade(
          
     new_trade = SimulatedTrade(
         user_id=current_user.id,
-        stock_ticker=ticker,
+        ticker=ticker,
         entry_price=entry_price,
         entry_reason=entry_reason,
         target_price=target_price,

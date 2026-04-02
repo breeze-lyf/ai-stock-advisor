@@ -11,11 +11,30 @@
 - **Node**: NPM 强制切换淘宝源 `npm config set registry https://registry.npmmirror.com`
 - **Python**: pip 强制使用清华源或阿里源 `pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple`
 
-## 2. 前置设施：Neon PostgreSQL 绑定
+## 2. 数据库配置选项
 
-我们在生产环境抛弃了 SQLite 换取并发性能。
-1. 在 `.env.production` (纯后端) 中注入 `DATABASE_URL`，指向您的 Neon DB 的 `pooled` 连接池地址。
-2. **连接池陷阱**：在使用 Asyncpg 时，如果使用 PgBouncer / Neon Pooling，请务必保证 SSL 是强制的，否则握手会失败 `?ssl=require`，连接语句如： `postgresql+asyncpg://user:pass@ep-...pooler.../neondb?ssl=require`
+本系统支持两种数据库部署方式：
+
+### 选项 A: 本地 PostgreSQL (默认，推荐)
+
+**适用场景**: 本地开发、私有化部署、数据主权要求
+
+1. 使用 `docker-compose.yml` 自动启动 PostgreSQL 容器
+2. 无需额外配置，开箱即用
+3. 数据持久化到 Docker Volume
+
+### 选项 B: Neon Serverless PostgreSQL (可选)
+
+**适用场景**: 云端部署、需要弹性扩缩容、零运维需求
+
+1. 在 [Neon](https://neon.tech) 创建免费项目
+2. 在 `.env` 中注入 `DATABASE_URL`，指向您的 Neon DB 的连接池地址
+3. **SSL 配置**：Neon 强制要求 SSL 连接，连接串需包含 `?sslmode=require`
+
+**注意事项**:
+- Neon 免费额度：500MB 存储、10 万条读取/月
+- 超出免费额度后可能产生费用
+- 国内访问可能存在网络延迟
 
 ## 3. Python 后端（FastAPI）守护进程配置
 

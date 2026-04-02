@@ -12,41 +12,20 @@ from app.core.database_url import (
 # 确保 URL 使用异步驱动 (Normalize DATABASE_URL)
 db_url = normalize_async_database_url(settings.DATABASE_URL)
 
-# 判断是否为 PostgreSQL (Neon 等)
-is_postgresql = "postgresql" in db_url
+# PostgreSQL 连接配置
+connect_args = build_postgres_connect_args(db_url)
 
-# 数据库引擎配置
-connect_args = {}
-if "sqlite" in db_url:
-    connect_args = {
-        "check_same_thread": False,
-        "timeout": 30,
-    }
-elif is_postgresql:
-    connect_args = build_postgres_connect_args(db_url)
-
+# 优化连接池配置 (针对 Neon Serverless 优化)
 engine = create_async_engine(
     db_url,
-    echo=False,  
+    echo=False,
     pool_pre_ping=True,
-    # PostgreSQL 连接池优化
-    pool_size=10 if is_postgresql else 5,
-    max_overflow=20 if is_postgresql else 0,
-    pool_recycle=300,
+    pool_size=20,           # 增加连接池大小 (默认 10)
+    max_overflow=40,        # 增加最大溢出连接数 (默认 20)
+    pool_recycle=1800,      # 30 分钟回收连接 (Neon 建议)
+    pool_timeout=30,        # 获取连接超时 30s
     connect_args=connect_args
 )
-
-# --- SQLite WAL 核心模式 (上帝模式) ---
-# 开启 WAL (预写日志) 模式。
-# 这是 SQLite 性能翻倍的秘诀：它允许“读”和“写”同时进行，互不干扰。
-if "sqlite" in settings.DATABASE_URL:
-    @event.listens_for(engine.sync_engine, "connect")
-    def set_sqlite_pragma(dbapi_conn, connection_record):
-        cursor = dbapi_conn.cursor()
-        cursor.execute("PRAGMA journal_mode=WAL")      # 开启读写并发
-        cursor.execute("PRAGMA synchronous=NORMAL")   # 提升写入速度
-        cursor.execute("PRAGMA busy_timeout=30000")   # 再次确保超时等待
-        cursor.close()
 
 # 会话工厂：它是生产数据库连接的“模具”
 SessionLocal = sessionmaker(

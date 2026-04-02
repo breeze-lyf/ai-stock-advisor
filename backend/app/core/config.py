@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     PROJECT_NAME: str = "AI Smart Investment Advisor"
-    DATABASE_URL: str = "sqlite+aiosqlite:///./ai_advisor.db"
+    DATABASE_URL: str  # Required — must be set in .env (e.g., postgresql+asyncpg://...)
     
     # Security
     SECRET_KEY: str  # Required — no default. Must be set in .env

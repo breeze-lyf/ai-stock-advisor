@@ -50,7 +50,7 @@ async def call_provider(
     model_id: str,
     prompt: str,
     api_key: str,
-    custom_url: str = None,
+    custom_url: Optional[str] = None,
     require_json: bool = True,
 ) -> str:
     """
@@ -160,6 +160,11 @@ async def call_provider(
         logger.warning(f"[AI] {provider_key} 返回 {response.status_code} ({elapsed:.1f}s)")
         if response.status_code in [401, 402]:
             raise ValueError(f"Auth Error: {response.status_code}")
+        if response.status_code == 404:
+            raise RuntimeError(
+                f"{provider_key} HTTP 404: 模型未找到 — 请确认模型 ID「{model_id}」"
+                f" 在该供应商的推理 API 中已可用（新上架模型可能存在延迟，或需账户充值后才可调用）"
+            )
         raise RuntimeError(
             f"{provider_key} HTTP {response.status_code}: {(error_text or '').strip()[:300]}"
         )

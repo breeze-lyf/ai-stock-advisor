@@ -199,7 +199,9 @@ async def update_user_settings(
         current_user.fallback_enabled = settings.fallback_enabled
 
     if settings.preferred_data_source is not None:
-        current_user.preferred_data_source = normalize_preferred_data_source(settings.preferred_data_source)
+        normalized_source = normalize_preferred_data_source(settings.preferred_data_source)
+        assert normalized_source is not None
+        current_user.preferred_data_source = normalized_source
 
     if settings.preferred_ai_model is not None:
         current_user.preferred_ai_model = settings.preferred_ai_model

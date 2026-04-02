@@ -2,6 +2,14 @@
 
 > **AI 投资分析与组合辅助系统**。当前包含 Web 前端、FastAPI 后端以及 Taro 移动端，整合行情、新闻、宏观和 LLM 研判能力。
 
+## 📌 文档基线（2026-04）
+
+- 产品基线文档：`docs/01_Product_Requirements_Document.md`（V4.1，已按当前仓库实现校准）
+- 开发执行指南：`docs/02_Developer_SOP_and_Guide.md`
+- 当前功能状态矩阵（研发/测试交付清单）：`docs/05_Current_Feature_Status_Matrix.md`
+
+> 本 README 优先描述“当前已实现能力”，中长期规划以 PRD 为准。
+
 ---
 
 ## 🌟 核心特性 (Key Features)
@@ -152,8 +160,8 @@ docker compose up --build -d
 ### 后端 (Backend)
 - **核心框架**: FastAPI (Python 3.10+)
 - **任务调度**: 常驻后台协程 (轮询精度 60s)
-- **数据库**: Neon Postgres / PostgreSQL (SQLAlchemy Async)
-- **AI 引擎**: Gemini / SiliconFlow / DashScope，支持系统内置模型与用户模型并存
+- **数据库**: PostgreSQL (本地) / Neon Postgres (可选云端) (SQLAlchemy Async)
+- **AI 引擎**: DashScope（内置默认 `qwen3.5-plus`）+ SiliconFlow 兼容回退 + 用户 BYOK 自定义模型
 
 ---
 
@@ -161,7 +169,7 @@ docker compose up --build -d
 
 ### 项目目录说明
 - `.local/`: 仓库根目录下的本地私有文件区，放 SSH 密钥、临时数据库、测试结果和一次性日志，不参与版本控制。
-- `backend/.local/`: 后端本地运行状态目录，统一放本地 SQLite、运行日志和缓存型产物；当前约定的本地开发数据库位置是 `backend/.local/db/dev.db`。
+- `backend/.local/`: 后端本地运行状态目录，统一放运行日志和缓存型产物。
 - `.agent/`、`.agents/`、`.claude/`、`.qoder/`: 不同 AI/IDE 工具的本地规则与技能配置。它们并不共同生效，保留它们是为了兼容不同工作流。
 - `monitoring/`: 监控栈相关配置，主要用于 Loki / Grafana 这类观测组件，不属于应用主业务代码。
 - `mobile/`: Taro 移动端应用，与 Web 前端并行维护。

@@ -1,6 +1,7 @@
 # 用户模型定义
-from sqlalchemy import Column, String, Boolean, DateTime, Enum
-from sqlalchemy.orm import relationship
+from typing import Optional
+from sqlalchemy import String, Boolean, DateTime, ForeignKey
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 import uuid
 from datetime import datetime
 from app.core.database import Base
@@ -30,49 +31,44 @@ class User(Base):
     __tablename__ = "users" # 对应数据库中的表名
 
     # 使用 UUID 作为主键，比自增 ID 更安全，不容易被外部爬虫猜出用户总量。
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     
     # Email 设置为索引 (index=True)，因为它是登录时最常用的查询字段，索引能极大加快查询速度。
-    email = Column(String, unique=True, index=True, nullable=False) 
+    email: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
     
     # 安全常识：永远不要在数据库存储明文密码！
     # 这里存储的是经过 Argon2 或 Bcrypt 算法加密后的哈希值。
-    hashed_password = Column(String, nullable=False)               
+    hashed_password: Mapped[str] = mapped_column(String, nullable=False)
     
-    is_active = Column(Boolean, default=True)                      # 用于账号风控（如禁用违规账号）
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     
     # 业务逻辑：FREE 用户可能有每日诊断次数限制，PRO 用户则无限制。
-    membership_tier = Column(String, default=MembershipTier.FREE.value) 
+    membership_tier: Mapped[str] = mapped_column(String, default=MembershipTier.FREE.value)
     
     # --- 多平台 AI 密钥管理 ---
-    # 我们支持多厂家模型，用户可以填入自己的 Key。
-    api_key_deepseek = Column(String, nullable=True)   # DeepSeek 官方 (常断连，作为备选)
+    api_key_deepseek: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    api_key_siliconflow: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     
-    # 强烈推荐使用的国产聚合平台，直连丝滑，支持 DeepSeek 和 Qwen。
-    api_key_siliconflow = Column(String, nullable=True) 
-    
-    # 偏好设置：用户可以自定义使用哪里的行情，以及默认喜欢哪个分析师(AI模型)。
-    preferred_data_source = Column(String, default=MarketDataSource.AKSHARE.value) 
-    preferred_ai_model = Column(String, default=settings.DEFAULT_AI_MODEL)
-    timezone = Column(String, default="Asia/Shanghai")
-    theme = Column(String, default="light")
-    feishu_webhook_url = Column(String, nullable=True) 
+    # 偏好设置
+    preferred_data_source: Mapped[str] = mapped_column(String, default=MarketDataSource.AKSHARE.value)
+    preferred_ai_model: Mapped[str] = mapped_column(String, default=settings.DEFAULT_AI_MODEL)
+    timezone: Mapped[str] = mapped_column(String, default="Asia/Shanghai")
+    theme: Mapped[str] = mapped_column(String, default="light")
+    feishu_webhook_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     
     # --- 增强型 AI 配置 (BYOK & Dispatching) ---
-    # 存储供应商特定的配置，如自定义 base_url。格式: {"provider_key": {"base_url": "..."}}
-    api_configs = Column(String, nullable=True) # 使用 String 存储 JSON，保证兼容性
-    # 当私有 Key 失效或额度用尽时，是否允许自动切换到系统公共 Key
-    fallback_enabled = Column(Boolean, default=True)
+    api_configs: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    fallback_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     
     # --- 通知精细化控制开关 (Notification Switches) ---
-    notifications_enabled = Column(Boolean, default=True) # 总通知开关 (Master Switch)
-    enable_price_alerts = Column(Boolean, default=True)   # 价格/风险预警 (Price/Risk Alerts)
-    enable_hourly_summary = Column(Boolean, default=True) # 持仓整点摘要 (Hourly AI Summary)
-    enable_daily_report = Column(Boolean, default=True)   # 每日持仓报告 (Daily Deep Report)
-    enable_macro_alerts = Column(Boolean, default=True)   # 全球宏观变动 (Macro Radar Alerts)
+    notifications_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    enable_price_alerts: Mapped[bool] = mapped_column(Boolean, default=True)
+    enable_hourly_summary: Mapped[bool] = mapped_column(Boolean, default=True)
+    enable_daily_report: Mapped[bool] = mapped_column(Boolean, default=True)
+    enable_macro_alerts: Mapped[bool] = mapped_column(Boolean, default=True)
     
-    created_at = Column(DateTime, default=datetime.utcnow) # 记录生日(注册时间)
-    last_login = Column(DateTime, nullable=True)           # 活跃度追踪
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    last_login: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
     
     # Relationships
     portfolio_items = relationship("Portfolio", back_populates="user", cascade="all, delete-orphan")

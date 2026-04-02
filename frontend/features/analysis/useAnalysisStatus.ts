@@ -27,11 +27,19 @@ export function useAnalysisStatus(
   // Ref 避免闭包捕获旧值
   const currentCreatedAtRef = useRef(currentCreatedAt);
 
-  // 当 ticker 切换或本地数据刷新时，重置状态
+  // 用 render 阶段比较替代 useEffect 内同步 setState（React 推荐模式）
+  const [prevTicker, setPrevTicker] = useState(ticker);
+  const [prevCreatedAt, setPrevCreatedAt] = useState(currentCreatedAt);
+  if (prevTicker !== ticker || prevCreatedAt !== currentCreatedAt) {
+    setPrevTicker(ticker);
+    setPrevCreatedAt(currentCreatedAt);
+    setHasNewAnalysis(false);
+  }
+
+  // ref 更新放在 effect 中，避免在 render 阶段写入
   useEffect(() => {
     currentCreatedAtRef.current = currentCreatedAt;
-    setHasNewAnalysis(false);
-  }, [ticker, currentCreatedAt]);
+  }, [currentCreatedAt]);
 
   useEffect(() => {
     if (!ticker) return;

@@ -200,14 +200,14 @@ export default function SettingsPage() {
       key: customModel.key.trim() || undefined,
       display_name: customModel.display_name.trim(),
       provider_note: customModel.provider_note.trim() || undefined,
-      model_id: customModel.model_id.trim(),
+      model_id: customModel.display_name.trim(),
       api_key: customModel.api_key.trim() || undefined,
       base_url: normalizeBaseUrl(customModel.base_url),
       is_default: customModel.is_default,
     };
 
-    if (!payload.display_name || !payload.model_id || !payload.base_url) {
-      setMessage({ text: "请填写模型名称、模型名称标识和 Base URL。", type: "error" });
+    if (!payload.display_name || !payload.base_url) {
+      setMessage({ text: "请填写模型名称和 Base URL。", type: "error" });
       setAddingModel(false);
       return;
     }
@@ -275,17 +275,17 @@ export default function SettingsPage() {
     setModelTestMessage(null);
     const payload = {
       provider_note: customModel.provider_note.trim() || undefined,
-      model_id: customModel.model_id.trim(),
+      model_id: customModel.display_name.trim(),
       api_key: customModel.api_key.trim() || undefined,
       base_url: normalizeBaseUrl(customModel.base_url),
     };
 
     if (!payload.model_id || !payload.base_url) {
-      setModelTestMessage({ text: "测试前请先填写模型名称标识和 Base URL。", type: "error" });
+      setModelTestMessage({ text: "测试前请先填写模型名称和 Base URL。", type: "error" });
       return;
     }
     if (!payload.api_key && !editingModelKey) {
-      setModelTestMessage({ text: "测试前请先填写模型名称标识、API Key 和 Base URL。", type: "error" });
+      setModelTestMessage({ text: "测试前请先填写模型名称、API Key 和 Base URL。", type: "error" });
       return;
     }
 
@@ -329,7 +329,7 @@ export default function SettingsPage() {
   const openEditModelDialog = (model: AIModelConfigItem) => {
     setCustomModel({
       key: model.key,
-      display_name: model.display_name,
+      display_name: model.model_id,
       provider_note: model.provider_note || "",
       model_id: model.model_id,
       api_key: "",
@@ -613,11 +613,7 @@ export default function SettingsPage() {
             <form onSubmit={handleAddModel} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="model-name">模型名称</Label>
-                <Input id="model-name" placeholder="例如：Claude Sonnet 4" value={customModel.display_name} onChange={(e) => setCustomModel((prev) => ({ ...prev, display_name: e.target.value }))} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="model-id">模型名称标识</Label>
-                <Input id="model-id" placeholder="例如：qwen3.5-plus / deepseek-r1 / gpt-4o-mini" value={customModel.model_id} onChange={(e) => setCustomModel((prev) => ({ ...prev, model_id: e.target.value }))} />
+                <Input id="model-name" placeholder="例如：Pro/deepseek-ai/DeepSeek-V3 / gpt-4o-mini" value={customModel.display_name} onChange={(e) => setCustomModel((prev) => ({ ...prev, display_name: e.target.value }))} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="model-base-url">Base URL</Label>

@@ -103,7 +103,9 @@ export function normalizeAnalysisResponse(result: Record<string, unknown>): Anal
 }
 
 export async function analyzeStock(ticker: string, force = false): Promise<AnalysisResponse> {
-  const response = await api.post(`/api/v1/analysis/${ticker}?force=${force}`);
+  const response = await api.post(`/api/v1/analysis/${ticker}?force=${force}`, undefined, {
+    timeout: 240_000, // AI analysis can take up to 180s on the backend
+  });
   return normalizeAnalysisResponse(response.data);
 }
 
@@ -126,7 +128,9 @@ export async function getAnalysisHistory(ticker: string): Promise<AnalysisRespon
 }
 
 export async function analyzePortfolio(): Promise<PortfolioAnalysisResponse> {
-  const response = await api.post("/api/v1/analysis/portfolio");
+  const response = await api.post("/api/v1/analysis/portfolio", undefined, {
+    timeout: 240_000, // portfolio analysis is also AI-driven
+  });
   return response.data;
 }
 

@@ -225,6 +225,14 @@ function AIVerdictContent({
         (current < axisMin ? zones[0] : zones[zones.length - 1]);
 
     const effectiveRR = aiData.rr_ratio;
+    // 实时盈亏比：以此刻股价为入场基准，反映"现在买合不合适"
+    const liveRR: string | null = (() => {
+        if (!target || !stop || !current || current <= stop) return null;
+        const reward = target - current;
+        const risk = current - stop;
+        if (reward <= 0 || risk <= 0) return null;
+        return (reward / risk).toFixed(2);
+    })();
     const { title: heroTitle, subtitle: heroSubtitle } = splitHeroTitle(aiData.immediate_action, aiData.trigger_condition);
     const actionReason = aiData.trade_setup_status === "接近触发"
         ? `当前不直接执行：${compactSentence(aiData.trigger_condition || aiData.core_logic_summary, 42)}`
@@ -260,15 +268,28 @@ function AIVerdictContent({
                             )}>
                                 {activeZone.name}
                             </span>
+                            {/* 计划盈亏比（基于建仓区间中位价，策略本身的质量） */}
                             <div className={clsx(
                                 "flex items-center gap-1.5 px-2 py-0.5 rounded-md border ml-1",
                                 parseFloat(effectiveRR || "0") >= 2.5 ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-600/10 dark:text-emerald-400 dark:border-emerald-600/20" :
                                     parseFloat(effectiveRR || "0") >= 1.8 ? "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-600/10 dark:text-blue-400 dark:border-blue-600/20" :
                                         "bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-600/10 dark:text-rose-400 dark:border-rose-600/20"
-                            )}>
-                                <span className="text-[8px] font-bold uppercase tracking-tighter opacity-70">盈亏比 R/R</span>
+                            )} title="计划盈亏比：基于建仓区间中位价，反映策略本身的质量">
+                                <span className="text-[8px] font-bold uppercase tracking-tighter opacity-70">计划 R/R</span>
                                 <span className="text-[10px] font-black tabular-nums">{effectiveRR || "--"}</span>
                             </div>
+                            {/* 实时盈亏比（基于当前股价，反映此刻买入是否合适） */}
+                            {liveRR !== null && (
+                                <div className={clsx(
+                                    "flex items-center gap-1.5 px-2 py-0.5 rounded-md border ml-1",
+                                    parseFloat(liveRR) >= 2.5 ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-600/10 dark:text-emerald-400 dark:border-emerald-600/20" :
+                                        parseFloat(liveRR) >= 1.8 ? "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-600/10 dark:text-blue-400 dark:border-blue-600/20" :
+                                            "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-600/10 dark:text-amber-400 dark:border-amber-600/20"
+                                )} title="实时盈亏比：基于当前价格，反映此刻买入的性价比">
+                                    <span className="text-[8px] font-bold uppercase tracking-tighter opacity-70">当前 R/R</span>
+                                    <span className="text-[10px] font-black tabular-nums">{liveRR}</span>
+                                </div>
+                            )}
                             {aiData.dominant_driver && (
                                 <span className="text-[9px] font-black px-2 py-0.5 rounded-md border uppercase whitespace-nowrap bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-600/10 dark:text-blue-400 dark:border-blue-600/20">
                                     主驱动 {aiData.dominant_driver}
@@ -364,8 +385,8 @@ function AIVerdictContent({
                         </div>
                         <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0">
                             <div
-                                className="h-full rounded-full bg-blue-600 animate-[grow-bar_1.2s_cubic-bezier(0.22,1,0.36,1)_forwards]"
-                                style={{ width: `${aiData.sentiment_score || 58}%`, ['--bar-width' as string]: `${aiData.sentiment_score || 58}%` }}
+                                className="h-full rounded-full bg-blue-600 animate-[grow-bar_1.2s_cubic-bezier(0.22,1,0.36,1)_forwards] w-(--score-width)"
+                                style={{ '--score-width': `${aiData.sentiment_score || 58}%` } as React.CSSProperties}
                             />
                         </div>
                         <div className="flex justify-between text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
@@ -382,7 +403,7 @@ function AIVerdictContent({
                 <div className="space-y-3">
                     <div className="flex justify-between items-end">
                         <div className="space-y-1">
-                            <div className="text-sm font-black uppercase text-blue-600 dark:text-blue-600 tracking-[0.1em] flex items-center gap-2">
+                            <div className="text-sm font-black uppercase text-blue-600 dark:text-blue-600 tracking-widest flex items-center gap-2">
                                 <Target className="h-4 w-4 text-blue-600" />
                                 <span>交易执行区间</span>
                             </div>
@@ -498,7 +519,7 @@ function AIVerdictContent({
                     onClick={() => setIsExpanded(!isExpanded)}
                     className="w-full py-4 px-6 flex items-center justify-between group hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors"
                 >
-                    <div className="text-sm font-black uppercase text-blue-600 dark:text-blue-600 tracking-[0.1em] flex items-center gap-2">
+                    <div className="text-sm font-black uppercase text-blue-600 dark:text-blue-600 tracking-widest flex items-center gap-2">
                         <Activity className="h-4 w-4 text-blue-600" />
                         <span>详细诊断研判逻辑</span>
                     </div>
@@ -701,8 +722,8 @@ function TradeAxisVisual({
                         {visibleZones.map((zone, idx) => (
                             <div
                                 key={idx}
-                                className={clsx("h-full", zone.color)}
-                                style={{ width: `${((zone.end - zone.start) / totalRange) * 100}%` }}
+                                className={clsx("h-full w-(--zone-width)", zone.color)}
+                                style={{ '--zone-width': `${((zone.end - zone.start) / totalRange) * 100}%` } as React.CSSProperties}
                             />
                         ))}
                     </div>
@@ -710,15 +731,15 @@ function TradeAxisVisual({
 
                 {/* Tooltip & Marker Dot Group */}
                 <div
-                    className="absolute top-1/2 -translate-y-1/2 z-20 flex flex-col items-center"
-                    style={{ left: `${getPos(current)}%`, transition: 'left 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }}
+                    className="absolute top-1/2 -translate-y-1/2 z-20 flex flex-col items-center transition-[left] duration-500 ease-in-out left-(--marker-left)"
+                    style={{ '--marker-left': `${getPos(current)}%` } as React.CSSProperties}
                 >
                     {/* Tooltip */}
                     <div className="absolute bottom-full mb-2 flex flex-col items-center">
                         <div className="bg-slate-900 dark:bg-black text-white text-[10px] font-black px-2.5 py-1 rounded-lg shadow-2xl border border-white/10 whitespace-nowrap">
                             ${sanitizePrice(current)}
                         </div>
-                        <div className="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[4px] border-l-transparent border-r-transparent border-t-slate-900 dark:border-t-black -mt-px" />
+                        <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-slate-900 dark:border-t-black -mt-px" />
                     </div>
 
                     {/* Marker Dot */}
@@ -731,8 +752,8 @@ function TradeAxisVisual({
                 {keyPrices.map((tick, i) => (
                     <div
                         key={i}
-                        className="absolute flex flex-col items-center -translate-x-1/2"
-                        style={{ left: `${getPos(tick.val)}%` }}
+                        className="absolute flex flex-col items-center -translate-x-1/2 left-(--tick-left)"
+                        style={{ '--tick-left': `${getPos(tick.val)}%` } as React.CSSProperties}
                     >
                         <div className="w-px h-1.5 bg-slate-200 dark:bg-slate-700 mb-1" />
                         <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 tabular-nums">

@@ -28,7 +28,7 @@ class YFinanceHealthChecker:
     YAHOO_CHART_URL = "https://query2.finance.yahoo.com/v8/finance/chart"
 
     # 默认配置
-    DEFAULT_CHECK_INTERVAL = 300  # 5 分钟
+    DEFAULT_CHECK_INTERVAL = 900  # 15 分钟
     DEFAULT_TIMEOUT = 10.0  # 10 秒
 
     def __init__(

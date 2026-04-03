@@ -295,14 +295,60 @@ npm run generate-types
 4. 大陆网络环境建议使用镜像源安装依赖：
    - Python: `pip install -i https://pypi.tuna.tsinghua.edu.cn/simple`
    - Node: `npm --registry=https://registry.npmmirror.com`
-5. **数据源智能路由**：系统根据 `IS_SERVER_ENV` 环境变量自动选择美股数据源
-   - `IS_SERVER_ENV=false` (默认，本地环境): 美股用 YFinance，A 股/港股用 AkShare
-   - `IS_SERVER_ENV=true` (服务器环境): 美股和 A 股/港股都用 AkShare
-   - 说明：本地通常有代理，YFinance 美股数据更全；服务器无代理，AkShare 更可靠
-6. **Yahoo Finance 代理**（可选）: 服务器环境可通过 Cloudflare Worker 中转访问 Yahoo
-   - 部署：`cloudflare-worker/yahoo-proxy.js` 到 Cloudflare Workers（免费）
+5. **数据源智能路由**：美股统一使用 YFinance，通过 Cloudflare Worker 代理解决服务器访问问题
+
+   ```text
+   ┌─────────────────────────────────────────────────────────────┐
+   │                    股票类型判断                              │
+   └─────────────────────────────────────────────────────────────┘
+                              │
+              ┌───────────────┼───────────────┐
+              │               │               │
+              ▼               ▼               ▼
+         ┌─────────┐    ┌──────────┐    ┌──────────┐
+         │  A 股    │    │  港股    │    │   美股   │
+         │ 6 位数字  │    │ XXX.HK   │    │ 字母代码  │
+         └────┬────┘    └─────┬────┘    └────┬─────┘
+              │               │               │
+              │               │               │
+              ▼               ▼               ▼
+         ┌─────────┐    ┌──────────┐    ┌──────────────┐
+         │ AkShare │    │ AkShare  │    │  YFinance    │
+         │  (直连) │    │  (直连)  │    │  (默认直连)  │
+         └─────────┘    └──────────┘    └──────┬───────┘
+                                               │
+                                    ┌──────────┴──────────┐
+                                    │                     │
+                                    ▼                     ▼
+                              ┌──────────┐          ┌──────────┐
+                              │  成功    │          │  失败    │
+                              │ 返回数据  │          │ 标记代理  │
+                              └──────────┘          └────┬─────┘
+                                                         │
+                                                         ▼
+                                                  ┌──────────────┐
+                                                  │ Cloudflare   │
+                                                  │ Worker 代理  │
+                                                  │ 获取 Yahoo   │
+                                                  └──────┬───────┘
+                                                         │
+                                                         ▼
+                                                  ┌──────────────┐
+                                                  │ 后续请求都走 │
+                                                  │ Worker 代理  │
+                                                  └──────────────┘
+   ```
+
+   **故障自动切换机制**：
+   - YFinanceProvider 默认尝试直连 Yahoo Finance
+   - 当直连失败时，自动切换到 Cloudflare Worker 代理
+   - 切换状态会被记住（类变量 `_use_worker_proxy`），后续请求直接使用代理，避免重复失败
+   - 配置变量：`CLOUDFLARE_WORKER_URL` 和 `CLOUDFLARE_WORKER_KEY`
+
+6. **Cloudflare Worker 部署**（可选）：服务器环境建议部署 Worker 代理以获取完整美股数据
+   - 部署：`cloudflare-worker/yahoo-proxy.js` 到 Cloudflare Workers（免费，每日 10 万次请求）
    - 配置：`CLOUDFLARE_WORKER_URL` 和 `CLOUDFLARE_WORKER_KEY`
-   - 效果：服务器也可获取完整美股数据
+   - 效果：YFinance 直连失败时自动切换，对应用透明
 7. 初始化数据库或补种子数据时，优先使用 `backend/scripts/` 分组目录：
    - `backend/scripts/db/`：数据库初始化、迁移、种子
    - `backend/scripts/data/`：行情/新闻采集与刷新

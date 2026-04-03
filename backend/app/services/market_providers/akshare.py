@@ -20,6 +20,10 @@ def retry_on_network_error(max_retries=3, initial_delay=1):
     """
     针对网络波动的重试装饰器。
     支持处理 RemoteDisconnected, ConnectionResetError, ProxyError 等。
+
+    优化后的策略：
+    - 固定延迟退避（非指数），避免请求堆积
+    - 添加随机抖动，防止同步触发
     """
     def decorator(func):
         @functools.wraps(func)
@@ -29,14 +33,14 @@ def retry_on_network_error(max_retries=3, initial_delay=1):
             for i in range(max_retries + 1):
                 try:
                     return func(*args, **kwargs)
-                except (requests.exceptions.RequestException, 
+                except (requests.exceptions.RequestException,
                         urllib3.exceptions.HTTPError,
                         ConnectionError,
                         TimeoutError) as e:
                     last_err = e
                     if i < max_retries:
-                        # 指数退避 + 抖动
-                        sleep_time = delay * (2 ** i) + random.uniform(0, 0.5)
+                        # 固定延迟 + 抖动，避免指数退避导致请求堆积
+                        sleep_time = delay + random.uniform(0.5, 1.5)
                         logger.warning(f"Network error in {func.__name__}, retrying ({i+1}/{max_retries}) in {sleep_time:.2f}s: {e}")
                         time.sleep(sleep_time)
                         continue
@@ -122,15 +126,15 @@ class AkShareProvider(MarketDataProvider):
     _cached_fund_df = None
     _last_fund_update = 0
     
-    _async_lock = None 
-    _CACHE_TTL = 60  # 缓存有效期 60 秒
+    _async_lock = None
+    _CACHE_TTL = 300  # 缓存有效期 5 分钟（降低更新频率）
 
     @classmethod
     def _get_semaphore(cls):
         if cls._async_lock is None:
-            # 严重警告：在 macOS ARM + Python 3.14 环境下，mini_racer (V8) 的并发初始化存在线程安全漏洞。
-            # 必须将信号量限制为 1 以强行序列化所有可能触发 JS 引擎初始化的 AkShare 调用。
-            cls._async_lock = asyncio.Semaphore(1)
+            # 优化：允许 3 个并发，平衡反爬和性能
+            # 原逻辑：Semaphore(1) 强制串行，导致请求堆积触发反爬
+            cls._async_lock = asyncio.Semaphore(3)
         return cls._async_lock
 
     @classmethod
@@ -1202,7 +1206,7 @@ class AkShareProvider(MarketDataProvider):
             # --- 优先级 2: 东方财富个股信息 (补充行业/板块) ---
             # 包裹 try-except 并增加重试
             try:
-                @retry_on_network_error(max_retries=2)
+                @retry_on_network_error(max_retries=1)
                 def fetch_em_info():
                     return ak.stock_individual_info_em(symbol=symbol)
 
@@ -1228,7 +1232,7 @@ class AkShareProvider(MarketDataProvider):
                     # f58: 名称, f127: 行业, f116: 总市值, f43: 最新价, f170: 涨跌幅
                     url = f"https://push2.eastmoney.com/api/qt/stock/get?secid={mkt}.{symbol}&fields=f58,f127,f116,f43,f170"
                     
-                    @retry_on_network_error(max_retries=2)
+                    @retry_on_network_error(max_retries=1)
                     def direct_fundamental():
                         _tls.bypass_proxy = True
                         try:

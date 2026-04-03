@@ -159,12 +159,14 @@ async def run_refresh_all_stocks_job(db, should_refresh_fn, session_factory) -> 
         return 0
 
     logger.info(f"[Scheduler] 发现 {len(active_tickers)} 只股票需要更新（盘中或盘后补录），开始后台刷新...")
-    semaphore = asyncio.Semaphore(1)  # 降为 1 避免触发反爬
+    # 优化：并发数从 1 提升到 3，配合 5 秒间隔，实现平滑请求流
+    # 每秒约 0.6 个请求，避免触发 AkShare 反爬
+    semaphore = asyncio.Semaphore(3)
 
     async def safe_refresh(ticker: str):
         async with semaphore:
             try:
-                await asyncio.sleep(3)  # 增加到 3 秒，均匀分布请求
+                await asyncio.sleep(5)  # 增加到 5 秒，平滑请求分布
                 async with session_factory() as local_db:
                     updated_data = await MarketDataService.get_real_time_data(
                         ticker,

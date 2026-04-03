@@ -217,7 +217,7 @@ async def lifespan(app: FastAPI):
     # 初始化并启动 Yahoo Finance 健康检查器
     from app.core.config import settings
     health_checker = init_health_checker(
-        check_interval=300,  # 5 分钟检测一次
+        check_interval=900,  # 15 分钟检测一次（避免 Yahoo 429 限流）
         timeout=10.0,
         worker_url=getattr(settings, "CLOUDFLARE_WORKER_URL", None),
         worker_key=getattr(settings, "CLOUDFLARE_WORKER_KEY", None)

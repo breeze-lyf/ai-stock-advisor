@@ -26,8 +26,8 @@ def build_postgres_connect_args(db_url: str) -> dict:
     构建 PostgreSQL 连接参数，自动处理 SSL 配置。
 
     SSL 规则:
-    - 云端数据库 (Neon 等): 强制启用 SSL
     - 本地 PostgreSQL (localhost/127.0.0.1): 禁用 SSL
+    - 云端数据库 (Neon 等): 强制启用 SSL
     - 其他远程数据库：根据 sslmode 参数决定
     """
     parsed_url = make_url(db_url)

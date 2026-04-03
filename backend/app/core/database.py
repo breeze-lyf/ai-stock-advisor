@@ -15,15 +15,16 @@ db_url = normalize_async_database_url(settings.DATABASE_URL)
 # PostgreSQL 连接配置
 connect_args = build_postgres_connect_args(db_url)
 
-# 优化连接池配置 (针对 Neon Serverless 优化)
+# 连接池配置
+# 本地 PostgreSQL / 自有 PostgreSQL 通用
 engine = create_async_engine(
     db_url,
     echo=False,
     pool_pre_ping=True,
-    pool_size=20,           # 增加连接池大小 (默认 10)
-    max_overflow=40,        # 增加最大溢出连接数 (默认 20)
-    pool_recycle=1800,      # 30 分钟回收连接 (Neon 建议)
-    pool_timeout=30,        # 获取连接超时 30s
+    pool_size=20,           # 连接池大小
+    max_overflow=40,        # 最大溢出连接数
+    pool_recycle=1800,      # 连接回收时间 (30 分钟)
+    pool_timeout=30,        # 获取连接超时
     connect_args=connect_args
 )
 

@@ -160,7 +160,7 @@ docker compose up --build -d
 ### 后端 (Backend)
 - **核心框架**: FastAPI (Python 3.10+)
 - **任务调度**: 常驻后台协程 (轮询精度 60s)
-- **数据库**: PostgreSQL (本地) / Neon Postgres (可选云端) (SQLAlchemy Async)
+- **数据库**: PostgreSQL (本地默认) / Neon Postgres (可选云端) (SQLAlchemy Async)
 - **AI 引擎**: DashScope（内置默认 `qwen3.5-plus`）+ SiliconFlow 兼容回退 + 用户 BYOK 自定义模型
 
 ---

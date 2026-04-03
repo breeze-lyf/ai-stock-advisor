@@ -233,7 +233,57 @@ CLOUDFLARE_WORKER_KEY=your-secret-key
 - 本地环境（有代理）：YFinance 通常直连成功，无需 Worker 配置
 - 服务器环境（无代理）：建议配置 `CLOUDFLARE_WORKER_URL` 和 `CLOUDFLARE_WORKER_KEY`，确保 YFinance 失败时可降级
 
-### 6.3 Cloudflare Worker 代理（可选）
+**自动恢复机制**：
+- 系统每 5 分钟自动检测 Yahoo Finance 直连是否恢复
+- 当直连恢复时，自动切换回直连模式
+- 可通过 `/api/v1/health/yfinance` 端点查看当前连接状态
+
+### 6.3 Yahoo Finance 健康检查（新增）
+
+系统内置了 Yahoo Finance 连接健康检查器，自动探测直连可用性并在恢复时自动切换：
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│  后台健康检查任务 (每 5 分钟)                                   │
+└─────────────────────────────────────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────────────────────────────────────┐
+│  检测 Yahoo Finance 直连 (GET query2.finance.yahoo.com)      │
+└─────────────────────────────────────────────────────────────┘
+         │
+         ├─────────────────┬─────────────────┐
+         │                 │                 │
+         ▼                 ▼                 ▼
+   ┌───────────┐   ┌───────────┐   ┌───────────┐
+   │  直连成功  │   │ 直连失败  │   │ 已有代理  │
+   │ 重置代理  │   │ 保持代理  │   │ 跳过检测  │
+   └───────────┘   └───────────┘   └───────────┘
+```
+
+**监控端点**：
+
+```bash
+# 查看 Yahoo Finance 连接状态
+curl http://localhost:8000/api/v1/health/yfinance
+
+# 响应示例
+{
+  "status": "ok",
+  "direct_connection": true,
+  "using_worker_proxy": false,
+  "worker_configured": true,
+  "background_check_triggered": true
+}
+```
+
+**响应字段说明**：
+- `direct_connection`: 当前是否使用直连模式
+- `using_worker_proxy`: 当前是否使用 Worker 代理
+- `worker_configured`: 是否配置了 Cloudflare Worker
+- `background_check_triggered`: 是否触发了后台检测
+
+### 6.4 Cloudflare Worker 代理（可选）
 
 当服务器环境需要补齐 Yahoo 美股数据时，可启用 Worker 代理：
 

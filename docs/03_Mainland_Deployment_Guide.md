@@ -234,7 +234,8 @@ CLOUDFLARE_WORKER_KEY=your-secret-key
 - 服务器环境（无代理）：建议配置 `CLOUDFLARE_WORKER_URL` 和 `CLOUDFLARE_WORKER_KEY`，确保 YFinance 失败时可降级
 
 **自动恢复机制**：
-- 系统每 5 分钟自动检测 Yahoo Finance 直连是否恢复
+
+- 系统每 15 分钟自动检测 Yahoo Finance 直连是否恢复
 - 当直连恢复时，自动切换回直连模式
 - 可通过 `/api/v1/health/yfinance` 端点查看当前连接状态
 
@@ -244,7 +245,7 @@ CLOUDFLARE_WORKER_KEY=your-secret-key
 
 ```text
 ┌─────────────────────────────────────────────────────────────┐
-│  后台健康检查任务 (每 5 分钟)                                   │
+│  后台健康检查任务 (每 15 分钟)                                  │
 └─────────────────────────────────────────────────────────────┘
          │
          ▼
@@ -314,7 +315,7 @@ curl http://localhost:8000/api/v1/health/yfinance
 **预期效果**：
 - 单次行情刷新周期延长（约 3 秒 × 股票数量），但成功率更高
 - 减少 `RemoteDisconnected` 和 `HTTP 429` 错误
-- 失败股票会在下一轮（5 分钟后）自动重试
+- 失败股票会在下一轮（15 分钟后）自动重试
 
 ---
 

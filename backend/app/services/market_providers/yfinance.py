@@ -43,6 +43,17 @@ class YFinanceProvider(MarketDataProvider):
     # 初始为 False（默认直连），当直连失败时设置为 True
     _use_worker_proxy: bool = False
 
+    @classmethod
+    def get_proxy_status(cls) -> bool:
+        """获取当前代理状态"""
+        return cls._use_worker_proxy
+
+    @classmethod
+    def reset_proxy_flag(cls) -> None:
+        """重置代理标志，恢复直连模式"""
+        cls._use_worker_proxy = False
+        logger.info("[YFinance] Proxy flag reset, resuming direct connection")
+
     @staticmethod
     def _normalize_ticker(ticker: str) -> str:
         symbol = ticker.upper().strip()

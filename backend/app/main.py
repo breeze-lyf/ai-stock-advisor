@@ -205,6 +205,7 @@ async def lifespan(app: FastAPI):
     from app.core.database import SessionLocal
     from app.services.system_ai_registry import ensure_system_ai_registry
     from app.services.scheduler import start_scheduler
+    from app.services.yfinance_health_checker import init_health_checker
 
     async with SessionLocal() as db:
         await ensure_system_ai_registry(db)
@@ -212,6 +213,26 @@ async def lifespan(app: FastAPI):
     scheduler_task = asyncio.create_task(start_scheduler())
     app.state.scheduler_task = scheduler_task
     logger.info("PHASE: Background scheduler task launched & DB synced.")
+
+    # 初始化并启动 Yahoo Finance 健康检查器
+    from app.core.config import settings
+    health_checker = init_health_checker(
+        check_interval=300,  # 5 分钟检测一次
+        timeout=10.0,
+        worker_url=getattr(settings, "CLOUDFLARE_WORKER_URL", None),
+        worker_key=getattr(settings, "CLOUDFLARE_WORKER_KEY", None)
+    )
+
+    # 设置代理重置回调
+    from app.services.market_providers.yfinance import YFinanceProvider
+    async def reset_yf_proxy():
+        YFinanceProvider.reset_proxy_flag()
+    health_checker.set_reset_callback(reset_yf_proxy)
+
+    # 启动健康检查后台任务
+    await health_checker.start()
+    app.state.health_checker = health_checker
+    logger.info("PHASE: Yahoo Finance health checker started.")
 
     try:
         yield
@@ -221,6 +242,10 @@ async def lifespan(app: FastAPI):
             await scheduler_task
         except asyncio.CancelledError:
             logger.info("PHASE: Background scheduler task cancelled.")
+
+        # 停止健康检查器
+        await health_checker.stop()
+
         from app.core.redis_client import close_redis
         await close_redis()
 
@@ -351,6 +376,38 @@ if _prometheus_available:
 async def health_check():
     """健康检查接口：确保后端服务在线"""
     return {"status": "ok", "message": "Service is healthy"}
+
+
+@app.get("/health/yfinance", tags=["System"])
+async def yfinance_health_check():
+    """
+    Yahoo Finance 连接健康检查接口
+
+    返回当前 YFinance 连接状态和代理使用情况
+    """
+    from app.services.market_providers.yfinance import YFinanceProvider
+    from app.services.yfinance_health_checker import get_health_checker
+
+    proxy_status = YFinanceProvider.get_proxy_status()
+
+    result = {
+        "status": "ok",
+        "direct_connection": not proxy_status,
+        "using_worker_proxy": proxy_status,
+        "worker_configured": bool(
+            getattr(settings, "CLOUDFLARE_WORKER_URL", None) and
+            getattr(settings, "CLOUDFLARE_WORKER_KEY", None)
+        ),
+    }
+
+    # 如果有健康检查器，触发一次即时检测
+    health_checker = get_health_checker()
+    if health_checker:
+        # 异步执行检测，不阻塞响应
+        asyncio.create_task(health_checker.run_check_and_reset())
+        result["background_check_triggered"] = True
+
+    return result
 
 @app.get("/readiness", tags=["System"])
 async def readiness_check():

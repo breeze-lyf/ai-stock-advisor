@@ -1,6 +1,5 @@
 from typing import Dict
 import logging
-import os
 
 from app.services.market_providers.base import MarketDataProvider
 from app.services.market_providers.akshare import AkShareProvider
@@ -14,19 +13,14 @@ class ProviderFactory:
     # 使用类变量缓存单例对象，避免重复创建实例
     _instances: Dict[str, MarketDataProvider] = {}
 
-    # 环境标识：用于决定美股数据源
-    # IS_SERVER_ENV = True 表示运行在服务器环境（无代理，AkShare 更可靠）
-    # IS_SERVER_ENV = False 表示本地环境（有代理，YFinance 更可靠）
-    IS_SERVER_ENV = os.getenv("IS_SERVER_ENV", "false").lower() == "true"
-
     @classmethod
     def get_provider(cls, ticker: str, preferred_source: str = "AUTO") -> MarketDataProvider:
         """
         核心分流逻辑：
 
-        1. 自动模式 (AUTO)：根据股票类型和环境自动选择
+        1. 自动模式 (AUTO)：根据股票类型自动选择
            - A 股/港股：固定使用 AkShare（数据最准）
-           - 美股：本地环境用 YFinance，服务器环境用 AkShare
+           - 美股：固定使用 YFinance（数据更全），通过 Cloudflare Worker 代理解决访问问题
 
         2. 显式模式 (AKSHARE/YFINANCE)：尊重用户选择
 
@@ -46,7 +40,7 @@ class ProviderFactory:
         if is_a_share or is_hk_share:
             return cls._get_instance("AKSHARE")
 
-        # 美股：根据环境选择
+        # 美股：默认使用 YFinance（通过 Cloudflare Worker 代理解决访问问题）
         if is_us_share:
             source = (preferred_source or "AUTO").upper()
 
@@ -55,13 +49,8 @@ class ProviderFactory:
             if source == "AKSHARE":
                 return cls._get_instance("AKSHARE")
 
-            # AUTO 模式：根据环境自动选择
-            if cls.IS_SERVER_ENV:
-                # 服务器环境（如阿里云）：用 AkShare（虽然美股数据不全，但比 Yahoo 被墙好）
-                return cls._get_instance("AKSHARE")
-            else:
-                # 本地环境（有代理）：用 YFinance（美股数据更全）
-                return cls._get_instance("YFINANCE")
+            # AUTO 模式：美股统一使用 YFinance
+            return cls._get_instance("YFINANCE")
 
         # 未识别的类型：回退到 AkShare
         return cls._get_instance("AKSHARE")

@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import logging
 import httpx
-import json
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -37,9 +36,12 @@ class YFinanceProvider(MarketDataProvider):
     }
 
     # Cloudflare Worker 代理配置 (可选)
-    # 如果配置了，将优先通过 Worker 访问 Yahoo，解决服务器被墙问题
     _worker_url: Optional[str] = getattr(settings, "CLOUDFLARE_WORKER_URL", None)
     _worker_key: Optional[str] = getattr(settings, "CLOUDFLARE_WORKER_KEY", None)
+
+    # 类变量：记录是否需要使用 Worker 代理
+    # 初始为 False（默认直连），当直连失败时设置为 True
+    _use_worker_proxy: bool = False
 
     @staticmethod
     def _normalize_ticker(ticker: str) -> str:
@@ -140,25 +142,38 @@ class YFinanceProvider(MarketDataProvider):
         yf_period = self.PERIOD_MAP.get(period, "1y")
         yf_interval = self.INTERVAL_MAP.get(interval, "1d")
 
-        # 优先尝试 Cloudflare Worker 代理（如果配置了）
-        if self._worker_url and self._worker_key:
-            try:
-                df = await self._get_history_df_via_worker(symbol, yf_period, yf_interval)
-                if df is not None and not df.empty:
-                    logger.info(f"[YFinance] Successfully fetched {ticker} via Cloudflare Worker")
-                    return df
-            except Exception as e:
-                logger.warning(f"[YFinance] Worker proxy failed for {ticker}, falling back to yfinance: {e}")
+        # 如果已标记需要使用 Worker 代理，直接使用
+        if self._use_worker_proxy and self._worker_url and self._worker_key:
+            df = await self._get_history_df_via_worker(symbol, yf_period, yf_interval)
+            if df is not None and not df.empty:
+                return df
 
-        # 回退到 yfinance 直连
+        # 默认优先尝试 yfinance 直连
         try:
             history = await self._run_sync(lambda: yf.Ticker(symbol).history(
                 period=yf_period, interval=yf_interval, auto_adjust=False, actions=False
             ))
-            return self._history_to_dataframe(history)
+            df = self._history_to_dataframe(history)
+            if df is not None and not df.empty:
+                return df
         except Exception as e:
             logger.warning(f"[YFinance] Direct yfinance failed for {ticker}: {e}")
-            return None
+            # 直连失败，标记需要使用 Worker 代理
+            self._use_worker_proxy = True
+            logger.info("[YFinance] Switching to Cloudflare Worker proxy for subsequent requests")
+
+        # 直连失败或无数据，尝试 Worker 代理
+        if self._worker_url and self._worker_key:
+            try:
+                df = await self._get_history_df_via_worker(symbol, yf_period, yf_interval)
+                if df is not None and not df.empty:
+                    self._use_worker_proxy = True
+                    logger.info(f"[YFinance] Successfully fetched {ticker} via Cloudflare Worker")
+                    return df
+            except Exception as e:
+                logger.warning(f"[YFinance] Worker proxy also failed for {ticker}: {e}")
+
+        return None
 
     async def _get_history_df_via_worker(
         self,
@@ -198,7 +213,6 @@ class YFinanceProvider(MarketDataProvider):
                     return None
 
                 quote = result[0]
-                meta = quote.get("meta", {})
                 timestamps = quote.get("timestamp", [])
                 ind = quote.get("indicators", {}).get("quote", [{}])[0]
 

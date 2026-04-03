@@ -1221,6 +1221,9 @@ class AkShareProvider(MarketDataProvider):
             except Exception as e:
                 if "all scalar values" in str(e):
                     logger.info(f"EM individual info for {ticker} unavailable (no data found).")
+                elif "RemoteDisconnected" in str(e):
+                    # 东财服务器主动断开，可能是 IP 被限流，降级为 INFO 避免日志噪声
+                    logger.info(f"EM individual info for {ticker} unavailable (server rate limit).")
                 else:
                     logger.warning(f"EM individual info failed for {ticker} (likely connection reset): {e}")
 
@@ -1248,7 +1251,11 @@ class AkShareProvider(MarketDataProvider):
                         if not sector: sector = d.get('f127')
                         if not mc: mc = float(d.get('f116', 0))
                 except Exception as direct_e:
-                    logger.warning(f"Direct EM fundamental fallback failed for {ticker}: {direct_e}")
+                    if "RemoteDisconnected" in str(direct_e):
+                        # 东财 API 被限流，降级为 INFO
+                        logger.info(f"Direct EM fundamental unavailable for {ticker} (server rate limit).")
+                    else:
+                        logger.warning(f"Direct EM fundamental fallback failed for {ticker}: {direct_e}")
 
             return ProviderFundamental(
                 name=name, 

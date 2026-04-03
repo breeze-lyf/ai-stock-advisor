@@ -60,6 +60,26 @@ class MarketDataSourceOption(BaseModel):
     is_default: bool = False
 
 
+class MarketDataSourceConfig(BaseModel):
+    """分市场数据源配置"""
+    a_share: str = "YFINANCE"  # A 股默认 YFINANCE
+    hk_share: str = "YFINANCE"  # 港股默认 YFINANCE
+    us_share: str = "YFINANCE"  # 美股默认 YFINANCE
+
+
+class DataSourceSettingsResponse(BaseModel):
+    """数据源设置响应"""
+    config: MarketDataSourceConfig
+    available_sources: list[MarketDataSourceOption]
+
+
+class DataSourceSettingsUpdate(BaseModel):
+    """数据源设置更新"""
+    a_share: str | None = None
+    hk_share: str | None = None
+    us_share: str | None = None
+
+
 class UserSettingsUpdate(BaseModel):
     api_key_deepseek: str | None = None
     api_key_siliconflow: str | None = None

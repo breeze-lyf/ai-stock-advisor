@@ -18,6 +18,9 @@ from app.models.user_ai_model import UserAIModel
 from app.schemas.user_settings import (
     AIModelConfigCreate,
     AIModelConfigResponse,
+    DataSourceSettingsResponse,
+    DataSourceSettingsUpdate,
+    MarketDataSourceConfig,
     MarketDataSourceOption,
     PasswordChange,
     ProviderConfigResponse,
@@ -33,6 +36,18 @@ from app.core import security
 router = APIRouter()
 PUBLIC_SYSTEM_MODEL_KEYS = {"qwen3.5-plus"}
 SUPPORTED_DATA_SOURCES = {"AKSHARE", "YFINANCE"}
+
+
+def get_data_source_config() -> DataSourceSettingsResponse:
+    """获取数据源配置"""
+    return DataSourceSettingsResponse(
+        config=MarketDataSourceConfig(
+            a_share="YFINANCE",
+            hk_share="YFINANCE",
+            us_share="YFINANCE",
+        ),
+        available_sources=get_market_data_source_options()
+    )
 
 
 def build_model_key(display_name: str) -> str:
@@ -473,3 +488,47 @@ async def list_providers(
         )
         for provider in providers
     ]
+
+
+@router.get("/data-sources", response_model=DataSourceSettingsResponse)
+async def get_data_sources(
+    current_user: User = Depends(get_current_user),
+):
+    """获取数据源配置选项"""
+    return DataSourceSettingsResponse(
+        config=MarketDataSourceConfig(
+            a_share=getattr(current_user, "data_source_a_share", "YFINANCE"),
+            hk_share=getattr(current_user, "data_source_hk_share", "YFINANCE"),
+            us_share=getattr(current_user, "data_source_us_share", "YFINANCE"),
+        ),
+        available_sources=get_market_data_source_options()
+    )
+
+
+@router.put("/data-sources")
+async def update_data_sources(
+    update: DataSourceSettingsUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """更新分市场数据源配置"""
+    user_repo = UserRepository(db)
+
+    if update.a_share:
+        if update.a_share not in SUPPORTED_DATA_SOURCES:
+            raise HTTPException(status_code=400, detail="不支持的数据源")
+        current_user.data_source_a_share = update.a_share
+
+    if update.hk_share:
+        if update.hk_share not in SUPPORTED_DATA_SOURCES:
+            raise HTTPException(status_code=400, detail="不支持的数据源")
+        current_user.data_source_hk_share = update.hk_share
+
+    if update.us_share:
+        if update.us_share not in SUPPORTED_DATA_SOURCES:
+            raise HTTPException(status_code=400, detail="不支持的数据源")
+        current_user.data_source_us_share = update.us_share
+
+    await user_repo.save(current_user)
+
+    return {"status": "success", "message": "数据源配置已更新"}

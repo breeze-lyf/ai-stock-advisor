@@ -56,6 +56,8 @@ async def get_current_user(
                 # Do a DB fetch but skip the extra "not found" guard since we trust the cache.
                 user = await UserRepository(db).get_by_id(user_id)
                 if user:
+                    # 加载用户数据源配置到 ProviderFactory
+                    _load_user_data_source_config(user)
                     return user
                 # cache stale — fall through to full auth below
                 await redis.delete(cache_key)
@@ -74,7 +76,22 @@ async def get_current_user(
         except Exception:
             pass
 
+    # 加载用户数据源配置到 ProviderFactory
+    _load_user_data_source_config(user)
+
     return user
+
+
+def _load_user_data_source_config(user: User) -> None:
+    """加载用户的数据源配置到 ProviderFactory"""
+    from app.services.market_providers.factory import ProviderFactory
+
+    config = {
+        "a_share": getattr(user, "data_source_a_share", "YFINANCE"),
+        "hk_share": getattr(user, "data_source_hk_share", "YFINANCE"),
+        "us_share": getattr(user, "data_source_us_share", "YFINANCE"),
+    }
+    ProviderFactory.set_user_data_source_config(config)
 
 
 async def get_optional_current_user(

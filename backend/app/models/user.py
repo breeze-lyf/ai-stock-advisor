@@ -17,6 +17,7 @@ class MembershipTier(str, enum.Enum):
 class MarketDataSource(str, enum.Enum):
     AKSHARE = "AKSHARE"
     YFINANCE = "YFINANCE"
+    DEFAULT = "DEFAULT"  # 使用系统默认逻辑
 
 # AI 模型选项 (用户可以在个人设置中切换默认模型)
 class AIModel(str, enum.Enum):
@@ -49,8 +50,12 @@ class User(Base):
     api_key_deepseek: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     api_key_siliconflow: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     
-    # 偏好设置
-    preferred_data_source: Mapped[str] = mapped_column(String, default=MarketDataSource.AKSHARE.value)
+    # 偏好设置 - 分市场数据源配置
+    data_source_a_share: Mapped[str] = mapped_column(String, default=MarketDataSource.YFINANCE.value)
+    data_source_hk_share: Mapped[str] = mapped_column(String, default=MarketDataSource.YFINANCE.value)
+    data_source_us_share: Mapped[str] = mapped_column(String, default=MarketDataSource.YFINANCE.value)
+    # 向后兼容：保留原有字段用于迁移
+    preferred_data_source: Mapped[str] = mapped_column(String, default=MarketDataSource.YFINANCE.value)
     preferred_ai_model: Mapped[str] = mapped_column(String, default=settings.DEFAULT_AI_MODEL)
     timezone: Mapped[str] = mapped_column(String, default="Asia/Shanghai")
     theme: Mapped[str] = mapped_column(String, default="light")

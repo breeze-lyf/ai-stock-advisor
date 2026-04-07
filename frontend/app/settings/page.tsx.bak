@@ -33,6 +33,7 @@ import {
   deleteAIModel,
   getDataSourceSettings,
   getProfile,
+  listMarketDataSources,
   listAIModels,
   testAIConnection,
   testTavilyConnection,
@@ -42,8 +43,8 @@ import {
   type CreateAIModelConfigInput,
   type DataSourceSettings,
   type DataSourceSettingsUpdate,
-  type MarketDataSourceConfig,
   type MarketDataSourceOption,
+  type MarketDataSourceConfig,
 } from "@/features/user/api";
 import type { UserProfile } from "@/types";
 
@@ -52,9 +53,9 @@ type SettingsSection = "general" | "ai" | "notifications" | "security" | "data";
 const SECTION_ITEMS: Array<{ id: SettingsSection; label: string; description: string; icon: typeof Settings2 }> = [
   { id: "general", label: "通用设置", description: "主题与时区", icon: Settings2 },
   { id: "ai", label: "AI 配置", description: "默认模型与我的模型", icon: Bot },
-  { id: "data", label: "数据管理", description: "配置状态与同步", icon: HardDrive },
   { id: "notifications", label: "通知", description: "飞书与推送偏好", icon: Bell },
   { id: "security", label: "安全", description: "密码管理", icon: Shield },
+  { id: "data", label: "数据管理", description: "配置状态与同步", icon: HardDrive },
 ];
 
 function normalizeBaseUrl(rawBaseUrl?: string) {
@@ -81,10 +82,6 @@ export default function SettingsPage() {
 
   const [availableModels, setAvailableModels] = useState<AIModelConfigItem[]>([]);
   const [availableDataSources, setAvailableDataSources] = useState<MarketDataSourceOption[]>([]);
-  const [dataSourceConfig, setDataSourceConfig] = useState<DataSourceSettings | null>(null);
-  const [dataSourceLoading, setDataSourceLoading] = useState(false);
-  const [dataSourceMessage, setDataSourceMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
-  const [savingDataSource, setSavingDataSource] = useState(false);
   const [, setModelsLoading] = useState(false);
   const [isAddModelOpen, setIsAddModelOpen] = useState(false);
   const [addingModel, setAddingModel] = useState(false);
@@ -108,9 +105,6 @@ export default function SettingsPage() {
   const [hasSavedTavilyKey, setHasSavedTavilyKey] = useState(false);
   const [testingTavily, setTestingTavily] = useState(false);
   const [tavilyTestMessage, setTavilyTestMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
-  const [testingDataSource, setTestingDataSource] = useState<string | null>(null);
-  const [dataSourceTestMessage, setDataSourceTestMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
-  const [useWorkerProxy, setUseWorkerProxy] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     old_password: "",
     new_password: "",
@@ -118,6 +112,12 @@ export default function SettingsPage() {
   });
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+
+  // Per-market data source configuration
+  const [dataSourceConfig, setDataSourceConfig] = useState<DataSourceSettings | null>(null);
+  const [dataSourceLoading, setDataSourceLoading] = useState(false);
+  const [dataSourceMessage, setDataSourceMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+  const [savingDataSource, setSavingDataSource] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -186,6 +186,11 @@ export default function SettingsPage() {
   const selectedModel = useMemo(
     () => availableModels.find((model) => model.key === (profile?.preferred_ai_model || "")) || null,
     [availableModels, profile?.preferred_ai_model],
+  );
+
+  const selectedDataSource = useMemo(
+    () => availableDataSources.find((item) => item.key === (profile?.preferred_data_source || "AKSHARE")) || null,
+    [availableDataSources, profile?.preferred_data_source],
   );
 
   const handleSetDefaultModel = async (modelKey: string) => {
@@ -419,6 +424,22 @@ export default function SettingsPage() {
     }
   };
 
+  const handlePreferredDataSourceUpdate = async (dataSource: string) => {
+    setSaving(true);
+    setMessage(null);
+    try {
+      const updated = await updateSettings({ preferred_data_source: dataSource });
+      setProfile(updated);
+      setMessage({ text: `默认数据源已切换为 ${dataSource}。`, type: "success" });
+    } catch (error: unknown) {
+      console.error("Failed to update preferred data source", error);
+      const axiosErr = error as { response?: { data?: { detail?: string } } };
+      setMessage({ text: axiosErr.response?.data?.detail || "切换数据源失败。", type: "error" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleDataSourceConfigUpdate = async (market: keyof MarketDataSourceConfig, value: string) => {
     setSavingDataSource(true);
     setDataSourceMessage(null);
@@ -437,30 +458,6 @@ export default function SettingsPage() {
       setDataSourceMessage({ text: axiosErr.response?.data?.detail || "更新数据源配置失败。", type: "error" });
     } finally {
       setSavingDataSource(false);
-    }
-  };
-
-  const handleTestDataSource = async (market: keyof MarketDataSourceConfig) => {
-    setTestingDataSource(market);
-    setDataSourceTestMessage(null);
-    try {
-      // Use the existing test connection API - it tests the current provider
-      const result = await testAIConnection({
-        provider_note: "YFINANCE",
-        model_id: `test_${market}_data`,
-      });
-      setDataSourceTestMessage({
-        text: `${market === "a_share" ? "A 股" : market === "hk_share" ? "港股" : "美股"}数据源连接正常。`,
-        type: "success"
-      });
-    } catch (error: unknown) {
-      const axiosErr = error as { response?: { data?: { detail?: string } } };
-      setDataSourceTestMessage({
-        text: `连接测试失败：${axiosErr.response?.data?.detail || "无法连接到数据源"}`,
-        type: "error"
-      });
-    } finally {
-      setTestingDataSource(null);
     }
   };
 
@@ -862,24 +859,13 @@ export default function SettingsPage() {
     ];
 
     return (
-      <div className="space-y-6">
-        {/* 分市场数据源配置 - 第 1 个 */}
+      <div className="space-y-8">
         <div className="rounded-2xl border border-slate-200 px-5 py-5 dark:border-slate-800">
-          <div className="mb-4 flex items-start justify-between">
-            <div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">分市场数据源配置</h3>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                为不同市场选择独立的数据源。默认均使用 YFinance，支持自动故障转移。
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Label htmlFor="worker-proxy" className="text-xs text-slate-500 dark:text-slate-400">使用 Cloudflare 代理</Label>
-              <Switch
-                id="worker-proxy"
-                checked={useWorkerProxy}
-                onCheckedChange={setUseWorkerProxy}
-              />
-            </div>
+          <div className="mb-4">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">分市场数据源配置</h3>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              为不同市场选择独立的数据源。默认均使用 YFinance，支持自动故障转移。
+            </p>
           </div>
 
           {dataSourceMessage && (
@@ -888,13 +874,7 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {dataSourceTestMessage && (
-            <div className={`mb-4 rounded-lg px-3 py-2 text-sm ${dataSourceTestMessage.type === "success" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-rose-500/10 text-rose-600 dark:text-rose-400"}`}>
-              {dataSourceTestMessage.text}
-            </div>
-          )}
-
-          <div className="space-y-3">
+          <div className="space-y-4">
             {marketOptions.map((option) => (
               <div
                 key={option.key}
@@ -910,7 +890,7 @@ export default function SettingsPage() {
                     onValueChange={(value) => handleDataSourceConfigUpdate(option.key, value)}
                     disabled={savingDataSource || dataSourceLoading}
                   >
-                    <SelectTrigger className="w-[120px]">
+                    <SelectTrigger className="w-[140px]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -923,14 +903,6 @@ export default function SettingsPage() {
                         ))}
                     </SelectContent>
                   </Select>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleTestDataSource(option.key)}
-                    disabled={testingDataSource !== null}
-                  >
-                    {testingDataSource === option.key ? "测试中..." : "测试"}
-                  </Button>
                 </div>
               </div>
             ))}
@@ -943,86 +915,182 @@ export default function SettingsPage() {
           )}
         </div>
 
-        {/* Tavily 搜索 API - 第 2 个 */}
-        <div className="rounded-2xl border border-slate-200 px-5 py-5 dark:border-slate-800">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Tavily 搜索 API</h3>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                用于全球宏观与新闻检索。支持独立开关、连接测试与密钥更新。
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <span
-                className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
-                  hasSavedTavilyKey
-                    ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                    : "border-slate-200 text-slate-500 dark:border-slate-700 dark:text-slate-400"
+      <div className="rounded-2xl border border-slate-200 px-5 py-5 dark:border-slate-800">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Tavily 搜索 API</h3>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              选择账户默认使用的数据源。不同服务器环境可看到不同的可用源状态。
+            </p>
+          </div>
+          <span className="rounded-full border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-500 dark:border-slate-700 dark:text-slate-400">
+            当前: {selectedDataSource?.label || profile?.preferred_data_source || "AKSHARE"}
+          </span>
+        </div>
+        <div className="mt-4 space-y-3">
+          {availableDataSources.map((source) => {
+            const active = (profile?.preferred_data_source || "AKSHARE") === source.key;
+            return (
+              <div
+                key={source.key}
+                className={`rounded-2xl border px-4 py-4 transition ${
+                  active
+                    ? "border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-950"
+                    : "border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950"
                 }`}
               >
-                {hasSavedTavilyKey ? "已保存密钥" : "未保存密钥"}
-              </span>
-              <div className="flex items-center gap-2">
-                <Label htmlFor="tavily-enabled" className="text-xs text-slate-500 dark:text-slate-400">启用</Label>
-                <Switch
-                  id="tavily-enabled"
-                  checked={tavilyEnabled}
-                  disabled={saving}
-                  onCheckedChange={(checked) => setTavilyEnabled(checked)}
-                />
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm font-semibold">{source.label}</div>
+                      {source.is_default && (
+                        <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${active ? "border-white/30 text-white/80 dark:border-slate-500 dark:text-slate-700" : "border-sky-500/20 bg-sky-500/10 text-sky-600 dark:text-sky-400"}`}>
+                          系统默认
+                        </span>
+                      )}
+                      <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${source.is_available ? (active ? "border-white/30 text-white/80 dark:border-slate-500 dark:text-slate-700" : "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400") : "border-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-400"}`}>
+                        {source.is_available ? "可用" : "当前不可用"}
+                      </span>
+                    </div>
+                    <p className={`mt-2 text-sm ${active ? "text-white/80 dark:text-slate-700" : "text-slate-500 dark:text-slate-400"}`}>
+                      {source.description}
+                    </p>
+                  </div>
+                  <Button
+                    variant={active ? "secondary" : "outline"}
+                    size="sm"
+                    disabled={saving || !source.is_available || active}
+                    onClick={() => handlePreferredDataSourceUpdate(source.key)}
+                  >
+                    {active ? "当前使用中" : "设为默认"}
+                  </Button>
+                </div>
               </div>
-            </div>
-          </div>
-          <div className="mt-4 flex flex-col gap-3 md:flex-row">
-            <Input
-              type="password"
-              placeholder={hasSavedTavilyKey ? "已保存，输入新值可覆盖" : "输入 Tavily API Key"}
-              value={tavilyApiKey}
-              onChange={(e) => setTavilyApiKey(e.target.value)}
-            />
-            <Button
-              variant="outline"
-              onClick={() => handleSaveTavilyCredential(true)}
-              disabled={saving}
-              className="md:min-w-33"
-            >
-              <Save className="mr-2 h-4 w-4" />
-              保存配置
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleTestTavily}
-              disabled={testingTavily}
-              className="md:min-w-33"
-            >
-              {testingTavily ? "测试中..." : "测试连接"}
-            </Button>
-          </div>
-          {tavilyTestMessage && (
-            <div
-              className={`mt-3 rounded-xl border px-4 py-3 text-sm ${
-                tavilyTestMessage.type === "success"
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300"
-                  : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300"
-              }`}
-            >
-              {tavilyTestMessage.text}
+            );
+          })}
+          {availableDataSources.length === 0 && (
+            <div className="rounded-xl border border-dashed border-slate-300 px-4 py-6 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+              暂未获取到可选数据源。
             </div>
           )}
-          <div className="mt-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleSaveTavilyCredential(false)}
-              disabled={saving}
-            >
-              仅保存开关状态
-            </Button>
-          </div>
         </div>
       </div>
-    );
-  };
+
+      <div className="rounded-2xl border border-slate-200 px-5 py-5 dark:border-slate-800">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Tavily 搜索 API</h3>
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              用于全球宏观与新闻检索。支持独立开关、连接测试与密钥更新。
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span
+              className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
+                hasSavedTavilyKey
+                  ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                  : "border-slate-200 text-slate-500 dark:border-slate-700 dark:text-slate-400"
+              }`}
+            >
+              {hasSavedTavilyKey ? "已保存密钥" : "未保存密钥"}
+            </span>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="tavily-enabled" className="text-xs text-slate-500 dark:text-slate-400">启用</Label>
+              <Switch
+                id="tavily-enabled"
+                checked={tavilyEnabled}
+                disabled={saving}
+                onCheckedChange={(checked) => setTavilyEnabled(checked)}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 flex flex-col gap-3 md:flex-row">
+          <Input
+            type="password"
+            placeholder={hasSavedTavilyKey ? "已保存，输入新值可覆盖" : "输入 Tavily API Key"}
+            value={tavilyApiKey}
+            onChange={(e) => setTavilyApiKey(e.target.value)}
+          />
+          <Button
+            variant="outline"
+            onClick={() => handleSaveTavilyCredential(true)}
+            disabled={saving}
+            className="md:min-w-[132px]"
+          >
+            <Save className="mr-2 h-4 w-4" />
+            保存配置
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleTestTavily}
+            disabled={testingTavily}
+            className="md:min-w-[132px]"
+          >
+            {testingTavily ? "测试中..." : "测试连接"}
+          </Button>
+        </div>
+        {tavilyTestMessage && (
+          <div
+            className={`mt-3 rounded-xl border px-4 py-3 text-sm ${
+              tavilyTestMessage.type === "success"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300"
+                : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300"
+            }`}
+          >
+            {tavilyTestMessage.text}
+          </div>
+        )}
+        <div className="mt-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleSaveTavilyCredential(false)}
+            disabled={saving}
+          >
+            仅保存开关状态
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="border-r border-slate-200 pr-4 dark:border-slate-800">
+          <div className="text-xs uppercase tracking-[0.2em] text-slate-500">我的模型</div>
+          <div className="mt-3 text-2xl font-semibold text-slate-900 dark:text-slate-100">{availableModels.length}</div>
+        </div>
+        <div className="border-r border-slate-200 px-4 dark:border-slate-800">
+          <div className="text-xs uppercase tracking-[0.2em] text-slate-500">当前默认模型</div>
+          <div className="mt-3 text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedModel?.display_name || profile?.preferred_ai_model || "未设置"}</div>
+        </div>
+        <div className="pl-4">
+          <div className="text-xs uppercase tracking-[0.2em] text-slate-500">当前主题</div>
+          <div className="mt-3 text-sm font-semibold text-slate-900 dark:text-slate-100">{profile?.theme || authUser?.theme || "未设置"}</div>
+        </div>
+      </div>
+
+      <div className="border-t border-slate-200 pt-6 dark:border-slate-800">
+        <div className="flex flex-wrap gap-3">
+          <Button variant="outline" onClick={() => { void loadProfile(); void loadModels(); void loadDataSources(); }}>
+            <RefreshCcw className="mr-2 h-4 w-4" />
+            重新同步配置
+          </Button>
+          <Button variant="outline" onClick={() => { void loadDataSources(); }}>
+            <RefreshCcw className="mr-2 h-4 w-4" />
+            刷新数据源状态
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              resetModelForm();
+              setMessage({ text: "添加模型弹窗的临时输入已清空。", type: "success" });
+            }}
+          >
+            清空未保存输入
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 
   const activeSectionConfig = SECTION_ITEMS.find((item) => item.id === activeSection)!;
 

@@ -34,6 +34,23 @@ export type MarketDataSourceOption = {
   is_default: boolean;
 };
 
+export type MarketDataSourceConfig = {
+  a_share: string;
+  hk_share: string;
+  us_share: string;
+};
+
+export type DataSourceSettings = {
+  config: MarketDataSourceConfig;
+  available_sources: MarketDataSourceOption[];
+};
+
+export type DataSourceSettingsUpdate = {
+  a_share?: string;
+  hk_share?: string;
+  us_share?: string;
+};
+
 export type CreateAIModelConfigInput = {
   display_name: string;
   provider_note?: string;
@@ -89,6 +106,18 @@ export async function createAIModel(input: CreateAIModelConfigInput): Promise<AI
 
 export async function listProviders(): Promise<ProviderConfigItem[]> {
   const response = await api.get("/api/v1/user/providers");
+  return response.data;
+}
+
+export async function getDataSourceSettings(): Promise<DataSourceSettings> {
+  const response = await api.get("/api/v1/user/data-sources");
+  return response.data;
+}
+
+export async function updateDataSourceSettings(
+  settings: DataSourceSettingsUpdate
+): Promise<{ status: string; message: string }> {
+  const response = await api.put("/api/v1/user/data-sources", settings);
   return response.data;
 }
 

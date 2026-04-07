@@ -89,6 +89,11 @@ export async function testTavilyConnection(payload?: { api_key?: string }): Prom
   return response.data;
 }
 
+export async function testFeishuWebhook(payload?: { webhook_url?: string }): Promise<TestConnectionResponse> {
+  const response = await api.post("/api/v1/user/test-feishu-webhook", payload || {});
+  return response.data;
+}
+
 export async function changePassword(data: PasswordChange) {
   const response = await api.put("/api/v1/user/password", data);
   return response.data;

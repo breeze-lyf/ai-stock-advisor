@@ -12,7 +12,6 @@ import {
   Moon,
   Pencil,
   Plus,
-  RefreshCcw,
   Save,
   Settings2,
   Shield,
@@ -36,6 +35,7 @@ import {
   listAIModels,
   testAIConnection,
   testTavilyConnection,
+  testFeishuWebhook,
   updateDataSourceSettings,
   updateSettings,
   type AIModelConfigItem,
@@ -108,6 +108,8 @@ export default function SettingsPage() {
   const [hasSavedTavilyKey, setHasSavedTavilyKey] = useState(false);
   const [testingTavily, setTestingTavily] = useState(false);
   const [tavilyTestMessage, setTavilyTestMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
+  const [testingFeishu, setTestingFeishu] = useState(false);
+  const [feishuTestMessage, setFeishuTestMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
   const [testingDataSource, setTestingDataSource] = useState<string | null>(null);
   const [dataSourceTestMessage, setDataSourceTestMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
   const [useWorkerProxy, setUseWorkerProxy] = useState(false);
@@ -537,6 +539,34 @@ export default function SettingsPage() {
     }
   };
 
+  const handleTestFeishu = async () => {
+    setTestingFeishu(true);
+    setFeishuTestMessage(null);
+    try {
+      const result = await testFeishuWebhook({
+        webhook_url: feishuUrl.trim() || undefined,
+      });
+      setFeishuTestMessage({
+        text: result.message,
+        type: result.status === "success" ? "success" : "error",
+      });
+    } catch (error: unknown) {
+      const errorMessage =
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        typeof (error as { response?: { data?: { detail?: string } } }).response?.data?.detail === "string"
+          ? (error as { response?: { data?: { detail?: string } } }).response?.data?.detail
+          : "飞书 Webhook 测试失败。";
+      setFeishuTestMessage({
+        text: errorMessage || "飞书 Webhook 测试失败。",
+        type: "error",
+      });
+    } finally {
+      setTestingFeishu(false);
+    }
+  };
+
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordMessage(null);
@@ -773,10 +803,31 @@ export default function SettingsPage() {
       <div className="space-y-2">
         <Label htmlFor="feishu-webhook" className="text-sm font-semibold">飞书机器人 Webhook</Label>
         <Input id="feishu-webhook" type="text" placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/..." value={feishuUrl} onChange={(e) => setFeishuUrl(e.target.value)} />
-        <Button variant="outline" onClick={handleSaveNotificationChannel} disabled={saving}>
-          <Save className="mr-2 h-4 w-4" />
-          保存通知通道
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleSaveNotificationChannel} disabled={saving}>
+            <Save className="mr-2 h-4 w-4" />
+            保存通知通道
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleTestFeishu}
+            disabled={testingFeishu}
+            className="md:min-w-33"
+          >
+            {testingFeishu ? "测试中..." : "测试连接"}
+          </Button>
+        </div>
+        {feishuTestMessage && (
+          <div
+            className={`mt-3 rounded-xl border px-4 py-3 text-sm ${
+              feishuTestMessage.type === "success"
+                ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300"
+                : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300"
+            }`}
+          >
+            {feishuTestMessage.text}
+          </div>
+        )}
       </div>
 
       <div className="space-y-4">

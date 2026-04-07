@@ -6,7 +6,7 @@ import * as Avatar from "@radix-ui/react-avatar";
 import { UserProfile } from "@/types";
 import { Settings, LogOut } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import clsx from "clsx";
 
 interface UserMenuProps {
@@ -14,12 +14,11 @@ interface UserMenuProps {
 }
 
 export function UserMenu({ user }: UserMenuProps) {
-    const router = useRouter();
+    const { logout } = useAuth();
     const isPro = user.membership_tier === "PRO";
 
     const handleLogout = () => {
-        localStorage.removeItem("token");
-        router.push("/login");
+        logout();
     };
 
     return (

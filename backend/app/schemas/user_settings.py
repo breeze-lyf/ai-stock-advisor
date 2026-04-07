@@ -141,3 +141,7 @@ class TestConnectionResponse(BaseModel):
 
 class TavilyTestRequest(BaseModel):
     api_key: str | None = None
+
+
+class FeishuWebhookTestRequest(BaseModel):
+    webhook_url: str | None = None

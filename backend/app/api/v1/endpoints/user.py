@@ -20,6 +20,7 @@ from app.schemas.user_settings import (
     AIModelConfigResponse,
     DataSourceSettingsResponse,
     DataSourceSettingsUpdate,
+    FeishuWebhookTestRequest,
     MarketDataSourceConfig,
     MarketDataSourceOption,
     PasswordChange,
@@ -337,6 +338,45 @@ async def test_tavily_connection(
         return TestConnectionResponse(status="error", message="Tavily returned unexpected response")
     except Exception as exc:
         return TestConnectionResponse(status="error", message=f"Tavily connection failed: {exc}")
+
+
+@router.post("/test-feishu-webhook", response_model=TestConnectionResponse)
+async def test_feishu_webhook(
+    request: FeishuWebhookTestRequest,
+    current_user: User = Depends(get_current_user),
+):
+    import httpx
+
+    webhook_url = request.webhook_url.strip() if request.webhook_url and request.webhook_url.strip() else None
+    if not webhook_url:
+        webhook_url = current_user.feishu_webhook_url
+
+    if not webhook_url:
+        return TestConnectionResponse(status="error", message="No Feishu webhook URL configured")
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            response = await client.post(
+                webhook_url,
+                json={
+                    "msg_type": "text",
+                    "content": {
+                        "text": "👋 这是一条测试消息\n\n如果您收到此消息，说明 Webhook 配置正确。"
+                    }
+                },
+            )
+            if response.status_code == 200:
+                resp_data = response.json()
+                if resp_data.get("code") == 0:
+                    return TestConnectionResponse(status="success", message="飞书 Webhook 测试成功！")
+                return TestConnectionResponse(status="error", message=f"飞书返回错误：{resp_data.get('msg', 'Unknown error')}")
+            return TestConnectionResponse(status="error", message=f"HTTP {response.status_code}: {response.text}")
+    except httpx.TimeoutException:
+        return TestConnectionResponse(status="error", message="请求超时，请检查网络连接")
+    except httpx.ConnectError as exc:
+        return TestConnectionResponse(status="error", message=f"连接失败：{exc}")
+    except Exception as exc:
+        return TestConnectionResponse(status="error", message=f"测试失败：{exc}")
 
 
 @router.get("/ai-models", response_model=list[AIModelConfigResponse])

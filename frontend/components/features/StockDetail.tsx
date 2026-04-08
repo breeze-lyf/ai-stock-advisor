@@ -280,17 +280,17 @@ export function StockDetail({
                 isLoading={historyLoading}
             />
 
-            {/* 板块 4: 基本面资料卡 */}
-            <FundamentalCard
-                selectedItem={selectedItem}
-                aiData={aiData}
-            />
-
             {/* 板块 3: 技术面深度透视 */}
             <TechnicalInsights
                 selectedItem={selectedItem}
                 aiData={aiData}
                 analyzing={analyzing}
+            />
+
+            {/* 板块 4: 基本面资料卡 */}
+            <FundamentalCard
+                selectedItem={selectedItem}
+                aiData={aiData}
             />
 
             {/* 板块 5: 实时资讯流 */}

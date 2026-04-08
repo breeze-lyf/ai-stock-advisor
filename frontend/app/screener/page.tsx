@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { getPresetStrategy, screenCustom, screenTechnical, getSectors, getIndustries, type StockScreenerResult } from "@/features/screener/api";
 import { Search, Filter, Star, Zap, TrendingUp, PieChart, Activity, DollarSign, BarChart3 } from "lucide-react";
@@ -22,6 +23,7 @@ const PRESET_STRATEGIES = [
 export default function ScreenerPage() {
     const { isAuthenticated, user } = useAuth();
     const { portfolio, user: userProfile } = useDashboardPortfolioData(isAuthenticated);
+    const router = useRouter();
     const [activeTab, setActiveTab] = useState<TabType>("preset");
     const [selectedStrategy, setSelectedStrategy] = useState<PresetStrategy>("low_valuation");
     const [screenerResults, setScreenerResults] = useState<StockScreenerResult[]>([]);
@@ -30,7 +32,6 @@ export default function ScreenerPage() {
     const [industries, setIndustries] = useState<string[]>([]);
     const [resultCount, setResultCount] = useState(0);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
-    const [activeHeaderTab, setActiveHeaderTab] = useState<DashboardTab>("analysis");
 
     const [fundamentalFilters, setFundamentalFilters] = useState({
         pe_ratio_min: "",
@@ -132,7 +133,7 @@ export default function ScreenerPage() {
 
     return (
         <div className="h-screen bg-slate-50 dark:bg-slate-950 flex flex-col overflow-hidden">
-            <DashboardHeader user={userProfile} activeTab={activeHeaderTab} setActiveTab={setActiveHeaderTab} />
+            <DashboardHeader user={userProfile} activeTab={"analysis"} setActiveTab={(tab: DashboardTab) => router.push(`/?tab=${tab}`)} />
             <SearchDialog
                 isOpen={isSearchOpen}
                 onOpenChange={setIsSearchOpen}

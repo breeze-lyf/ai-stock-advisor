@@ -48,6 +48,16 @@ class AnalyzePortfolioUseCase:
         )
         logger.info(f"AI Portfolio Analysis Response: {ai_raw_response[:500]}...")
 
+        # If the AI call failed, raise immediately — don't persist garbage data
+        if ai_raw_response.startswith("**Error**") or (
+            ai_raw_response.startswith('{"error"') or '"error"' in ai_raw_response[:50]
+        ):
+            logger.error(f"AI portfolio analysis failed: {ai_raw_response[:200]}")
+            raise HTTPException(
+                status_code=503,
+                detail=f"AI 分析服务暂时不可用，请稍后重试。原因：{ai_raw_response[:200]}",
+            )
+
         parsed_data = parse_portfolio_ai_json(ai_raw_response)
         new_portfolio_report = await self._persist_report(parsed_data, ai_raw_response, preferred_model)
 
@@ -169,6 +179,10 @@ class GetLatestPortfolioAnalysisUseCase:
 
         if not report:
             raise HTTPException(status_code=404, detail="No portfolio analysis found. Please generate one first.")
+
+        # Discard stale "failed" records so the frontend shows the generate button
+        if report.risk_level == "未知" or report.summary in ("调用失败", "解析失败"):
+            raise HTTPException(status_code=404, detail="No valid portfolio analysis found. Please generate one.")
 
         return PortfolioAnalysisResponse(
             health_score=int(report.health_score),

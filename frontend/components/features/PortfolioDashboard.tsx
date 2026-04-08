@@ -31,6 +31,7 @@ import clsx from "clsx";
 
 interface PortfolioDashboardProps {
     analysis: PortfolioAnalysisResponse | null;
+    analyzeError?: string | null;
     analyzing: boolean;
     loading: boolean;
     loadingAnalysis: boolean;
@@ -43,6 +44,7 @@ interface PortfolioDashboardProps {
 
 export function PortfolioDashboard({
     analysis,
+    analyzeError,
     analyzing,
     loading,
     loadingAnalysis,
@@ -259,6 +261,11 @@ export function PortfolioDashboard({
                                     <p className="text-slate-300 text-xs font-bold">获取 AI 专业意见</p>
                                     <p className="text-slate-500 text-[10px] px-4">审视组合风险、行业集中度并获得策略建议。</p>
                                 </div>
+                                {analyzeError && (
+                                    <p className="text-rose-400 text-[10px] bg-rose-600/10 border border-rose-600/20 rounded-lg px-3 py-2 w-full text-left leading-relaxed">
+                                        ⚠ {analyzeError}
+                                    </p>
+                                )}
                                 <Button 
                                     onClick={onAnalyze} 
                                     disabled={analyzing}

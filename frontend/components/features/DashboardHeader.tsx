@@ -103,11 +103,6 @@ export function DashboardHeader({ user, activeTab, setActiveTab }: DashboardHead
 
         {/* Tool Links */}
         <NavItem
-          href="/screener"
-          label="选股"
-          icon={<Search className="w-4 h-4" />}
-        />
-        <NavItem
           href="/calendar"
           label="日历"
           icon={<Calendar className="w-4 h-4" />}
@@ -126,7 +121,6 @@ export function DashboardHeader({ user, activeTab, setActiveTab }: DashboardHead
         <button onClick={() => setActiveTab("radar")} type="button" className={clsx("p-2 rounded-lg shrink-0 transition-colors", activeTab === "radar" ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-slate-500")} title="热点"><Globe className="w-4 h-4" /></button>
         <button onClick={() => setActiveTab("papertrading")} type="button" className={clsx("p-2 rounded-lg shrink-0 transition-colors", activeTab === "papertrading" ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-slate-500")} title="模拟"><Target className="w-4 h-4" /></button>
         <div className="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-1 shrink-0" />
-        <Link href="/screener" className="p-2 rounded-lg shrink-0 text-slate-500 hover:text-slate-700 transition-colors" title="选股"><Search className="w-4 h-4" /></Link>
         <Link href="/calendar" className="p-2 rounded-lg shrink-0 text-slate-500 hover:text-slate-700 transition-colors" title="日历"><Calendar className="w-4 h-4" /></Link>
         <Link href="/quant" className="p-2 rounded-lg shrink-0 text-slate-500 hover:text-slate-700 transition-colors" title="量化"><BarChart3 className="w-4 h-4" /></Link>
       </nav>
@@ -192,6 +186,13 @@ function UserMenuWithAlerts({ user }: UserMenuWithAlertsProps) {
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Current Account</p>
                 <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">{user.email}</p>
               </div>
+
+              <DropdownMenu.Item asChild>
+                <Link href="/screener" className="group flex h-9 items-center gap-2.5 rounded-lg px-2 text-sm font-medium text-slate-700 outline-none transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+                  <Search className="h-4 w-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                  <span>选股器</span>
+                </Link>
+              </DropdownMenu.Item>
 
               <DropdownMenu.Item asChild>
                 <Link href="/settings" className="group flex h-9 items-center gap-2.5 rounded-lg px-2 text-sm font-medium text-slate-700 outline-none transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">

@@ -10,6 +10,7 @@ import type { PortfolioAnalysisResponse, PortfolioSummary } from "@/types";
 
 export function useDashboardPortfolioTabData() {
   const [analyzing, setAnalyzing] = useState(false);
+  const [analyzeError, setAnalyzeError] = useState<string | null>(null);
   const [showReport, setShowReport] = useState(false);
   const summaryResource = useCachedResource<PortfolioSummary>({
     cacheEntry: dashboardCache.portfolioTab.summary,
@@ -38,8 +39,8 @@ export function useDashboardPortfolioTabData() {
       const now = new Date();
       const hoursSinceLastAnalysis = (now.getTime() - lastAnalysisDate.getTime()) / (1000 * 60 * 60);
 
-      // 如果超过 24 小时，自动刷新分析
-      if (hoursSinceLastAnalysis >= 24) {
+      // 如果超过 12 小时，自动刷新分析
+      if (hoursSinceLastAnalysis >= 12) {
         console.log(`持仓分析已超过 ${hoursSinceLastAnalysis.toFixed(1)} 小时未更新，自动刷新...`);
         await runPortfolioAnalysis();
       }
@@ -50,11 +51,15 @@ export function useDashboardPortfolioTabData() {
 
   const runPortfolioAnalysis = async () => {
     setAnalyzing(true);
+    setAnalyzeError(null);
     try {
       const result = await analyzePortfolio();
       analysisResource.updateData(result);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Analysis failed:", error);
+      const axiosErr = error as { response?: { data?: { detail?: string } } };
+      const detail = axiosErr.response?.data?.detail;
+      setAnalyzeError(detail ?? "AI 分析服务暂时不可用，请稍后重试。");
     } finally {
       setAnalyzing(false);
     }
@@ -62,6 +67,7 @@ export function useDashboardPortfolioTabData() {
 
   return {
     analysis: analysisResource.data,
+    analyzeError,
     analyzing,
     fetchPortfolioTabData: async () => {
       await Promise.all([

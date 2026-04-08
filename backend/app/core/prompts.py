@@ -162,8 +162,10 @@ JSON 结构模版:
 {{
     "health_score": 0-100,
     "risk_level": "低/中/高",
-    "summary": "核心结论",
+    "summary": "核心结论（一句话）",
     "strategic_advice": "战术动作指南",
+    "top_risks": ["风险点1", "风险点2", "风险点3"],
+    "top_opportunities": ["机会点1", "机会点2", "机会点3"],
     "detailed_report": "深度 Markdown 诊断报告"
 }}
 """

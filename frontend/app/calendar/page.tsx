@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import {
     getEconomicEvents,
@@ -22,6 +23,7 @@ type CalendarTab = "economic" | "earnings" | "mega-cap" | "portfolio";
 export default function CalendarPage() {
     const { isAuthenticated, user } = useAuth();
     const { portfolio, user: userProfile } = useDashboardPortfolioData(isAuthenticated);
+    const router = useRouter();
     const [calendarTab, setCalendarTab] = useState<CalendarTab>("economic");
     const [economicEvents, setEconomicEvents] = useState<EconomicEvent[]>([]);
     const [earningsEvents, setEarningsEvents] = useState<EarningsEvent[]>([]);
@@ -32,7 +34,6 @@ export default function CalendarPage() {
     const [importanceFilter, setImportanceFilter] = useState<number | "">("");
     const [resultCount, setResultCount] = useState(0);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
-    const [activeHeaderTab, setActiveHeaderTab] = useState<DashboardTab>("analysis");
 
     useEffect(() => {
         setError(null);
@@ -150,7 +151,7 @@ export default function CalendarPage() {
 
     return (
         <div className="h-screen bg-slate-50 dark:bg-slate-950 flex flex-col overflow-hidden">
-            <DashboardHeader user={userProfile} activeTab={activeHeaderTab} setActiveTab={setActiveHeaderTab} />
+            <DashboardHeader user={userProfile} activeTab={"analysis"} setActiveTab={(tab: DashboardTab) => router.push(`/?tab=${tab}`)} />
             <SearchDialog
                 isOpen={isSearchOpen}
                 onOpenChange={setIsSearchOpen}

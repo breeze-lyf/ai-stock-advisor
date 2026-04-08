@@ -17,7 +17,7 @@ const OPTIMIZER_TYPES = [
   { value: "max_sharpe" as const, label: "最大夏普" },
 ] as const;
 
-export default function QuantDashboard() {
+export default function QuantDashboard({ standalone = false }: { standalone?: boolean }) {
   const [mainTab, setMainTab] = useState<MainTab>("factors");
   const [factorSubTab, setFactorSubTab] = useState<FactorSubTab>("list");
   const [selectedFactor, setSelectedFactor] = useState<string | null>(null);
@@ -93,7 +93,8 @@ export default function QuantDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-      {/* Header */}
+      {/* Header — only shown when NOT wrapped by standalone page layout */}
+      {!standalone && (
       <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
@@ -111,6 +112,24 @@ export default function QuantDashboard() {
           <TabButton active={mainTab === "risk"} onClick={() => setMainTab("risk")} icon={<Shield />} label="风险管理" />
         </div>
       </div>
+      )}
+
+      {/* Standalone tab bar — shown below DashboardHeader when used on the /quant route */}
+      {standalone && (
+        <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-3">
+          <div className="mb-1">
+            <h2 className="text-base font-bold text-slate-900 dark:text-white">量化因子研究</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">因子分析、组合优化、策略回测、风险管理</p>
+          </div>
+          <div className="flex gap-2 mt-3">
+            <TabButton active={mainTab === "factors"} onClick={() => setMainTab("factors")} icon={<TrendingUp />} label="因子研究" />
+            <TabButton active={mainTab === "optimizer"} onClick={() => setMainTab("optimizer")} icon={<PieChart />} label="组合优化" />
+            <TabButton active={mainTab === "strategies"} onClick={() => setMainTab("strategies")} icon={<Activity />} label="策略管理" />
+            <TabButton active={mainTab === "backtest"} onClick={() => setMainTab("backtest")} icon={<Play />} label="量化回测" />
+            <TabButton active={mainTab === "risk"} onClick={() => setMainTab("risk")} icon={<Shield />} label="风险管理" />
+          </div>
+        </div>
+      )}
 
       {/* Content */}
       <div className="p-6">

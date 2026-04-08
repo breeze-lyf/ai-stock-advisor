@@ -10,6 +10,7 @@ interface PortfolioTabContainerProps {
 export function PortfolioTabContainer({ onSelectTicker }: PortfolioTabContainerProps) {
   const {
     analysis,
+    analyzeError,
     analyzing,
     loading,
     loadingAnalysis,
@@ -22,6 +23,7 @@ export function PortfolioTabContainer({ onSelectTicker }: PortfolioTabContainerP
   return (
     <PortfolioDashboard
       analysis={analysis}
+      analyzeError={analyzeError}
       analyzing={analyzing}
       loading={loading}
       loadingAnalysis={loadingAnalysis}

@@ -223,6 +223,7 @@ class AIService:
             "siliconflow": settings.SILICONFLOW_API_KEY,
             "deepseek": settings.DEEPSEEK_API_KEY,
             "dashscope": settings.DASHSCOPE_API_KEY,
+            "gemini": settings.GEMINI_API_KEY,
         }
         return env_key_map.get(provider_key), None
 
@@ -486,7 +487,17 @@ class AIService:
             user_result = await db.execute(user_stmt)
             user = user_result.scalar_one_or_none()
 
-        prompt = build_portfolio_analysis_prompt(portfolio_items, market_news, macro_context)
+        # Format holdings list into a readable string for the prompt
+        holdings_text = "\n".join(
+            f"- {h.get('ticker', '?')} ({h.get('name', '')}): "
+            f"市值=${h.get('market_value', 0):.2f}, "
+            f"盈亏={h.get('pl_percent', 0):.2f}%, "
+            f"行业={h.get('sector', '未知')}, "
+            f"RRR={h.get('rrr') if h.get('rrr') is not None else 'N/A'}"
+            for h in portfolio_items
+        )
+        # Note: build_portfolio_analysis_prompt signature is (holdings_context, macro_context, market_news)
+        prompt = build_portfolio_analysis_prompt(holdings_text, macro_context, market_news)
 
         # 检查缓存
         prompt_hash = cls._hash_prompt(prompt)

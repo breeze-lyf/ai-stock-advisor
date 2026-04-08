@@ -31,7 +31,7 @@ class MarketDataCachePolicy:
     ) -> bool:
         if skip_news or not force_refresh:
             return skip_news
-        if latest_news_time and (now - latest_news_time).total_seconds() < 4 * 3600:
-            logger.info("Skipping Tavily news fetch because local news is updated within 4 hours.")
+        if latest_news_time and (now - latest_news_time).total_seconds() < 12 * 3600:
+            logger.info("Skipping Tavily news fetch because local news is updated within 12 hours.")
             return True
         return False

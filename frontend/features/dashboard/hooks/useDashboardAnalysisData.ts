@@ -15,7 +15,7 @@ import type { AnalysisResponse } from "@/types";
 type StockNewsItem = Record<string, unknown>;
 
 const ANALYSIS_TTL_MS = 10 * 60_000;
-const NEWS_TTL_MS = 2 * 60_000;
+const NEWS_TTL_MS = 12 * 60 * 60_000; // 12 hours
 
 export function useDashboardAnalysisData(
   selectedTicker: string | null,

@@ -61,6 +61,12 @@ class MarketDataRepository:
                 "beta",
                 "fifty_two_week_high",
                 "fifty_two_week_low",
+                "earnings_date",
+                "target_price_mean",
+                "analyst_count",
+                "analyst_buy_count",
+                "analyst_hold_count",
+                "analyst_sell_count",
             ]
             for field in fields:
                 value = getattr(fundamental, field, None)
@@ -81,6 +87,8 @@ class MarketDataRepository:
             cache_values["pe_percentile"] = sanitize_float(fundamental.pe_percentile)
             cache_values["pb_percentile"] = sanitize_float(fundamental.pb_percentile)
             cache_values["net_inflow"] = sanitize_float(fundamental.net_inflow)
+            if fundamental.vix is not None:
+                cache_values["vix"] = sanitize_float(fundamental.vix)
 
         if data.technical and data.technical.indicators:
             self.merge_technical_indicators(cache_values, data.technical.indicators, cache)

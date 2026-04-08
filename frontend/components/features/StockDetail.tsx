@@ -30,6 +30,19 @@ import { PositionOverlay } from "./stock-detail/PositionOverlay";
 import { TechnicalInsights } from "./stock-detail/TechnicalInsights";
 import { FundamentalCard } from "./stock-detail/FundamentalCard";
 import { NewsFeed } from "./stock-detail/NewsFeed";
+import { ScenarioAnalysis } from "./stock-detail/ScenarioAnalysis";
+import { RiskAnalysis } from "./stock-detail/RiskAnalysis";
+import { MultiTimeframeAnalysis } from "./stock-detail/MultiTimeframeAnalysis";
+import { SignalPerformancePanel } from "./stock-detail/SignalPerformance";
+import { SectorExposurePanel } from "./stock-detail/SectorExposure";
+import { ConfidenceBreakdown } from "./stock-detail/ConfidenceBreakdown";
+import { KeyAssumptions } from "./stock-detail/KeyAssumptions";
+import { CatalystTimeline } from "./stock-detail/CatalystTimeline";
+
+// --- 增强分析 Hook ---
+import { useEnhancedAnalysis } from "@/features/analysis/hooks/useEnhancedAnalysis";
+
+type DetailTab = "info" | "analysis";
 
 // --- Types ---
 interface HistoryDataItem {
@@ -70,6 +83,9 @@ export function StockDetail({
         selectedItem?.ticker || null,
         refreshTimestamp
     );
+
+    // --- 增强分析数据 ---
+    const enhancedAnalysis = useEnhancedAnalysis(selectedItem?.ticker || null);
 
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [mergedHistoryData, setMergedHistoryData] = useState<HistoryDataItem[]>([]);
@@ -130,6 +146,14 @@ export function StockDetail({
             setIsLoadingMore(false);
         }
     };
+
+    // 子页签切换
+    const [activeTab, setActiveTab] = useState<DetailTab>("info");
+
+    // 切换股票时重置为标的信息 tab
+    useEffect(() => {
+        setActiveTab("info");
+    }, [selectedItem?.ticker]);
 
     // 图层切换开关
     const [showBb, setShowBb] = useState(true);
@@ -203,6 +227,8 @@ export function StockDetail({
                 onBack={onBack}
                 currency={currency}
                 sanitizePrice={sanitizePrice}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
             />
 
             {/* 板块 0: 股票身份头 */}
@@ -212,13 +238,15 @@ export function StockDetail({
                 refreshing={refreshing}
                 onRefresh={handleRefresh}
                 onBack={onBack}
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
             />
 
             {/* 自动刷新通知 Banner */}
             {hasNewAnalysis && (
                 <div
                     className="flex items-center justify-between mx-4 mt-3 px-4 py-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 cursor-pointer hover:bg-blue-500/20 transition-colors"
-                    onClick={() => { dismissNewAnalysis(); onAnalyze(false); }}
+                    onClick={() => { dismissNewAnalysis(); setActiveTab("analysis"); onAnalyze(false); }}
                 >
                     <div className="flex items-center gap-2 text-sm text-blue-400 font-medium">
                         <span className="animate-pulse">✦</span>
@@ -233,6 +261,11 @@ export function StockDetail({
                 </div>
             )}
 
+
+
+            {/* === 标的信息 Tab === */}
+            {activeTab === "info" && (
+              <>
             {/* 板块 1: 动态行情分析 */}
             <MarketAnalysis
                 historyData={mergedHistoryData}
@@ -248,6 +281,20 @@ export function StockDetail({
                 isLoading={historyLoading}
             />
 
+            {/* 板块 4: 基本面资料卡 */}
+            <FundamentalCard
+                selectedItem={selectedItem}
+                aiData={aiData}
+            />
+
+            {/* 板块 5: 实时资讯流 */}
+            <NewsFeed news={news} aiData={aiData} />
+              </>
+            )}
+
+            {/* === AI 分析 Tab === */}
+            {activeTab === "analysis" && (
+              <>
             {/* 板块 2: AI 智能判研指标 */}
             <AIVerdict
                 selectedItem={selectedItem}
@@ -273,14 +320,52 @@ export function StockDetail({
                 analyzing={analyzing}
             />
 
-            {/* 板块 4: 基本面资料卡 */}
-            <FundamentalCard
-                selectedItem={selectedItem}
-                aiData={aiData}
+            {/* 信心构成分解 */}
+            <ConfidenceBreakdown
+                confidenceLevel={aiData?.confidence_level}
+                breakdown={aiData?.confidence_breakdown}
             />
 
-            {/* 板块 5: 实时资讯流 */}
-            <NewsFeed news={news} aiData={aiData} />
+            {/* 关键假设断点 */}
+            <KeyAssumptions assumptions={aiData?.key_assumptions} />
+
+            {/* 催化剂时间轴 */}
+            <CatalystTimeline catalysts={aiData?.catalysts} />
+
+            {/* 增强分析模块 */}
+            {enhancedAnalysis.data && (
+                <>
+                    {enhancedAnalysis.data.scenario_analysis && (
+                        <ScenarioAnalysis
+                            ticker={selectedItem?.ticker || ""}
+                            scenarioAnalysis={enhancedAnalysis.data.scenario_analysis}
+                            loading={enhancedAnalysis.loading === "scenario" || enhancedAnalysis.loading === "all"}
+                        />
+                    )}
+                    {enhancedAnalysis.data.risk_analysis && (
+                        <RiskAnalysis
+                            ticker={selectedItem?.ticker || ""}
+                            riskAnalysis={enhancedAnalysis.data.risk_analysis}
+                            loading={enhancedAnalysis.loading === "risk" || enhancedAnalysis.loading === "all"}
+                        />
+                    )}
+                    {enhancedAnalysis.data.multi_timeframe && (
+                        <MultiTimeframeAnalysis
+                            ticker={selectedItem?.ticker || ""}
+                            analysis={enhancedAnalysis.data.multi_timeframe}
+                            loading={enhancedAnalysis.loading === "timeframe" || enhancedAnalysis.loading === "all"}
+                        />
+                    )}
+                </>
+            )}
+
+            {/* 信号命中率 */}
+            <SignalPerformancePanel ticker={selectedItem.ticker} />
+
+            {/* 组合行业敞口 */}
+            <SectorExposurePanel />
+              </>
+            )}
 
             {/* Footer */}
             <div className="mt-8 py-4 border-t border-slate-100 dark:border-slate-800 text-center opacity-30">

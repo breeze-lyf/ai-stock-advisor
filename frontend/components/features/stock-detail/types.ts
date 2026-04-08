@@ -43,7 +43,16 @@ export interface AIData {
     bear_case?: string;
     investment_horizon?: string;
     confidence_level?: number;
+    confidence_breakdown?: {
+        technical?: number;
+        fundamental?: number;
+        macro?: number;
+        sentiment?: number;
+    };
+    key_assumptions?: Array<{ assumption: string; breakpoint: string }>;
+    catalysts?: Array<{ date: string; event: string; type: string; impact: string; description: string }>;
     thought_process?: Array<{ step: string; content: string }>;
+    scenario_tags?: Array<{ category: string; value: string }>;
     is_cached?: boolean;
     created_at?: string;
     model_used?: string;
@@ -62,6 +71,8 @@ export interface StickyBarProps {
     onBack?: () => void;
     currency: string;
     sanitizePrice: (val: number | null | undefined) => string;
+    activeTab?: "info" | "analysis";
+    onTabChange?: (tab: "info" | "analysis") => void;
 }
 
 /** 股票身份头 Props */
@@ -71,6 +82,8 @@ export interface HeaderIdentityProps {
     refreshing: boolean;
     onRefresh: () => void;
     onBack?: () => void;
+    activeTab?: "info" | "analysis";
+    onTabChange?: (tab: "info" | "analysis") => void;
 }
 
 /** 历史数据项类型 */

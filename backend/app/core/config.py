@@ -71,4 +71,18 @@ class Settings(BaseSettings):
     # Worker 鉴权密钥 (需与 Worker 环境变量 PROXY_KEY 一致)
     CLOUDFLARE_WORKER_KEY: Optional[str] = None
 
+    # 邮件服务配置 (用于发送每日报告、价格预警等)
+    SMTP_SERVER: Optional[str] = None
+    SMTP_PORT: int = 587
+    SMTP_USERNAME: Optional[str] = None
+    SMTP_PASSWORD: Optional[str] = None
+    FROM_EMAIL: Optional[str] = None
+    EMAIL_ENABLED: bool = False
+
+    # 浏览器推送配置 (Web Push)
+    WEB_PUSH_ENABLED: bool = False
+    VAPID_PUBLIC_KEY: Optional[str] = None
+    VAPID_PRIVATE_KEY: Optional[str] = None
+    WEB_PUSH_CONTACT_EMAIL: Optional[str] = None
+
 settings = Settings()

@@ -17,6 +17,7 @@ import { useDashboardRadarData } from "@/features/dashboard/hooks/useDashboardRa
 
 // Components
 import { HotspotRadar } from "@/components/features/HotspotRadar";
+import QuantFactorsPage from "@/features/quant/components/QuantFactorsPage";
 
 function DashboardContent() {
   const { isAuthenticated } = useAuth();
@@ -100,6 +101,12 @@ function DashboardContent() {
         {activeTab === "papertrading" && (
           <div className="absolute inset-0 flex flex-col bg-white dark:bg-slate-950 overflow-y-auto">
             <PaperTradingTabContainer />
+          </div>
+        )}
+
+        {activeTab === "quant" && (
+          <div className="absolute inset-0 flex flex-col bg-white dark:bg-slate-950 overflow-y-auto">
+            <QuantFactorsPage />
           </div>
         )}
     </DashboardShell>

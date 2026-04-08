@@ -399,7 +399,10 @@ class AIService:
     @classmethod
     async def generate_analysis(cls, ticker: str, market_data: dict, news_data: list = None,
                                 macro_context: str = None, fundamental_data: dict = None, previous_analysis: dict = None,
-                                model: Optional[str] = None, db: AsyncSession = None, user_id: str = None) -> str:
+                                model: Optional[str] = None, db: AsyncSession = None, user_id: str = None,
+                                fomc_days_away: int = None, next_fomc_date: str = None,
+                                earnings_date: str = None, vix_level: float = None,
+                                analyst_summary: str = None) -> str:
         """主方法：生成个股深度诊断（带缓存）"""
         model_key = model or settings.DEFAULT_AI_MODEL
 
@@ -418,7 +421,12 @@ class AIService:
             fundamental_data=fundamental_data or {},
             news_data=news_data or [],
             macro_context=macro_context,
-            previous_analysis=previous_analysis
+            previous_analysis=previous_analysis,
+            fomc_days_away=fomc_days_away,
+            next_fomc_date=next_fomc_date,
+            earnings_date=earnings_date,
+            vix_level=vix_level,
+            analyst_summary=analyst_summary,
         )
 
         # 1. 检查内存缓存 (相同 prompt 直接返回)

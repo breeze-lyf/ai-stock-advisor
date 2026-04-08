@@ -291,11 +291,57 @@ class YFinanceProvider(MarketDataProvider):
         try:
             def fetch_info() -> dict[str, Any]:
                 stock = yf.Ticker(symbol)
-                return dict(getattr(stock, "info", {}) or {})
+                info = dict(getattr(stock, "info", {}) or {})
+
+                # --- 财报日期 (from calendar) ---
+                try:
+                    cal = stock.calendar
+                    if cal is not None and isinstance(cal, dict):
+                        earn = cal.get("Earnings Date")
+                        if earn is not None:
+                            # Can be a list of dates or a single date
+                            if isinstance(earn, list) and len(earn) > 0:
+                                info["_earnings_date"] = str(earn[0])[:10]
+                            else:
+                                info["_earnings_date"] = str(earn)[:10]
+                except Exception:
+                    pass
+
+                # --- 分析师推荐汇总 (from recommendations_summary) ---
+                try:
+                    rec = stock.recommendations_summary
+                    if rec is not None and hasattr(rec, "itertuples") and len(rec) > 0:
+                        latest = rec.iloc[0]
+                        info["_analyst_buy"] = int(getattr(latest, "strongBuy", 0) or 0) + int(getattr(latest, "buy", 0) or 0)
+                        info["_analyst_hold"] = int(getattr(latest, "hold", 0) or 0)
+                        info["_analyst_sell"] = int(getattr(latest, "sell", 0) or 0) + int(getattr(latest, "strongSell", 0) or 0)
+                except Exception:
+                    pass
+
+                return info
 
             info = await self._run_sync(fetch_info)
             if not info:
                 return None
+
+            # --- VIX (fetch separately, only once per process in memory is fine) ---
+            vix_value: Optional[float] = None
+            try:
+                def fetch_vix() -> Optional[float]:
+                    vix_info = dict(getattr(yf.Ticker("^VIX"), "info", {}) or {})
+                    price = vix_info.get("regularMarketPrice") or vix_info.get("previousClose")
+                    return float(price) if price is not None else None
+                vix_value = await self._run_sync(fetch_vix)
+            except Exception:
+                pass
+
+            # --- Analyst counts ---
+            buy_c = info.get("_analyst_buy")
+            hold_c = info.get("_analyst_hold")
+            sell_c = info.get("_analyst_sell")
+            total_count = None
+            if buy_c is not None or hold_c is not None or sell_c is not None:
+                total_count = (buy_c or 0) + (hold_c or 0) + (sell_c or 0)
 
             return ProviderFundamental(
                 name=info.get("shortName") or info.get("longName"),
@@ -309,6 +355,13 @@ class YFinanceProvider(MarketDataProvider):
                 beta=float(info["beta"]) if info.get("beta") is not None else None,
                 fifty_two_week_high=float(info["fiftyTwoWeekHigh"]) if info.get("fiftyTwoWeekHigh") is not None else None,
                 fifty_two_week_low=float(info["fiftyTwoWeekLow"]) if info.get("fiftyTwoWeekLow") is not None else None,
+                earnings_date=info.get("_earnings_date"),
+                target_price_mean=float(info["targetMeanPrice"]) if info.get("targetMeanPrice") is not None else None,
+                analyst_count=int(info["numberOfAnalystOpinions"]) if info.get("numberOfAnalystOpinions") is not None else total_count,
+                analyst_buy_count=buy_c,
+                analyst_hold_count=hold_c,
+                analyst_sell_count=sell_c,
+                vix=vix_value,
             )
         except Exception as exc:
             logger.warning(f"YFinance get_fundamental_data failed for {ticker}: {exc}")

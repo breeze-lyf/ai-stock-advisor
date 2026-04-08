@@ -2,9 +2,9 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-export type DashboardTab = "analysis" | "portfolio" | "radar" | "alerts" | "papertrading";
+export type DashboardTab = "analysis" | "portfolio" | "radar" | "alerts" | "papertrading" | "quant";
 
-const VALID_TABS: DashboardTab[] = ["analysis", "portfolio", "radar", "alerts", "papertrading"];
+const VALID_TABS: DashboardTab[] = ["analysis", "portfolio", "radar", "alerts", "papertrading", "quant"];
 
 export function useDashboardRouteState() {
   const router = useRouter();

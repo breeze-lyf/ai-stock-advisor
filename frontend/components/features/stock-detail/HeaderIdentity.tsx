@@ -16,11 +16,18 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
     isScrolled,
     refreshing,
     onRefresh,
-    onBack
+    onBack,
+    activeTab = "info",
+    onTabChange,
 }: HeaderIdentityProps) {
+    const tabs = [
+        { key: "info" as const, label: "标的信息" },
+        { key: "analysis" as const, label: "AI 分析" },
+    ];
+
     return (
         <div className={clsx(
-            "flex flex-col gap-2 border-b border-slate-100 dark:border-slate-800 pb-3 pt-4 transition-all duration-500",
+            "flex flex-col gap-2 transition-all duration-500",
             isScrolled && "opacity-0 pointer-events-none"
         )}>
             <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-3 sm:gap-4">
@@ -71,7 +78,7 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
 
             {/* 持仓信息（仅当持有时显示） */}
             {selectedItem.quantity > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 pt-4 border-t border-slate-50 dark:border-slate-800/50">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3 pt-3 border-t border-slate-50 dark:border-slate-800/50">
                     <div className="flex flex-col">
                         <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">持有仓位</span>
                         <span className="text-md font-bold text-slate-700 dark:text-slate-300">{selectedItem.quantity} Shares</span>
@@ -96,6 +103,28 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                     </div>
                 </div>
             )}
+        {/* Tab 导航 — 融合在标题栏底部，下划线风格 */}
+        {onTabChange && (
+            <div className="flex border-b border-slate-100 dark:border-zinc-800 mt-1">
+                {tabs.map(({ key, label }) => (
+                    <button
+                        key={key}
+                        onClick={() => onTabChange(key)}
+                        className={clsx(
+                            "relative px-4 py-2.5 text-sm font-semibold transition-colors duration-200",
+                            activeTab === key
+                                ? "text-slate-900 dark:text-white"
+                                : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+                        )}
+                    >
+                        {label}
+                        {activeTab === key && (
+                            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-900 dark:bg-white rounded-full" />
+                        )}
+                    </button>
+                ))}
+            </div>
+        )}
         </div>
     );
 });

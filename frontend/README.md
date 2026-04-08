@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend
 
-## Getting Started
+Web 前端基于 Next.js App Router，负责登录注册、首页组合概览、个股分析、组合分析、设置中心，以及正在接入中的日历、量化和选股页面。
 
-First, run the development server:
+## 技术基线
+
+- Next.js 16
+- React 19
+- TypeScript
+- Tailwind CSS
+- Axios + OpenAPI 类型
+
+## 本地运行
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd frontend
+npm run dev -- -p 3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+如果从仓库根目录统一启动，优先使用：
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+./scripts/start.sh dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 目录约定
 
-## Learn More
+- `app/`: 路由与页面编排
+- `components/`: 业务组件与通用组件
+- `features/`: 领域 API、hooks、状态逻辑
+- `lib/`: 基础库与工具函数
+- `types/`: OpenAPI 生成类型和本地补充类型
 
-To learn more about Next.js, take a look at the following resources:
+## 开发规则
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- 接口调用优先放在 `features/*/api.ts`
+- 页面层只做路由和页面编排，不堆复杂业务计算
+- 后端契约变更后，同步更新 `types/schema.d.ts`
+- 默认以根目录文档为准，不在本目录重复维护全局启动说明

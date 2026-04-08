@@ -4,8 +4,16 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import clsx from "clsx";
-import { formatDistanceToNow } from "date-fns";
-import { zhCN } from "date-fns/locale";
+function formatCompactAge(dateStr: string): string {
+    const diff = Date.now() - new Date(dateStr + "Z").getTime();
+    const mins = Math.floor(diff / 60_000);
+    if (mins < 1) return "刚刚";
+    if (mins < 60) return `${mins}m前`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h前`;
+    const days = Math.floor(hours / 24);
+    return `${days}d前`;
+}
 import { PortfolioItem } from "@/types";
 import {
     addPortfolioItem,
@@ -245,9 +253,9 @@ export function PortfolioList({
                     >
                         <div
                             onClick={() => onSelectTicker(item.ticker)}
-                            className="py-2.5 px-4 cursor-pointer relative group"
+                            className="py-1.5 px-4 cursor-pointer relative group"
                         >
-                            <div className="grid grid-cols-4 items-center mb-1">
+                            <div className="grid grid-cols-4 items-center mb-0.5">
                                     <div className="flex items-center gap-1.5 min-w-0 flex-1">
                                         <div className="flex flex-col truncate">
                                             <span className="font-bold text-sm text-slate-900 dark:text-slate-100 leading-tight truncate">
@@ -313,21 +321,17 @@ export function PortfolioList({
                                             <span className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 px-1 rounded font-bold border border-green-100 dark:border-green-800">
                                                 HOLD {item.quantity}
                                             </span>
-                                            <span className="text-slate-300 dark:text-slate-600">|</span>
+                                            <span className="text-slate-400 dark:text-slate-500">|</span>
                                             <span>AVG: {item.avg_cost.toFixed(2)}</span>
                                         </>
                                     ) : (
-                                        <span className="text-slate-300 italic">WATCHING</span>
+                                        <span className="text-slate-400 italic">WATCHING</span>
                                     )}
                                     {item.last_updated && (
                                         <>
-                                            <span className="text-slate-300 dark:text-slate-600">|</span>
-                                            <span className="text-[9px] opacity-60">
-                                                更新于{" "}
-                                                {formatDistanceToNow(new Date(item.last_updated + "Z"), {
-                                                    addSuffix: true,
-                                                    locale: zhCN,
-                                                })}
+                                            <span className="text-slate-400 dark:text-slate-500">|</span>
+                                            <span className="text-[9px] text-slate-400">
+                                                {formatCompactAge(item.last_updated)}
                                             </span>
                                         </>
                                     )}

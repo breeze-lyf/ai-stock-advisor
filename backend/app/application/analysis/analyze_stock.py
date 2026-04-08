@@ -1,10 +1,11 @@
 import logging
 import asyncio
 import time
-from datetime import datetime
+from datetime import datetime, date
 from typing import Any, Optional
 
 from fastapi import HTTPException
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.analysis.mappers import serialize_analysis_report
@@ -78,6 +79,7 @@ class AnalyzeStockUseCase:
             ),
             self._get_news_data(ticker),
             self._get_macro_context(),
+            self._get_next_fomc(),
             return_exceptions=True
         )
         fetch_elapsed = time.time() - fetch_start
@@ -88,12 +90,15 @@ class AnalyzeStockUseCase:
         market_data_obj = results[1] if not isinstance(results[1], Exception) else None
         news_data = results[2] if not isinstance(results[2], Exception) else []
         macro_context = results[3] if not isinstance(results[3], Exception) else ""
+        fomc_result = results[4] if not isinstance(results[4], Exception) else (None, None)
         
         # 打印各子任务的耗时
         logger.info(f"   - 股票基础信息: {'✅ 成功' if stock_obj else '❌ 失败'}")
         logger.info(f"   - 实时行情数据: {'✅ 成功' if market_data_obj else '❌ 失败'}")
         logger.info(f"   - 新闻数据: {'✅ 成功' if news_data else '❌ 失败'} ({len(news_data)}条)")
         logger.info(f"   - 宏观上下文: {'✅ 成功' if macro_context else '❌ 失败'} ({len(macro_context) if macro_context else 0}字符)")
+        
+        fomc_days_away, next_fomc_date = fomc_result if fomc_result else (None, None)
         
         if isinstance(results[1], Exception):
             logger.error(f"Failed to fetch market data for {ticker}: {results[1]}")
@@ -103,6 +108,9 @@ class AnalyzeStockUseCase:
         build_start = time.time()
         market_data = self._build_market_data(market_data_obj)
         fundamental_data = self._build_fundamental_data(stock_obj, market_data_obj)
+        analyst_summary = self._build_analyst_summary(stock_obj)
+        earnings_date = stock_obj.earnings_date if stock_obj else None
+        vix_level = getattr(market_data_obj, 'vix', None)
         _log_duration("Step 3: 数据构建", build_start)
         
         logger.info(f"Preparing AI analysis for {ticker}. Market Data keys present: {list(market_data.keys())}")
@@ -154,6 +162,11 @@ class AnalyzeStockUseCase:
                 model=preferred_model,
                 db=self.db,
                 user_id=self.current_user.id,
+                fomc_days_away=fomc_days_away,
+                next_fomc_date=next_fomc_date,
+                earnings_date=earnings_date,
+                vix_level=vix_level,
+                analyst_summary=analyst_summary,
             )
         except Exception as ai_error:
             logger.error(f"AI 分析调用失败: {ai_error}")
@@ -229,6 +242,9 @@ class AnalyzeStockUseCase:
             "bear_case": to_str(parsed_data.get("bear_case")),
             "scenario_tags": parsed_data.get("scenario_tags"),
             "thought_process": parsed_data.get("thought_process"),
+            "confidence_breakdown": parsed_data.get("confidence_breakdown"),
+            "key_assumptions": parsed_data.get("key_assumptions"),
+            "catalysts": parsed_data.get("catalysts"),
             "is_cached": False,
             "model_used": preferred_model,
             "created_at": new_report.created_at if new_report else utc_now_naive(),
@@ -334,6 +350,44 @@ class AnalyzeStockUseCase:
             "pb_percentile": sanitize_float(market_data_obj.pb_percentile) if market_data_obj else None,
             "net_inflow": sanitize_float(market_data_obj.net_inflow) if market_data_obj else None,
         }
+
+    def _build_analyst_summary(self, stock_obj: Optional[Stock]) -> Optional[str]:
+        if not stock_obj:
+            return None
+        buy = stock_obj.analyst_buy_count or 0
+        hold = stock_obj.analyst_hold_count or 0
+        sell = stock_obj.analyst_sell_count or 0
+        total = stock_obj.analyst_count or (buy + hold + sell)
+        target = stock_obj.target_price_mean
+        if total == 0 and target is None:
+            return None
+        parts = []
+        if total > 0:
+            parts.append(f"买入 {buy} / 持有 {hold} / 卖出 {sell}（共 {total} 位分析师）")
+        if target is not None:
+            parts.append(f"目标价均值 ${target:.2f}")
+        return "，".join(parts)
+
+    async def _get_next_fomc(self) -> tuple[Optional[int], Optional[str]]:
+        """Query the next upcoming FOMC date from economic_events table."""
+        try:
+            today = date.today()
+            result = await self.db.execute(
+                text(
+                    "SELECT event_date FROM economic_events "
+                    "WHERE event_type = 'FOMC' AND event_date >= :today "
+                    "ORDER BY event_date ASC LIMIT 1"
+                ),
+                {"today": today},
+            )
+            row = result.fetchone()
+            if row:
+                next_date: date = row[0]
+                days_away = (next_date - today).days
+                return days_away, next_date.isoformat()
+        except Exception as exc:
+            logger.warning(f"Failed to fetch next FOMC date: {exc}")
+        return None, None
 
     async def _get_cached_response(
         self,

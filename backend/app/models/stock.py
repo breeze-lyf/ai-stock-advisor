@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, DateTime, Enum, ForeignKey, Boolean, UniqueConstraint, JSON, Text
+from sqlalchemy import Column, String, Float, Integer, DateTime, Enum, ForeignKey, Boolean, UniqueConstraint, JSON, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.core.database import Base
@@ -34,6 +34,12 @@ class Stock(Base):
     beta = Column(Float, nullable=True)                  # 贝塔系数 (衡量波动风险)
     fifty_two_week_high = Column(Float, nullable=True)   # 52周内最高成交价
     fifty_two_week_low = Column(Float, nullable=True)    # 52周内最低成交价
+    earnings_date = Column(String, nullable=True)        # 下次财报日期 (ISO date string)
+    target_price_mean = Column(Float, nullable=True)     # 分析师平均目标价
+    analyst_count = Column(Integer, nullable=True)       # 覆盖分析师数量
+    analyst_buy_count = Column(Integer, nullable=True)   # 买入评级数
+    analyst_hold_count = Column(Integer, nullable=True)  # 持有评级数
+    analyst_sell_count = Column(Integer, nullable=True)  # 卖出评级数
     exchange = Column(String, nullable=True)             # 交易所 (如：NASDAQ)
     currency = Column(String, default="USD")             # 计价货币
 
@@ -99,8 +105,7 @@ class MarketDataCache(Base):
     # --- 专业持仓分析新增字段 (Professional Quant Dimensions) ---
     pe_percentile = Column(Float, nullable=True)    # 估值百分位 (PE%) - 0-100，衡量在历史中处于什么水平
     pb_percentile = Column(Float, nullable=True)    # 估值百分位 (PB%)
-    net_inflow = Column(Float, nullable=True)       # 资金净流入 (单位: 元)，正数为流入，负数为流出
-    
+    net_inflow = Column(Float, nullable=True)       # 资金净流入 (单位: 元)，正数为流入，负数为流出    vix = Column(Float, nullable=True)              # VIX 恐慌指数（刷新时抓取）    
     is_ai_strategy = Column(Boolean, default=False)  # TRUE 代表这是由 AI 锁定的点位，防止被机器算法覆盖
     
     market_status = Column(String, default=MarketStatus.CLOSED.value) # 市场当前状态

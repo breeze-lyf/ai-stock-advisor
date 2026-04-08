@@ -46,7 +46,13 @@ STOCK_ANALYSIS_PROMPT_TEMPLATE = """
 [CONTEXT]: 以下是当前对全球市场影响最大的热点。
 - [REF_M1] 宏观偏见: {macro_context}
 
-**6. 历史分析上下文 (Historical Context)**:
+**6. 关键日历与宏观指标 (Key Calendar & Macro Gauge)**:
+- [REF_C1] 下次 FOMC 利率决议距今: {fomc_days_away} 天 (日期: {next_fomc_date})
+- [REF_C2] 财报日期: {earnings_date}
+- [REF_C3] 当前 VIX 恐慌指数: {vix_level}（参考: <15=低波动, 15-25=正常, 25-35=高波动, >35=极度恐慌）
+- [REF_C4] 分析师共识: {analyst_summary}
+
+**7. 历史分析上下文 (Historical Context)**:
 {previous_analysis_context}
 
 **返回格式要求**:
@@ -99,6 +105,15 @@ JSON 结果结构:
     "risk_level": "低/中/高",
     "investment_horizon": "日内 | 0-5天 | 1-2周 | 1-3月 | 3月以上",
     "confidence_level": 0-100,
+    "confidence_breakdown": {{
+        "technical": 0-100,
+        "fundamental": 0-100,
+        "macro": 0-100,
+        "sentiment": 0-100
+    }},
+    "key_assumptions": [
+        {{"assumption": "核心假设描述（如：季度业绩超预期）", "breakpoint": "该假设失效的触发条件（如：EPS<预期10%以上）"}}
+    ],
     "thought_process": [
         {{"step": "观察", "content": "..."}},
         {{"step": "推导", "content": "..."}},
@@ -106,6 +121,9 @@ JSON 结果结构:
     ],
     "scenario_tags": [
         {{"category": "技术形态 | 市场结构 | 基本面驱动 | 宏观风险 | 情绪极値 | 量价关系", "value": "简短标签，如: 双底突破/强支撑测试/RSI超卖/主力流入"}}
+    ],
+    "catalysts": [
+        {{"date": "YYYY-MM-DD 或 '未知'", "event": "催化剂事件名称", "type": "earnings | fomc | product | macro | technical", "impact": "bullish | bearish | neutral", "description": "一句话影响说明"}}
     ],
     "technical_analysis": "核心技术位解读。结论先行。",
     "news_summary": "基于消息面的综述。",
@@ -150,7 +168,7 @@ JSON 结构模版:
 }}
 """
 
-def build_stock_analysis_prompt(ticker: str, market_data: dict, fundamental_data: dict, news_data: list, macro_context: str, previous_analysis: dict = None) -> str:
+def build_stock_analysis_prompt(ticker: str, market_data: dict, fundamental_data: dict, news_data: list, macro_context: str, previous_analysis: dict = None, fomc_days_away: int = None, next_fomc_date: str = None, earnings_date: str = None, vix_level: float = None, analyst_summary: str = None) -> str:
     news_context = "\n".join([f"- {n['title']} ({n['publisher']})" for n in news_data]) if news_data else "暂无重大个股新闻。"
     
     prev_context = "该股票首次进行 AI 分析。"
@@ -202,6 +220,11 @@ def build_stock_analysis_prompt(ticker: str, market_data: dict, fundamental_data
         pe_percentile=market_data.get('pe_percentile', 'N/A'),
         pb_percentile=market_data.get('pb_percentile', 'N/A'),
         macro_context=macro_context or "暂无重大宏观指引。",
+        fomc_days_away=fomc_days_away if fomc_days_away is not None else "N/A",
+        next_fomc_date=next_fomc_date or "N/A",
+        earnings_date=earnings_date or "N/A",
+        vix_level=f"{vix_level:.2f}" if vix_level is not None else "N/A",
+        analyst_summary=analyst_summary or "N/A",
         previous_analysis_context=prev_context,
         current_time=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     )

@@ -18,8 +18,14 @@ export const StickyBar = React.memo(function StickyBar({
     onRefresh,
     onBack,
     currency,
-    sanitizePrice
+    sanitizePrice,
+    activeTab,
+    onTabChange,
 }: StickyBarProps) {
+    const tabs = [
+        { key: "info" as const, label: "标的信息" },
+        { key: "analysis" as const, label: "AI 分析" },
+    ];
     return (
         <div className={clsx(
             "sticky top-0 z-50 -mx-4 md:-mx-8 px-4 md:px-8 py-2 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl border-b border-slate-100 dark:border-zinc-800 transition-all duration-300",
@@ -79,13 +85,33 @@ export const StickyBar = React.memo(function StickyBar({
                     </div>
                 </div>
 
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-4">
                     <div className="hidden sm:flex flex-col items-end">
                         <span className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">最新增幅</span>
                         <span className={clsx("text-sm font-black tabular-nums", (selectedItem.change_percent || 0) >= 0 ? "text-emerald-600" : "text-rose-600")}>
                             {(selectedItem.change_percent || 0) >= 0 ? "+" : ""}{(selectedItem.change_percent || 0).toFixed(2)}%
                         </span>
                     </div>
+
+                    {/* 粘性顶栏内的 Tab 切换 */}
+                    {onTabChange && (
+                        <div className="flex items-center bg-slate-100 dark:bg-zinc-800 rounded-lg p-0.5 gap-0.5">
+                            {tabs.map(({ key, label }) => (
+                                <button
+                                    key={key}
+                                    onClick={() => onTabChange(key)}
+                                    className={clsx(
+                                        "px-3 py-1 text-[11px] font-semibold rounded-md transition-all duration-150",
+                                        activeTab === key
+                                            ? "bg-white dark:bg-zinc-900 text-slate-800 dark:text-slate-100 shadow-sm"
+                                            : "text-slate-400 dark:text-slate-500 hover:text-slate-600"
+                                    )}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

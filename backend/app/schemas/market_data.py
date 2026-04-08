@@ -37,6 +37,15 @@ class ProviderFundamental(BaseModel):
     pb_percentile: Optional[float] = None
     net_inflow: Optional[float] = None
 
+    # 分析师数据 (Analyst Data)
+    earnings_date: Optional[str] = None          # 下次财报日期 (ISO date string)
+    target_price_mean: Optional[float] = None    # 分析师平均目标价
+    analyst_count: Optional[int] = None          # 覆盖分析师数量
+    analyst_buy_count: Optional[int] = None      # 买入评级数
+    analyst_hold_count: Optional[int] = None     # 持有评级数
+    analyst_sell_count: Optional[int] = None     # 卖出评级数
+    vix: Optional[float] = None                  # 当前 VIX 指数
+
 class ProviderNews(BaseModel):
     id: Optional[str] = None
     title: Optional[str] = None

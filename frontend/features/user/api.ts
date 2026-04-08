@@ -135,3 +135,44 @@ export async function deleteAIModel(modelKey: string): Promise<{ status: string;
   const response = await api.delete(`/api/v1/user/ai-models/${encodeURIComponent(modelKey)}`);
   return response.data;
 }
+
+// User Preferences & Onboarding
+export type InvestmentProfile = "CONSERVATIVE" | "BALANCED" | "AGGRESSIVE";
+export type MarketPreference = "A_SHARE" | "HK_SHARE" | "US_SHARE";
+export type NotificationFrequency = "REALTIME" | "HOURLY" | "DAILY" | "NEVER";
+
+export type UserPreferenceResponse = {
+  investment_profile: string;
+  preferred_markets: string[];
+  notification_frequency: string;
+  onboarding_completed: boolean;
+  risk_tolerance_score: number;
+  investment_experience_years: number;
+  target_annual_return: number;
+};
+
+export type OnboardingRequest = {
+  investment_profile: InvestmentProfile;
+  preferred_markets: MarketPreference[];
+  notification_frequency: NotificationFrequency;
+  risk_tolerance_score: number;
+  investment_experience_years: number;
+  target_annual_return: number;
+};
+
+export async function getUserPreferences(): Promise<UserPreferenceResponse> {
+  const response = await api.get("/api/v1/user-preferences/preferences");
+  return response.data;
+}
+
+export async function completeOnboarding(payload: OnboardingRequest): Promise<{ success: boolean; message: string; onboarding_completed: boolean }> {
+  const response = await api.post("/api/v1/user-preferences/onboarding", payload);
+  return response.data;
+}
+
+export async function updateUserPreferences(payload: Partial<OnboardingRequest>): Promise<UserPreferenceResponse> {
+  const response = await api.patch("/api/v1/user-preferences/preferences", payload, {
+    params: payload,
+  });
+  return response.data;
+}

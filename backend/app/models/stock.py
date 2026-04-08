@@ -94,7 +94,8 @@ class MarketDataCache(Base):
     support_1 = Column(Float, nullable=True)      # 第一支撑位
     support_2 = Column(Float, nullable=True)      # 第二支撑位
     risk_reward_ratio = Column(Float, nullable=True) # 盈亏比 (Reward/Risk)，本项目核心逻辑
-    
+    target_risk_reward_ratio = Column(Float, nullable=True)  # 计划盈亏比（目标盈亏比）
+
     # --- 专业持仓分析新增字段 (Professional Quant Dimensions) ---
     pe_percentile = Column(Float, nullable=True)    # 估值百分位 (PE%) - 0-100，衡量在历史中处于什么水平
     pb_percentile = Column(Float, nullable=True)    # 估值百分位 (PB%)

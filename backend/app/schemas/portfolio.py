@@ -62,8 +62,9 @@ class PortfolioItem(BaseModel):
     resistance_2: Optional[float] = None
     support_1: Optional[float] = None
     support_2: Optional[float] = None
-    risk_reward_ratio: Optional[float] = None
-    
+    risk_reward_ratio: Optional[float] = None  # 当前盈亏比（实际）
+    target_risk_reward_ratio: Optional[float] = None  # 计划盈亏比（目标）
+
     change_percent: Optional[float] = 0.0
     market_status: Optional[str] = None
 

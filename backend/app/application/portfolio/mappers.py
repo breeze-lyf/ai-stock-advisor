@@ -59,7 +59,8 @@ def portfolio_item_from_row(portfolio, market_cache, stock) -> PortfolioItem:
         resistance_2=getattr(market_cache, "resistance_2", None) if market_cache else None,
         support_1=getattr(market_cache, "support_1", None) if market_cache else None,
         support_2=getattr(market_cache, "support_2", None) if market_cache else None,
-        risk_reward_ratio=getattr(market_cache, "risk_reward_ratio", None) if market_cache else None,
+        risk_reward_ratio=getattr(market_cache, "risk_reward_ratio", None) if market_cache else None,  # 当前盈亏比
+        target_risk_reward_ratio=getattr(market_cache, "target_risk_reward_ratio", None) if market_cache else None,  # 计划盈亏比
         change_percent=getattr(market_cache, "change_percent", 0.0) if market_cache else 0.0,
     )
 

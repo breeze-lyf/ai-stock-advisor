@@ -13,7 +13,8 @@ export type PortfolioItem = components["schemas"]["PortfolioItem"] & {
     ma_50?: number | null;
     macd_cross?: string | null;
     macd_is_new_cross?: boolean;
-    risk_reward_ratio?: number | null;
+    risk_reward_ratio?: number | null;  // 当前盈亏比
+    target_risk_reward_ratio?: number | null;  // 计划盈亏比
     market_status?: string | null;
     pe_percentile?: number | null;
     pb_percentile?: number | null;

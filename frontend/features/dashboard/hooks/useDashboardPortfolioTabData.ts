@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { dashboardCache } from "@/features/dashboard/hooks/dashboardCache";
 import { useCachedResource } from "@/features/dashboard/hooks/useCachedResource";
@@ -25,6 +25,28 @@ export function useDashboardPortfolioTabData() {
       console.error("Analysis background fetch failed:", error);
     },
   });
+
+  // 每日自动刷新持仓分析
+  useEffect(() => {
+    const checkAndRefreshDailyAnalysis = async () => {
+      if (!summaryResource.data) return;
+
+      const lastAnalysis = analysisResource.data;
+      if (!lastAnalysis?.created_at) return;
+
+      const lastAnalysisDate = new Date(lastAnalysis.created_at);
+      const now = new Date();
+      const hoursSinceLastAnalysis = (now.getTime() - lastAnalysisDate.getTime()) / (1000 * 60 * 60);
+
+      // 如果超过 24 小时，自动刷新分析
+      if (hoursSinceLastAnalysis >= 24) {
+        console.log(`持仓分析已超过 ${hoursSinceLastAnalysis.toFixed(1)} 小时未更新，自动刷新...`);
+        await runPortfolioAnalysis();
+      }
+    };
+
+    checkAndRefreshDailyAnalysis();
+  }, [summaryResource.data]);
 
   const runPortfolioAnalysis = async () => {
     setAnalyzing(true);

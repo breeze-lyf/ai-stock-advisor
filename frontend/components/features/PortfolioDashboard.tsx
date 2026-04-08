@@ -140,9 +140,10 @@ export function PortfolioDashboard({
                                         <th className="px-3 py-2.5 text-right">市值</th>
                                         <th className="px-3 py-2.5 text-right">占比</th>
                                         <th className="px-3 py-2.5 text-right">盈亏</th>
-                                        <th className="px-3 py-2.5 text-right">估值水位</th>
-                                        <th className="px-3 py-2.5 text-right">资金流向</th>
+                                        <th className="px-3 py-2.5 text-right">当前PE</th>
+                                        <th className="px-3 py-2.5 text-right">远期PE</th>
                                         <th className="px-3 py-2.5 text-right">盈亏比</th>
+                                        <th className="px-3 py-2.5 text-right" title="计划盈亏比 = 预期收益 / 预期风险">计划盈亏比</th>
                                         <th className="px-5 py-2.5 text-right"></th>
                                     </tr>
                                 </thead>
@@ -187,38 +188,33 @@ export function PortfolioDashboard({
                                                     </div>
                                                 </td>
                                                 <td className="px-3 py-3 text-right">
-                                                    <div className="flex flex-col items-end">
-                                                        <span className={clsx(
-                                                            "text-[10px] font-bold tabular-nums",
-                                                            (item.pe_percentile || 0) > 80 ? "text-rose-600" : 
-                                                            (item.pe_percentile || 0) < 20 ? "text-emerald-600" :
-                                                            "text-slate-500"
-                                                        )}>
-                                                            PE {item.pe_percentile ? `${item.pe_percentile.toFixed(1)}%` : "--"}
-                                                        </span>
-                                                        <span className="text-[8px] text-slate-400 font-medium">
-                                                            PB {item.pb_percentile ? `${item.pb_percentile.toFixed(1)}%` : "--"}
-                                                        </span>
-                                                    </div>
+                                                    <span className="text-[10px] font-bold tabular-nums text-slate-600 dark:text-slate-300">
+                                                        {item.pe_ratio ? item.pe_ratio.toFixed(1) : "--"}
+                                                    </span>
                                                 </td>
                                                 <td className="px-3 py-3 text-right">
-                                                    <span className={clsx(
-                                                        "text-[10px] font-bold tabular-nums",
-                                                        (item.net_inflow || 0) > 0 ? "text-emerald-600" : 
-                                                        (item.net_inflow || 0) < 0 ? "text-rose-600" :
-                                                        "text-slate-500"
-                                                    )}>
-                                                        {item.net_inflow ? `${(item.net_inflow / 10000).toFixed(1)}万` : "--"}
+                                                    <span className="text-[10px] font-bold tabular-nums text-slate-500 dark:text-slate-400">
+                                                        {item.forward_pe ? item.forward_pe.toFixed(1) : "--"}
                                                     </span>
                                                 </td>
                                                 <td className="px-3 py-3 text-right">
                                                     <span className={clsx(
                                                         "text-[10px] font-bold tabular-nums",
-                                                        (item.risk_reward_ratio || 0) >= 2.0 ? "text-emerald-600" : 
+                                                        (item.risk_reward_ratio || 0) >= 2.0 ? "text-emerald-600" :
                                                         (item.risk_reward_ratio || 0) >= 1.5 ? "text-blue-600" :
                                                         "text-rose-600"
                                                     )}>
                                                         {item.risk_reward_ratio ? item.risk_reward_ratio.toFixed(2) : "--"}
+                                                    </span>
+                                                </td>
+                                                <td className="px-3 py-3 text-right">
+                                                    <span className={clsx(
+                                                        "text-[10px] font-bold tabular-nums",
+                                                        (item.target_risk_reward_ratio || 0) >= 2.0 ? "text-emerald-600" :
+                                                        (item.target_risk_reward_ratio || 0) >= 1.5 ? "text-blue-600" :
+                                                        "text-slate-400"
+                                                    )}>
+                                                        {item.target_risk_reward_ratio ? item.target_risk_reward_ratio.toFixed(2) : "--"}
                                                     </span>
                                                 </td>
                                                 <td className="px-5 py-3 text-right opacity-0 group-hover:opacity-100 transition-opacity">

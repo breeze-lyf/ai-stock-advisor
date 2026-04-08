@@ -792,6 +792,8 @@ export interface components {
             support_2?: number | null;
             /** Risk Reward Ratio */
             risk_reward_ratio?: number | null;
+            /** Target Risk Reward Ratio */
+            target_risk_reward_ratio?: number | null;
             /**
              * Change Percent
              * @default 0

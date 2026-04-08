@@ -193,7 +193,7 @@ function AIVerdictContent({
      * 交易轴算法逻辑 (Trade Axis Algorithm)
      * 职责：将 AI 提供的 止损/建仓/目标价 映射到一个线性坐标轴上
      */
-    const [isExpanded, setIsExpanded] = React.useState(false);
+    const [isExpanded, setIsExpanded] = React.useState(true);
     
     const stop = aiData.stop_loss_price || 0;
     const target = aiData.target_price || 0;
@@ -364,37 +364,47 @@ function AIVerdictContent({
                         </div>
                     </div>
 
-                    {/* Right: Sentiment Bias */}
-                    <div className="space-y-4">
-                        <div className="flex justify-between items-center text-[11px] font-black uppercase text-slate-400 tracking-[0.3em]">
-                            <div className="flex items-center gap-3">
-                                <Activity className="h-4 w-4 text-blue-600" />
-                                <span>AI 情绪偏差</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-slate-900 dark:text-white font-black italic">{aiData.sentiment_score || 58}%</span>
-                                <span className={clsx(
-                                    "px-2 py-0.5 rounded-md border text-[9px] font-black uppercase",
-                                    (aiData.sentiment_score || 0) > 60 ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
-                                        (aiData.sentiment_score || 0) < 40 ? "bg-rose-50 text-rose-600 border-rose-200" :
-                                            "bg-blue-50 text-blue-600 border-blue-200"
-                                )}>
-                                    {aiData.sentiment_score && aiData.sentiment_score > 60 ? "Bullish" :
-                                        aiData.sentiment_score && aiData.sentiment_score < 40 ? "Bearish" : "Neutral"}
-                                </span>
-                            </div>
-                        </div>
-                        <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0">
-                            <div
-                                className="h-full rounded-full bg-blue-600 animate-[grow-bar_1.2s_cubic-bezier(0.22,1,0.36,1)_forwards] w-(--score-width)"
-                                style={{ '--score-width': `${aiData.sentiment_score || 58}%` } as React.CSSProperties}
+                    {/* Right: Confidence Breakdown (new) or Sentiment Bias (fallback) */}
+                    <div className="space-y-3">
+                        {aiData.confidence_breakdown && Object.values(aiData.confidence_breakdown).some(v => v != null) ? (
+                            <InlineConfidenceBreakdown
+                                confidenceLevel={aiData.confidence_level}
+                                breakdown={aiData.confidence_breakdown}
                             />
-                        </div>
-                        <div className="flex justify-between text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                            <span>0: 极度看空</span>
-                            <span className="text-center">50: 中性</span>
-                            <span className="text-right">100: 极度看多</span>
-                        </div>
+                        ) : (
+                            /* Fallback: legacy sentiment bar */
+                            <>
+                                <div className="flex justify-between items-center text-[11px] font-black uppercase text-slate-400 tracking-[0.3em]">
+                                    <div className="flex items-center gap-3">
+                                        <Activity className="h-4 w-4 text-blue-600" />
+                                        <span>AI 情绪偏差</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-slate-900 dark:text-white font-black italic">{aiData.sentiment_score || 58}%</span>
+                                        <span className={clsx(
+                                            "px-2 py-0.5 rounded-md border text-[9px] font-black uppercase",
+                                            (aiData.sentiment_score || 0) > 60 ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
+                                                (aiData.sentiment_score || 0) < 40 ? "bg-rose-50 text-rose-600 border-rose-200" :
+                                                    "bg-blue-50 text-blue-600 border-blue-200"
+                                        )}>
+                                            {(aiData.sentiment_score || 0) > 60 ? "Bullish" :
+                                                (aiData.sentiment_score || 0) < 40 ? "Bearish" : "Neutral"}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full rounded-full bg-blue-600"
+                                        style={{ width: `${aiData.sentiment_score || 58}%` }}
+                                    />
+                                </div>
+                                <div className="flex justify-between text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                                    <span>0: 极度看空</span>
+                                    <span>50: 中性</span>
+                                    <span>100: 极度看多</span>
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>
@@ -553,6 +563,70 @@ function AIVerdictContent({
                         </span>
                     </div>
                 </div>
+            </div>
+        </div>
+    );
+}
+
+// ========================================
+// Inline Confidence Breakdown (replaces sentiment bar when AI returns breakdown data)
+// ========================================
+const CONF_DIMS = [
+    { key: "technical" as const, label: "技术面", color: "bg-cyan-500", textColor: "text-cyan-600 dark:text-cyan-400" },
+    { key: "fundamental" as const, label: "基本面", color: "bg-blue-500", textColor: "text-blue-600 dark:text-blue-400" },
+    { key: "macro" as const, label: "宏观面", color: "bg-amber-500", textColor: "text-amber-600 dark:text-amber-400" },
+    { key: "sentiment" as const, label: "情绪面", color: "bg-purple-500", textColor: "text-purple-600 dark:text-purple-400" },
+];
+
+function InlineConfidenceBreakdown({
+    confidenceLevel,
+    breakdown,
+}: {
+    confidenceLevel?: number;
+    breakdown?: { technical?: number; fundamental?: number; macro?: number; sentiment?: number };
+}) {
+    return (
+        <div className="space-y-3">
+            {/* Header row */}
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-blue-600" />
+                    <span className="text-[11px] font-black uppercase text-slate-400 tracking-[0.3em]">信心构成分解</span>
+                    <span className="text-[8px] font-black px-1.5 py-0.5 rounded-md bg-blue-600 text-white uppercase tracking-wider">NEW</span>
+                </div>
+                {confidenceLevel != null && (
+                    <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-medium text-slate-400">综合置信度</span>
+                        <span className={clsx(
+                            "text-lg font-black tabular-nums",
+                            confidenceLevel >= 70 ? "text-emerald-500" : confidenceLevel >= 45 ? "text-amber-500" : "text-rose-500"
+                        )}>
+                            {confidenceLevel}%
+                        </span>
+                    </div>
+                )}
+            </div>
+
+            {/* Dimension bars */}
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                {CONF_DIMS.map(({ key, label, color, textColor }) => {
+                    const val = breakdown?.[key];
+                    if (val == null) return null;
+                    return (
+                        <div key={key} className="space-y-1">
+                            <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">{label}</span>
+                                <span className={clsx("text-[11px] font-black tabular-nums", textColor)}>{val}</span>
+                            </div>
+                            <div className="h-1.5 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                <div
+                                    className={clsx("h-full rounded-full transition-all duration-700", color)}
+                                    style={{ width: `${Math.min(100, Math.max(0, val))}%` }}
+                                />
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );

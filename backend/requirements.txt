@@ -38,6 +38,7 @@ MarkupSafe==3.0.3
 multitasking==0.0.12
 numpy==2.4.1
 pandas==2.3.3
+scipy==1.17.1
 passlib==1.7.4
 peewee==3.19.0
 platformdirs==4.5.1

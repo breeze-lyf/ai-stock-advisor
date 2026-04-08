@@ -35,7 +35,6 @@ import { RiskAnalysis } from "./stock-detail/RiskAnalysis";
 import { MultiTimeframeAnalysis } from "./stock-detail/MultiTimeframeAnalysis";
 import { SignalPerformancePanel } from "./stock-detail/SignalPerformance";
 import { SectorExposurePanel } from "./stock-detail/SectorExposure";
-import { ConfidenceBreakdown } from "./stock-detail/ConfidenceBreakdown";
 import { KeyAssumptions } from "./stock-detail/KeyAssumptions";
 import { CatalystTimeline } from "./stock-detail/CatalystTimeline";
 
@@ -287,6 +286,13 @@ export function StockDetail({
                 aiData={aiData}
             />
 
+            {/* 板块 3: 技术面深度透视 */}
+            <TechnicalInsights
+                selectedItem={selectedItem}
+                aiData={aiData}
+                analyzing={analyzing}
+            />
+
             {/* 板块 5: 实时资讯流 */}
             <NewsFeed news={news} aiData={aiData} />
               </>
@@ -311,19 +317,6 @@ export function StockDetail({
                 aiData={aiData}
                 currency={currency}
                 sanitizePrice={sanitizePrice}
-            />
-
-            {/* 板块 3: 技术面深度透视 */}
-            <TechnicalInsights
-                selectedItem={selectedItem}
-                aiData={aiData}
-                analyzing={analyzing}
-            />
-
-            {/* 信心构成分解 */}
-            <ConfidenceBreakdown
-                confidenceLevel={aiData?.confidence_level}
-                breakdown={aiData?.confidence_breakdown}
             />
 
             {/* 关键假设断点 */}

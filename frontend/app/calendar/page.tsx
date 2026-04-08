@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import {
     getEconomicEvents,
@@ -12,13 +11,17 @@ import {
     type EconomicEvent,
     type EarningsEvent,
 } from "@/features/calendar/api";
-import { Calendar as CalendarIcon, Globe, Briefcase, Star, TrendingUp, Filter, AlertCircle, ArrowLeft } from "lucide-react";
+import { Calendar as CalendarIcon, Globe, Briefcase, Star, TrendingUp, Filter, AlertCircle } from "lucide-react";
+import { DashboardShell } from "@/features/dashboard/components/DashboardShell";
+import { useDashboardRouteState } from "@/features/dashboard/hooks/useDashboardRouteState";
+import { useDashboardPortfolioData } from "@/features/dashboard/hooks/useDashboardPortfolioData";
 
 type CalendarTab = "economic" | "earnings" | "mega-cap" | "portfolio";
 
 export default function CalendarPage() {
-    const router = useRouter();
-    const { user } = useAuth();
+    const { isAuthenticated, user } = useAuth();
+    const { changeTab } = useDashboardRouteState();
+    const { portfolio, user: userProfile } = useDashboardPortfolioData(isAuthenticated);
     const [calendarTab, setCalendarTab] = useState<CalendarTab>("economic");
     const [economicEvents, setEconomicEvents] = useState<EconomicEvent[]>([]);
     const [earningsEvents, setEarningsEvents] = useState<EarningsEvent[]>([]);
@@ -28,6 +31,7 @@ export default function CalendarPage() {
     const [countryFilter, setCountryFilter] = useState("");
     const [importanceFilter, setImportanceFilter] = useState<number | "">("");
     const [resultCount, setResultCount] = useState(0);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
 
     useEffect(() => {
         setError(null);
@@ -143,47 +147,39 @@ export default function CalendarPage() {
         return { label: "低", className: "bg-slate-100 text-slate-700 dark:bg-slate-900/20 dark:text-slate-300" };
     };
 
-    const handleBack = () => {
-        router.push("/");
-    };
-
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-            {/* Top Bar with Back Button */}
-            <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3">
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={handleBack}
-                        type="button"
-                        className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-                    >
-                        <ArrowLeft className="w-5 h-5" />
-                        <span className="text-sm font-medium">返回</span>
-                    </button>
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-linear-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
-                            <span className="text-white font-bold text-sm">A</span>
-                        </div>
-                        <div>
-                            <h1 className="text-lg font-bold text-slate-900 dark:text-white">财经日历</h1>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">宏观事件 · 财报发布</p>
-                        </div>
+        <DashboardShell
+            activeTab="calendar"
+            changeTab={changeTab}
+            isSearchOpen={isSearchOpen}
+            onOpenSearchChange={setIsSearchOpen}
+            onRefreshSearch={() => {}}
+            onSelectTicker={() => {}}
+            portfolio={portfolio}
+            user={userProfile}
+        >
+            <div className="p-6 space-y-6">
+                {/* Page Header */}
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                        <CalendarIcon className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold text-slate-900 dark:text-white">财经日历</h1>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">宏观事件 · 财报发布</p>
                     </div>
                 </div>
-            </div>
 
-            {/* Content */}
-            <div className="p-6">
                 {/* Tabs */}
-                <div className="flex gap-2 mb-6">
-                    <TabButton active={calendarTab === "economic"} onClick={() => setCalendarTab("economic")} icon={<Globe />} label="宏观事件" />
-                    <TabButton active={calendarTab === "earnings"} onClick={() => setCalendarTab("earnings")} icon={<Briefcase />} label="财报日历" />
-                    <TabButton active={calendarTab === "mega-cap"} onClick={() => setCalendarTab("mega-cap")} icon={<Star />} label="巨头财报" />
-                    <TabButton active={calendarTab === "portfolio"} onClick={() => setCalendarTab("portfolio")} icon={<TrendingUp />} label="持仓财报" />
+                <div className="flex gap-2">
+                    <TabButton active={calendarTab === "economic"} onClick={() => setCalendarTab("economic")} icon={<Globe className="w-4 h-4" />} label="宏观事件" />
+                    <TabButton active={calendarTab === "earnings"} onClick={() => setCalendarTab("earnings")} icon={<Briefcase className="w-4 h-4" />} label="财报日历" />
+                    <TabButton active={calendarTab === "mega-cap"} onClick={() => setCalendarTab("mega-cap")} icon={<Star className="w-4 h-4" />} label="巨头财报" />
+                    <TabButton active={calendarTab === "portfolio"} onClick={() => setCalendarTab("portfolio")} icon={<TrendingUp className="w-4 h-4" />} label="持仓财报" />
                 </div>
 
                 {/* Filters */}
-                <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 mb-6">
+                <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
                     <div className="flex items-center gap-4 flex-wrap">
                         <div className="flex items-center gap-2">
                             <Filter className="h-4 w-4 text-slate-400" />
@@ -251,7 +247,7 @@ export default function CalendarPage() {
 
                 {/* Error State */}
                 {error && (
-                    <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-start gap-3">
+                    <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 flex items-start gap-3">
                         <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
                         <div>
                             <p className="text-sm font-medium text-red-800 dark:text-red-200">{error}</p>
@@ -309,7 +305,7 @@ export default function CalendarPage() {
                     </div>
                 )}
             </div>
-        </div>
+        </DashboardShell>
     );
 }
 

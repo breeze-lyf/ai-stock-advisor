@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import { getPresetStrategy, screenCustom, screenTechnical, getSectors, getIndustries, type StockScreenerResult } from "@/features/screener/api";
-import { Search, Filter, Star, Zap, TrendingUp, PieChart, Activity, DollarSign, BarChart3, ArrowLeft } from "lucide-react";
+import { Search, Filter, Star, Zap, TrendingUp, PieChart, Activity, DollarSign, BarChart3 } from "lucide-react";
+import { DashboardShell } from "@/features/dashboard/components/DashboardShell";
+import { useDashboardRouteState } from "@/features/dashboard/hooks/useDashboardRouteState";
+import { useDashboardPortfolioData } from "@/features/dashboard/hooks/useDashboardPortfolioData";
 
 type TabType = "preset" | "fundamental" | "technical";
 type PresetStrategy = "low_valuation" | "growth" | "momentum" | "high_dividend";
@@ -16,7 +19,9 @@ const PRESET_STRATEGIES = [
 ] as const;
 
 export default function ScreenerPage() {
-    const router = useRouter();
+    const { isAuthenticated, user } = useAuth();
+    const { changeTab } = useDashboardRouteState();
+    const { portfolio, user: userProfile } = useDashboardPortfolioData(isAuthenticated);
     const [activeTab, setActiveTab] = useState<TabType>("preset");
     const [selectedStrategy, setSelectedStrategy] = useState<PresetStrategy>("low_valuation");
     const [screenerResults, setScreenerResults] = useState<StockScreenerResult[]>([]);
@@ -24,6 +29,7 @@ export default function ScreenerPage() {
     const [sectors, setSectors] = useState<string[]>([]);
     const [industries, setIndustries] = useState<string[]>([]);
     const [resultCount, setResultCount] = useState(0);
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
 
     const [fundamentalFilters, setFundamentalFilters] = useState({
         pe_ratio_min: "",
@@ -106,11 +112,11 @@ export default function ScreenerPage() {
         setLoading(true);
         try {
             const filters: Record<string, number | boolean> = {};
-            Object.entries(technicalFilters).forEach(([key, value]) => {
-                if (value !== "" && value !== "0") {
-                    filters[key] = typeof value === "string" ? Number(value) : value;
-                }
-            });
+            if (technicalFilters.rsi_min !== "") filters.rsi_min = Number(technicalFilters.rsi_min);
+            if (technicalFilters.rsi_max !== "") filters.rsi_max = Number(technicalFilters.rsi_max);
+            if (technicalFilters.macd_golden_cross) filters.macd_golden_cross = true;
+            if (technicalFilters.above_ma20) filters.above_ma20 = true;
+            if (technicalFilters.above_ma50) filters.above_ma50 = true;
             const result = await screenTechnical(filters, 100);
             setScreenerResults(result.stocks);
             setResultCount(result.count);
@@ -123,200 +129,162 @@ export default function ScreenerPage() {
         }
     };
 
-    const handleBack = () => {
-        router.push("/");
-    };
-
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-            {/* Top Bar with Back Button */}
-            <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3">
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={handleBack}
-                        type="button"
-                        className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-                    >
-                        <ArrowLeft className="w-5 h-5" />
-                        <span className="text-sm font-medium">返回</span>
-                    </button>
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-linear-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
-                            <span className="text-white font-bold text-sm">A</span>
-                        </div>
-                        <div>
-                            <h1 className="text-lg font-bold text-slate-900 dark:text-white">选股器</h1>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">预设策略 · 基本面 · 技术面</p>
-                        </div>
+        <DashboardShell
+            activeTab="screener"
+            changeTab={changeTab}
+            isSearchOpen={isSearchOpen}
+            onOpenSearchChange={setIsSearchOpen}
+            onRefreshSearch={() => {}}
+            onSelectTicker={() => {}}
+            portfolio={portfolio}
+            user={userProfile}
+        >
+            <div className="p-6 space-y-6">
+                {/* Page Header */}
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                        <Search className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold text-slate-900 dark:text-white">选股器</h1>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">基本面 · 技术面 · 预设策略</p>
                     </div>
                 </div>
-            </div>
 
-            {/* Content */}
-            <div className="p-6">
                 {/* Tabs */}
-                <div className="flex gap-2 mb-6">
-                    <TabButton active={activeTab === "preset"} onClick={() => setActiveTab("preset")} icon={<Star />} label="预设策略" />
-                    <TabButton active={activeTab === "fundamental"} onClick={() => setActiveTab("fundamental")} icon={<Filter />} label="基本面" />
-                    <TabButton active={activeTab === "technical"} onClick={() => setActiveTab("technical")} icon={<Activity />} label="技术面" />
+                <div className="flex gap-2">
+                    <TabButton active={activeTab === "preset"} onClick={() => setActiveTab("preset")} icon={<Star className="w-4 h-4" />} label="预设策略" />
+                    <TabButton active={activeTab === "fundamental"} onClick={() => setActiveTab("fundamental")} icon={<DollarSign className="w-4 h-4" />} label="基本面选股" />
+                    <TabButton active={activeTab === "technical"} onClick={() => setActiveTab("technical")} icon={<Activity className="w-4 h-4" />} label="技术面选股" />
                 </div>
 
                 {/* Preset Strategies */}
                 {activeTab === "preset" && (
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {PRESET_STRATEGIES.map(({ value, label, description, icon: Icon, color }) => (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {PRESET_STRATEGIES.map((strategy) => {
+                            const Icon = strategy.icon;
+                            return (
                                 <button
-                                    key={value}
+                                    key={strategy.value}
+                                    onClick={() => {
+                                        setSelectedStrategy(strategy.value);
+                                        handleRunPreset(strategy.value);
+                                    }}
                                     type="button"
-                                    onClick={() => { setSelectedStrategy(value); handleRunPreset(value); }}
                                     className={`p-4 rounded-xl border text-left transition-all ${
-                                        selectedStrategy === value
-                                            ? `border-${color}-600 bg-${color}-50 dark:bg-${color}-900/20`
-                                            : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-blue-300"
+                                        selectedStrategy === strategy.value
+                                            ? "bg-blue-600 text-white border-blue-600 shadow-lg shadow-blue-500/20"
+                                            : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-blue-300"
                                     }`}
                                 >
                                     <div className="flex items-center gap-3 mb-2">
-                                        <div className={`p-2 rounded-lg ${selectedStrategy === value ? `bg-${color}-600` : "bg-slate-100 dark:bg-slate-700"}`}>
-                                            <Icon className={`h-5 w-5 ${selectedStrategy === value ? "text-white" : "text-slate-600 dark:text-slate-300"}`} />
-                                        </div>
-                                        <span className="font-semibold text-slate-900 dark:text-white">{label}</span>
+                                        <Icon className={`w-5 h-5 ${selectedStrategy === strategy.value ? "text-white" : "text-blue-600"}`} />
+                                        <span className="font-bold text-sm">{strategy.label}</span>
                                     </div>
-                                    <p className="text-xs text-slate-500">{description}</p>
+                                    <p className={`text-xs ${selectedStrategy === strategy.value ? "text-blue-100" : "text-slate-500"}`}>{strategy.description}</p>
                                 </button>
-                            ))}
-                        </div>
-
-                        {loading && (
-                            <div className="flex items-center justify-center py-12">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                                <span className="ml-3 text-slate-500">运行策略中...</span>
-                            </div>
-                        )}
-
-                        {!loading && screenerResults.length > 0 && (
-                            <ResultsTable stocks={screenerResults} count={resultCount} />
-                        )}
-
-                        {!loading && screenerResults.length === 0 && resultCount === 0 && (
-                            <div className="text-center py-12 text-slate-400">
-                                <Search className="h-12 w-12 mx-auto mb-3 opacity-20" />
-                                <p className="text-sm">点击策略卡片开始筛选</p>
-                            </div>
-                        )}
+                            );
+                        })}
                     </div>
                 )}
 
                 {/* Fundamental Filters */}
                 {activeTab === "fundamental" && (
-                    <div className="space-y-6">
-                        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
-                            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                                <DollarSign className="h-5 w-5 text-slate-400" />
-                                基本面筛选条件
-                            </h3>
-                            <div className="grid md:grid-cols-3 gap-4">
-                                <FilterInput label="PE 最小值" value={fundamentalFilters.pe_ratio_min} onChange={(v) => setFundamentalFilters({ ...fundamentalFilters, pe_ratio_min: v })} />
-                                <FilterInput label="PE 最大值" value={fundamentalFilters.pe_ratio_max} onChange={(v) => setFundamentalFilters({ ...fundamentalFilters, pe_ratio_max: v })} />
-                                <FilterInput label="PB 最小值" value={fundamentalFilters.pb_ratio_min} onChange={(v) => setFundamentalFilters({ ...fundamentalFilters, pb_ratio_min: v })} />
-                                <FilterInput label="PB 最大值" value={fundamentalFilters.pb_ratio_max} onChange={(v) => setFundamentalFilters({ ...fundamentalFilters, pb_ratio_max: v })} />
-                                <FilterInput label="ROE 最小值 (%)" value={fundamentalFilters.roe_min} onChange={(v) => setFundamentalFilters({ ...fundamentalFilters, roe_min: v })} />
-                                <FilterInput label="营收增速最小值 (%)" value={fundamentalFilters.revenue_growth_min} onChange={(v) => setFundamentalFilters({ ...fundamentalFilters, revenue_growth_min: v })} />
-                                <FilterInput label="净利增速最小值 (%)" value={fundamentalFilters.earnings_growth_min} onChange={(v) => setFundamentalFilters({ ...fundamentalFilters, earnings_growth_min: v })} />
-                                <FilterInput label="股息率最小值 (%)" value={fundamentalFilters.dividend_yield_min} onChange={(v) => setFundamentalFilters({ ...fundamentalFilters, dividend_yield_min: v })} />
-                                <FilterInput label="市值最小值 (亿)" value={fundamentalFilters.market_cap_min} onChange={(v) => setFundamentalFilters({ ...fundamentalFilters, market_cap_min: v })} />
-                                <FilterInput label="市值最大值 (亿)" value={fundamentalFilters.market_cap_max} onChange={(v) => setFundamentalFilters({ ...fundamentalFilters, market_cap_max: v })} />
-                                <div className="md:col-span-3">
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">行业</label>
-                                    <select
-                                        value={fundamentalFilters.sector}
-                                        onChange={(e) => setFundamentalFilters({ ...fundamentalFilters, sector: e.target.value })}
-                                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm"
-                                        aria-label="选择行业"
-                                        title="选择行业"
-                                    >
-                                        <option value="">全部</option>
-                                        {sectors.map((s) => (
-                                            <option key={s} value={s}>{s}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                            <button onClick={handleRunFundamental} className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 font-medium" type="button">
-                                <Search size={18} /> 运行筛选
+                    <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 space-y-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <FilterInput label="PE (最小)" value={fundamentalFilters.pe_ratio_min} onChange={(v) => setFundamentalFilters({ ...fundamentalFilters, pe_ratio_min: v })} />
+                            <FilterInput label="PE (最大)" value={fundamentalFilters.pe_ratio_max} onChange={(v) => setFundamentalFilters({ ...fundamentalFilters, pe_ratio_max: v })} />
+                            <FilterInput label="PB (最小)" value={fundamentalFilters.pb_ratio_min} onChange={(v) => setFundamentalFilters({ ...fundamentalFilters, pb_ratio_min: v })} />
+                            <FilterInput label="PB (最大)" value={fundamentalFilters.pb_ratio_max} onChange={(v) => setFundamentalFilters({ ...fundamentalFilters, pb_ratio_max: v })} />
+                            <FilterInput label="ROE (最小)%" value={fundamentalFilters.roe_min} onChange={(v) => setFundamentalFilters({ ...fundamentalFilters, roe_min: v })} />
+                            <FilterInput label="营收增速 (最小)%" value={fundamentalFilters.revenue_growth_min} onChange={(v) => setFundamentalFilters({ ...fundamentalFilters, revenue_growth_min: v })} />
+                            <FilterInput label="净利润增速 (最小)%" value={fundamentalFilters.earnings_growth_min} onChange={(v) => setFundamentalFilters({ ...fundamentalFilters, earnings_growth_min: v })} />
+                            <FilterInput label="股息率 (最小)%" value={fundamentalFilters.dividend_yield_min} onChange={(v) => setFundamentalFilters({ ...fundamentalFilters, dividend_yield_min: v })} />
+                        </div>
+                        <div className="flex gap-2 pt-4">
+                            <button onClick={handleRunFundamental} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-bold" type="button">
+                                开始选股
                             </button>
                         </div>
-
-                        {loading && (
-                            <div className="flex items-center justify-center py-12">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                                <span className="ml-3 text-slate-500">筛选中...</span>
-                            </div>
-                        )}
-
-                        {!loading && screenerResults.length > 0 && (
-                            <ResultsTable stocks={screenerResults} count={resultCount} />
-                        )}
                     </div>
                 )}
 
                 {/* Technical Filters */}
                 {activeTab === "technical" && (
-                    <div className="space-y-6">
-                        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
-                            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                                <BarChart3 className="h-5 w-5 text-slate-400" />
-                                技术面筛选条件
-                            </h3>
-                            <div className="grid md:grid-cols-2 gap-4">
-                                <FilterInput label="RSI 最小值" value={technicalFilters.rsi_min} onChange={(v) => setTechnicalFilters({ ...technicalFilters, rsi_min: v })} />
-                                <FilterInput label="RSI 最大值" value={technicalFilters.rsi_max} onChange={(v) => setTechnicalFilters({ ...technicalFilters, rsi_max: v })} />
-                                <div className="md:col-span-2 grid grid-cols-3 gap-4">
-                                    <label className="flex items-center gap-2 p-3 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={technicalFilters.macd_golden_cross}
-                                            onChange={(e) => setTechnicalFilters({ ...technicalFilters, macd_golden_cross: e.target.checked })}
-                                        />
-                                        <span className="text-sm text-slate-700 dark:text-slate-300">MACD 金叉</span>
-                                    </label>
-                                    <label className="flex items-center gap-2 p-3 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={technicalFilters.above_ma20}
-                                            onChange={(e) => setTechnicalFilters({ ...technicalFilters, above_ma20: e.target.checked })}
-                                        />
-                                        <span className="text-sm text-slate-700 dark:text-slate-300">股价 &gt; MA20</span>
-                                    </label>
-                                    <label className="flex items-center gap-2 p-3 border border-slate-200 dark:border-slate-700 rounded-lg cursor-pointer">
-                                        <input
-                                            type="checkbox"
-                                            checked={technicalFilters.above_ma50}
-                                            onChange={(e) => setTechnicalFilters({ ...technicalFilters, above_ma50: e.target.checked })}
-                                        />
-                                        <span className="text-sm text-slate-700 dark:text-slate-300">股价 &gt; MA50</span>
-                                    </label>
-                                </div>
-                            </div>
-                            <button onClick={handleRunTechnical} className="mt-6 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 font-medium" type="button">
-                                <Search size={18} /> 运行筛选
+                    <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 space-y-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <FilterInput label="RSI (最小)" value={technicalFilters.rsi_min} onChange={(v) => setTechnicalFilters({ ...technicalFilters, rsi_min: v })} />
+                            <FilterInput label="RSI (最大)" value={technicalFilters.rsi_max} onChange={(v) => setTechnicalFilters({ ...technicalFilters, rsi_max: v })} />
+                            <FilterCheckbox label="MACD 金叉" checked={technicalFilters.macd_golden_cross} onChange={(v) => setTechnicalFilters({ ...technicalFilters, macd_golden_cross: v })} />
+                            <FilterCheckbox label="站上 20 日线" checked={technicalFilters.above_ma20} onChange={(v) => setTechnicalFilters({ ...technicalFilters, above_ma20: v })} />
+                            <FilterCheckbox label="站上 50 日线" checked={technicalFilters.above_ma50} onChange={(v) => setTechnicalFilters({ ...technicalFilters, above_ma50: v })} />
+                        </div>
+                        <div className="flex gap-2 pt-4">
+                            <button onClick={handleRunTechnical} className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-bold" type="button">
+                                开始选股
                             </button>
                         </div>
+                    </div>
+                )}
 
-                        {loading && (
-                            <div className="flex items-center justify-center py-12">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                                <span className="ml-3 text-slate-500">筛选中...</span>
-                            </div>
-                        )}
+                {/* Results */}
+                {loading && (
+                    <div className="flex items-center justify-center py-12">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                        <span className="ml-3 text-slate-500">筛选中...</span>
+                    </div>
+                )}
 
-                        {!loading && screenerResults.length > 0 && (
-                            <ResultsTable stocks={screenerResults} count={resultCount} />
-                        )}
+                {!loading && screenerResults.length > 0 && (
+                    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                        <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">筛选结果</span>
+                            <span className="text-xs text-slate-500">{resultCount} 只股票</span>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-slate-50 dark:bg-slate-900">
+                                    <tr>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">代码</th>
+                                        <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">名称</th>
+                                        <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">价格</th>
+                                        <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">涨跌幅%</th>
+                                        <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">PE</th>
+                                        <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">PB</th>
+                                        <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">ROE%</th>
+                                        <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">RSI</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                                    {screenerResults.map((stock) => (
+                                        <tr key={stock.ticker} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                                            <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-white">{stock.ticker}</td>
+                                            <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{stock.name}</td>
+                                            <td className="px-4 py-3 text-sm text-right text-slate-900 dark:text-white">${stock.price?.toFixed(2) || "--"}</td>
+                                            <td className={`px-4 py-3 text-sm text-right font-bold ${(stock.change_percent || 0) >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
+                                                {(stock.change_percent || 0) >= 0 ? "+" : ""}{stock.change_percent?.toFixed(2) || "--"}
+                                            </td>
+                                            <td className="px-4 py-3 text-sm text-right text-slate-600 dark:text-slate-300">{stock.pe_ratio?.toFixed(2) || "--"}</td>
+                                            <td className="px-4 py-3 text-sm text-right text-slate-600 dark:text-slate-300">{stock.pb_ratio?.toFixed(2) || "--"}</td>
+                                            <td className="px-4 py-3 text-sm text-right text-slate-600 dark:text-slate-300">{stock.roe?.toFixed(2) || "--"}</td>
+                                            <td className="px-4 py-3 text-sm text-right text-slate-600 dark:text-slate-300">{stock.rsi_14?.toFixed(2) || "--"}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+
+                {!loading && screenerResults.length === 0 && (
+                    <div className="text-center py-12 text-slate-400">
+                        <BarChart3 className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                        <p className="text-sm">暂无筛选结果</p>
                     </div>
                 )}
             </div>
-        </div>
+        </DashboardShell>
     );
 }
 
@@ -333,61 +301,33 @@ function TabButton({ active, onClick, icon, label }: { active: boolean; onClick:
     );
 }
 
-function FilterInput({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+function FilterInput({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
     return (
         <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{label}</label>
+            <label className="block text-xs font-medium text-slate-500 mb-1">{label}</label>
             <input
                 type="number"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm"
-                placeholder="0"
+                placeholder={label}
                 aria-label={label}
+                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm text-slate-900 dark:text-white"
             />
         </div>
     );
 }
 
-function ResultsTable({ stocks, count }: { stocks: StockScreenerResult[]; count: number }) {
+function FilterCheckbox({ label, checked, onChange }: { label: string; checked: boolean; onChange: (checked: boolean) => void }) {
     return (
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">筛选结果</span>
-                <span className="text-xs text-slate-500">{count} 只股票</span>
-            </div>
-            <div className="overflow-x-auto">
-                <table className="w-full">
-                    <thead className="bg-slate-50 dark:bg-slate-900">
-                        <tr>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">代码</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">名称</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">现价</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">PE</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">PB</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">ROE</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">营收增速</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">股息率</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">行业</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                        {stocks.map((stock) => (
-                            <tr key={stock.ticker} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">{stock.ticker}</td>
-                                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{stock.name}</td>
-                                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">${stock.current_price?.toFixed(2)}</td>
-                                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{stock.pe_ratio?.toFixed(2) || "-"}</td>
-                                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{stock.pb_ratio?.toFixed(2) || "-"}</td>
-                                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{stock.roe ? (stock.roe * 100).toFixed(1) + "%" : "-"}</td>
-                                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{stock.revenue_growth ? (stock.revenue_growth * 100).toFixed(1) + "%" : "-"}</td>
-                                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{stock.dividend_yield ? (stock.dividend_yield * 100).toFixed(1) + "%" : "-"}</td>
-                                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{stock.sector || "-"}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
+        <div className="flex items-center gap-2 pt-6">
+            <input
+                type="checkbox"
+                checked={checked}
+                onChange={(e) => onChange(e.target.checked)}
+                aria-label={label}
+                className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+            />
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</label>
         </div>
     );
 }

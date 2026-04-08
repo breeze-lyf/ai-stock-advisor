@@ -573,7 +573,9 @@ class AnalyzeStockUseCase:
             if effective_rrr is None:
                 return
 
-            cache_to_sync.risk_reward_ratio = effective_rrr
+            # risk_reward_ratio: 当前盈亏比（基于当前股价实时计算，不持久化）
+            # target_risk_reward_ratio: 计划盈亏比（基于建仓区间中位价，持久化到数据库）
+            cache_to_sync.target_risk_reward_ratio = effective_rrr
             cache_to_sync.is_ai_strategy = True
             cache_to_sync.resistance_1 = new_report.target_price
             cache_to_sync.support_1 = new_report.stop_loss_price

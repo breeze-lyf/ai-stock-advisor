@@ -224,7 +224,8 @@ function AIVerdictContent({
     const activeZone = zones.find(z => current >= z.start && current <= z.end) ||
         (current < axisMin ? zones[0] : zones[zones.length - 1]);
 
-    const effectiveRR = aiData.rr_ratio;
+    // 计划盈亏比：从数据库持久化字段读取（基于建仓区间中位价，反映策略本身的质量）
+    const effectiveRR = selectedItem?.target_risk_reward_ratio?.toFixed(2) || aiData.rr_ratio;
     // 实时盈亏比：以此刻股价为入场基准，反映"现在买合不合适"
     const liveRR: string | null = (() => {
         if (!target || !stop || !current || current <= stop) return null;

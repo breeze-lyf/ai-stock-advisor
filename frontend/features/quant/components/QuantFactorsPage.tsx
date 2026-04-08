@@ -5,15 +5,15 @@ import { useAuth } from "@/context/AuthContext";
 import { useQuantFactors, useFactorICAnalysis, useFactorLayeredBacktest } from "@/features/quant/hooks/useQuantFactors";
 import { LineChart } from "@/components/charts";
 import { RefreshCw, BrainCircuit, TrendingUp, BarChart3 } from "lucide-react";
-import { DashboardShell } from "@/features/dashboard/components/DashboardShell";
-import { useDashboardRouteState } from "@/features/dashboard/hooks/useDashboardRouteState";
+import { DashboardHeader } from "@/components/features/DashboardHeader";
+import { SearchDialog } from "@/components/features/SearchDialog";
 import { useDashboardPortfolioData } from "@/features/dashboard/hooks/useDashboardPortfolioData";
+import type { DashboardTab } from "@/features/dashboard/hooks/useDashboardRouteState";
 
 const CATEGORIES = ["MOMENTUM", "VALUE", "GROWTH", "QUALITY", "VOLATILITY", "LIQUIDITY", "TECHNICAL"];
 
 export default function QuantPage() {
     const { isAuthenticated, user } = useAuth();
-    const { changeTab } = useDashboardRouteState();
     const { portfolio, user: userProfile } = useDashboardPortfolioData(isAuthenticated);
     const { factors, loading, error, refresh } = useQuantFactors();
     const [selectedFactor, setSelectedFactor] = useState<string | null>(null);
@@ -23,6 +23,7 @@ export default function QuantPage() {
         end: "2026-04-07",
     });
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [activeHeaderTab, setActiveHeaderTab] = useState<DashboardTab>("analysis");
 
     const { data: icData, loading: icLoading, fetchICAnalysis } = useFactorICAnalysis(
         selectedFactor || "",
@@ -50,17 +51,17 @@ export default function QuantPage() {
     };
 
     return (
-        <DashboardShell
-            activeTab="quant"
-            changeTab={changeTab}
-            isSearchOpen={isSearchOpen}
-            onOpenSearchChange={setIsSearchOpen}
-            onRefreshSearch={() => {}}
-            onSelectTicker={() => {}}
-            portfolio={portfolio}
-            user={userProfile}
-        >
-            <div className="p-6 space-y-6">
+        <div className="h-screen bg-slate-50 dark:bg-slate-950 flex flex-col overflow-hidden">
+            <DashboardHeader user={userProfile} activeTab={activeHeaderTab} setActiveTab={setActiveHeaderTab} />
+            <SearchDialog
+                isOpen={isSearchOpen}
+                onOpenChange={setIsSearchOpen}
+                onRefresh={() => {}}
+                onSelectTicker={() => {}}
+                portfolio={portfolio}
+            />
+            <main className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+                <div className="p-6 space-y-6">
                 {/* Page Header */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -171,23 +172,23 @@ export default function QuantPage() {
                                                 .filter((f) => !selectedFactor || f.category === selectedFactor)
                                                 .map((factor) => (
                                                     <tr
-                                                        key={factor.factor_id}
-                                                        onClick={() => handleFactorSelect(factor.factor_id)}
+                                                        key={factor.id}
+                                                        onClick={() => handleFactorSelect(factor.id)}
                                                         className="hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
                                                     >
-                                                        <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-white">{factor.factor_id}</td>
-                                                        <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{factor.factor_name}</td>
+                                                        <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-white">{factor.id}</td>
+                                                        <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{factor.name}</td>
                                                         <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">
                                                             <span className="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-700 text-xs font-bold">{factor.category}</span>
                                                         </td>
-                                                        <td className={`px-4 py-3 text-sm text-right font-bold ${factor.ic_ir?.ic >= 0.05 ? "text-emerald-600" : "text-slate-600 dark:text-slate-300"}`}>
-                                                            {factor.ic_ir?.ic?.toFixed(3) || "--"}
+                                                        <td className={`px-4 py-3 text-sm text-right font-bold ${factor.ic_mean && factor.ic_mean >= 0.05 ? "text-emerald-600" : "text-slate-600 dark:text-slate-300"}`}>
+                                                            {factor.ic_mean?.toFixed(3) || "--"}
                                                         </td>
-                                                        <td className={`px-4 py-3 text-sm text-right font-bold ${factor.ic_ir?.ir >= 0.5 ? "text-emerald-600" : "text-slate-600 dark:text-slate-300"}`}>
-                                                            {factor.ic_ir?.ir?.toFixed(2) || "--"}
+                                                        <td className={`px-4 py-3 text-sm text-right font-bold ${factor.ic_ir && factor.ic_ir >= 0.5 ? "text-emerald-600" : "text-slate-600 dark:text-slate-300"}`}>
+                                                            {factor.ic_ir?.toFixed(2) || "--"}
                                                         </td>
-                                                        <td className={`px-4 py-3 text-sm text-right font-bold ${factor.ic_ir?.long_short_return >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
-                                                            {(factor.ic_ir?.long_short_return || 0) >= 0 ? "+" : ""}{(factor.ic_ir?.long_short_return || 0) * 100}%
+                                                        <td className={`px-4 py-3 text-sm text-right font-bold ${factor.annual_return && factor.annual_return >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
+                                                            {(factor.annual_return || 0) >= 0 ? "+" : ""}{(factor.annual_return || 0) * 100}%
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -232,8 +233,8 @@ export default function QuantPage() {
                                         </h4>
                                         <LineChart
                                             data={icData.ic_series?.map((d) => ({
-                                                name: d.date,
-                                                value: d.ic,
+                                                x: d.trade_date,
+                                                y: d.ic,
                                             })) || []}
                                             height={200}
                                         />
@@ -251,11 +252,13 @@ export default function QuantPage() {
                                                 <span className="text-xs text-slate-500">IC IR</span>
                                                 <span className="text-sm font-bold">{icData.ic_ir?.toFixed(2) || "--"}</span>
                                             </div>
+                                            <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700">
+                                                <span className="text-xs text-slate-500">T-Stat</span>
+                                                <span className="text-sm font-bold">{icData.t_stat?.toFixed(2) || "--"}</span>
+                                            </div>
                                             <div className="flex justify-between items-center py-2">
-                                                <span className="text-xs text-slate-500">胜率</span>
-                                                <span className={`text-sm font-bold ${icData.win_rate && icData.win_rate >= 0.5 ? "text-emerald-600" : "text-slate-600 dark:text-slate-300"}`}>
-                                                    {(icData.win_rate || 0) * 100}%
-                                                </span>
+                                                <span className="text-xs text-slate-500">样本数</span>
+                                                <span className="text-sm font-bold">{icData.sample_size || "--"}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -278,9 +281,9 @@ export default function QuantPage() {
                                 <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
                                     <h4 className="text-xs font-bold text-slate-500 mb-3">分层累计收益</h4>
                                     <LineChart
-                                        data={backtestData.cumulative_returns?.map((d) => ({
-                                            name: d.date,
-                                            value: d.portfolio_1,
+                                        data={backtestData.equity_curves?.["1"]?.map((d) => ({
+                                            x: d.date,
+                                            y: d.equity,
                                         })) || []}
                                         height={300}
                                     />
@@ -289,9 +292,9 @@ export default function QuantPage() {
                         </div>
                     )}
                 </div>
-            </DashboardShell>
-        );
-    }
+            </main>
+        </div>
+    );
 }
 
 function TabButton({ active, onClick, label, disabled }: { active: boolean; onClick: () => void; label: string; disabled?: boolean }) {

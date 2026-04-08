@@ -12,15 +12,15 @@ import {
     type EarningsEvent,
 } from "@/features/calendar/api";
 import { Calendar as CalendarIcon, Globe, Briefcase, Star, TrendingUp, Filter, AlertCircle } from "lucide-react";
-import { DashboardShell } from "@/features/dashboard/components/DashboardShell";
-import { useDashboardRouteState } from "@/features/dashboard/hooks/useDashboardRouteState";
+import { DashboardHeader } from "@/components/features/DashboardHeader";
+import { SearchDialog } from "@/components/features/SearchDialog";
 import { useDashboardPortfolioData } from "@/features/dashboard/hooks/useDashboardPortfolioData";
+import type { DashboardTab } from "@/features/dashboard/hooks/useDashboardRouteState";
 
 type CalendarTab = "economic" | "earnings" | "mega-cap" | "portfolio";
 
 export default function CalendarPage() {
     const { isAuthenticated, user } = useAuth();
-    const { changeTab } = useDashboardRouteState();
     const { portfolio, user: userProfile } = useDashboardPortfolioData(isAuthenticated);
     const [calendarTab, setCalendarTab] = useState<CalendarTab>("economic");
     const [economicEvents, setEconomicEvents] = useState<EconomicEvent[]>([]);
@@ -32,6 +32,7 @@ export default function CalendarPage() {
     const [importanceFilter, setImportanceFilter] = useState<number | "">("");
     const [resultCount, setResultCount] = useState(0);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [activeHeaderTab, setActiveHeaderTab] = useState<DashboardTab>("analysis");
 
     useEffect(() => {
         setError(null);
@@ -148,17 +149,17 @@ export default function CalendarPage() {
     };
 
     return (
-        <DashboardShell
-            activeTab="calendar"
-            changeTab={changeTab}
-            isSearchOpen={isSearchOpen}
-            onOpenSearchChange={setIsSearchOpen}
-            onRefreshSearch={() => {}}
-            onSelectTicker={() => {}}
-            portfolio={portfolio}
-            user={userProfile}
-        >
-            <div className="p-6 space-y-6">
+        <div className="h-screen bg-slate-50 dark:bg-slate-950 flex flex-col overflow-hidden">
+            <DashboardHeader user={userProfile} activeTab={activeHeaderTab} setActiveTab={setActiveHeaderTab} />
+            <SearchDialog
+                isOpen={isSearchOpen}
+                onOpenChange={setIsSearchOpen}
+                onRefresh={() => {}}
+                onSelectTicker={() => {}}
+                portfolio={portfolio}
+            />
+            <main className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+                <div className="p-6 space-y-6">
                 {/* Page Header */}
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
@@ -304,8 +305,9 @@ export default function CalendarPage() {
                         </button>
                     </div>
                 )}
-            </div>
-        </DashboardShell>
+                </div>
+            </main>
+        </div>
     );
 }
 

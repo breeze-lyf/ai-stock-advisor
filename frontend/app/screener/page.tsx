@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { getPresetStrategy, screenCustom, screenTechnical, getSectors, getIndustries, type StockScreenerResult } from "@/features/screener/api";
 import { Search, Filter, Star, Zap, TrendingUp, PieChart, Activity, DollarSign, BarChart3 } from "lucide-react";
-import { DashboardShell } from "@/features/dashboard/components/DashboardShell";
-import { useDashboardRouteState } from "@/features/dashboard/hooks/useDashboardRouteState";
+import { DashboardHeader } from "@/components/features/DashboardHeader";
+import { SearchDialog } from "@/components/features/SearchDialog";
 import { useDashboardPortfolioData } from "@/features/dashboard/hooks/useDashboardPortfolioData";
+import type { DashboardTab } from "@/features/dashboard/hooks/useDashboardRouteState";
 
 type TabType = "preset" | "fundamental" | "technical";
 type PresetStrategy = "low_valuation" | "growth" | "momentum" | "high_dividend";
@@ -20,7 +21,6 @@ const PRESET_STRATEGIES = [
 
 export default function ScreenerPage() {
     const { isAuthenticated, user } = useAuth();
-    const { changeTab } = useDashboardRouteState();
     const { portfolio, user: userProfile } = useDashboardPortfolioData(isAuthenticated);
     const [activeTab, setActiveTab] = useState<TabType>("preset");
     const [selectedStrategy, setSelectedStrategy] = useState<PresetStrategy>("low_valuation");
@@ -30,6 +30,7 @@ export default function ScreenerPage() {
     const [industries, setIndustries] = useState<string[]>([]);
     const [resultCount, setResultCount] = useState(0);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [activeHeaderTab, setActiveHeaderTab] = useState<DashboardTab>("analysis");
 
     const [fundamentalFilters, setFundamentalFilters] = useState({
         pe_ratio_min: "",
@@ -130,17 +131,17 @@ export default function ScreenerPage() {
     };
 
     return (
-        <DashboardShell
-            activeTab="screener"
-            changeTab={changeTab}
-            isSearchOpen={isSearchOpen}
-            onOpenSearchChange={setIsSearchOpen}
-            onRefreshSearch={() => {}}
-            onSelectTicker={() => {}}
-            portfolio={portfolio}
-            user={userProfile}
-        >
-            <div className="p-6 space-y-6">
+        <div className="h-screen bg-slate-50 dark:bg-slate-950 flex flex-col overflow-hidden">
+            <DashboardHeader user={userProfile} activeTab={activeHeaderTab} setActiveTab={setActiveHeaderTab} />
+            <SearchDialog
+                isOpen={isSearchOpen}
+                onOpenChange={setIsSearchOpen}
+                onRefresh={() => {}}
+                onSelectTicker={() => {}}
+                portfolio={portfolio}
+            />
+            <main className="flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+                <div className="p-6 space-y-6">
                 {/* Page Header */}
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-linear-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
@@ -261,10 +262,7 @@ export default function ScreenerPage() {
                                         <tr key={stock.ticker} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                                             <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-white">{stock.ticker}</td>
                                             <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{stock.name}</td>
-                                            <td className="px-4 py-3 text-sm text-right text-slate-900 dark:text-white">${stock.price?.toFixed(2) || "--"}</td>
-                                            <td className={`px-4 py-3 text-sm text-right font-bold ${(stock.change_percent || 0) >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
-                                                {(stock.change_percent || 0) >= 0 ? "+" : ""}{stock.change_percent?.toFixed(2) || "--"}
-                                            </td>
+                                            <td className="px-4 py-3 text-sm text-right text-slate-900 dark:text-white">${stock.current_price?.toFixed(2) || "--"}</td>
                                             <td className="px-4 py-3 text-sm text-right text-slate-600 dark:text-slate-300">{stock.pe_ratio?.toFixed(2) || "--"}</td>
                                             <td className="px-4 py-3 text-sm text-right text-slate-600 dark:text-slate-300">{stock.pb_ratio?.toFixed(2) || "--"}</td>
                                             <td className="px-4 py-3 text-sm text-right text-slate-600 dark:text-slate-300">{stock.roe?.toFixed(2) || "--"}</td>
@@ -283,8 +281,9 @@ export default function ScreenerPage() {
                         <p className="text-sm">暂无筛选结果</p>
                     </div>
                 )}
-            </div>
-        </DashboardShell>
+                </div>
+            </main>
+        </div>
     );
 }
 

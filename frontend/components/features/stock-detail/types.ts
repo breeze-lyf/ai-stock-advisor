@@ -159,4 +159,7 @@ export interface FundamentalCardProps {
 /** 实时资讯流 Props */
 export interface NewsFeedProps {
     news: NewsItem[];
+    /** Pre-computed AI news digest (from stock_capsules table) */
+    newsCapsule?: string | null;
+    newsCapsuleUpdatedAt?: string | null;
 }

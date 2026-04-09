@@ -146,3 +146,34 @@ export async function getLatestPortfolioAnalysis(): Promise<PortfolioAnalysisRes
     throw error;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Stock Capsule API
+// ---------------------------------------------------------------------------
+
+export interface StockCapsuleData {
+  ticker: string;
+  capsule_type: string;
+  content: string | null;
+  source_count: number | null;
+  model_used: string | null;
+  updated_at: string | null;
+}
+
+export interface StockCapsulesData {
+  ticker: string;
+  news: StockCapsuleData | null;
+  fundamental: StockCapsuleData | null;
+}
+
+export async function getStockCapsules(ticker: string): Promise<StockCapsulesData> {
+  const response = await api.get(`/api/v1/analysis/${ticker}/capsule`);
+  return response.data;
+}
+
+export async function refreshStockCapsules(ticker: string): Promise<StockCapsulesData> {
+  const response = await api.post(`/api/v1/analysis/${ticker}/capsule/refresh`, undefined, {
+    timeout: 120_000, // capsule generation is AI-driven but lighter than full analysis
+  });
+  return response.data;
+}

@@ -80,6 +80,7 @@ class AnalyzeStockUseCase:
             self._get_news_data(ticker),
             self._get_macro_context(),
             self._get_next_fomc(),
+            self._get_capsules(ticker),
             return_exceptions=True
         )
         fetch_elapsed = time.time() - fetch_start
@@ -91,12 +92,14 @@ class AnalyzeStockUseCase:
         news_data = results[2] if not isinstance(results[2], Exception) else []
         macro_context = results[3] if not isinstance(results[3], Exception) else ""
         fomc_result = results[4] if not isinstance(results[4], Exception) else (None, None)
+        capsules = results[5] if not isinstance(results[5], Exception) else {}
         
         # 打印各子任务的耗时
         logger.info(f"   - 股票基础信息: {'✅ 成功' if stock_obj else '❌ 失败'}")
         logger.info(f"   - 实时行情数据: {'✅ 成功' if market_data_obj else '❌ 失败'}")
         logger.info(f"   - 新闻数据: {'✅ 成功' if news_data else '❌ 失败'} ({len(news_data)}条)")
         logger.info(f"   - 宏观上下文: {'✅ 成功' if macro_context else '❌ 失败'} ({len(macro_context) if macro_context else 0}字符)")
+        logger.info(f"   - 预计算 capsule: news={'✅' if capsules.get('news') else '—'} fundamental={'✅' if capsules.get('fundamental') else '—'}")
         
         fomc_days_away, next_fomc_date = fomc_result if fomc_result else (None, None)
         
@@ -167,6 +170,8 @@ class AnalyzeStockUseCase:
                 earnings_date=earnings_date,
                 vix_level=vix_level,
                 analyst_summary=analyst_summary,
+                pre_computed_news=capsules.get("news") and capsules["news"].content,
+                pre_computed_fundamental=capsules.get("fundamental") and capsules["fundamental"].content,
             )
         except Exception as ai_error:
             logger.error(f"AI 分析调用失败: {ai_error}")
@@ -304,7 +309,7 @@ class AnalyzeStockUseCase:
         }
 
     async def _get_news_data(self, ticker: str) -> list[dict[str, Any]]:
-        news_articles = await self.repo.get_latest_stock_news(ticker, limit=5)
+        news_articles = await self.repo.get_latest_stock_news(ticker, limit=25)
         return [
             {"title": n.title, "publisher": n.publisher, "time": n.publish_time.isoformat()}
             for n in news_articles
@@ -319,7 +324,7 @@ class AnalyzeStockUseCase:
                 for topic in radar_topics[:3]:
                     macro_context += f"- **{topic.title}** (热度: {topic.heat_score}): {topic.summary}\n"
 
-            global_news = await MacroService.get_latest_news(self.db, limit=5)
+            global_news = await MacroService.get_latest_news(self.db, limit=10)
             if global_news:
                 macro_context += "\n### 实时全球快讯 (Real-time Global Flash):\n"
                 for news in global_news:
@@ -388,6 +393,16 @@ class AnalyzeStockUseCase:
         except Exception as exc:
             logger.warning(f"Failed to fetch next FOMC date: {exc}")
         return None, None
+
+    async def _get_capsules(self, ticker: str) -> dict:
+        """Fetch pre-computed StockCapsules for this ticker (read-only, never fails the analysis)."""
+        try:
+            from app.application.analysis.generate_stock_capsule import GenerateStockCapsuleUseCase
+            use_case = GenerateStockCapsuleUseCase(self.db)
+            return await use_case.get_capsules(ticker)
+        except Exception as exc:
+            logger.warning(f"Failed to fetch capsules for {ticker}: {exc}")
+            return {}
 
     async def _get_cached_response(
         self,

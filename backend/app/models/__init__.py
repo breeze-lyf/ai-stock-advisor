@@ -19,3 +19,4 @@ from app.models.onboarding import UserInvestmentProfile, UserDashboardConfig, Us
 from app.models.subscription import SubscriptionPlan, UserSubscription, UsageRecord, PaymentTransaction
 from app.models.user_preference import UserPreference
 from app.models.quant_factor import QuantFactor, QuantFactorValue, QuantStrategy, QuantSignal, QuantBacktestResult, FactorICHistory, QuantOptimizationConfig
+from app.models.stock_capsule import StockCapsule

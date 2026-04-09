@@ -36,6 +36,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { EditPositionButton } from "@/components/features/EditPositionDialog";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import clsx from "clsx";
@@ -202,20 +203,20 @@ export default function PortfolioPage() {
                                             <th className="px-4 py-3 text-right">总价值</th>
                                             <th className="px-4 py-3 text-right">盈亏</th>
                                             <th className="px-4 py-3 text-right">RRR</th>
-                                            <th className="px-6 py-3"></th>
+                                            <th className="px-4 py-3 text-right"></th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800/50">
                                         {summary?.holdings.map((item) => (
-                                            <tr 
-                                                key={item.ticker} 
+                                            <tr
+                                                key={item.ticker}
                                                 className="hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors group cursor-pointer"
                                                 onClick={() => router.push(`/?ticker=${item.ticker}`)}
                                             >
                                                 <td className="px-6 py-4">
                                                     <div className="flex flex-col">
                                                         <span className="font-black text-slate-900 dark:text-white">{item.ticker}</span>
-                                                        <span className="text-[10px] text-slate-400 font-bold truncate max-w-[120px]">{item.name}</span>
+                                                        <span className="text-[10px] text-slate-400 font-bold truncate max-w-30">{item.name}</span>
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-4 text-right font-bold text-sm tabular-nums text-slate-600 dark:text-slate-400">{item.quantity}</td>
@@ -243,15 +244,27 @@ export default function PortfolioPage() {
                                                 <td className="px-4 py-4 text-right">
                                                     <span className={clsx(
                                                         "text-[10px] font-black px-1.5 py-0.5 rounded border",
-                                                        (item.risk_reward_ratio || 0) > 2 ? "bg-emerald-50 text-emerald-600 border-emerald-200" : 
+                                                        (item.risk_reward_ratio || 0) > 2 ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
                                                         (item.risk_reward_ratio || 0) > 1 ? "bg-blue-50 text-blue-600 border-blue-200" :
                                                         "bg-slate-50 text-slate-500 border-slate-200"
                                                     )}>
                                                         {item.risk_reward_ratio ? item.risk_reward_ratio.toFixed(2) : "--"}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-4 text-right opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <ChevronRight className="h-4 w-4 text-slate-400" />
+                                                <td className="px-4 py-4 text-right">
+                                                    <div
+                                                        className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                    >
+                                                        <EditPositionButton
+                                                            ticker={item.ticker}
+                                                            quantity={item.quantity}
+                                                            avg_cost={item.avg_cost}
+                                                            onSuccess={fetchData}
+                                                            variant="inline"
+                                                        />
+                                                        <ChevronRight className="h-4 w-4 text-slate-400" />
+                                                    </div>
                                                 </td>
                                             </tr>
                                         ))}

@@ -40,6 +40,8 @@ import { CatalystTimeline } from "./stock-detail/CatalystTimeline";
 
 // --- 增强分析 Hook ---
 import { useEnhancedAnalysis } from "@/features/analysis/hooks/useEnhancedAnalysis";
+// --- 预计算摘要 Hook ---
+import { useStockCapsule } from "@/features/dashboard/hooks/useStockCapsule";
 
 type DetailTab = "info" | "analysis";
 
@@ -85,6 +87,9 @@ export function StockDetail({
 
     // --- 增强分析数据 ---
     const enhancedAnalysis = useEnhancedAnalysis(selectedItem?.ticker || null);
+
+    // --- 预计算摘要 (StockCapsule) ---
+    const { newsCapsule } = useStockCapsule(selectedItem?.ticker || null);
 
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [mergedHistoryData, setMergedHistoryData] = useState<HistoryDataItem[]>([]);
@@ -294,7 +299,12 @@ export function StockDetail({
             />
 
             {/* 板块 5: 实时资讯流 */}
-            <NewsFeed news={news} aiData={aiData} />
+            <NewsFeed
+              news={news}
+              aiData={aiData}
+              newsCapsule={newsCapsule?.content}
+              newsCapsuleUpdatedAt={newsCapsule?.updated_at ?? null}
+            />
               </>
             )}
 

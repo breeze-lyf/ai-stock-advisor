@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     DASHSCOPE_API_KEY: Optional[str] = None
     DASHSCOPE_BASE_URL: Optional[str] = None
     DEFAULT_AI_MODEL: str = "qwen3.5-plus"
+    # DEPRECATED: TAVILY_API_KEY is intentionally NOT used as a system-level fallback.
+    # News search via Tavily is a user-optional feature only — the key must be configured
+    # per-user in Settings → Provider Credentials. Setting this env var has no effect.
     TAVILY_API_KEY: Optional[str] = None
     HTTP_PROXY: Optional[str] = None
     HTTPS_PROXY: Optional[str] = None

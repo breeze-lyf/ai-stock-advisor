@@ -403,7 +403,9 @@ class AIService:
                                 model: Optional[str] = None, db: AsyncSession = None, user_id: str = None,
                                 fomc_days_away: int = None, next_fomc_date: str = None,
                                 earnings_date: str = None, vix_level: float = None,
-                                analyst_summary: str = None) -> str:
+                                analyst_summary: str = None,
+                                pre_computed_news: str = None,
+                                pre_computed_fundamental: str = None) -> str:
         """主方法：生成个股深度诊断（带缓存）"""
         model_key = model or settings.DEFAULT_AI_MODEL
 
@@ -428,6 +430,8 @@ class AIService:
             earnings_date=earnings_date,
             vix_level=vix_level,
             analyst_summary=analyst_summary,
+            pre_computed_news=pre_computed_news,
+            pre_computed_fundamental=pre_computed_fundamental,
         )
 
         # 1. 检查内存缓存 (相同 prompt 直接返回)

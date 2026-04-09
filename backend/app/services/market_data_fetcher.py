@@ -35,6 +35,15 @@ class MarketDataFetcher:
 
     @staticmethod
     async def _resolve_tavily_api_key(db: AsyncSession | None, user_id: str | None) -> str | None:
+        """
+        Resolve the Tavily API key for the given user.
+
+        Design intent:
+          - Tavily news search is a USER-OPTIONAL feature only.
+          - The system NEVER falls back to settings.TAVILY_API_KEY from the environment.
+          - If user_id is None (e.g. scheduler background refresh), this intentionally returns None,
+            and the caller must use skip_news=True or rely on the pre-fetched StockNews table.
+        """
         if not db or not user_id:
             return None
         try:

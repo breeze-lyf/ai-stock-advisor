@@ -418,3 +418,63 @@ async def run_auto_refresh_stale_analysis_job(session_factory, max_per_run: int 
 
     logger.info(f"[AutoRefresh] 本轮完成，成功更新 {refreshed}/{len(to_refresh)} 个分析")
     return refreshed
+
+
+async def run_stock_capsule_refresh_job(session_factory) -> int:
+    """
+    Scan all portfolio tickers and refresh StockCapsules older than 24 h.
+    Capsules that don't exist yet are also generated.
+    AI calls are serialised to avoid rate-limit explosions.
+    """
+    from datetime import timezone
+    from sqlalchemy import select
+    from app.models.stock_capsule import StockCapsule
+    from app.application.analysis.generate_stock_capsule import GenerateStockCapsuleUseCase
+
+    STALE_HOURS = 24
+    refreshed = 0
+
+    async with session_factory() as db:
+        repo = SchedulerRepository(db)
+        tickers = await repo.get_all_portfolio_tickers()
+
+    if not tickers:
+        return 0
+
+    # Build a set of (ticker, type) that need refresh
+    stale_keys: list[tuple[str, str]] = []
+    async with session_factory() as db:
+        stmt = select(StockCapsule).where(StockCapsule.ticker.in_(tickers))
+        result = await db.execute(stmt)
+        existing: dict[tuple[str, str], StockCapsule] = {
+            (row.ticker, row.capsule_type): row for row in result.scalars().all()
+        }
+
+    cutoff = datetime.utcnow() - timedelta(hours=STALE_HOURS)
+    for ticker in tickers:
+        for ctype in ("news", "fundamental"):
+            row = existing.get((ticker, ctype))
+            if row is None or (row.updated_at and row.updated_at < cutoff):
+                stale_keys.append((ticker, ctype))
+
+    if not stale_keys:
+        logger.debug("[CapsuleRefresh] All capsules are fresh, skipping.")
+        return 0
+
+    logger.info(f"[CapsuleRefresh] {len(stale_keys)} capsule(s) to refresh: {stale_keys[:10]}...")
+
+    for ticker, ctype in stale_keys:
+        async with session_factory() as db:
+            try:
+                use_case = GenerateStockCapsuleUseCase(db)
+                if ctype == "news":
+                    await use_case.generate_news_capsule(ticker)
+                else:
+                    await use_case.generate_fundamental_capsule(ticker)
+                refreshed += 1
+                logger.info(f"[CapsuleRefresh] ✅ {ticker}/{ctype} capsule refreshed.")
+            except Exception as exc:
+                logger.error(f"[CapsuleRefresh] ❌ {ticker}/{ctype} failed: {exc}")
+
+    logger.info(f"[CapsuleRefresh] Done. Refreshed {refreshed}/{len(stale_keys)} capsules.")
+    return refreshed

@@ -10,6 +10,7 @@ from app.services.scheduler_jobs import (
     run_refresh_all_stocks_job,
     run_refresh_simulated_trades_job,
     run_auto_refresh_stale_analysis_job,
+    run_stock_capsule_refresh_job,
 )
 
 from app.infrastructure.db.repositories.scheduler_repository import SchedulerRepository
@@ -223,6 +224,16 @@ async def _run_auto_analysis_bg_task(session_factory):
         logger.error(f"[AutoRefresh] 后台分析刷新任务异常: {e}")
 
 
+async def _run_capsule_refresh_bg_task(session_factory):
+    """StockCapsule 24h 批量刷新后台包装器"""
+    try:
+        count = await run_stock_capsule_refresh_job(session_factory)
+        if count:
+            logger.info(f"[CapsuleRefresh] 本轮刷新了 {count} 个 capsule")
+    except Exception as e:
+        logger.error(f"[CapsuleRefresh] 后台 capsule 刷新任务异常: {e}")
+
+
 async def start_scheduler():
     """
     启动常驻后台循环。
@@ -237,6 +248,7 @@ async def start_scheduler():
     last_triggered_summary_hour = -1 # 记录上一次成功触发推送到小时，防止分钟内重复执行
     last_daily_report_day = ""
     last_auto_analysis_refresh = datetime.now() - timedelta(minutes=30)  # 启动即检查一次
+    last_capsule_refresh = datetime.now() - timedelta(hours=23)  # 启动时尽快执行一次
     
     while True:
         # Distributed lock: only one instance runs per cycle when Redis is available.
@@ -308,6 +320,13 @@ async def start_scheduler():
                 last_auto_analysis_refresh = datetime.now()
                 asyncio.create_task(
                     _run_auto_analysis_bg_task(SessionLocal)
+                )
+
+            # 4.8 StockCapsule 24h 预计算刷新 (非阻塞后台任务)
+            if datetime.now() - last_capsule_refresh > timedelta(hours=24):
+                last_capsule_refresh = datetime.now()
+                asyncio.create_task(
+                    _run_capsule_refresh_bg_task(SessionLocal)
                 )
 
             # 5. 盘后 AI 深度复盘 (每 15 分钟检查一次，内部有时间窗口过滤)

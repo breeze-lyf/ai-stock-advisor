@@ -21,7 +21,7 @@ from app.application.analysis.query_analysis import (
 from app.models.user import User
 from app.api.deps import get_current_user
 
-from app.schemas.analysis import AnalysisResponse, PortfolioAnalysisResponse
+from app.schemas.analysis import AnalysisResponse, PortfolioAnalysisResponse, StockCapsulesResponse
 
 logger = logging.getLogger(__name__)
 
@@ -99,3 +99,66 @@ async def get_latest_analysis(
     current_user: User = Depends(get_current_user)
 ):
     return await GetLatestAnalysisUseCase(db, current_user).execute(ticker=ticker)
+
+
+@router.get("/{ticker}/capsule", response_model=StockCapsulesResponse)
+async def get_stock_capsules(
+    ticker: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Return pre-computed news + fundamental capsules for a ticker."""
+    from app.application.analysis.generate_stock_capsule import GenerateStockCapsuleUseCase
+    use_case = GenerateStockCapsuleUseCase(db)
+    capsules = await use_case.get_capsules(ticker)
+
+    def _to_resp(cap):
+        if cap is None:
+            return None
+        return {
+            "ticker": cap.ticker,
+            "capsule_type": cap.capsule_type,
+            "content": cap.content,
+            "source_count": cap.source_count,
+            "model_used": cap.model_used,
+            "updated_at": cap.updated_at,
+        }
+
+    return {
+        "ticker": ticker.upper(),
+        "news": _to_resp(capsules.get("news")),
+        "fundamental": _to_resp(capsules.get("fundamental")),
+    }
+
+
+@router.post("/{ticker}/capsule/refresh", response_model=StockCapsulesResponse)
+async def refresh_stock_capsules(
+    ticker: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Trigger on-demand regeneration of both capsules for a ticker."""
+    from app.application.analysis.generate_stock_capsule import GenerateStockCapsuleUseCase
+    use_case = GenerateStockCapsuleUseCase(db)
+    capsules = await use_case.generate_all(
+        ticker,
+        model=current_user.preferred_ai_model or None,
+    )
+
+    def _to_resp(cap):
+        if cap is None:
+            return None
+        return {
+            "ticker": cap.ticker,
+            "capsule_type": cap.capsule_type,
+            "content": cap.content,
+            "source_count": cap.source_count,
+            "model_used": cap.model_used,
+            "updated_at": cap.updated_at,
+        }
+
+    return {
+        "ticker": ticker.upper(),
+        "news": _to_resp(capsules.get("news")),
+        "fundamental": _to_resp(capsules.get("fundamental")),
+    }

@@ -2,6 +2,25 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional, List
 
+
+class StockCapsuleResponse(BaseModel):
+    ticker: str
+    capsule_type: str
+    content: Optional[str] = None
+    source_count: Optional[int] = None
+    model_used: Optional[str] = None
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class StockCapsulesResponse(BaseModel):
+    ticker: str
+    news: Optional[StockCapsuleResponse] = None
+    fundamental: Optional[StockCapsuleResponse] = None
+
+
 class AnalysisResponse(BaseModel):
     ticker: str
     analysis: Optional[str] = None

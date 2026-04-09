@@ -11,6 +11,49 @@ COMPLIANCE_DISCLAIMER = (
     "【数据说明】本分析基于历史公开数据及量化模型，不保证未来收益及数据的绝对准确性。\n\n"
 )
 
+# ---------------------------------------------------------------------------
+# StockCapsule 预计算摘要提示词 (轻量级，无需深度 thinking 模式)
+# ---------------------------------------------------------------------------
+
+NEWS_CAPSULE_PROMPT_TEMPLATE = """
+你是一位专业的股市新闻分析师。请对以下关于 [{ticker}] 的最新新闻和宏观资讯进行简洁的摘要分析。
+
+**个股新闻 (Stock-specific news, most recent first):**
+{stock_news_context}
+
+**宏观快讯 (Global macro headlines):**
+{macro_news_context}
+
+**输出要求:**
+- 使用中文，简洁专业。
+- 提取 3-5 个最关键的消息面观察点。
+- 指出消息面对该股的整体情绪倾向（利好/利空/中性）。
+- 用 Markdown 格式输出，包含：**情绪总结**、**关键事件摘要**、**潜在影响分析**。
+- 严禁编造细节，仅基于所提供的新闻内容。
+- 如果新闻稀少或不相关，直接说明"近期无重大消息面催化剂"。
+- 输出长度控制在 400 字以内。
+"""
+
+FUNDAMENTAL_CAPSULE_PROMPT_TEMPLATE = """
+你是一位专业的基本面分析师。请对以下 [{ticker}] 的基本面数据进行简洁的快速诊断。
+
+**基本面数据:**
+- 行业/板块: {sector} / {industry}
+- 市值: {market_cap}
+- PE (TTM): {pe_ratio} | Forward PE: {forward_pe}
+- Beta: {beta}
+- 52周区间: [{fifty_two_week_low}, {fifty_two_week_high}]
+- 分析师共识: {analyst_summary}
+- 现价: {current_price}
+
+**输出要求:**
+- 使用中文，简洁专业。
+- 快速评估估值水位（是否偏贵/合理/低估）。
+- 点评行业地位与市场敏感度（Beta 含义）。
+- 用 Markdown 格式输出，包含：**估值快照**、**行业定位**、**分析师观点**。
+- 输出长度控制在 300 字以内。
+"""
+
 STOCK_ANALYSIS_PROMPT_TEMPLATE = """
 {compliance_prefix}你是一位资深全球多市场投资顾问和量化策略专家，精通美股（纳斯达克/纽交所）、A股（汪深两市）及港股的不同交易结构与市场特性。请基于以下多维数据为代码 [{ticker}] 提供严谨的诊断。
 注意：这是**标的级公共分析**，不面向某个具体用户持仓；禁止根据个体仓位、成本价、盈亏情况输出个性化持仓建议。
@@ -41,6 +84,12 @@ STOCK_ANALYSIS_PROMPT_TEMPLATE = """
 - [REF_N1] 消息面: {news_context}
 - [REF_N2] 筹码动向: 今日主力净流入 **{net_inflow}** 元。
 - [REF_N3] 估值水位: 当前 PE 百分位为 **{pe_percentile}%**，PB 百分位为 **{pb_percentile}%**。
+
+**4.5. 预计算消息面摘要 (Pre-computed News Capsule)** *(仅供参考，以上 REF_N1 原始新闻为准)*:
+{pre_computed_news}
+
+**4.6. 预计算基本面摘要 (Pre-computed Fundamental Capsule)** *(仅供参考，以上 REF_F 原始数据为准)*:
+{pre_computed_fundamental}
 
 **5. 全球宏观雷达与热点 (Global Macro Radar & Hotspots)**:
 [CONTEXT]: 以下是当前对全球市场影响最大的热点。
@@ -170,7 +219,7 @@ JSON 结构模版:
 }}
 """
 
-def build_stock_analysis_prompt(ticker: str, market_data: dict, fundamental_data: dict, news_data: list, macro_context: str, previous_analysis: dict = None, fomc_days_away: int = None, next_fomc_date: str = None, earnings_date: str = None, vix_level: float = None, analyst_summary: str = None) -> str:
+def build_stock_analysis_prompt(ticker: str, market_data: dict, fundamental_data: dict, news_data: list, macro_context: str, previous_analysis: dict = None, fomc_days_away: int = None, next_fomc_date: str = None, earnings_date: str = None, vix_level: float = None, analyst_summary: str = None, pre_computed_news: str = None, pre_computed_fundamental: str = None) -> str:
     news_context = "\n".join([f"- {n['title']} ({n['publisher']})" for n in news_data]) if news_data else "暂无重大个股新闻。"
     
     prev_context = "该股票首次进行 AI 分析。"
@@ -228,7 +277,9 @@ def build_stock_analysis_prompt(ticker: str, market_data: dict, fundamental_data
         vix_level=f"{vix_level:.2f}" if vix_level is not None else "N/A",
         analyst_summary=analyst_summary or "N/A",
         previous_analysis_context=prev_context,
-        current_time=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        current_time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        pre_computed_news=pre_computed_news or "暂无预计算消息面摘要。",
+        pre_computed_fundamental=pre_computed_fundamental or "暂无预计算基本面摘要。",
     )
 
 def build_portfolio_analysis_prompt(holdings_context: str, macro_context: str, market_news: str) -> str:

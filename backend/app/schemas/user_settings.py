@@ -109,7 +109,7 @@ class UserProfile(BaseModel):
     api_configs: dict[str, ApiConfig] | None = None
     provider_credentials: dict[str, UserProviderCredentialResponse] | None = None
     fallback_enabled: bool = True
-    preferred_data_source: str = "AKSHARE"
+    preferred_data_source: str = "YFINANCE"
     preferred_ai_model: str = settings.DEFAULT_AI_MODEL
     timezone: str = "Asia/Shanghai"
     theme: str = "dark"

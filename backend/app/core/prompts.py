@@ -54,6 +54,28 @@ FUNDAMENTAL_CAPSULE_PROMPT_TEMPLATE = """
 - 输出长度控制在 300 字以内。
 """
 
+TECHNICAL_CAPSULE_PROMPT_TEMPLATE = """
+你是一位专业的技术分析师。请对以下 [{ticker}] 的实时技术数据进行简洁的快速综合诊断。
+
+**技术面数据:**
+- 现价: {current_price} | 今日涨跌: {change_percent}%
+- MA 均线: 20日={ma_20} / 50日={ma_50} / 200日={ma_200}
+- MACD: DIF={macd_val} / DEA={macd_signal} / 柱={macd_hist}（斜率={macd_hist_slope}，交叉={macd_cross}）
+- RSI(14): {rsi_14}
+- KDJ: K={k_line} / D={d_line} / J={j_line}
+- 布林带: 上轨={bb_upper} / 中轨={bb_middle} / 下轨={bb_lower}
+- ATR(14): {atr_14} | ADX(14): {adx_14}
+- 量比: {volume_ratio}
+- 关键位: 阻力 R1={resistance_1} / 支撑 S1={support_1}
+
+**输出要求:**
+- 使用中文，简洁专业。
+- 综合研判当前技术面状态（多头/空头/震荡）。
+- 指出最关键的支撑/压力位。
+- 用 Markdown 格式输出，包含：**技术状态速览**、**关键位分析**、**短期信号提示**。
+- 输出长度控制在 350 字以内。
+"""
+
 STOCK_ANALYSIS_PROMPT_TEMPLATE = """
 {compliance_prefix}你是一位资深全球多市场投资顾问和量化策略专家，精通美股（纳斯达克/纽交所）、A股（汪深两市）及港股的不同交易结构与市场特性。请基于以下多维数据为代码 [{ticker}] 提供严谨的诊断。
 注意：这是**标的级公共分析**，不面向某个具体用户持仓；禁止根据个体仓位、成本价、盈亏情况输出个性化持仓建议。

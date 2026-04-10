@@ -110,4 +110,7 @@ async def get_optional_current_user(
     if not user_id:
         return None
 
-    return await UserRepository(db).get_by_id(user_id)
+    user = await UserRepository(db).get_by_id(user_id)
+    if user:
+        _load_user_data_source_config(user)
+    return user

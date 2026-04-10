@@ -146,14 +146,21 @@ export interface AIVerdictProps {
 /** 技术面深度透视 Props */
 export interface TechnicalInsightsProps {
     selectedItem: PortfolioItem;
-    aiData: AIData | null;
-    analyzing: boolean;
+    /** Pre-computed AI technical digest (from stock_capsules table) */
+    technicalCapsule?: string | null;
+    technicalCapsuleUpdatedAt?: string | null;
+    onRefreshCapsule?: () => void;
+    refreshingCapsule?: boolean;
 }
 
 /** 基本面资料卡 Props */
 export interface FundamentalCardProps {
     selectedItem: PortfolioItem;
-    aiData: AIData | null;
+    /** Pre-computed AI fundamental digest (from stock_capsules table) */
+    fundamentalCapsule?: string | null;
+    fundamentalCapsuleUpdatedAt?: string | null;
+    onRefreshCapsule?: () => void;
+    refreshingCapsule?: boolean;
 }
 
 /** 实时资讯流 Props */
@@ -162,4 +169,6 @@ export interface NewsFeedProps {
     /** Pre-computed AI news digest (from stock_capsules table) */
     newsCapsule?: string | null;
     newsCapsuleUpdatedAt?: string | null;
+    onRefreshCapsule?: () => void;
+    refreshingCapsule?: boolean;
 }

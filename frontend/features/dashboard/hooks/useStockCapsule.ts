@@ -20,8 +20,10 @@ interface UseStockCapsuleResult {
   capsules: StockCapsulesData | null;
   newsCapsule: StockCapsuleData | null;
   fundamentalCapsule: StockCapsuleData | null;
+  technicalCapsule: StockCapsuleData | null;
   isNewsStale: boolean;
   isFundamentalStale: boolean;
+  isTechnicalStale: boolean;
   loading: boolean;
   refreshing: boolean;
   error: string | null;
@@ -74,13 +76,16 @@ export function useStockCapsule(ticker: string | null): UseStockCapsuleResult {
 
   const newsCapsule = capsules?.news ?? null;
   const fundamentalCapsule = capsules?.fundamental ?? null;
+  const technicalCapsule = capsules?.technical ?? null;
 
   return {
     capsules,
     newsCapsule,
     fundamentalCapsule,
+    technicalCapsule,
     isNewsStale: isCapsuleStale(newsCapsule),
     isFundamentalStale: isCapsuleStale(fundamentalCapsule),
+    isTechnicalStale: isCapsuleStale(technicalCapsule),
     loading,
     refreshing,
     error,

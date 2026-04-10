@@ -127,7 +127,7 @@ async def get_stock_snapshot(
     ticker = ticker.upper().strip()
 
     try:
-        preferred_source = current_user.preferred_data_source if current_user else "AKSHARE"
+        preferred_source = current_user.preferred_data_source if current_user else "AUTO"
         cache = await MarketDataService.get_real_time_data(
             ticker,
             db,
@@ -169,8 +169,8 @@ async def get_stock_history(
         
         # 工厂模式：它会根据 Ticker 自动判断去哪抓数据。
         # 比如输入 'AAPL' 会去美股源，输入 '600519.SH' 则会自动切换到 A 股源。
-        user_preferred_source = current_user.preferred_data_source if current_user else "AKSHARE"
-        preferred_source = "AKSHARE" if (is_a_share or is_hk) else user_preferred_source
+        user_preferred_source = current_user.preferred_data_source if current_user else "AUTO"
+        preferred_source = user_preferred_source
         provider = ProviderFactory.get_provider(ticker, preferred_source)
         data = await provider.get_ohlcv(ticker, interval=interval, period=period, end_date=end_date)
 

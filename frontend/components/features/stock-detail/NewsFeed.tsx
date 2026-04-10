@@ -25,7 +25,7 @@ function toStockNewsItems(news: NewsFeedProps["news"]) {
     }));
 }
 
-export const NewsFeed = React.memo(function NewsFeed({ news, aiData, newsCapsule, newsCapsuleUpdatedAt }: NewsFeedProps & { aiData?: AIData | null }) {
+export const NewsFeed = React.memo(function NewsFeed({ news, aiData, newsCapsule, newsCapsuleUpdatedAt, onRefreshCapsule, refreshingCapsule }: NewsFeedProps & { aiData?: AIData | null }) {
     return (
         <div className="space-y-8 pt-4">
             {/* 标题栏：顶格对齐（修正：移除原有的 px-4 md:px-10） */}
@@ -34,9 +34,20 @@ export const NewsFeed = React.memo(function NewsFeed({ news, aiData, newsCapsule
                     <div className="h-8 w-1.5 bg-slate-900 dark:bg-slate-100 rounded-full shadow-[0_0_12px_rgba(15,23,42,0.3)] dark:shadow-[0_0_12px_rgba(241,245,249,0.3)]" />
                     <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-slate-100 uppercase">实时资讯流 (News)</h2>
                 </div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full mr-4 md:mr-10">
-                    {news.length} Articles
-                </span>
+                <div className="flex items-center gap-3">
+                    {onRefreshCapsule && (
+                        <button
+                            onClick={onRefreshCapsule}
+                            disabled={refreshingCapsule}
+                            className="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 disabled:opacity-40 transition-colors"
+                        >
+                            {refreshingCapsule ? "生成中…" : "↺ 刷新摘要"}
+                        </button>
+                    )}
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full mr-4 md:mr-10">
+                        {news.length} Articles
+                    </span>
+                </div>
             </div>
 
             {/* 预计算 AI 新闻摘要 (Capsule) — 优先展示，有则取代 aiData.news_summary */}

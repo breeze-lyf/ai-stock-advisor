@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from datetime import datetime
 from typing import Any
@@ -99,12 +98,8 @@ class AnalyzePortfolioUseCase:
             top_holdings = sorted(holdings, key=lambda item: item.market_value, reverse=True)[:3]
             top_tickers = [holding.ticker for holding in top_holdings]
 
-            await asyncio.gather(
-                *[
-                    MarketDataService.get_real_time_data(ticker, self.db, user_id=self.current_user.id)
-                    for ticker in top_tickers
-                ]
-            )
+            for ticker in top_tickers:
+                await MarketDataService.get_real_time_data(ticker, self.db, user_id=self.current_user.id)
 
             relevant_tickers = [macro_ticker] + top_tickers
             all_news = await self.repo.get_stock_news(relevant_tickers, limit=15)
@@ -116,6 +111,7 @@ class AnalyzePortfolioUseCase:
                 logger.info(f"Aggregated {len(all_news)} news items for portfolio RAG context.")
         except Exception as exc:
             logger.error(f"Failed to fetch RAG news context: {exc}")
+            await self.db.rollback()
         return market_news_context
 
     async def _build_macro_context(self) -> str:
@@ -137,6 +133,7 @@ class AnalyzePortfolioUseCase:
                 macro_context = "当前无显著宏观热点波动。"
         except Exception as exc:
             logger.error(f"Failed to fetch macro context for portfolio RAG: {exc}")
+            await self.db.rollback()
             macro_context = "宏观数据检索失败。"
         return macro_context
 

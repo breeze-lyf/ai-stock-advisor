@@ -164,6 +164,7 @@ export interface StockCapsulesData {
   ticker: string;
   news: StockCapsuleData | null;
   fundamental: StockCapsuleData | null;
+  technical: StockCapsuleData | null;
 }
 
 export async function getStockCapsules(ticker: string): Promise<StockCapsulesData> {

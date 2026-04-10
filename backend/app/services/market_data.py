@@ -24,7 +24,7 @@ class MarketDataService:
     async def get_real_time_data(
         ticker: str,
         db: AsyncSession,
-        preferred_source: str = "AKSHARE",
+        preferred_source: str = "AUTO",
         force_refresh: bool = False,
         price_only: bool = False,
         skip_news: bool = False,

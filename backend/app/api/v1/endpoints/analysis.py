@@ -128,6 +128,7 @@ async def get_stock_capsules(
         "ticker": ticker.upper(),
         "news": _to_resp(capsules.get("news")),
         "fundamental": _to_resp(capsules.get("fundamental")),
+        "technical": _to_resp(capsules.get("technical")),
     }
 
 
@@ -161,4 +162,5 @@ async def refresh_stock_capsules(
         "ticker": ticker.upper(),
         "news": _to_resp(capsules.get("news")),
         "fundamental": _to_resp(capsules.get("fundamental")),
+        "technical": _to_resp(capsules.get("technical")),
     }

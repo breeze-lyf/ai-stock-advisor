@@ -89,7 +89,7 @@ export function StockDetail({
     const enhancedAnalysis = useEnhancedAnalysis(selectedItem?.ticker || null);
 
     // --- 预计算摘要 (StockCapsule) ---
-    const { newsCapsule } = useStockCapsule(selectedItem?.ticker || null);
+    const { newsCapsule, fundamentalCapsule, technicalCapsule, refresh: refreshCapsule, refreshing: refreshingCapsule } = useStockCapsule(selectedItem?.ticker || null);
 
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [mergedHistoryData, setMergedHistoryData] = useState<HistoryDataItem[]>([]);
@@ -288,14 +288,19 @@ export function StockDetail({
             {/* 板块 3: 技术面深度透视 */}
             <TechnicalInsights
                 selectedItem={selectedItem}
-                aiData={aiData}
-                analyzing={analyzing}
+                technicalCapsule={technicalCapsule?.content}
+                technicalCapsuleUpdatedAt={technicalCapsule?.updated_at ?? null}
+                onRefreshCapsule={refreshCapsule}
+                refreshingCapsule={refreshingCapsule}
             />
 
             {/* 板块 4: 基本面资料卡 */}
             <FundamentalCard
                 selectedItem={selectedItem}
-                aiData={aiData}
+                fundamentalCapsule={fundamentalCapsule?.content}
+                fundamentalCapsuleUpdatedAt={fundamentalCapsule?.updated_at ?? null}
+                onRefreshCapsule={refreshCapsule}
+                refreshingCapsule={refreshingCapsule}
             />
 
             {/* 板块 5: 实时资讯流 */}
@@ -304,6 +309,8 @@ export function StockDetail({
               aiData={aiData}
               newsCapsule={newsCapsule?.content}
               newsCapsuleUpdatedAt={newsCapsule?.updated_at ?? null}
+              onRefreshCapsule={refreshCapsule}
+              refreshingCapsule={refreshingCapsule}
             />
               </>
             )}

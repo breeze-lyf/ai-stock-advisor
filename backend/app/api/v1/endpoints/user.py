@@ -120,7 +120,7 @@ def serialize_user_profile(current_user: User, provider_credentials: dict[str, U
         api_configs=api_configs,
         provider_credentials=provider_credentials,
         fallback_enabled=current_user.fallback_enabled if current_user.fallback_enabled is not None else True,
-        preferred_data_source=current_user.preferred_data_source or "AKSHARE",
+        preferred_data_source=current_user.preferred_data_source or "YFINANCE",
         preferred_ai_model=current_user.preferred_ai_model or core_settings.DEFAULT_AI_MODEL,
         timezone=current_user.timezone or "Asia/Shanghai",
         theme=current_user.theme or "light",

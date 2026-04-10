@@ -102,7 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 router.replace("/login");
             }
         }
-    }, [loading, token, pathname, router]);
+    }, [loading, token, pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const login = (newToken: string, newRefreshToken?: string) => {
         localStorage.setItem("token", newToken);

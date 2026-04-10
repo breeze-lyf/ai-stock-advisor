@@ -22,6 +22,7 @@ from app.core.config import settings
 from app.core.prompts import (
     FUNDAMENTAL_CAPSULE_PROMPT_TEMPLATE,
     NEWS_CAPSULE_PROMPT_TEMPLATE,
+    TECHNICAL_CAPSULE_PROMPT_TEMPLATE,
 )
 from app.models.stock_capsule import StockCapsule
 from app.models.stock import MarketDataCache, Stock, StockNews
@@ -33,6 +34,7 @@ logger = logging.getLogger(__name__)
 
 CAPSULE_TYPE_NEWS = "news"
 CAPSULE_TYPE_FUNDAMENTAL = "fundamental"
+CAPSULE_TYPE_TECHNICAL = "technical"
 
 
 class GenerateStockCapsuleUseCase:
@@ -69,7 +71,7 @@ class GenerateStockCapsuleUseCase:
         ) or "暂无个股新闻。"
 
         macro_lines = "\n".join(
-            [f"- [{n.published_at.strftime('%m-%d %H:%M') if n.published_at else ''}] {n.content[:120]}..." for n in global_news]
+            [f"- [{n.published_at[:16] if isinstance(n.published_at, str) else (n.published_at.strftime('%m-%d %H:%M') if n.published_at else '')}] {n.content[:120]}..." for n in global_news]
         ) if global_news else "暂无宏观快讯。"
 
         prompt = NEWS_CAPSULE_PROMPT_TEMPLATE.format(
@@ -148,18 +150,74 @@ class GenerateStockCapsuleUseCase:
         logger.info(f"[Capsule] Fundamental capsule saved for {ticker}")
         return capsule
 
+    async def generate_technical_capsule(self, ticker: str, model: str = None) -> Optional[StockCapsule]:
+        """Build and persist the technical capsule for `ticker`."""
+        ticker = ticker.upper().strip()
+        model = model or settings.DEFAULT_AI_MODEL
+
+        market_cache = await self._get_market_cache(ticker)
+        if not market_cache:
+            logger.info(f"[Capsule] No market cache for {ticker}, skipping technical capsule.")
+            return None
+
+        def _v(val, fmt=".2f"):
+            return format(val, fmt) if val is not None else "N/A"
+
+        prompt = TECHNICAL_CAPSULE_PROMPT_TEMPLATE.format(
+            ticker=ticker,
+            current_price=_v(market_cache.current_price),
+            change_percent=_v(getattr(market_cache, "change_percent", None), ".2f"),
+            ma_20=_v(getattr(market_cache, "ma_20", None)),
+            ma_50=_v(getattr(market_cache, "ma_50", None)),
+            ma_200=_v(getattr(market_cache, "ma_200", None)),
+            macd_val=_v(getattr(market_cache, "macd_val", None)),
+            macd_signal=_v(getattr(market_cache, "macd_signal", None)),
+            macd_hist=_v(getattr(market_cache, "macd_hist", None)),
+            macd_hist_slope=_v(getattr(market_cache, "macd_hist_slope", None)),
+            macd_cross=getattr(market_cache, "macd_cross", None) or "N/A",
+            rsi_14=_v(getattr(market_cache, "rsi_14", None)),
+            k_line=_v(getattr(market_cache, "k_line", None)),
+            d_line=_v(getattr(market_cache, "d_line", None)),
+            j_line=_v(getattr(market_cache, "j_line", None)),
+            bb_upper=_v(getattr(market_cache, "bb_upper", None)),
+            bb_middle=_v(getattr(market_cache, "bb_middle", None)),
+            bb_lower=_v(getattr(market_cache, "bb_lower", None)),
+            atr_14=_v(getattr(market_cache, "atr_14", None)),
+            adx_14=_v(getattr(market_cache, "adx_14", None)),
+            volume_ratio=_v(getattr(market_cache, "volume_ratio", None)),
+            resistance_1=_v(getattr(market_cache, "resistance_1", None)),
+            support_1=_v(getattr(market_cache, "support_1", None)),
+        )
+
+        try:
+            content = await self._call_ai(prompt, model, require_json=False)
+        except Exception as exc:
+            logger.error(f"[Capsule] Technical capsule AI call failed for {ticker}: {exc}")
+            return None
+
+        capsule = await self._upsert_capsule(
+            ticker=ticker,
+            capsule_type=CAPSULE_TYPE_TECHNICAL,
+            content=content,
+            source_count=1,
+            model_used=model,
+        )
+        logger.info(f"[Capsule] Technical capsule saved for {ticker}")
+        return capsule
+
     async def generate_all(self, ticker: str, model: str = None) -> dict[str, Optional[StockCapsule]]:
-        """Generate both capsule types and return them as a dict."""
+        """Generate all three capsule types and return them as a dict."""
         news = await self.generate_news_capsule(ticker, model)
         fundamental = await self.generate_fundamental_capsule(ticker, model)
-        return {CAPSULE_TYPE_NEWS: news, CAPSULE_TYPE_FUNDAMENTAL: fundamental}
+        technical = await self.generate_technical_capsule(ticker, model)
+        return {CAPSULE_TYPE_NEWS: news, CAPSULE_TYPE_FUNDAMENTAL: fundamental, CAPSULE_TYPE_TECHNICAL: technical}
 
     # ------------------------------------------------------------------
     # Read
     # ------------------------------------------------------------------
 
     async def get_capsules(self, ticker: str) -> dict[str, Optional[StockCapsule]]:
-        """Return both capsule types for a ticker (None if not yet generated)."""
+        """Return all capsule types for a ticker (None if not yet generated)."""
         ticker = ticker.upper().strip()
         stmt = select(StockCapsule).where(StockCapsule.ticker == ticker)
         result = await self.db.execute(stmt)
@@ -167,6 +225,7 @@ class GenerateStockCapsuleUseCase:
         out: dict[str, Optional[StockCapsule]] = {
             CAPSULE_TYPE_NEWS: None,
             CAPSULE_TYPE_FUNDAMENTAL: None,
+            CAPSULE_TYPE_TECHNICAL: None,
         }
         for row in rows:
             if row.capsule_type in out:

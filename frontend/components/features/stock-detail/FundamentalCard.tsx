@@ -6,18 +6,33 @@
 "use client";
 
 import React from "react";
+import ReactMarkdown from "react-markdown";
 import { FundamentalCardProps } from "./types";
 
 export const FundamentalCard = React.memo(function FundamentalCard({
     selectedItem,
-    aiData
+    fundamentalCapsule,
+    fundamentalCapsuleUpdatedAt,
+    onRefreshCapsule,
+    refreshingCapsule,
 }: FundamentalCardProps) {
     return (
         <div className="space-y-8">
             {/* 标题栏：顶格对齐 */}
-            <div className="flex items-center gap-3">
-                <div className="h-8 w-1.5 bg-amber-500 rounded-full shadow-[0_0_12px_rgba(245,158,11,0.5)]" />
-                <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-slate-100 uppercase">基本面资料卡</h2>
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="h-8 w-1.5 bg-amber-500 rounded-full shadow-[0_0_12px_rgba(245,158,11,0.5)]" />
+                    <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-slate-100 uppercase">基本面资料卡</h2>
+                </div>
+                {onRefreshCapsule && (
+                    <button
+                        onClick={onRefreshCapsule}
+                        disabled={refreshingCapsule}
+                        className="text-[10px] font-black uppercase tracking-widest text-amber-500 hover:text-amber-600 disabled:opacity-40 transition-colors"
+                    >
+                        {refreshingCapsule ? "生成中…" : "↺ 刷新摘要"}
+                    </button>
+                )}
             </div>
 
             {/* 内容区：缩进 */}
@@ -42,31 +57,29 @@ export const FundamentalCard = React.memo(function FundamentalCard({
                     ))}
                 </div>
 
-                {(aiData?.fundamental_analysis || aiData?.macro_risk_note) && (
-                    <div className="mt-8 space-y-6">
-                        {aiData?.fundamental_analysis && (
-                            <div className="space-y-2">
-                                <h3 className="text-sm font-black tracking-tight text-amber-600 dark:text-amber-400 uppercase">
-                                    AI 基本面解读
-                                </h3>
-                                <p className="text-sm leading-7 text-slate-600 dark:text-slate-300 whitespace-pre-line">
-                                    {aiData.fundamental_analysis}
-                                </p>
+                {/* 预计算 AI 基本面摘要 (Capsule) — 优先于全量分析中的 fundamental_analysis */}
+                {fundamentalCapsule && (
+                    <div className="mt-8">
+                        <div className="bg-amber-50/60 dark:bg-amber-900/10 border border-amber-200/40 dark:border-amber-800/30 rounded-2xl p-4 md:p-5 flex flex-col md:flex-row gap-4 items-start">
+                            <div className="flex items-center gap-2 shrink-0 md:w-28 md:pt-1">
+                                <div className="h-3 w-1 bg-amber-500 rounded-full shrink-0" />
+                                <h3 className="text-[10px] font-black uppercase text-amber-600 dark:text-amber-400 tracking-[0.2em] whitespace-nowrap">AI 基本面摘要</h3>
                             </div>
-                        )}
-
-                        {aiData?.macro_risk_note && (
-                            <div className="space-y-2 border-t border-slate-100 dark:border-slate-800 pt-6">
-                                <h3 className="text-sm font-black tracking-tight text-rose-600 dark:text-rose-400 uppercase">
-                                    宏观风险提示
-                                </h3>
-                                <p className="text-sm leading-7 text-slate-600 dark:text-slate-300 whitespace-pre-line">
-                                    {aiData.macro_risk_note}
-                                </p>
+                            <div className="flex-1 min-w-0 md:border-l border-amber-200/40 dark:border-amber-800/30 md:pl-5">
+                                <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-[12px] leading-snug text-slate-600 dark:text-zinc-400">
+                                    <ReactMarkdown>{fundamentalCapsule}</ReactMarkdown>
+                                </div>
+                                {fundamentalCapsuleUpdatedAt && (
+                                    <p className="mt-3 text-[10px] text-slate-400 dark:text-zinc-500">
+                                        摘要更新: {new Date(fundamentalCapsuleUpdatedAt).toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                                    </p>
+                                )}
                             </div>
-                        )}
+                        </div>
                     </div>
                 )}
+
+
             </div>
         </div>
     );

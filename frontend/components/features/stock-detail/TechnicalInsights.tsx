@@ -18,8 +18,10 @@ import { getRSIColor } from "./shared";
 
 export const TechnicalInsights = React.memo(function TechnicalInsights({
     selectedItem,
-    aiData,
-    analyzing
+    technicalCapsule,
+    technicalCapsuleUpdatedAt,
+    onRefreshCapsule,
+    refreshingCapsule,
 }: TechnicalInsightsProps) {
     const [isMounted, setIsMounted] = React.useState(false);
 
@@ -35,6 +37,15 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                     <div className="h-8 w-1.5 bg-emerald-600 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
                     <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-zinc-100 uppercase">技术面深度透视</h2>
                 </div>
+                {onRefreshCapsule && (
+                    <button
+                        onClick={onRefreshCapsule}
+                        disabled={refreshingCapsule}
+                        className="text-[10px] font-black uppercase tracking-widest text-emerald-600 hover:text-emerald-700 disabled:opacity-40 transition-colors"
+                    >
+                        {refreshingCapsule ? "生成中…" : "↺ 刷新摘要"}
+                    </button>
+                )}
             </div>
 
             {/* Dashboard Background & Grid Overlay */}
@@ -260,22 +271,22 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                             <div className="space-y-2">
                                 <div className="flex justify-between text-[8px] font-black text-slate-500">
                                     <span>市盈率 PE</span>
-                                    <span>{selectedItem?.pe_percentile?.toFixed(0)}%</span>
+                                    <span className="text-slate-700 dark:text-zinc-200">{selectedItem?.pe_ratio != null ? selectedItem.pe_ratio.toFixed(1) + "x" : "--"}</span>
                                 </div>
                                 <div className="relative h-1.5 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                                     <div className="h-full bg-emerald-600/60 transition-all duration-700" style={{ width: `${selectedItem?.pe_percentile || 0}%` }} />
                                 </div>
-                                <p className="text-[6px] text-slate-400 uppercase">Percentile</p>
+                                <p className="text-[6px] text-slate-400 uppercase">历史百分位 {selectedItem?.pe_percentile != null ? selectedItem.pe_percentile.toFixed(0) + "%" : "--"}</p>
                             </div>
                             <div className="space-y-2">
                                 <div className="flex justify-between text-[8px] font-black text-slate-500">
                                     <span>市净率 PB</span>
-                                    <span>{selectedItem?.pb_percentile?.toFixed(0)}%</span>
+                                    <span className="text-slate-700 dark:text-zinc-200">{selectedItem?.pb_percentile != null ? selectedItem.pb_percentile.toFixed(0) + "%" : "--"}</span>
                                 </div>
                                 <div className="relative h-1.5 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                                     <div className="h-full bg-blue-600/60 transition-all duration-700" style={{ width: `${selectedItem?.pb_percentile || 0}%` }} />
                                 </div>
-                                <p className="text-[6px] text-slate-400 uppercase">Percentile</p>
+                                <p className="text-[6px] text-slate-400 uppercase">历史百分位</p>
                             </div>
                         </div>
 
@@ -285,76 +296,26 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                     </div>
                 </div>
 
-                {/* AI 技术分析结论 - 极简双列分栏卡片 */}
-                <div className="mt-4 bg-slate-50/80 dark:bg-zinc-800/20 border border-slate-200/50 dark:border-zinc-800/50 rounded-2xl p-4 md:p-5 flex flex-col md:flex-row gap-4 items-start">
-                    {/* 侧边标题 */}
-                    <div className="flex items-center gap-2 shrink-0 md:w-28 md:pt-1">
-                        <div className="h-3 w-1 bg-blue-600 rounded-full shrink-0" />
-                        <h3 className="text-[10px] font-black uppercase text-slate-500 dark:text-zinc-400 tracking-[0.2em] whitespace-nowrap">AI 深度分析</h3>
+                {/* 预计算 AI 技术面摘要 (Capsule) — 显示在 6 卡片下方，AI 深度分析上方 */}
+                {technicalCapsule && (
+                    <div className="bg-emerald-50/60 dark:bg-emerald-900/10 border border-emerald-200/40 dark:border-emerald-800/30 rounded-2xl p-4 md:p-5 flex flex-col md:flex-row gap-4 items-start">
+                        <div className="flex items-center gap-2 shrink-0 md:w-28 md:pt-1">
+                            <div className="h-3 w-1 bg-emerald-600 rounded-full shrink-0" />
+                            <h3 className="text-[10px] font-black uppercase text-emerald-700 dark:text-emerald-400 tracking-[0.2em] whitespace-nowrap">AI 技术摘要</h3>
+                        </div>
+                        <div className="flex-1 min-w-0 md:border-l border-emerald-200/40 dark:border-emerald-800/30 md:pl-5">
+                            <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-[12px] leading-snug text-slate-600 dark:text-zinc-400">
+                                <ReactMarkdown>{technicalCapsule}</ReactMarkdown>
+                            </div>
+                            {technicalCapsuleUpdatedAt && (
+                                <p className="mt-3 text-[10px] text-slate-400 dark:text-zinc-500">
+                                    摘要更新: {new Date(technicalCapsuleUpdatedAt).toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                                </p>
+                            )}
+                        </div>
                     </div>
+                )}
 
-                    <div className="flex-1 min-w-0 md:border-l border-slate-200/50 dark:border-zinc-800/50 md:pl-5">
-                        {analyzing ? (
-                            <div className="flex items-center justify-center h-full gap-3 py-4 text-slate-400 dark:text-zinc-500">
-                                <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
-                                <p className="text-[9px] font-bold tracking-widest uppercase">模型研判中...</p>
-                            </div>
-                        ) : aiData?.technical_analysis ? (
-                            <div className="prose prose-sm prose-slate dark:prose-invert max-w-none">
-                                <div className="text-[12px] leading-snug text-slate-600 dark:text-zinc-400">
-                                    <ReactMarkdown
-                                        components={{
-                                            h3: ({ ...props }) => (
-                                                <h3 className="font-bold text-blue-600 dark:text-blue-400 mt-4 mb-2 first:mt-0 text-sm block">
-                                                    {props.children}
-                                                </h3>
-                                            ),
-                                            h4: ({ ...props }) => (
-                                                <h4 className="font-bold text-blue-600 dark:text-blue-400 mt-3 mb-1 first:mt-0 text-sm block">
-                                                    {props.children}
-                                                </h4>
-                                            ),
-                                            strong: ({ ...props }) => (
-                                                <strong className="font-bold text-blue-600 dark:text-blue-400">
-                                                    {props.children}
-                                                </strong>
-                                            ),
-                                            ul: ({ ...props }) => (
-                                                <ul className="list-disc pl-4 mt-0 mb-4 space-y-2 last:mb-0 text-slate-600 dark:text-zinc-400 block w-full">
-                                                    {props.children}
-                                                </ul>
-                                            ),
-                                            ol: ({ ...props }) => (
-                                                <ol className="list-decimal pl-4 mt-0 mb-4 space-y-2 last:mb-0 text-slate-600 dark:text-zinc-400 block w-full">
-                                                    {props.children}
-                                                </ol>
-                                            ),
-                                            li: ({ ...props }) => (
-                                                <li className="m-0 p-0">
-                                                    {props.children}
-                                                </li>
-                                            ),
-                                            p: ({ ...props }) => {
-                                                const children = React.Children.toArray(props.children);
-                                                return (
-                                                    <p className="mt-0 mb-2 last:mb-0 block w-full">
-                                                        {children}
-                                                    </p>
-                                                );
-                                            }
-                                        }}
-                                    >
-                                        {(aiData.technical_analysis?.replace(/\[\[REF_[A-Z0-9]+\]\]/g, '') || '').replace(/([。！？；;：:\.!\?])\s+(\*\*.*?\*\*\s*[:：])/g, '$1\n\n$2')}
-                                    </ReactMarkdown>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="flex items-center justify-center h-full py-4 text-slate-300 dark:text-zinc-600">
-                                <p className="text-[9px] font-bold uppercase tracking-widest">暂无分析信号</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
             </div>
         </div>
     );

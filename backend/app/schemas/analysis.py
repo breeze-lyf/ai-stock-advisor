@@ -19,6 +19,7 @@ class StockCapsulesResponse(BaseModel):
     ticker: str
     news: Optional[StockCapsuleResponse] = None
     fundamental: Optional[StockCapsuleResponse] = None
+    technical: Optional[StockCapsuleResponse] = None
 
 
 class AnalysisResponse(BaseModel):

@@ -82,6 +82,10 @@ docker run --rm \
 
 echo "Starting containers..."
 DEPLOY_STAGE="compose-up"
+# Force remove any orphan containers with conflicting names before bringing up new ones.
+# This handles the case where a container was started outside of compose (e.g. manual docker run)
+# and has a different network config, causing "Conflict: container name already in use".
+docker rm -f stock_backend stock_frontend 2>/dev/null || true
 ${COMPOSE_CMD} -f docker-compose.prod.yml up -d
 
 echo "Deployment completed"

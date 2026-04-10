@@ -270,6 +270,29 @@ class EmailService:
         pnl_color = "#10b981" if total_pnl >= 0 else "#ef4444"
         pnl_icon = "📈" if total_pnl >= 0 else "📉"
 
+        if top_performers:
+            performer_rows = "".join([
+                f'<div style="display: flex; justify-content: space-between; padding: 12px;'
+                f' border-bottom: 1px solid #eee; align-items: center;">'
+                f'<span style="font-weight: bold; color: #333;">{item.get("ticker", "N/A")}</span>'
+                f'<span style="color: #10b981; font-weight: bold;">+{item.get("pnl_percent", 0):.2f}%</span>'
+                f'</div>'
+                for item in top_performers[:3]
+            ])
+            top_performers_html = f'''
+                <div style="margin: 20px 0;">
+                    <h2 style="font-size: 16px; color: #333; margin-bottom: 15px;">🏆 表现最佳</h2>
+                    {performer_rows}
+                </div>'''
+        else:
+            top_performers_html = ''
+
+        market_news_html = (
+            ''.join([f'<li>{news}</li>' for news in market_news[:5]])
+            if market_news
+            else '<p style="color: #999; text-align: center;">暂无要闻</p>'
+        )
+
         html = f"""
         <html>
         <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -304,24 +327,13 @@ class EmailService:
                 </div>
 
                 <!-- 表现最佳持仓 -->
-                {f'''
-                <div style="margin: 20px 0;">
-                    <h2 style="font-size: 16px; color: #333; margin-bottom: 15px;">🏆 表现最佳</h2>
-                    {"".join([f"""
-                    <div style="display: flex; justify-content: space-between; padding: 12px;
-                                border-bottom: 1px solid #eee; align-items: center;">
-                        <span style="font-weight: bold; color: #333;">{item.get('ticker', 'N/A')}</span>
-                        <span style="color: #10b981; font-weight: bold;">+{item.get('pnl_percent', 0):.2f}%</span>
-                    </div>
-                    """ for item in top_performers[:3]]) if top_performers else '<p style="color: #999; text-align: center;">暂无数据</p>'}
-                </div>
-                ''' if top_performers else ''}
+                {top_performers_html}
 
                 <!-- 市场要闻 -->
                 <div style="margin: 20px 0;">
                     <h2 style="font-size: 16px; color: #333; margin-bottom: 15px;">📰 市场要闻</h2>
                     <ul style="padding-left: 20px; color: #555; line-height: 1.8;">
-                        {''.join([f'<li>{news}</li>' for news in market_news[:5]]) if market_news else '<p style="color: #999; text-align: center;">暂无要闻</p>'}
+                        {market_news_html}
                     </ul>
                 </div>
             </div>

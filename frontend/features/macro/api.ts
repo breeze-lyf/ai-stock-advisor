@@ -61,7 +61,9 @@ export async function getMacroRadar(refresh = false): Promise<MacroTopic[]> {
 }
 
 export async function getClsNews(refresh = false): Promise<ClsNewsItem[]> {
-  const response = await api.get(`/api/v1/macro/cls_news?refresh=${refresh}`);
+  // Add timestamp to prevent browser caching on manual refresh
+  const timestamp = refresh ? `&_t=${Date.now()}` : '';
+  const response = await api.get(`/api/v1/macro/cls_news?refresh=${refresh}${timestamp}`);
   const items = response.data as ClsNewsItem[];
   return items.map((item) => ({
     title: item.title,

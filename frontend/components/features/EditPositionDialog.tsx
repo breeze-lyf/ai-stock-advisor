@@ -5,6 +5,7 @@
  * - 提供用户界面以修改持仓数量和成本价
  * - 表单验证和数据提交
  * - 实时计算总成本
+ * - 支持一键清空持仓（不再持有）
  *
  * 组件结构：
  * - EditPositionDialog: 完整的对话框组件
@@ -14,6 +15,7 @@
  * - 用户买入/卖出后调整持仓数量
  * - 修正错误的成本价输入
  * - 分批建仓后更新平均成本
+ * - 清仓后删除持仓记录
  */
 "use client";
 
@@ -30,7 +32,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PortfolioItem } from "@/types";
-import { Pencil, Save, X } from "lucide-react";
+import { Pencil, Save, X, Trash2, AlertTriangle } from "lucide-react";
 import clsx from "clsx";
 
 /**
@@ -78,6 +80,9 @@ export function EditPositionDialog({
     // 加载和错误状态
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    // 删除确认对话框状态
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
     // 确定使用受控还是非受控模式
     const isOpen = onOpenChange !== undefined ? open : internalOpen;
@@ -159,83 +164,176 @@ export function EditPositionDialog({
         }
     };
 
+    /**
+     * 删除持仓（不再持有）
+     */
+    const handleDelete = async () => {
+        setDeleting(true);
+        setError(null);
+
+        try {
+            const response = await fetch(`/api/v1/portfolio/${ticker}`, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.detail || "删除失败");
+            }
+
+            setShowDeleteConfirm(false);
+            setOpen(false);
+            onSuccess?.();
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "删除失败，请重试");
+            setShowDeleteConfirm(false);
+        } finally {
+            setDeleting(false);
+        }
+    };
+
     return (
         <Dialog open={isOpen} onOpenChange={setOpen}>
-            <DialogContent className="sm:max-w-md bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl">
+            <DialogContent className="sm:max-w-md bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl">
                 <DialogHeader>
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-blue-600/10 flex items-center justify-center border border-blue-600/20">
-                            <Pencil className="h-4 w-4 text-blue-600" />
-                        </div>
-                        <div>
-                            <DialogTitle className="font-black text-base text-slate-900 dark:text-white">
-                                编辑持仓
-                            </DialogTitle>
-                            <DialogDescription className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                                {ticker}
-                            </DialogDescription>
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                                <Pencil className="h-4 w-4 text-white" />
+                            </div>
+                            <div>
+                                <DialogTitle className="font-black text-base text-slate-900 dark:text-white">
+                                    编辑持仓
+                                </DialogTitle>
+                                <DialogDescription className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                                    {ticker}
+                                </DialogDescription>
+                            </div>
                         </div>
                     </div>
                 </DialogHeader>
 
-                <div className="space-y-4 py-4">
+                <div className="space-y-4 py-2">
                     {/* 错误提示 */}
                     {error && (
-                        <div className="p-3 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-lg">
+                        <div className="p-3 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-lg flex items-start gap-2">
+                            <AlertTriangle className="h-4 w-4 text-rose-600 dark:text-rose-400 mt-0.5 shrink-0" />
                             <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">{error}</p>
                         </div>
                     )}
 
                     {/* 持仓数量输入 */}
                     <div className="space-y-2">
-                        <Label htmlFor="quantity" className="text-xs font-bold text-slate-600 dark:text-slate-400">
-                            持仓数量 (Shares)
+                        <Label htmlFor="quantity" className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                            <span>持仓数量</span>
+                            <span className="text-[10px] font-normal text-slate-400">(Shares)</span>
                         </Label>
-                        <Input
-                            id="quantity"
-                            type="number"
-                            step="0.01"
-                            value={editedQuantity}
-                            onChange={(e) => setEditedQuantity(e.target.value)}
-                            className="h-10 font-mono tabular-nums"
-                            placeholder="0"
-                        />
+                        <div className="relative">
+                            <Input
+                                id="quantity"
+                                type="number"
+                                step="0.01"
+                                value={editedQuantity}
+                                onChange={(e) => setEditedQuantity(e.target.value)}
+                                className="h-11 font-mono tabular-nums pr-12 border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500"
+                                placeholder="0"
+                            />
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                股
+                            </span>
+                        </div>
                     </div>
 
                     {/* 持仓均价输入 */}
                     <div className="space-y-2">
-                        <Label htmlFor="avgCost" className="text-xs font-bold text-slate-600 dark:text-slate-400">
-                            持仓均价 (Cost Basis)
+                        <Label htmlFor="avgCost" className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                            <span>持仓均价</span>
+                            <span className="text-[10px] font-normal text-slate-400">(Cost Basis)</span>
                         </Label>
-                        <Input
-                            id="avgCost"
-                            type="number"
-                            step="0.01"
-                            value={editedAvgCost}
-                            onChange={(e) => setEditedAvgCost(e.target.value)}
-                            className="h-10 font-mono tabular-nums"
-                            placeholder="0.00"
-                        />
+                        <div className="relative">
+                            <Input
+                                id="avgCost"
+                                type="number"
+                                step="0.01"
+                                value={editedAvgCost}
+                                onChange={(e) => setEditedAvgCost(e.target.value)}
+                                className="h-11 font-mono tabular-nums pr-12 border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500"
+                                placeholder="0.00"
+                            />
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                                $
+                            </span>
+                        </div>
                     </div>
 
                     {/* 总成本预览 */}
-                    <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-800">
+                    <div className="p-4 bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-800/30 rounded-xl border border-slate-200 dark:border-slate-700">
                         <div className="flex justify-between items-center">
                             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">总成本</span>
-                            <span className="text-sm font-black text-slate-900 dark:text-white tabular-nums">
+                            <span className="text-lg font-black text-slate-900 dark:text-white tabular-nums">
                                 ${calculateMarketValue().toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </span>
                         </div>
                     </div>
+
+                    {/* 分割线 */}
+                    <div className="h-px bg-slate-100 dark:bg-slate-800" />
+
+                    {/* 不再持有按钮 */}
+                    {!showDeleteConfirm ? (
+                        <button
+                            type="button"
+                            onClick={() => setShowDeleteConfirm(true)}
+                            className="w-full h-10 rounded-xl border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all duration-200 flex items-center justify-center gap-2 font-bold text-sm"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                            不再持有此股票
+                        </button>
+                    ) : (
+                        <div className="p-3 bg-rose-50 dark:bg-rose-900/20 rounded-xl border border-rose-200 dark:border-rose-800 space-y-3">
+                            <div className="flex items-center gap-2 text-rose-700 dark:text-rose-400">
+                                <AlertTriangle className="h-4 w-4" />
+                                <span className="text-sm font-bold">确认删除持仓？</span>
+                            </div>
+                            <p className="text-xs text-rose-600 dark:text-rose-400">
+                                此操作将永久删除 <span className="font-mono font-black">{ticker}</span> 的持仓记录
+                            </p>
+                            <div className="flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowDeleteConfirm(false)}
+                                    disabled={deleting}
+                                    className="flex-1 h-9 rounded-lg border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/30 transition-all font-bold text-sm disabled:opacity-50"
+                                >
+                                    取消
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleDelete}
+                                    disabled={deleting}
+                                    className="flex-1 h-9 rounded-lg bg-rose-600 hover:bg-rose-700 text-white transition-all font-bold text-sm disabled:opacity-50 flex items-center justify-center gap-1.5"
+                                >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                    {deleting ? "删除中..." : "确认删除"}
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
-                <DialogFooter className="gap-2 sm:gap-0">
+                <DialogFooter className="gap-2 sm:gap-0 border-t border-slate-100 dark:border-slate-800 pt-4">
                     {/* 取消按钮 */}
                     <Button
                         variant="outline"
-                        onClick={() => setOpen(false)}
-                        className="h-10 font-bold border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800"
-                        disabled={loading}
+                        onClick={() => {
+                            setShowDeleteConfirm(false);
+                            setOpen(false);
+                        }}
+                        className="h-10 font-bold border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        disabled={loading || deleting}
                     >
                         <X className="h-4 w-4 mr-1.5" />
                         取消
@@ -243,8 +341,8 @@ export function EditPositionDialog({
                     {/* 保存按钮 */}
                     <Button
                         onClick={handleSubmit}
-                        className="h-10 bg-blue-600 hover:bg-blue-700 text-white font-bold"
-                        disabled={loading}
+                        className="h-10 bg-linear-to-br from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold shadow-lg shadow-blue-500/25"
+                        disabled={loading || deleting}
                     >
                         <Save className="h-4 w-4 mr-1.5" />
                         {loading ? "保存中..." : "保存"}

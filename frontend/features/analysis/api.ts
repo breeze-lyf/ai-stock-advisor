@@ -174,7 +174,7 @@ export async function getStockCapsules(ticker: string): Promise<StockCapsulesDat
 
 export async function refreshStockCapsules(ticker: string): Promise<StockCapsulesData> {
   const response = await api.post(`/api/v1/analysis/${ticker}/capsule/refresh`, undefined, {
-    timeout: 120_000, // capsule generation is AI-driven but lighter than full analysis
+    timeout: 300_000, // capsule refresh = market data pre-fetch (up to 60s) + AI generation
   });
   return response.data;
 }

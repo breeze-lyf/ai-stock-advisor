@@ -62,9 +62,12 @@ export function GlobalNewsFeed() {
                         news.map((item, idx) => {
                             // 格式化时间，只保留时分
                             const displayTime = item.time.includes(" ") ? item.time.split(" ")[1].substring(0, 5) : item.time;
-                            
+
+                            // 使用时间和内容的重结合作为唯一 key，确保 React 能正确识别新消息
+                            const uniqueKey = `${item.time}-${item.title?.substring(0, 20) || idx}`;
+
                             return (
-                                <div key={idx} className="relative pl-6 group">
+                                <div key={uniqueKey} className="relative pl-6 group">
                                     {/* Timeline Dot */}
                                     <div className="absolute left-[3px] top-1.5 w-2 h-2 rounded-full bg-blue-600 ring-4 ring-white dark:ring-slate-900 z-10" />
                                     

@@ -56,8 +56,33 @@ export function useStockCapsule(ticker: string | null): UseStockCapsuleResult {
     setRefreshing(true);
     setError(null);
     try {
-      const data = await refreshStockCapsules(ticker);
-      setCapsules(data);
+      // Step 1: Trigger background refresh (returns immediately with existing capsules)
+      await refreshStockCapsules(ticker);
+
+      // Step 2: Poll for updated capsules (check every 3s for up to 90s)
+      // The backend generates capsules in background, so we need to poll for the new data
+      const pollInterval = setInterval(async () => {
+        try {
+          const data = await getStockCapsules(ticker);
+          setCapsules(data);
+
+          // Stop polling if all capsules have been updated (updated_at within last 60s)
+          const now = Date.now();
+          const allUpdated = [data.news, data.fundamental, data.technical].every(
+            (cap) => cap?.updated_at && now - new Date(cap.updated_at).getTime() < 60000
+          );
+
+          if (allUpdated) {
+            clearInterval(pollInterval);
+          }
+        } catch (err) {
+          console.error("Polling for capsules failed:", err);
+        }
+      }, 3000);
+
+      // Auto-stop polling after 90s to prevent infinite loops
+      setTimeout(() => clearInterval(pollInterval), 90000);
+
     } catch (err) {
       setError("刷新预分析摘要失败");
       console.error("useStockCapsule refresh error:", err);

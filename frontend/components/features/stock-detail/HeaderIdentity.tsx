@@ -21,9 +21,8 @@
 import React, { useState } from "react";
 import clsx from "clsx";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, ChevronLeft, Pencil } from "lucide-react";
+import { RefreshCw, ChevronLeft, Pencil, Save, X, Trash2 } from "lucide-react";
 import { HeaderIdentityProps } from "./types";
-import { EditPositionDialog } from "@/components/features/EditPositionDialog";
 
 /**
  * HeaderIdentity 组件主函数
@@ -45,8 +44,87 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
     activeTab = "info",
     onTabChange,
 }: HeaderIdentityProps) {
-    // 编辑对话框打开状态
-    const [editDialogOpen, setEditDialogOpen] = useState(false);
+    // 内联编辑状态
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedQuantity, setEditedQuantity] = useState("");
+    const [editedAvgCost, setEditedAvgCost] = useState("");
+    const [editLoading, setEditLoading] = useState(false);
+    const [editDeleting, setEditDeleting] = useState(false);
+    const [editError, setEditError] = useState<string | null>(null);
+
+    const handleStartEdit = () => {
+        setEditedQuantity(selectedItem.quantity > 0 ? String(selectedItem.quantity) : "");
+        setEditedAvgCost(selectedItem.avg_cost > 0 ? String(selectedItem.avg_cost) : "");
+        setEditError(null);
+        setIsEditing(true);
+    };
+
+    const handleCancelEdit = () => {
+        setIsEditing(false);
+        setEditError(null);
+    };
+
+    const handleSaveEdit = async () => {
+        const qty = parseFloat(editedQuantity);
+        const cost = parseFloat(editedAvgCost);
+        if (isNaN(qty) || qty <= 0) { setEditError("持仓数量必须大于 0"); return; }
+        if (isNaN(cost) || cost <= 0) { setEditError("持仓均价必须大于 0"); return; }
+        setEditLoading(true);
+        setEditError(null);
+        const isNewPosition = selectedItem.quantity <= 0;
+        try {
+            const response = isNewPosition
+                ? await fetch(`/api/v1/portfolio/`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                    body: JSON.stringify({ ticker: selectedItem.ticker, quantity: qty, avg_cost: cost }),
+                })
+                : await fetch(`/api/v1/portfolio/${selectedItem.ticker}`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                    body: JSON.stringify({ quantity: qty, avg_cost: cost }),
+                });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.detail || "更新失败");
+            }
+            setIsEditing(false);
+            onRefresh?.();
+        } catch (err) {
+            setEditError(err instanceof Error ? err.message : "更新失败，请重试");
+        } finally {
+            setEditLoading(false);
+        }
+    };
+
+    const handleClosePosition = async () => {
+        setEditDeleting(true);
+        setEditError(null);
+        try {
+            const response = await fetch(`/api/v1/portfolio/${selectedItem.ticker}`, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.detail || "删除失败");
+            }
+            setIsEditing(false);
+            onRefresh?.();
+        } catch (err) {
+            setEditError(err instanceof Error ? err.message : "删除失败，请重试");
+        } finally {
+            setEditDeleting(false);
+        }
+    };
 
     // 标签页定义
     const tabs = [
@@ -103,14 +181,16 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                 {/* 右侧：最新涨跌 + 实时价格 */}
                 <div className="flex items-center gap-6 sm:gap-10">
                     {/* 最新涨跌（桌面端显示） */}
-                    <div className="hidden sm:flex flex-col items-end">
-                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">最新涨跌</span>
-                        <span className={clsx(
-                            "text-lg font-black tabular-nums",
-                            (selectedItem.change_percent || 0) >= 0 ? "text-emerald-600" : "text-rose-600"
-                        )}>
-                            {(selectedItem.change_percent || 0) >= 0 ? "+" : ""}{selectedItem.change_percent?.toFixed(2)}%
-                        </span>
+                    <div className="hidden sm:flex flex-col items-end gap-2">
+                        <div className="flex flex-col items-end">
+                            <span className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">最新涨跌</span>
+                            <span className={clsx(
+                                "text-lg font-black tabular-nums",
+                                (selectedItem.change_percent || 0) >= 0 ? "text-emerald-600" : "text-rose-600"
+                            )}>
+                                {(selectedItem.change_percent || 0) >= 0 ? "+" : ""}{selectedItem.change_percent?.toFixed(2)}%
+                            </span>
+                        </div>
                     </div>
 
                     {/* 实时价格 */}
@@ -122,98 +202,214 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                 </div>
             </div>
 
-            {/* 持仓信息区域（仅当持有时显示）
-             * 优化：采用单行水平布局，减少垂直空间占用
-             * 从原来的 2 行网格改为 1 行 flex 布局，高度减少约 40%
-             */}
-            {selectedItem.quantity > 0 && (
-                <div className="flex items-center gap-6 mt-2 pt-2.5 border-t border-slate-50 dark:border-slate-800/50">
-                    {/* 持有仓位（带编辑按钮） */}
-                    <div className="flex items-center gap-2">
-                        <div className="flex flex-col">
-                            <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">持有仓位</span>
-                            <span className="text-sm font-bold text-slate-700 dark:text-slate-300 tabular-nums">
-                                {selectedItem.quantity} Shares
-                            </span>
-                        </div>
-                        {/* 编辑按钮 - 铅笔图标 */}
+            {/* 持仓信息 + Tab 导航行：持仓在左，Tab 靠右，始终渲染（Tab 无持仓时也需显示） */}
+            <div className="flex items-center flex-wrap gap-x-6 gap-y-2 mt-2 pb-1.5 border-b border-slate-100 dark:border-slate-800/50">
+                {/* 持仓信息（有持仓才显示） */}
+                {selectedItem.quantity > 0 ? (
+                    <>
+                        {isEditing ? (
+                            /* 内联编辑模式（有持仓） */
+                            <>
+                                {editError && (
+                                    <span className="w-full text-xs text-rose-600 font-medium -mb-1">{editError}</span>
+                                )}
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider whitespace-nowrap">持有仓位</span>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        title="持仓数量"
+                                        placeholder="0"
+                                        value={editedQuantity}
+                                        onChange={(e) => setEditedQuantity(e.target.value)}
+                                        className="w-20 h-7 px-2 text-sm font-mono tabular-nums border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-md focus:outline-none focus:border-blue-500 text-slate-800 dark:text-slate-100"
+                                    />
+                                    <span className="text-[10px] text-slate-400 font-bold">股</span>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider whitespace-nowrap">持仓均价</span>
+                                    <span className="text-[10px] text-slate-400 font-bold">$</span>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        title="持仓均价"
+                                        placeholder="0.00"
+                                        value={editedAvgCost}
+                                        onChange={(e) => setEditedAvgCost(e.target.value)}
+                                        className="w-24 h-7 px-2 text-sm font-mono tabular-nums border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-md focus:outline-none focus:border-blue-500 text-slate-800 dark:text-slate-100"
+                                    />
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                    <button
+                                        type="button"
+                                        onClick={handleSaveEdit}
+                                        disabled={editLoading || editDeleting}
+                                        className="h-7 px-2.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1 transition-colors disabled:opacity-50"
+                                    >
+                                        <Save className="h-3 w-3" />
+                                        {editLoading ? "保存中..." : "保存"}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleCancelEdit}
+                                        disabled={editLoading || editDeleting}
+                                        className="h-7 px-2 rounded-md border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-1 transition-colors disabled:opacity-50"
+                                    >
+                                        <X className="h-3 w-3" />
+                                        取消
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleClosePosition}
+                                        disabled={editLoading || editDeleting}
+                                        className="h-7 px-2.5 rounded-md border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-xs font-bold flex items-center gap-1 transition-colors disabled:opacity-50"
+                                    >
+                                        <Trash2 className="h-3 w-3" />
+                                        {editDeleting ? "平仓中..." : "平仓"}
+                                    </button>
+                                </div>
+                            </>
+                        ) : (
+                            /* 展示模式 */
+                            <>
+                                <div className="flex items-center gap-2">
+                                    <div className="flex flex-col">
+                                        <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">持有仓位</span>
+                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300 tabular-nums">
+                                            {selectedItem.quantity} Shares
+                                        </span>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={handleStartEdit}
+                                        className="p-1 -mt-0.5 rounded-md text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                                        title="编辑持仓"
+                                    >
+                                        <Pencil className="h-3.5 w-3.5" />
+                                    </button>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">持仓均价</span>
+                                    <span className="text-sm font-bold text-slate-700 dark:text-slate-300 tabular-nums">
+                                        ${selectedItem.avg_cost.toFixed(2)}
+                                    </span>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">账面盈亏</span>
+                                    <div className="flex items-center gap-1.5">
+                                        <span className={clsx(
+                                            "text-sm font-bold tabular-nums",
+                                            selectedItem.unrealized_pl >= 0 ? "text-emerald-600" : "text-rose-600"
+                                        )}>
+                                            {selectedItem.unrealized_pl >= 0 ? "+" : ""}${selectedItem.unrealized_pl.toFixed(2)}
+                                        </span>
+                                        <span className={clsx(
+                                            "text-[9px] font-black px-1 py-0.5 rounded-md",
+                                            selectedItem.pl_percent >= 0
+                                                ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-600/10 dark:text-emerald-400"
+                                                : "bg-rose-50 text-rose-600 dark:bg-rose-600/10 dark:text-rose-400"
+                                        )}>
+                                            {selectedItem.pl_percent >= 0 ? "+" : ""}{selectedItem.pl_percent.toFixed(2)}%
+                                        </span>
+                                    </div>
+                                </div>
+                            </>
+                        )}
+                    </>
+                ) : (
+                    /* 空仓时：编辑中显示输入框，否则显示设置持仓按钮 */
+                    isEditing ? (
+                        <>
+                            {editError && (
+                                <span className="w-full text-xs text-rose-600 font-medium -mb-1">{editError}</span>
+                            )}
+                            <div className="flex items-center gap-1.5">
+                                <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider whitespace-nowrap">持有仓位</span>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    title="持仓数量"
+                                    placeholder="0"
+                                    value={editedQuantity}
+                                    onChange={(e) => setEditedQuantity(e.target.value)}
+                                    className="w-20 h-7 px-2 text-sm font-mono tabular-nums border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-md focus:outline-none focus:border-blue-500 text-slate-800 dark:text-slate-100"
+                                />
+                                <span className="text-[10px] text-slate-400 font-bold">股</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                                <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider whitespace-nowrap">持仓均价</span>
+                                <span className="text-[10px] text-slate-400 font-bold">$</span>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    title="持仓均价"
+                                    placeholder="0.00"
+                                    value={editedAvgCost}
+                                    onChange={(e) => setEditedAvgCost(e.target.value)}
+                                    className="w-24 h-7 px-2 text-sm font-mono tabular-nums border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-md focus:outline-none focus:border-blue-500 text-slate-800 dark:text-slate-100"
+                                />
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                                <button
+                                    type="button"
+                                    onClick={handleSaveEdit}
+                                    disabled={editLoading}
+                                    className="h-7 px-2.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1 transition-colors disabled:opacity-50"
+                                >
+                                    <Save className="h-3 w-3" />
+                                    {editLoading ? "保存中..." : "保存"}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleCancelEdit}
+                                    disabled={editLoading}
+                                    className="h-7 px-2 rounded-md border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-1 transition-colors disabled:opacity-50"
+                                >
+                                    <X className="h-3 w-3" />
+                                    取消
+                                </button>
+                            </div>
+                        </>
+                    ) : (
                         <button
                             type="button"
-                            onClick={() => setEditDialogOpen(true)}
-                            className="p-1 -mt-0.5 rounded-md text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                            title="编辑持仓"
+                            onClick={handleStartEdit}
+                            className="flex items-center gap-1.5 h-7 px-3 rounded-md border border-dashed border-slate-300 dark:border-slate-600 text-slate-400 dark:text-slate-500 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 text-xs font-bold transition-colors"
                         >
-                            <Pencil className="h-3.5 w-3.5" />
+                            <Pencil className="h-3 w-3" />
+                            设置持仓
                         </button>
+                    )
+                )}
+
+                {/* Tab 标签导航 — 靠右，与持仓信息同行 */}
+                {onTabChange && (
+                    <div className="ml-auto flex items-center">
+                        {tabs.map(({ key, label }) => (
+                            <button
+                                key={key}
+                                type="button"
+                                onClick={() => onTabChange(key)}
+                                className={clsx(
+                                    "relative px-3 py-1.5 text-xs font-semibold transition-colors duration-200",
+                                    activeTab === key
+                                        ? "text-slate-900 dark:text-white"
+                                        : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+                                )}
+                            >
+                                {label}
+                                {activeTab === key && (
+                                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-900 dark:bg-white rounded-full" />
+                                )}
+                            </button>
+                        ))}
                     </div>
-
-                    {/* 持仓均价 */}
-                    <div className="flex flex-col">
-                        <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">持仓均价</span>
-                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300 tabular-nums">
-                            ${selectedItem.avg_cost.toFixed(2)}
-                        </span>
-                    </div>
-
-                    {/* 账面盈亏（金额 + 百分比） */}
-                    <div className="flex flex-col">
-                        <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">账面盈亏</span>
-                        <div className="flex items-center gap-1.5">
-                            {/* 盈亏金额 */}
-                            <span className={clsx(
-                                "text-sm font-bold tabular-nums",
-                                selectedItem.unrealized_pl >= 0 ? "text-emerald-600" : "text-rose-600"
-                            )}>
-                                {selectedItem.unrealized_pl >= 0 ? "+" : ""}${selectedItem.unrealized_pl.toFixed(2)}
-                            </span>
-                            {/* 盈亏百分比（带背景色） */}
-                            <span className={clsx(
-                                "text-[9px] font-black px-1 py-0.5 rounded-md",
-                                selectedItem.pl_percent >= 0
-                                    ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-600/10 dark:text-emerald-400"
-                                    : "bg-rose-50 text-rose-600 dark:bg-rose-600/10 dark:text-rose-400"
-                            )}>
-                                {selectedItem.pl_percent >= 0 ? "+" : ""}{selectedItem.pl_percent.toFixed(2)}%
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* 编辑持仓对话框 */}
-            <EditPositionDialog
-                ticker={selectedItem.ticker}
-                quantity={selectedItem.quantity}
-                avg_cost={selectedItem.avg_cost}
-                open={editDialogOpen}
-                onOpenChange={setEditDialogOpen}
-                onSuccess={onRefresh}
-            />
-
-            {/* Tab 标签导航（标的信息 / AI 分析） */}
-            {onTabChange && (
-                <div className="flex border-b border-slate-100 dark:border-zinc-800 mt-1">
-                    {tabs.map(({ key, label }) => (
-                        <button
-                            key={key}
-                            type="button"
-                            onClick={() => onTabChange(key)}
-                            className={clsx(
-                                "relative px-4 py-2.5 text-sm font-semibold transition-colors duration-200",
-                                activeTab === key
-                                    ? "text-slate-900 dark:text-white"
-                                    : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
-                            )}
-                        >
-                            {label}
-                            {/* 激活态下划线 */}
-                            {activeTab === key && (
-                                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-900 dark:bg-white rounded-full" />
-                            )}
-                        </button>
-                    ))}
-                </div>
-            )}
+                )}
+            </div>
         </div>
     );
 });

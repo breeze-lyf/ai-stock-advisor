@@ -7,6 +7,7 @@ import type { DashboardTab } from "@/features/dashboard/hooks/useDashboardRouteS
 import clsx from "clsx";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { usePathname } from "next/navigation";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
 
@@ -34,7 +35,7 @@ function NavItem({ active = false, onClick, href, label, icon }: NavItemProps) {
 
   if (href) {
     return (
-      <Link href={href} className={clsx(baseClasses, inactiveClasses)}>
+      <Link href={href} className={clsx(baseClasses, active ? activeClasses : inactiveClasses)}>
         {content}
       </Link>
     );
@@ -54,6 +55,13 @@ interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({ user, activeTab, setActiveTab }: DashboardHeaderProps) {
+  const pathname = usePathname();
+  // Remove trailing slashes for consistent comparison
+  const cleanPathname = pathname?.endsWith('/') ? pathname.slice(0, -1) : pathname;
+  const isCalendarActive = cleanPathname === "/calendar";
+  const isQuantActive = cleanPathname === "/quant";
+  const isScreenerActive = cleanPathname === "/screener";
+
   return (
     <header className="flex h-16 items-center px-4 border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shrink-0 z-50 relative">
       {/* Left Section: Logo + Market Status */}
@@ -74,7 +82,7 @@ export function DashboardHeader({ user, activeTab, setActiveTab }: DashboardHead
       {/* Center Navigation */}
       <nav className="absolute left-1/2 -translate-x-1/2 hidden xl:flex items-center gap-1">
         <NavItem
-          active={activeTab === "analysis"}
+          active={activeTab === "analysis" && !isCalendarActive && !isQuantActive && !isScreenerActive}
           onClick={() => setActiveTab("analysis")}
           label="个股"
           icon={<TrendingUp className="w-4 h-4" />}
@@ -106,23 +114,47 @@ export function DashboardHeader({ user, activeTab, setActiveTab }: DashboardHead
           href="/calendar"
           label="日历"
           icon={<Calendar className="w-4 h-4" />}
+          active={isCalendarActive}
         />
         <NavItem
           href="/quant"
           label="量化"
           icon={<BarChart3 className="w-4 h-4" />}
+          active={isQuantActive}
         />
       </nav>
 
       {/* Mobile Nav */}
-      <nav className="xl:hidden flex items-center gap-1 ml-auto overflow-x-auto min-w-0 px-2">
-        <button onClick={() => setActiveTab("analysis")} type="button" className={clsx("p-2 rounded-lg shrink-0 transition-colors", activeTab === "analysis" ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-slate-500")} title="个股"><TrendingUp className="w-4 h-4" /></button>
+      <nav className="xl:hidden flex items-center gap-1 ml-auto overflow-x-auto min-w-0 px-2" suppressHydrationWarning>
+        <button onClick={() => setActiveTab("analysis")} type="button" className={clsx("p-2 rounded-lg shrink-0 transition-colors", activeTab === "analysis" && !isCalendarActive && !isQuantActive && !isScreenerActive ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-slate-500")} title="个股"><TrendingUp className="w-4 h-4" /></button>
         <button onClick={() => setActiveTab("portfolio")} type="button" className={clsx("p-2 rounded-lg shrink-0 transition-colors", activeTab === "portfolio" ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-slate-500")} title="持仓"><PieChart className="w-4 h-4" /></button>
         <button onClick={() => setActiveTab("radar")} type="button" className={clsx("p-2 rounded-lg shrink-0 transition-colors", activeTab === "radar" ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-slate-500")} title="热点"><Globe className="w-4 h-4" /></button>
         <button onClick={() => setActiveTab("papertrading")} type="button" className={clsx("p-2 rounded-lg shrink-0 transition-colors", activeTab === "papertrading" ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-slate-500")} title="模拟"><Target className="w-4 h-4" /></button>
         <div className="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-1 shrink-0" />
-        <Link href="/calendar" className="p-2 rounded-lg shrink-0 text-slate-500 hover:text-slate-700 transition-colors" title="日历"><Calendar className="w-4 h-4" /></Link>
-        <Link href="/quant" className="p-2 rounded-lg shrink-0 text-slate-500 hover:text-slate-700 transition-colors" title="量化"><BarChart3 className="w-4 h-4" /></Link>
+        <Link
+          href="/calendar"
+          className={clsx(
+            "p-2 rounded-lg shrink-0",
+            isCalendarActive ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-slate-500 hover:text-slate-700",
+            "transition-colors"
+          )}
+          title="日历"
+          suppressHydrationWarning
+        >
+          <Calendar className="w-4 h-4" />
+        </Link>
+        <Link
+          href="/quant"
+          className={clsx(
+            "p-2 rounded-lg shrink-0",
+            isQuantActive ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-slate-500 hover:text-slate-700",
+            "transition-colors"
+          )}
+          title="量化"
+          suppressHydrationWarning
+        >
+          <BarChart3 className="w-4 h-4" />
+        </Link>
       </nav>
 
       {/* Right Section: User Menu */}

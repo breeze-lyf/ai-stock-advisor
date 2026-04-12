@@ -36,17 +36,21 @@ class QuantFactor(Base):
     data_source: Mapped[str] = mapped_column(String(50), default="market_data")  # market_data/financial_data
     frequency: Mapped[str] = mapped_column(String(20), default="DAILY")  # DAILY/WEEKLY/MONTHLY
 
-    # 因子表现指标
+    # 因子表现指标 (Factor Metrics)
+    # IC (Information Coefficient): 因子值与下期收益率的相关系数。IC > 0.05 且稳定则认为因子有效。
     ic_mean: Mapped[Optional[float]] = mapped_column(Numeric(8, 6), nullable=True)
+    # IR (Information Ratio): IC 的均值 / IC 的标准差，代表因子的稳定性和风险调整后收益。
     ic_ir: Mapped[Optional[float]] = mapped_column(Numeric(8, 4), nullable=True)
     rank_ic_mean: Mapped[Optional[float]] = mapped_column(Numeric(8, 6), nullable=True)
     rank_ic_ir: Mapped[Optional[float]] = mapped_column(Numeric(8, 4), nullable=True)
 
-    # 回测表现
+    # 回测表现 (Backtest Results)
     annual_return: Mapped[Optional[float]] = mapped_column(Numeric(8, 4), nullable=True)
+    # 夏普比率：超额收益 / 总风险，衡量每一单位风险带来的超额回报。
     sharpe_ratio: Mapped[Optional[float]] = mapped_column(Numeric(8, 4), nullable=True)
     max_drawdown: Mapped[Optional[float]] = mapped_column(Numeric(8, 4), nullable=True)
     win_rate: Mapped[Optional[float]] = mapped_column(Numeric(6, 4), nullable=True)
+    # 换手率：反映组合调整的频率，过高会增加摩擦成本（佣金/印花税）。
     turnover_rate: Mapped[Optional[float]] = mapped_column(Numeric(8, 4), nullable=True)
 
     # 状态

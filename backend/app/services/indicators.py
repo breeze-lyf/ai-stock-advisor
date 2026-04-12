@@ -103,6 +103,9 @@ class TechnicalIndicators:
             result["bb_lower"] = float((ma20 - (std20 * 2)).iloc[-1])
 
         # 5. Volatility (ATR 14) - 平均真实波幅
+        # 逻辑：衡量股价的波动剧烈程度。
+        # ATR 越高，代表最近波动越大，止损位通常需要设得更宽。
+        # 计算方法：Max(今日最高-今日最低, |今日最高-昨日收盘|, |今日最低-昨日收盘|) 的均值。
         if len(hist) >= 15:
             high_low = high_prices - low_prices
             high_close = (high_prices - close_prices.shift()).abs()
@@ -112,6 +115,8 @@ class TechnicalIndicators:
             result["atr_14"] = float(atr.iloc[-1])
 
         # 6. KDJ (随机指标)
+        # 逻辑：对收盘价在过去 9 天高低价区间内的位置进行平滑处理。
+        # K、D 超过 80 通常超买，低于 20 超卖；J 线反应最快，用于捕捉拐点。
         if len(close_prices) >= 9:
             low_9 = low_prices.rolling(window=9).min()
             high_9 = high_prices.rolling(window=9).max()
@@ -125,6 +130,8 @@ class TechnicalIndicators:
             result["j_line"] = float(j.iloc[-1])
 
         # 7. 关键压力/支撑位 (Pivot Points)
+        # 逻辑：基于前一交易日的高低和平仓价计算出的心理参考位。
+        # 系统会自动以此计算当前的“向上获利空间”与“向下回撤空间”。
         if len(close_prices) >= 2:
             last_h, last_l, last_c = high_prices.iloc[-2], low_prices.iloc[-2], close_prices.iloc[-2]
             pivot = (last_h + last_l + last_c) / 3
@@ -134,7 +141,9 @@ class TechnicalIndicators:
             result["resistance_2"] = float(pivot + (last_h - last_l))
             result["support_2"] = float(pivot - (last_h - last_l))
 
-        # 8. 盈亏比的机器估算
+        # 8. 盈亏比估算 (Risk/Reward Estimation)
+        # 逻辑：计算当前价格距离第一压力位（盈利）与第一支撑位（风险）的比例。
+        # 这是交易决策的核心参考。如果比例低于 1.5，说明盈亏比不佳。
         curr_p = float(close_prices.iloc[-1])
         r1, s1 = result.get("resistance_1"), result.get("support_1")
         if r1 and s1 and r1 > curr_p > s1:

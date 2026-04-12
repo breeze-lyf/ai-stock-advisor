@@ -10,6 +10,14 @@ from app.models.stock import MarketDataCache, Stock, StockNews
 
 
 class AnalysisRepository:
+    """
+    分析报告仓储层。
+    
+    职责：
+    - 管理针对个股 (Stock) 和 投资组合 (Portfolio) 的 AI 研判报告持久化。
+    - 处理报告的查询范围（SHARED_SCOPE 用于全站共用，USER_INTERACTION_SCOPE 用于用户私有记录）。
+    - 提供针对用户调用额度的统计查询。
+    """
     SHARED_SCOPE = "shared_stock_analysis"
     USER_INTERACTION_SCOPE = "user_interaction"
 
@@ -26,10 +34,12 @@ class AnalysisRepository:
         return result.scalar_one()
 
     async def get_stock(self, ticker: str):
+        """根据股票代码获取股票基础信息。"""
         result = await self.db.execute(select(Stock).where(Stock.ticker == ticker))
         return result.scalar_one_or_none()
 
     async def get_latest_stock_news(self, ticker: str, limit: int = 5):
+        """获取指定股票的最新新闻列表。"""
         stmt = (
             select(StockNews)
             .where(StockNews.ticker == ticker)
@@ -40,11 +50,13 @@ class AnalysisRepository:
         return result.scalars().all()
 
     async def get_portfolio_item(self, user_id: str, ticker: str):
+        """查询用户投资组合中是否包含特定股票。"""
         stmt = select(Portfolio).where(Portfolio.user_id == user_id, Portfolio.ticker == ticker)
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
 
     async def get_latest_report(self, user_id: str, ticker: str):
+        """获取特定用户对某只股票的最新一条私有分析记录。"""
         stmt = (
             select(AnalysisReport)
             .where(

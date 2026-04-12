@@ -21,11 +21,10 @@ class FactorCalculationEngine:
     """
     因子计算引擎
 
-    功能：
-    1. 预设因子计算（动量、价值、成长、质量、波动率等）
-    2. 因子标准化
-    3. 因子中性化
-    4. 因子存储
+    职责：
+    1. 核心量化因子的标准化计算逻辑实现（动量、价值、成长、质量、波动率等）。
+    2. 因子处理流程：去极值 (Winsorize) -> 标准化 (Standardize) -> 中性化 (Neutralize)。
+    3. 为上层信号生成模块提供底层的数学支撑。
     """
 
     # ==================== 动量因子 ====================
@@ -35,18 +34,14 @@ class FactorCalculationEngine:
         """
         12 个月动量因子（252 交易日）
 
-        公式：(当前价格 - 252 日前价格) / 252 日前价格
-
-        Args:
-            prices: 收盘价序列
-            volumes: 成交量序列（可选）
-
-        Returns:
-            动量因子值序列
+        【量化业务逻辑】
+        基于“惯性效应”，认为过去表现优异的资产在未来一段时间内仍将保持强势。
+        公式：(当前价格 - N日前价格) / N日前价格
         """
         if len(prices) < 253:
             return pd.Series(index=prices.index, dtype=float)
 
+        # 计算 252 个交易日（约一年）的变动率，并乘以 100 转化为百分比
         mom = (prices - prices.shift(252)) / prices.shift(252) * 100
         return mom
 
@@ -55,6 +50,9 @@ class FactorCalculationEngine:
         """
         12 个月动量（剔除最近 1 个月）
 
+        【量化业务逻辑】
+        由于 A 股市场存在显著的短期反转效应（Short-term Reversal），
+        剔除最近 20 或 21 个交易日（1个月）的短期波动，往往能捕捉到更长期的趋势动力。
         公式：(20 日前价格 - 252 日前价格) / 252 日前价格
         """
         if len(prices) < 253:
@@ -103,13 +101,16 @@ class FactorCalculationEngine:
         """
         PE 价值因子
 
-        公式：EP = 1 / PE（市盈率倒数）
-        负值和极端值处理为 NaN
+        【量化业务逻辑】
+        价值投资的核心：买入便宜的优质资产。
+        公式：EP = 1 / PE (Earnings Yield，盈利收益率)。
+        之所以求倒数，是为了让“因子值越大”统一代表“价值越高/越便宜”，
+        且能更稳健地处理盈利极小的股票，避免 PE 趋于无穷大的计算偏差。
         """
         ep = 1 / pe_ratio
-        # 处理异常值
+        # 剔除亏损企业（PE <= 0）和数据畸变的极值（PE > 1000）
         ep[(pe_ratio <= 0) | (pe_ratio > 1000)] = np.nan
-        return ep * 100  # 转换为百分比
+        return ep * 100  # 转换为百分数
 
     @staticmethod
     def value_pb(pb_ratio: pd.Series) -> pd.Series:
@@ -234,13 +235,15 @@ class FactorCalculationEngine:
         """
         20 日波动率因子
 
-        公式：20 日收益率标准差 * sqrt(252)
+        【量化业务逻辑】
+        波动率往往代表了风险和不确定性。长期证据表明，低波动率股票往往能跑赢高波动率股票（Low-Vol Anomaly）。
+        公式：20 日收益率标准差 * sqrt(252)。乘以 252 是为了将日波动率转化为年化波动率。
         """
         if len(returns) < 21:
             return pd.Series(index=returns.index, dtype=float)
 
         vol = returns.rolling(20).std() * np.sqrt(252) * 100
-        return -vol  # 逆向因子，波动率越低越好
+        return -vol  # 返回负值，因为量化逻辑中通常希望筛选低波动股票（值越大越好）
 
     @staticmethod
     def volatility_60d(returns: pd.Series) -> pd.Series:
@@ -306,9 +309,14 @@ class FactorCalculationEngine:
         """
         RSRS 因子（阻力支撑相对强度）
 
+        【量化业务逻辑】
+        这是本项目最高级的技术因子之一，突破了传统指标基于股价绝对位移的限制。
+        原理：对一段时期的最高价/最低价进行线性回归，提取斜率 beta。
+        - 斜率大：最高价涨得比最低价快，说明阻力在减小，趋势向上态势明确。
+        - 波动小：回归的 R-Squared 高则代表支撑/阻力线非常扎实。
         公式：
         1. 对 N 日的高低价做 OLS 回归：High = alpha + beta * Low
-        2. RSRS = beta / std(beta)
+        2. RSRS = (beta - mean(beta)) / std(beta)  # 经过标准化后的 Z-Score
         """
         if len(high) < lookback:
             return pd.Series(index=high.index, dtype=float)
@@ -457,21 +465,16 @@ class FactorCalculationEngine:
         """
         行业中性化
 
-        对每个行业内做标准化，消除行业偏差
-
-        Args:
-            factor_values: 因子值序列（index=ticker）
-            sector_codes: 行业代码序列（index=ticker）
-
-        Returns:
-            行业中性化后的因子值
+        【量化业务逻辑】
+        有些因子在某些行业天生偏大（如银行股的 PE 总是很低），为了防止策略过度集中在单一板块，
+        我们需要在每个行业内部独立进行标准化，消除由于行业属性带来的误导性偏差。
         """
         df = pd.DataFrame({
             'factor': factor_values,
             'sector': sector_codes
         })
 
-        # 组内标准化
+        # 在每个行业组内执行 Z-Score 标准化
         def group_zscore(x):
             if len(x) < 3 or x.std() == 0:
                 return pd.Series(0, index=x.index)

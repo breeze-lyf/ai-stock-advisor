@@ -79,10 +79,14 @@ class PortfolioAnalysisReport(Base):
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String, ForeignKey("users.id"), nullable=False, index=True)
 
+    # 健康得分 (0-100)，基于分散度、波动率和收益期望综合计算。
     health_score = Column(Float, nullable=False)
+    # 风险评级 (LOW/MEDIUM/HIGH/CRITICAL)。
     risk_level = Column(String, nullable=False)
     summary = Column(String, nullable=False)
+    # 资产分散度分析，指出各行业比例是否过于集中。
     diversification_analysis = Column(Text, nullable=True)
+    # 调仓建议：AI 对持仓买入/卖出/减持的具体指令集合。
     strategic_advice = Column(Text, nullable=True)
     top_risks = Column(JSON, nullable=True) # List[str]
     top_opportunities = Column(JSON, nullable=True) # List[str]

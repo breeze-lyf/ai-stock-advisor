@@ -7,10 +7,22 @@ from app.models.stock import MarketDataCache, Stock, StockNews
 
 
 class PortfolioRepository:
+    """
+    持仓组合仓储层。
+    
+    职责：
+    - 处理用户持仓标的 (Portfolio) 与实时行情 (MarketDataCache) 及股票基础信息 (Stock) 的多表联查。
+    - 管理持仓资产的增删改查。
+    - 持久化 AI 对用户资产组合 (PortfolioAnalysisReport) 的综合诊断结果。
+    """
     def __init__(self, db: AsyncSession):
         self.db = db
 
     async def get_summary_rows(self, user_id: str):
+        """
+        获取用户持仓汇总数据。
+        通过连接 Portfolio (持仓数量) 和 MarketDataCache (现价) 来计算账户总资产。
+        """
         stmt = (
             select(Portfolio, MarketDataCache, Stock)
             .outerjoin(MarketDataCache, Portfolio.ticker == MarketDataCache.ticker)

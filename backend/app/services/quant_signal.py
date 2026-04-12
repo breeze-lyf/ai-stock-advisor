@@ -85,7 +85,9 @@ class QuantSignalGenerator:
         if stock_pool:
             df = df[df['ticker'].isin(stock_pool)]
 
-        # 计算综合得分
+        # 【核心逻辑：多因子得分加权】
+        # 针对每一只股票，将其所有因子值（通常是经过 Z-Score 标准化的）与其在策略配置中的权重相乘并加总。
+        # 结果反映了该股票在当前策略维度下的“综合吸引力”。
         composite_scores = df.groupby('ticker').apply(
             lambda x: sum(x['value'] * factor_weights.get(fid, 0) for fid in factor_ids) / sum(factor_weights.values())
         )
@@ -277,13 +279,17 @@ class QuantRiskManager:
         Returns:
             VaR 值（百分比）
         """
-        # 参数法 VaR
+        # 【参数法 VaR 计算】
+        # 逻辑：基于投资组合的权重分布式和资产间的协方差矩阵，计算组合在特定日期内的潜在最大损失。
+        # 公式：Portfolio_Volatility = sqrt(W^T * Cov * W)
         portfolio_vol = np.sqrt(
-            np.dot(portfolio_weights.values(),
+            np.dot(list(portfolio_weights.values()),
                    np.dot(cov_matrix.values, list(portfolio_weights.values())))
         )
 
-        # 95% 置信水平的 VaR
+        # 【VaR 转换】
+        # 逻辑：利用正态分布分位数（Z-Score）将波动率转化为特定置信水平（如 95%）下的最大可能回撤。
+        # 95% 置信水平对应的 z_score 约为 -1.65。
         from scipy.stats import norm
         z_score = norm.ppf(1 - self.var_confidence)
 
@@ -329,6 +335,10 @@ class QuantRiskManager:
             }).dropna()
 
             if len(aligned) > 20:
+                # Beta（贝塔系数）
+                # 逻辑：衡量组合相对于业绩基准的收益波动性。
+                # Beta > 1 代表组合比基准更具进攻性；Beta < 1 则更具防御性。
+                # 公式：Cov(Rp, Rb) / Var(Rb)
                 covariance = aligned['portfolio'].cov(aligned['benchmark'])
                 benchmark_var = aligned['benchmark'].var()
                 if benchmark_var > 0:

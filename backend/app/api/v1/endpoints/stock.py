@@ -29,7 +29,9 @@ logger = logging.getLogger(__name__)
 def _sanitize_float_local(val):
     return sanitize_float(val)
 
-# OHLCV 数据集清洗：批量处理 K 线图所需的数据
+# OHLCV 数据集清洗：针对 K 线图展示的标准化处理。
+# 由于后端接入了多源数据（A股、港股、美股），部分源在开市/闭市瞬间或因网络抖动会产生空值。
+# 该函数确保传给前端的数据类型一致，逻辑稳健，防止图表渲染器报错。
 def _sanitize_ohlcv(items: list) -> list:
     sanitized = []
     # 定义所有需要检查并清洗的浮点字段
@@ -121,8 +123,12 @@ async def get_stock_snapshot(
     current_user: User | None = Depends(get_optional_current_user),
 ):
     """
-    接口：获取单只股票的详情快照。
-    场景：用户通过 URL 直接打开某个不在持仓中的标的时，前端仍需渲染真实详情，而不是伪造 0 值对象。
+    获取单只股票的详情快照。
+    
+    【核心逻辑】
+    - 为用户提供实时的盘口快照，包括现价、涨跌幅及各项技术指标。
+    - 联动 `MarketDataService` 执行实时同步。
+    - 适用于搜索结果页或个股详情页的初始加载。
     """
     ticker = ticker.upper().strip()
 
@@ -148,14 +154,19 @@ async def get_stock_snapshot(
 @router.get("/{ticker}/history", response_model=List[OHLCVItem])
 async def get_stock_history(
     ticker: str,
-    period: str = "1y",     # 时间跨度，如 1y (一年), 1mo (一月), 5d (五天)
-    interval: str = "1d",   # 频率，如 1d (日线), 1hk (小时线)
-    end_date: Optional[str] = Query(None, description="回溯加载时的截止日期 (YYYY-MM-DD)"),
+    period: str = "1y",
+    interval: str = "1d",
+    end_date: Optional[str] = Query(None, description="截止日期"),
     db: AsyncSession = Depends(get_db),
     current_user: User | None = Depends(get_optional_current_user),
 ):
     """
-    接口：获取股票的历史行情数据，专为 K 线图打造。
+    获取股票历史行情 K 线数据。
+
+    【工程逻辑说明】
+    - 使用 `ProviderFactory` 动态分发数据源（A/港/美自动切换）。
+    - 针对美股数据集成，若 `yfinance` 失败则自动重试 `AkShare` 等备选方案（Fallback 机制）。
+    - 返回经过 `_sanitize_ohlcv` 过滤的标准数据集。
     """
     ticker = ticker.upper().strip()
 

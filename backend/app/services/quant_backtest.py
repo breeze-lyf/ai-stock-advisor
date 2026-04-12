@@ -206,13 +206,16 @@ class QuantitativeBacktestEngine:
                     db, current_date, factor_ids, stock_pool
                 )
 
-                # 执行交易
+                # 【事件驱动核心：信号执行】
+                # 基于当前生成的量化信号（买入/卖出），在当前的现金流限制和仓位限制下模拟撮合交易。
                 await self._execute_trades(db, signals, current_date, config)
 
                 prev_date = current_date
                 prev_value = self.portfolio_value
 
-            # 检查止损止盈
+            # 【事件驱动核心：止损止盈检查】
+            # 在每日收盘前，根据各持仓的当前价格，检查是否触及预设的止损/止盈阈值。
+            # 这有助于模拟真实交易中的风险控制逻辑。
             await self._check_stop_loss_take_profit(db, current_date, config)
 
         # 计算回测结果
@@ -522,12 +525,16 @@ class QuantitativeBacktestEngine:
         if self.daily_returns:
             result.volatility = np.std(self.daily_returns) * np.sqrt(252) * 100
 
-            # 夏普比率
+            # 夏普比率 (Sharpe Ratio)
+            # 逻辑：衡量每承受一单位总风险（标准差）所获得的超额收益。
+            # 公式：(年化收益率 - 无风险利率) / 年化波动率
             if result.volatility and result.volatility > 0:
                 excess_return = result.annual_return - self.risk_free_rate * 100
                 result.sharpe_ratio = excess_return / result.volatility
 
-            # 索提诺比率 (只用下行波动率)
+            # 索提诺比率 (Sortino Ratio)
+            # 逻辑：夏普比率的改进版。它只关注“下行波动率”（即亏损时的风险），
+            # 认为向上的波动对投资者是有利的，不应计入惩罚项。
             negative_returns = [r for r in self.daily_returns if r < 0]
             if negative_returns:
                 downside_vol = np.std(negative_returns) * np.sqrt(252) * 100

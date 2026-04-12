@@ -65,6 +65,16 @@ class MarketDataFetcher:
         db: AsyncSession | None = None,
         user_id: str | None = None,
     ) -> Optional[FullMarketData]:
+        """
+        跨数据源并行抓取核心引擎。
+        
+        【设计逻辑】
+        1. 优先调用 Provider 的 `get_full_data`（如果该源支持一站式输出）。
+        2. 若 full-fetch 失败，自动切换为“碎片化并发抓取”：
+           - 核心三件套：实时报价 (Quote) + 技术指标 (Indicators) + 基本面 (Fundamental)。
+           - 增强件：利用 Tavily 进行用户级新闻聚合（RAG 增强）。
+        3. 严格执行 15 秒核心超时控制，确保前端响应质量。
+        """
         total_start = time.time()
         provider = ProviderFactory.get_provider(ticker, preferred_source)
         logger.info(f"📊 [MarketDataFetcher] 开始获取 {ticker} 数据 (provider: {type(provider).__name__})")
@@ -111,6 +121,7 @@ class MarketDataFetcher:
                 core_tasks.append(indicator_task)
 
             try:
+                # 【并发提速逻辑】核心报价和技术指标必须在 15s 内完成，这是本系统的性能红线。
                 core_res = await asyncio.wait_for(
                     asyncio.gather(*core_tasks, return_exceptions=True),
                     timeout=15.0,
@@ -129,10 +140,12 @@ class MarketDataFetcher:
 
             fundamental = None
             if fundamental_task:
+                # 增强型基本面抓取（盈亏比、资金流向等）
                 fundamental = await MarketDataFetcher._build_fundamental(provider, ticker, fundamental_task)
 
             news = []
             if news_tasks:
+                # 新闻抓取执行 2s 的激进超时，防止第三方 API 拖慢整体研判进度
                 news = await MarketDataFetcher._collect_news(ticker, news_tasks)
 
             if quote and not isinstance(quote, Exception):

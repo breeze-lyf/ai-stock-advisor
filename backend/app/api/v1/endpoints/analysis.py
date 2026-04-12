@@ -32,6 +32,14 @@ async def analyze_portfolio(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    """
+    一键分析全量持仓组合。
+    
+    【业务逻辑】
+    - 获取当前用户所有的持仓标的。
+    - 将资产组合数据喂给 AI 模型。
+    - 生成宏观视角下的风险建议和调仓逻辑。
+    """
     return await AnalyzePortfolioUseCase(db, current_user).execute()
 
 @router.get("/portfolio", response_model=PortfolioAnalysisResponse)
@@ -48,6 +56,15 @@ async def analyze_stock(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    """
+    针对单只股票发起全量 AI 研判。
+    
+    【核心逻辑】
+    这是本系统最核心且最耗时的功能：
+    - 启动并行数据抓取任务（报价/新闻/财务/宏观）。
+    - 构造上下文并调用 AI 大模型（如 DeepSeek-R1）。
+    - 解析并持久化一份具备买入/卖出倾向的分析报告。
+    """
     return await AnalyzeStockUseCase(db, current_user).execute(ticker=ticker, force=force)
 
 
@@ -143,14 +160,15 @@ async def refresh_stock_capsules(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Trigger on-demand regeneration of capsules for a ticker.
-
-    Step 1: Force-refresh market data (price, fundamentals, technicals, news)
-            so the capsules are built from the latest information.
-    Step 2: Return existing capsules immediately (non-blocking).
-    Step 3: Regenerate capsules in background via BackgroundTasks.
-
-    This prevents request timeout during slow AI generation.
+    """
+    触发“全量研判”前的“数据预解构 (Capsules)”。
+    
+    【工程优化逻辑】
+    AI 获取新闻和财务数据后直接生成简版胶囊报告：
+    1. 强制刷新底层行情数据，确保数据时效性。
+    2. 立即返回当前已有的胶囊（非阻塞响应），保持 UI 流畅。
+    3. 利用 `BackgroundTasks` 在后台启动耗时的 AI 胶囊生成任务。
+    这种二级缓存策略能够有效降低用户等待“最终研判报告”时的瞬时体感耗时。
     """
     from app.application.analysis.generate_stock_capsule import GenerateStockCapsuleUseCase
     from app.services.market_data import MarketDataService

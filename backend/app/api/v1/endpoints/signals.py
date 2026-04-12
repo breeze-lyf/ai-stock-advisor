@@ -24,9 +24,12 @@ async def get_signals(
     current_user: User = Depends(get_current_user),
 ):
     """
-    获取用户的 AI 信号历史
+    获取用户的 AI 信号历史记录。
 
-    可以按股票代码、状态筛选，查看 AI 建议的完整记录和表现
+    【业务逻辑】
+    - 系统会追踪 AI 生成的每一条具备买入倾向的指令（信号）。
+    - 每个信号包含：触发价格、止损/止盈价格点位。
+    - 用户可以按股票代码或状态（活跃/已关闭/已过期）筛选。
     """
     status_enum = None
     if status:
@@ -60,9 +63,12 @@ async def get_performance(
     current_user: User = Depends(get_current_user),
 ):
     """
-    获取 AI 信号表现统计
+    获取 AI 信号的表现归因统计。
 
-    返回胜率、平均盈亏、最佳/最差信号等指标
+    【量化评价逻辑】
+    - 胜率 (Win Rate)：盈利信号数 / 总成交信号数。
+    - 盈亏比 (Avg PnL)：所有已平仓信号的平均收益表现。
+    - 最佳/最差信号：辅助用户回顾 AI 的极端研判表现。
     """
     valid_periods = ["DAILY", "WEEKLY", "MONTHLY", "YEARLY", "ALL"]
     if period.upper() not in valid_periods:

@@ -26,6 +26,14 @@ class GetLatestAnalysisUseCase:
         self.repo = AnalysisRepository(db)
 
     async def execute(self, ticker: str) -> dict:
+        """
+        获取单只股票的最新研判报告。
+        
+        【查询逻辑】
+        1. 优先获取该用户偏好模型（如 DeepSeek-R1）生成的最新“共用范围”报告。
+        2. 若偏好模型无数据，逻辑回退至查询该股票的“任意模型”生成的最新有效报告。
+        3. 同步提取实时盈亏比（RRR）缓存以保证前端展示的实时性。
+        """
         report = await self._get_latest_shared_report(ticker)
         if not report:
             raise HTTPException(status_code=404, detail="No analysis found for this stock and model")
@@ -52,6 +60,13 @@ class GetLatestAnalysisUseCase:
 
     @staticmethod
     def _pick_shared_scope_report(reports):
+        """
+        从候选报告列表中筛选最优的“共享范围”报告。
+        
+        过滤逻辑：
+        - 必须标记为 SHARED_SCOPE。
+        - 排除包含 "**Error**" 字样的 AI 报错记录。
+        """
         first_shared = None
         for report in reports:
             if getattr(report, "report_scope", None) == AnalysisRepository.SHARED_SCOPE:

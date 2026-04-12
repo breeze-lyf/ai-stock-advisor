@@ -59,6 +59,17 @@ class AnalyzeStockUseCase:
             return False
 
     async def execute(self, ticker: str, force: bool = False) -> dict[str, Any]:
+        """
+        执行核心分析流程。
+        
+        【业务流程说明】
+        1. 初始化分析参数与计时。
+        2. 并行抓取多源数据（行情、新闻、宏观、FOMC、预计算胶囊）。
+        3. 构建 AI 输入上下文。
+        4. 检查缓存（若未强制执行且有近期报告，则直接返回）。
+        5. 调用 AI 大模型进行深度研判。
+        6. 解析并通过数据库持久化报告。
+        """
         total_start = time.time()
         ticker = ticker.upper().strip()
         logger.info(f"🚀 开始分析股票: {ticker}")
@@ -138,9 +149,9 @@ class AnalyzeStockUseCase:
 
         previous_analysis_context = await self._build_previous_analysis_context(ticker)
 
-        # 🚀 重要: 在进入耗时 2分钟+ 的 AI 生成阶段前，提交当前事务。
-        # 这样可以确保在该线程/协程等待 AI 响应期间，数据库连接已经释放回连接池，供其他请求使用。
-        # 防止在高并发或低配置环境下连接池枯竭。
+        # 🚀 重要决策逻辑: 在进入耗时 60s+ 的 AI 生成阶段前，提交并释放连接。
+        # 本系统部署在资源受限的环境中。如果长时间持有空闲的数据库连接等待 AI 响应，
+        # 会导致连接池枯竭，阻塞其他用户请求。
         try:
             await self.db.commit()
         except Exception as e:

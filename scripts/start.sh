@@ -96,25 +96,46 @@ start_dev() {
     ensure_port_free "$BACKEND_PORT" "backend"
     ensure_port_free "$FRONTEND_PORT" "frontend"
 
+    # Cleanup function to kill all child processes
+    cleanup() {
+        echo ""
+        echo "Shutting down development stack..."
+        # Kill the entire process group to catch uvicorn reloader + worker
+        kill -9 $$ 2>/dev/null || true
+        # Also kill any processes still holding our ports
+        lsof -ti:"$BACKEND_PORT" | xargs kill -9 2>/dev/null || true
+        lsof -ti:"$FRONTEND_PORT" | xargs kill -9 2>/dev/null || true
+        exit 0
+    }
+
+    trap cleanup SIGINT SIGTERM EXIT
+
     echo "Starting backend on http://$DEV_HOST:$BACKEND_PORT ..."
     cd "$ROOT_DIR/backend"
     install_backend_deps "$pip_exec"
     WATCHFILES_FORCE_POLLING=true \
     "$python_exec" -m uvicorn app.main:app --reload --host "$DEV_HOST" --port "$BACKEND_PORT" &
+    BACKEND_PID=$!
 
     echo "Starting market auto-refresh worker..."
     "$python_exec" scripts/auto_refresh_market_data.py > "$runtime_log_dir/auto_refresh.log" 2>&1 &
+    WORKER_PID=$!
 
     echo "Starting frontend on http://$DEV_HOST:$FRONTEND_PORT ..."
     cd "$ROOT_DIR/frontend"
     rm -rf .next/dev/lock
     install_frontend_deps
     npm run dev -- --hostname "$DEV_HOST" -p "$FRONTEND_PORT" &
+    FRONTEND_PID=$!
 
     cd "$ROOT_DIR"
     echo "Development stack is running."
     echo "Frontend: http://$DEV_HOST:$FRONTEND_PORT"
     echo "Backend:  http://$DEV_HOST:$BACKEND_PORT/docs"
+    echo "Press Ctrl+C to stop all services."
+    echo ""
+
+    # Wait for all background jobs
     wait
 }
 

@@ -21,7 +21,7 @@ const baseURL = getApiBaseURL();
 
 const api = axios.create({
   baseURL,
-  timeout: 30000, // 30s — use per-request config for long AI calls
+  timeout: 30000, // 30s — standard for most requests
   headers: {
     "Content-Type": "application/json",
   },

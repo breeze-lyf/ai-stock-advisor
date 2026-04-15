@@ -48,3 +48,17 @@ class MarketDataProvider(ABC):
         如果子类不实现此方法，默认返回 None，由 Service 层通过 gather 并行调用上述独立方法
         """
         return None
+
+    async def get_valuation_percentiles(self, ticker: str) -> Dict[str, Any]:
+        """
+        可选：获取估值分位（例如 PE/PB 历史分位）。
+        默认返回空字典，避免未实现时中断主流程。
+        """
+        return {}
+
+    async def get_capital_flow(self, ticker: str) -> Dict[str, Any]:
+        """
+        可选：获取资金流向信息。
+        默认返回空字典，避免未实现时中断主流程。
+        """
+        return {}

@@ -150,7 +150,7 @@ export function PortfolioList({
     const handleRefreshItem = async (ticker: string) => {
         setRefreshingTicker(ticker);
         try {
-            // 侧边栏列表默认使用“价格模式”
+            // 侧边栏列表默认使用"价格模式"
             await refreshStock(ticker, true);
             onRefresh();
         } catch (err) {
@@ -185,7 +185,7 @@ export function PortfolioList({
                             if (isRefreshingAll) return;
                             setIsRefreshingAll(true);
                             try {
-                                // 侧边栏列表默认使用“价格模式”，极速响应
+                                // 侧边栏列表默认使用"价格模式"，极速响应
                                 const res = await refreshAllStocks(true);
                                 console.log(res.message);
                                 onRefresh();

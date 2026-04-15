@@ -1386,46 +1386,74 @@ class AkShareProvider(MarketDataProvider):
                     df = df.sort_values("Date")
                     df.set_index('Date', inplace=True)
             else:
-                # A 股改用腾讯源，绕开被封锁的东财 / AkShare 原生接口 (仅针对基础获取)
-                # 若有 end_date，优先尝试更精准的 Direct EM Hist API
+                # A 股：优先使用 AkShare 原生接口（最快，约 0.2 秒），失败后再 fallback 到其他源
                 days_map = {"1mo": 30, "3mo": 90, "6mo": 180, "1y": 250, "5y": 1250}
                 req_days = days_map.get(period, 250)
-                
+
                 df = None
-                if end_date:
-                    logger.info(f"DEBUG: End date provided for A-share {ticker}, attempting Direct EM API first (with 50d warm-up)")
-                    df = await self._get_us_hist_em_direct(ticker, num_days=req_days + 50, end_date=end_date)
-                
-                if df is None or df.empty:
-                    # 腾讯源兜底 (A 股)
-                    logger.info(f"DEBUG: Attempting Tencent hist for A-share {ticker}")
-                    df = await self._get_tencent_hist(ticker, num_days=req_days + 50, end_date=end_date)
-                
+                symbol = self._normalize_symbol(ticker)
+
+                # 路径 1: AkShare 原生接口 (最快，直连东方财富)
+                @retry_on_network_error(max_retries=2)
+                def _fetch_hist():
+                    return ak.stock_zh_a_hist(symbol=symbol, period="daily", adjust="qfq")
+                df = await self._run_sync(_fetch_hist)
                 if df is not None and not df.empty:
-                    logger.info(f"DEBUG: Hist fetch for A-share {ticker} success, len={len(df)}")
-                    df = df.sort_values("Date")
-                    df.set_index('Date', inplace=True)
-                else:
-                    logger.info(f"DEBUG: Hist fetch for A-share {ticker} failed all paths.")
-                    symbol = self._normalize_symbol(ticker)
-                    @retry_on_network_error(max_retries=2)
-                    def _fetch_hist():
-                        return ak.stock_zh_a_hist(symbol=symbol, period="daily", adjust="qfq")
-                    df = await self._run_sync(_fetch_hist)
+                    logger.info(f"DEBUG: AkShare native hist for A-share {ticker} success, len={len(df)}")
+                    if '日期' in df.columns:
+                        df = df.rename(columns={'日期': 'Date', '开盘': 'Open', '最高': 'High', '最低': 'Low', '收盘': 'Close', '成交量': 'Volume'})
+                        df['Date'] = pd.to_datetime(df['Date'])
+                        df.set_index('Date', inplace=True)
+
+                # 路径 2: 腾讯源兜底
+                if df is None or df.empty:
+                    logger.info(f"DEBUG: AkShare native failed, attempting Tencent hist for A-share {ticker}")
+                    df = await self._get_tencent_hist(ticker, num_days=req_days + 50, end_date=end_date)
                     if df is not None and not df.empty:
-                        # 严格检查列是否存在，防止重命名报错
-                        if '日期' in df.columns:
-                            df = df.rename(columns={'日期': 'Date', '开盘': 'Open', '最高': 'High', '最低': 'Low', '收盘': 'Close', '成交量': 'Volume'})
-                            df['Date'] = pd.to_datetime(df['Date'])
-                            df.set_index('Date', inplace=True)
-                        else:
-                            return None
+                        logger.info(f"DEBUG: Tencent hist for A-share {ticker} success, len={len(df)}")
+                        df = df.sort_values("Date")
+                        df.set_index('Date', inplace=True)
+
+                # 路径 3: Direct EM API (最后尝试)
+                if df is None or df.empty and end_date:
+                    logger.info(f"DEBUG: Tencent failed, attempting Direct EM API for A-share {ticker}")
+                    df = await self._get_us_hist_em_direct(ticker, num_days=req_days + 50, end_date=end_date)
+                    if df is not None and not df.empty:
+                        logger.info(f"DEBUG: Direct EM API for A-share {ticker} success, len={len(df)}")
+                        df = df.sort_values("Date")
+                        df.set_index('Date', inplace=True)
+
+                if df is None or df.empty:
+                    logger.info(f"DEBUG: Hist fetch for A-share {ticker} failed all paths.")
+                    return None
 
             # 最终检查 DataFrame 是否有效且包含足够数据点
-            if df is None or df.empty or len(df) < 2: 
+            if df is None or df.empty or len(df) < 2:
                 return None
-                
-            indicators = TechnicalIndicators.calculate_all(df)
+
+            # 构建指标缓存 key
+            df_hash_key = f"indicators:{ticker}:{len(df)}:{df['Close'].iloc[-1]:.4f}"
+
+            # 尝试从缓存读取指标
+            indicators = None
+            try:
+                from app.core.redis_client import cache_get, cache_set
+                import hashlib
+                cache_key = hashlib.md5(df_hash_key.encode()).hexdigest()
+                indicators = await cache_get(f"ind:{cache_key}")
+            except Exception:
+                pass
+
+            if indicators is None:
+                # 缓存未命中，计算指标
+                indicators = TechnicalIndicators.calculate_all(df)
+                # 写入缓存：10 分钟 TTL (指标基于 OHLCV，数据不变则指标不变)
+                try:
+                    from app.core.redis_client import cache_set
+                    await cache_set(f"ind:{cache_key}", indicators, ttl_seconds=600)
+                except Exception:
+                    pass
+
             # 将 DataFrame 转换为 bars 列表
             bars = []
             # 确保按时间排序

@@ -78,8 +78,10 @@ class ProviderFactory:
 
             return cls._get_instance(data_source)
 
-        # 默认配置：所有市场都用 YFinance
-        if is_a_share or is_hk_share or is_us_share:
+        # 默认配置：A 股/港股用 AkShare，美股用 YFinance
+        if is_a_share or is_hk_share:
+            return cls._get_instance("AKSHARE")
+        if is_us_share:
             return cls._get_instance("YFINANCE")
 
         # 未识别的类型：回退到 AkShare

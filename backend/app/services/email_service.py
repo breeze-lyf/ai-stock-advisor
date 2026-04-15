@@ -101,11 +101,26 @@ class EmailService:
             logger.error("Email service not initialized")
             return False
 
+        smtp_server = cls._smtp_server
+        smtp_port = cls._smtp_port
+        smtp_username = cls._smtp_username
+        smtp_password = cls._smtp_password
+        from_email = cls._from_email
+        if (
+            smtp_server is None
+            or smtp_port is None
+            or smtp_username is None
+            or smtp_password is None
+            or from_email is None
+        ):
+            logger.error("Email service config incomplete")
+            return False
+
         try:
             # 创建邮件
             msg = MIMEMultipart("alternative")
             msg["Subject"] = subject
-            msg["From"] = cls._from_email
+            msg["From"] = from_email
             msg["To"] = ", ".join(to_emails)
 
             if cc_emails:
@@ -130,17 +145,19 @@ class EmailService:
             all_recipients = to_emails + (cc_emails or []) + (bcc_emails or [])
 
             # 发送邮件
-            if cls._smtp_port == 465:
+            if smtp_port == 465:
                 # SSL 连接
-                server = smtplib.SMTP_SSL(cls._smtp_server, cls._smtp_port)
+                with smtplib.SMTP_SSL(smtp_server, smtp_port, timeout=15) as server:
+                    server.login(smtp_username, smtp_password)
+                    server.sendmail(from_email, all_recipients, msg.as_string())
             else:
                 # STARTTLS 连接
-                server = smtplib.SMTP(cls._smtp_server, cls._smtp_port)
-                server.starttls()
-
-            server.login(cls._smtp_username, cls._smtp_password)
-            server.sendmail(cls._from_email, all_recipients, msg.as_string())
-            server.quit()
+                with smtplib.SMTP(smtp_server, smtp_port, timeout=15) as server:
+                    server.ehlo()
+                    server.starttls()
+                    server.ehlo()
+                    server.login(smtp_username, smtp_password)
+                    server.sendmail(from_email, all_recipients, msg.as_string())
 
             logger.info(f"Email sent successfully to {len(to_emails)} recipient(s). Subject: {subject}")
             return True

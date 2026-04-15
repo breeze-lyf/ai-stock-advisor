@@ -167,6 +167,7 @@ async def get_stock_history(
     - 使用 `ProviderFactory` 动态分发数据源（A/港/美自动切换）。
     - 针对美股数据集成，若 `yfinance` 失败则自动重试 `AkShare` 等备选方案（Fallback 机制）。
     - 返回经过 `_sanitize_ohlcv` 过滤的标准数据集。
+    - 使用 Redis 缓存 5 分钟，相同参数请求直接返回。
     """
     ticker = ticker.upper().strip()
 
@@ -174,10 +175,23 @@ async def get_stock_history(
         suffix in ticker for suffix in [".SS", ".SZ", ".SH"]
     )
     is_hk = ticker.endswith(".HK") or (ticker.isdigit() and len(ticker) <= 5)
-    
+
+    # 构建缓存 key：包含 ticker + 参数组合
+    cache_key = f"history:{ticker}:{period}:{interval}:{end_date or 'null'}"
+
+    # 尝试从缓存读取
+    try:
+        from app.core.redis_client import cache_get, cache_set
+        cached = await cache_get(cache_key)
+        if cached is not None:
+            logger.info(f"History cache HIT for {ticker}")
+            return cached
+    except Exception:
+        pass  # Redis 不可用时静默降级
+
     try:
         from app.services.market_providers import ProviderFactory
-        
+
         # 工厂模式：它会根据 Ticker 自动判断去哪抓数据。
         # 比如输入 'AAPL' 会去美股源，输入 '600519.SH' 则会自动切换到 A 股源。
         user_preferred_source = current_user.preferred_data_source if current_user else "AUTO"
@@ -192,7 +206,8 @@ async def get_stock_history(
             len(data) if data else 0,
         )
 
-        if (not data) and (not is_a_share) and (not is_hk) and provider.__class__.__name__ == "YFinanceProvider":
+        # Fallback to AkShare when YFinance fails (for A-shares, HK-shares, and any other ticker YFinance doesn't recognize)
+        if (not data) and provider.__class__.__name__ == "YFinanceProvider":
             try:
                 fallback_provider = AkShareProvider()
                 data = await fallback_provider.get_ohlcv(ticker, interval=interval, period=period, end_date=end_date)
@@ -208,8 +223,16 @@ async def get_stock_history(
         if not data:
             # 容错：如果抓取失败，返回空数组 [] 而非 404，防止前端 Axios 抛异常导致白屏
             return []
-        
-        return _sanitize_ohlcv(data)
+
+        result = _sanitize_ohlcv(data)
+
+        # 写入缓存：5 分钟 TTL (日内交易足够频繁，5 分钟平衡实时性与性能)
+        try:
+            await cache_set(cache_key, result, ttl_seconds=300)
+        except Exception:
+            pass  # 缓存写入失败不影响返回
+
+        return result
         
     except HTTPException:
         raise

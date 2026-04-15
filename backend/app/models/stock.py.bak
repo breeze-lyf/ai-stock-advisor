@@ -105,9 +105,7 @@ class MarketDataCache(Base):
     # --- 专业持仓分析新增字段 (Professional Quant Dimensions) ---
     pe_percentile = Column(Float, nullable=True)    # 估值百分位 (PE%) - 0-100，衡量在历史中处于什么水平
     pb_percentile = Column(Float, nullable=True)    # 估值百分位 (PB%)
-    net_inflow = Column(Float, nullable=True)       # 资金净流入 (单位：元)，正数为流入，负数为流出
-    vix = Column(Float, nullable=True)              # VIX 恐慌指数（刷新时抓取）
-    
+    net_inflow = Column(Float, nullable=True)       # 资金净流入 (单位: 元)，正数为流入，负数为流出    vix = Column(Float, nullable=True)              # VIX 恐慌指数（刷新时抓取）    
     is_ai_strategy = Column(Boolean, default=False)  # TRUE 代表这是由 AI 锁定的点位，防止被机器算法覆盖
     
     market_status = Column(String, default=MarketStatus.CLOSED.value) # 市场当前状态

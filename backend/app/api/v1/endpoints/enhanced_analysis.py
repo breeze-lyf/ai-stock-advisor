@@ -264,10 +264,6 @@ async def get_enhanced_analysis(
         # 并行获取所有分析
         import asyncio
 
-        # 基础分析
-        use_case = AnalyzeStockUseCase(db, current_user)
-        base_analysis_task = use_case.execute(ticker, force=False)
-
         # 获取市场数据用于其他分析
         market_data_obj = await MarketDataService.get_real_time_data(
             ticker, db, force_refresh=False, user_id=current_user.id
@@ -301,6 +297,10 @@ async def get_enhanced_analysis(
                 "beta": getattr(stock, "beta", 1.0),
                 "industry": getattr(stock, "industry", "未知"),
             }
+
+        # 基础分析（放在前置校验之后，避免提前异常导致协程未 await）
+        use_case = AnalyzeStockUseCase(db, current_user)
+        base_analysis_task = use_case.execute(ticker, force=False)
 
         # 并行执行增强分析
         scenario_task = EnhancedAIAnalysisService.generate_scenario_analysis(

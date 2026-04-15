@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import httpx
+import os
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -16,6 +17,22 @@ from app.utils.time import utc_now_naive
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
+
+# 代理环境变量列表
+_PROXY_ENV_VARS = ['HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY', 'http_proxy', 'https_proxy', 'all_proxy', 'no_proxy', 'NO_PROXY']
+
+
+def _disable_proxy_env():
+    """临时禁用代理环境变量，返回原始值"""
+    old_vals = {var: os.environ.pop(var, None) for var in _PROXY_ENV_VARS}
+    return old_vals
+
+
+def _restore_proxy_env(old_vals: dict):
+    """恢复代理环境变量"""
+    for var, val in old_vals.items():
+        if val is not None:
+            os.environ[var] = val
 
 
 class YFinanceProvider(MarketDataProvider):
@@ -78,7 +95,14 @@ class YFinanceProvider(MarketDataProvider):
         return MarketStatus.CLOSED
 
     async def _run_sync(self, func, *args, **kwargs):
-        return await asyncio.to_thread(func, *args, **kwargs)
+        """运行同步函数，自动禁用代理环境变量"""
+        def wrapped():
+            old_vals = _disable_proxy_env()
+            try:
+                return func(*args, **kwargs)
+            finally:
+                _restore_proxy_env(old_vals)
+        return await asyncio.to_thread(wrapped)
 
     async def search_instruments(self, query: str, limit: int = 8) -> list[dict[str, str]]:
         normalized = (query or "").strip()

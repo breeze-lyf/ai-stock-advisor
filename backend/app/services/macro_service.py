@@ -2,6 +2,7 @@ from __future__ import annotations
 import logging
 from typing import List, Dict, Any
 from datetime import datetime
+from time import perf_counter
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -29,6 +30,29 @@ class MacroService:
         return MacroRepository(db)
 
     @staticmethod
+    def _prepare_radar_news(news_items: list[dict], max_items: int = 18) -> list[dict]:
+        """压缩并去重新闻输入，降低 AI 提示长度和响应时间。"""
+        deduped: list[dict] = []
+        seen: set[str] = set()
+
+        for item in news_items:
+            title = str(item.get("title") or "").strip()
+            content = str(item.get("content") or "").strip()
+            if not title and not content:
+                continue
+
+            fingerprint = f"{title.lower()}|{content[:120].lower()}"
+            if fingerprint in seen:
+                continue
+
+            seen.add(fingerprint)
+            deduped.append(item)
+            if len(deduped) >= max_items:
+                break
+
+        return deduped
+
+    @staticmethod
     async def update_global_radar(db: AsyncSession = None, api_key_siliconflow: str = None) -> List[MacroTopic]:
         """
         [业务入口] 抓取并持久化宏观雷达热点。
@@ -51,9 +75,11 @@ class MacroService:
         """
         logger.info("Starting global macro radar update...")
         repo = MacroService._repo(db)
+        started_at = perf_counter()
         try:
             # 1. 抓取全球实时宏观动态 (Tavily Provider)
             all_news_raw = await MacroFetcher.fetch_radar_news()
+            fetch_elapsed = perf_counter() - started_at
             
             # 2. 容错兜底：若抓取失败，则利用本地已有的最新快讯进行分析
             if not all_news_raw:
@@ -64,20 +90,40 @@ class MacroService:
                 logger.error("No external or local news available for macro radar update.")
                 return []
 
-            logger.info(f"Data source ready. Proceeding to AI analyzer with {len(all_news_raw)} items...")
+            prepared_news = MacroService._prepare_radar_news(all_news_raw)
+
+            logger.info(
+                "Data source ready. Proceeding to AI analyzer with %s items (raw=%s, fetch=%.2fs)...",
+                len(prepared_news),
+                len(all_news_raw),
+                fetch_elapsed,
+            )
             
             # 3. AI 深度解析：产出结构化的宏观主题 (包含利好/利空板块指引)
-            topics_data = await MacroAIService.analyze_radar_topics(all_news_raw, db, api_key_siliconflow)
+            ai_started_at = perf_counter()
+            topics_data = await MacroAIService.analyze_radar_topics(prepared_news, db, api_key_siliconflow)
+            ai_elapsed = perf_counter() - ai_started_at
             
             if not topics_data:
+                logger.warning("Macro radar AI returned no topics (fetch=%.2fs, ai=%.2fs)", fetch_elapsed, ai_elapsed)
                 return []
 
             # 4. 数据落地 (Upsert 模式确保不重复添加相同主题，仅更新其热度与最新新闻引用)
+            persist_started_at = perf_counter()
             new_topics = await repo.upsert_topics(topics_data)
+            persist_elapsed = perf_counter() - persist_started_at
             
             # 5. 推送提醒：根据用户订阅状态分发飞书/终端通知 (异步非阻塞)
             users = await repo.get_macro_alert_users()
-            logger.info(f"Successfully processed {len(new_topics)} macro topics (Upsert).")
+            total_elapsed = perf_counter() - started_at
+            logger.info(
+                "Successfully processed %s macro topics (fetch=%.2fs, ai=%.2fs, persist=%.2fs, total=%.2fs).",
+                len(new_topics),
+                fetch_elapsed,
+                ai_elapsed,
+                persist_elapsed,
+                total_elapsed,
+            )
             await MacroNotifier.notify_topics(users, new_topics)
             
             return new_topics
@@ -214,3 +260,94 @@ class MacroService:
         默认返回最近 50 条，用于前端“宏观时间轴”组件的实时渲染。
         """
         return await MacroService._repo(db).get_latest_news(limit=limit)
+    @staticmethod
+    async def get_radar_portfolio_alerts(user_id: str, db: AsyncSession) -> Dict[str, Any]:
+        """
+        [雷达持仓穿透] 将最新宏观雷达主题与用户持仓做 Ticker 级别交叉比对。
+
+        输出结构：
+        - alerts: 命中的具体告警项（含方向/主题/时间层/传导逻辑）
+        - market_pulse: 当前市场体温（从最新 topic 中提取）
+        - total_topics: 本次扫描的主题数
+        - affected_tickers: 持仓中被命中的 Ticker 集合
+        """
+        repo = MacroService._repo(db)
+
+        # 1. 并发获取主题列表 + 用户持仓
+        topics = await repo.get_latest_topics(limit=10)
+        user_tickers = set(await repo.get_user_portfolio_tickers(user_id))
+
+        if not topics or not user_tickers:
+            return {
+                "alerts": [],
+                "market_pulse": {},
+                "total_topics": len(topics),
+                "affected_tickers": [],
+            }
+
+        # 2. 提取最新的 market_pulse（取热度最高主题的 pulse）
+        market_pulse = {}
+        for t in sorted(topics, key=lambda x: x.heat_score or 0, reverse=True):
+            ia = t.impact_analysis or {}
+            if ia.get("market_pulse"):
+                market_pulse = ia["market_pulse"]
+                break
+
+        # 3. 逐主题扫描 beneficiaries / detriments，与持仓做碰撞
+        alerts: list[Dict[str, Any]] = []
+        seen: set[str] = set()  # 去重 (ticker, topic_id)
+
+        for topic in topics:
+            ia = topic.impact_analysis or {}
+            time_layer = ia.get("time_layer", "narrative")
+            logic = ia.get("logic", "")
+
+            for entry in ia.get("beneficiaries", []):
+                ticker = (entry.get("ticker") or "").upper().strip()
+                if ticker and ticker in user_tickers:
+                    key = f"{ticker}:{topic.id}:bull"
+                    if key not in seen:
+                        seen.add(key)
+                        alerts.append({
+                            "ticker": ticker,
+                            "direction": "bullish",
+                            "topic_title": topic.title,
+                            "topic_heat": topic.heat_score,
+                            "time_layer": time_layer,
+                            "reason": entry.get("reason", ""),
+                            "logic": logic,
+                        })
+
+            for entry in ia.get("detriments", []):
+                ticker = (entry.get("ticker") or "").upper().strip()
+                if ticker and ticker in user_tickers:
+                    key = f"{ticker}:{topic.id}:bear"
+                    if key not in seen:
+                        seen.add(key)
+                        alerts.append({
+                            "ticker": ticker,
+                            "direction": "bearish",
+                            "topic_title": topic.title,
+                            "topic_heat": topic.heat_score,
+                            "time_layer": time_layer,
+                            "reason": entry.get("reason", ""),
+                            "logic": logic,
+                        })
+
+        # 4. 按热度降序排列，让最重要的告警最先显示
+        alerts.sort(key=lambda a: a["topic_heat"] or 0, reverse=True)
+
+        affected_tickers = list({a["ticker"] for a in alerts})
+
+        logger.info(
+            f"[RadarPenetration] user={user_id} | "
+            f"portfolio={len(user_tickers)} tickers | "
+            f"topics={len(topics)} | alerts={len(alerts)}"
+        )
+
+        return {
+            "alerts": alerts,
+            "market_pulse": market_pulse,
+            "total_topics": len(topics),
+            "affected_tickers": affected_tickers,
+        }

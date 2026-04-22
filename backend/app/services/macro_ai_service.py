@@ -1,4 +1,5 @@
 from __future__ import annotations
+import asyncio
 import json
 import logging
 import re
@@ -17,76 +18,115 @@ class MacroAIService:
     1. 动态雷达主题生成：将离散新闻聚合成有逻辑的投资主题。
     2. 整点总结：每小时生成全局市场情绪和标的影响映射。
     """
+
+    @staticmethod
+    async def _call_ai(prompt: str, db=None) -> str:
+      """系统级 AI 调用入口：宏观扫描使用更短的业务超时，避免前端长时间空转。"""
+      try:
+        return await asyncio.wait_for(AIService.generate_text(prompt, db), timeout=45)
+      except asyncio.TimeoutError:
+        logger.error("Macro AI call exceeded 45s business timeout")
+        return ""
+
     @staticmethod
     async def analyze_radar_topics(news_items, db, api_key_siliconflow: str | None = None):
         """
-        [AI 逻辑] 宏观雷达主题深度提炼：
-        - 输入：通过搜素或聚合得到的近期新闻。
-        - 输出：3 个核心宏观主题，包含逻辑链条、利好/利空标的定位。
+        [AI 逻辑] 宏观雷达主题深度提炼——三层时间维度架构：
+
+        - immediate (即时催化层, 0-4h)：突发事件、数据公布、官员讲话，需当日仓位响应
+        - narrative (主题演绎层, 1-3d)：板块轮动叙事、财报季趋势、政策预期变化，波段决策参考
+        - cycle (周期定位层, 1-4w)：利率周期、通胀趋势、美元周期，组合配置比例参考
+
+        同时输出 market_pulse（市场体温计），帮助用户秒懂当前风险环境。
         """
-        news_context = "\n".join([f"- {item.get('title')}: {item.get('content')[:200]}" for item in news_items])
-        
-        # 提示词设计：强调“首席分析师”角色及“传导逻辑”
+        news_context = "\n".join([
+            f"[{item.get('source', '未知')}] {item.get('title', '')}: {item.get('content', '')[:200]}"
+            for item in news_items
+        ])
+
         prompt = f"""
-        你是一位全球宏观策略首席分析师。请从以下新闻片段中提炼出当前对全球股市（特别是美股）影响最大的 3 个宏观主题。
+你是一位管理超过 500 亿美元 AUM 的顶级对冲基金全球宏观策略主管。
+你的职责是将以下来自多个信源的原始新闻，转化为可直接指导交易决策的结构化宏观情报。
 
-        新闻背景:
-        {news_context}
+数据来源说明：
+- [东财/同花顺]：中国视角的全球宏观快讯，A股关联性强
+- [yfinance/SPY|QQQ|^VIX|^TNX]：美股四大核心定价因子的实时动态
+- [美联储/CNBC经济/MarketWatch]：高权威度政策与市场信号
 
-        对于每个主题，请执行以下深度分析：
-        1. 核心逻辑 (Logic Chain): 事件是如何传导并影响市场的。
-        2. 利好标的 (Beneficiaries): 哪些板块、指数或具体美股标的受益，并给出理由。
-        3. 利空标的 (Detriments): 哪些板块或标多受损，并给出理由。
-        4. 热度评分 (Heat Score): 0-100 评分。
+原始新闻：
+{{news_context}}
 
-        请严格返回以下 JSON 格式：
-        {{
-          "topics": [
-            {{
-              "title": "主题标题",
-              "summary": "简短背景总结",
-              "heat_score": 85,
-              "logic": "逻辑链条描述",
-              "beneficiaries": [
-                {{"ticker": "代码", "reason": "利好路由"}}
-              ],
-              "detriments": [
-                {{"ticker": "代码", "reason": "利空理由"}}
-              ],
-              "sources": ["url1", "url2"]
-            }}
-          ]
-        }}
-        """
+---
+请完成两项分析任务：
 
-        # 获取有效的 API Key (BYOK 优先级高于系统默认)
-        final_api_key = api_key_siliconflow or settings.SILICONFLOW_API_KEY
-        if not final_api_key:
-            logger.error("No SiliconFlow API key provided for macro update.")
-            return []
+【任务一】市场体温计 (market_pulse)
+基于 VIX 相关新闻、利率动态和整体情绪，快速标定当前市场环境：
+- overall_sentiment: 看多/中性偏多/中性/中性偏空/看空
+- risk_level: low/medium/high/extreme
+- rates_direction: 上行/稳定/下行
+- one_line: 10 字以内的市场体温总结
 
-        # 【量化决策逻辑】调用 AI 进行宏观传导分析：
-        # 1. 角色设定：要求 AI 扮演顶级对冲基金策略师。
-        # 2. 逻辑闭环：不仅仅列出新闻，更要求 AI 推导出“因为 A 事件 -> 导致 B 板块 -> 影响 C 标的”的逻辑链。
-        # 3. 结果量化：输出的热度评分 (Heat Score) 辅助用户快速筛选信息权重。
-        ai_response = await AIService.call_siliconflow(
-            prompt=prompt,
-            api_key=final_api_key,
-            model=settings.DEFAULT_AI_MODEL,
-            db=db,
-        )
-        
-        # 鲁棒性处理：提取并解析 JSON 数据块
-        # 使用正则表达式确保在 AI 输出包含思考过程（Thought）或其他杂质时，仍能精准提取 JSON。
+【任务二】核心宏观主题 (topics)
+提炼 4-5 个对股票市场影响最大的宏观主题，严格按三层时间维度分类：
+
+时间层定义：
+- "immediate"：0-4小时内的即时催化事件（突发、数据公布、官员讲话），影响当日仓位
+- "narrative"：1-3天的板块轮动叙事或政策预期演绎，影响波段仓位方向
+- "cycle"：1-4周的宏观周期定位信号（利率周期/通胀趋势/美元强弱），影响组合配置比例
+
+对每个主题：
+1. 完整传导链条：事件→货币/财政/情绪机制→板块→具体标的
+2. 利好标的：优先给出可交易的具体美股 Ticker + 传导路径
+3. 利空标的：具体美股 Ticker + 利空路径
+4. 热度评分：0-100，90+ 代表需立即关注的紧急信号
+
+请严格返回以下 JSON（不要有任何前缀或 Markdown 包裹）：
+{{{{
+  "market_pulse": {{{{
+    "overall_sentiment": "中性偏空",
+    "risk_level": "high",
+    "rates_direction": "上行",
+    "one_line": "避险情绪升温"
+  }}}},
+  "topics": [
+    {{{{
+      "title": "主题标题（简洁有力）",
+      "summary": "50字以内的背景总结",
+      "time_layer": "immediate",
+      "heat_score": 88,
+      "logic": "事件→机制→板块→标的 完整传导链",
+      "beneficiaries": [
+        {{{{"ticker": "GLD", "reason": "利好传导路径"}}}}
+      ],
+      "detriments": [
+        {{{{"ticker": "QQQ", "reason": "利空传导路径"}}}}
+      ],
+      "sources": []
+    }}}}
+  ]
+}}}}
+"""
+
+        ai_response = await MacroAIService._call_ai(prompt, db)
+
         json_match = re.search(r"(\{.*\})", ai_response, re.DOTALL)
         if not json_match:
             logger.error("Failed to extract JSON from AI macro response")
             return []
-        data = json.loads(json_match.group(1))
-        
-        # 返回结构化的主题列表，供持久化层使用
-        return data.get("topics", [])
 
+        try:
+            data = json.loads(json_match.group(1))
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON parse error in macro AI response: {e}")
+            return []
+
+        # 将 market_pulse 注入到每个 topic，方便下游持久化与前端消费
+        market_pulse = data.get("market_pulse", {})
+        topics = data.get("topics", [])
+        for topic in topics:
+            topic["market_pulse"] = market_pulse
+
+        return topics
     @staticmethod
     async def generate_hourly_report(news_items, db):
         """
@@ -118,12 +158,7 @@ class MacroAIService:
         }}
         """
 
-        ai_response = await AIService.call_siliconflow(
-            prompt=prompt,
-            model=settings.DEFAULT_AI_MODEL,
-            api_key=settings.SILICONFLOW_API_KEY,
-            db=db,
-        )
+        ai_response = await MacroAIService._call_ai(prompt, db)
         # 【多轮决策支持】AI 总结后的解析步骤：
         # 1. 使用正则表达式匹配 JSON，防止 AI 自言自语或输出 Markdown 代码块。
         # 2. 将全局“核心综述”与具体的“标的影响图谱”分离。

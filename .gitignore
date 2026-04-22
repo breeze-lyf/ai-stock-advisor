@@ -73,5 +73,6 @@ backend/seed_stocks.py
 
 # Resume files (personal)
 backend/resume/
+backend/resume
 .vercel
 .env*.local

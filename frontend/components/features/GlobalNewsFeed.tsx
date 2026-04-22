@@ -1,14 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getClsNews } from "@/features/macro/api";
 import { GlobalNews } from "@/types";
 import { Clock, RefreshCw, MessageSquare } from "lucide-react";
 import clsx from "clsx";
 
-export function GlobalNewsFeed() {
+interface GlobalNewsFeedProps {
+    refreshNonce?: number;
+}
+
+export function GlobalNewsFeed({ refreshNonce = 0 }: GlobalNewsFeedProps) {
     const [news, setNews] = useState<GlobalNews[]>([]);
     const [loading, setLoading] = useState(false);
+    const hasLoadedRef = useRef(false);
 
     const fetchNews = async (refresh = false) => {
         setLoading(true);
@@ -24,10 +29,18 @@ export function GlobalNewsFeed() {
 
     useEffect(() => {
         fetchNews(false);
+        hasLoadedRef.current = true;
         // 每 2 分钟自动刷新一次
         const interval = setInterval(() => fetchNews(false), 120000);
         return () => clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+        if (!hasLoadedRef.current || refreshNonce === 0) {
+            return;
+        }
+        fetchNews(true);
+    }, [refreshNonce]);
 
     return (
         <div className="flex flex-col h-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
@@ -63,8 +76,8 @@ export function GlobalNewsFeed() {
                             // 格式化时间，只保留时分
                             const displayTime = item.time.includes(" ") ? item.time.split(" ")[1].substring(0, 5) : item.time;
 
-                            // 使用时间和内容的重结合作为唯一 key，确保 React 能正确识别新消息
-                            const uniqueKey = `${item.time}-${item.title?.substring(0, 20) || idx}`;
+                            // 同一时间戳下可能出现标题重复，追加索引避免 key 冲突。
+                            const uniqueKey = `${item.time}-${item.title || "news"}-${idx}`;
 
                             return (
                                 <div key={uniqueKey} className="relative pl-6 group">

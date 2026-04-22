@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState, Suspense } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AnalysisTabContainer } from "@/features/dashboard/components/AnalysisTabContainer";
@@ -16,8 +17,19 @@ import { useDashboardPortfolioData } from "@/features/dashboard/hooks/useDashboa
 import { useDashboardRadarData } from "@/features/dashboard/hooks/useDashboardRadarData";
 
 // Components
-import { HotspotRadar } from "@/components/features/HotspotRadar";
 import QuantFactorsPage from "@/features/quant/components/QuantFactorsPage";
+
+const HotspotRadarDaily = dynamic(
+  () => import("@/components/features/HotspotRadarDaily").then((mod) => mod.HotspotRadarDaily),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-full items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <div className="text-sm text-slate-500 dark:text-slate-400">Loading radar...</div>
+      </div>
+    ),
+  }
+);
 
 function DashboardContent() {
   const { isAuthenticated } = useAuth();
@@ -83,7 +95,7 @@ function DashboardContent() {
 
         {activeTab === "radar" && (
           <div className="absolute inset-0 flex flex-col">
-            <HotspotRadar
+            <HotspotRadarDaily
               loading={radarLoading}
               onRefresh={fetchRadar}
               onSelectTicker={selectTicker}

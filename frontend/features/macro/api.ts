@@ -1,5 +1,14 @@
 import api from "@/shared/api/client";
 
+export interface MarketPulse {
+  overall_sentiment: string;
+  risk_level: "low" | "medium" | "high" | "extreme" | string;
+  rates_direction: string;
+  one_line: string;
+}
+
+export type TimeLayer = "immediate" | "narrative" | "cycle";
+
 export interface MacroTopic {
   id: string;
   title: string;
@@ -9,9 +18,28 @@ export interface MacroTopic {
     logic: string;
     beneficiaries: { ticker: string; reason: string }[];
     detriments: { ticker: string; reason: string }[];
+    time_layer?: TimeLayer;
+    market_pulse?: MarketPulse;
   };
   source_links: string[];
   updated_at: string;
+}
+
+export interface RadarPortfolioAlert {
+  ticker: string;
+  direction: "bullish" | "bearish";
+  topic_title: string;
+  topic_heat: number;
+  time_layer: TimeLayer;
+  reason: string;
+  logic: string;
+}
+
+export interface RadarPortfolioAlertsResponse {
+  alerts: RadarPortfolioAlert[];
+  market_pulse: MarketPulse;
+  total_topics: number;
+  affected_tickers: string[];
 }
 
 interface MacroRadarItem {
@@ -37,7 +65,8 @@ export interface ClsNewsItem {
 }
 
 export async function getMacroRadar(refresh = false): Promise<MacroTopic[]> {
-  const response = await api.get(`/api/v1/macro/radar?refresh=${refresh}`);
+  const timestamp = refresh ? `&_t=${Date.now()}` : "";
+  const response = await api.get(`/api/v1/macro/radar?refresh=${refresh}${timestamp}`);
   const items = response.data as MacroRadarItem[];
   return items.map((item, index) => ({
     id: String(item.id ?? `${item.title}-${index}`),
@@ -56,7 +85,7 @@ export async function getMacroRadar(refresh = false): Promise<MacroTopic[]> {
       })),
     },
     source_links: Array.isArray(item.source_links) ? item.source_links.filter((link): link is string => typeof link === "string") : [],
-    updated_at: typeof item.updated_at === "string" ? item.updated_at : new Date().toISOString(),
+    updated_at: typeof item.updated_at === "string" ? item.updated_at : "",
   }));
 }
 
@@ -70,4 +99,9 @@ export async function getClsNews(refresh = false): Promise<ClsNewsItem[]> {
     content: typeof item.content === "string" ? item.content : "",
     time: typeof item.time === "string" ? item.time : "",
   }));
+}
+
+export async function getRadarPortfolioAlerts(): Promise<RadarPortfolioAlertsResponse> {
+  const response = await api.get("/api/v1/macro/radar/portfolio-alerts");
+  return response.data as RadarPortfolioAlertsResponse;
 }

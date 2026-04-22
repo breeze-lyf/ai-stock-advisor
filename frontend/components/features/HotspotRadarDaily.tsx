@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { TrendingUp, TrendingDown, AlertCircle, RefreshCw, Globe, Zap, ArrowRight, RotateCcw, Layers, CalendarDays, Clock3 } from "lucide-react";
 import clsx from "clsx";
 import { useAuth } from "@/context/AuthContext";
@@ -239,12 +240,37 @@ function DailyDigestCard({ group, timezone, onSelectTicker, isLatest }: {
   );
 }
 
-export function HotspotRadar({ loading, onRefresh, onSelectTicker, topics }: HotspotRadarProps) {
+export function HotspotRadarDaily({ loading, onRefresh, onSelectTicker, topics }: HotspotRadarProps) {
   const { user } = useAuth();
+  const [refreshNonce, setRefreshNonce] = useState(0);
+  const [scanState, setScanState] = useState<"idle" | "running" | "done" | "failed">("idle");
+  const [lastScanAt, setLastScanAt] = useState<string | null>(null);
   const timezone = user?.timezone || "Asia/Shanghai";
   const fallbackPulse = topics.map(getTopicPulse).find(Boolean) ?? null;
   const dailyGroups = buildDailyGroups(topics, timezone, fallbackPulse);
   const latestPulse = dailyGroups[0]?.pulse ?? null;
+
+  const handleManualRefresh = async () => {
+    setScanState("running");
+    try {
+      await onRefresh(true);
+      setRefreshNonce((current) => current + 1);
+      setLastScanAt(new Date().toISOString());
+      setScanState("done");
+    } catch (error) {
+      console.error("Failed to refresh macro radar", error);
+      setScanState("failed");
+    }
+  };
+
+  const scanStatusText =
+    scanState === "running"
+      ? "正在扫描全网宏观热点..."
+      : scanState === "done" && lastScanAt
+        ? `最近一次扫描：${formatDateTime(lastScanAt, timezone, "HH:mm:ss")}`
+        : scanState === "failed"
+          ? "扫描失败，请稍后重试"
+          : "手动扫描会同步更新右侧雷达和左侧快讯流。";
 
   return (
     <div className="flex h-full flex-col space-y-4 bg-slate-50 p-4 dark:bg-slate-950">
@@ -259,15 +285,26 @@ export function HotspotRadar({ loading, onRefresh, onSelectTicker, topics }: Hot
               <span className="ml-2 text-[11px] font-normal text-slate-400">Daily Macro Digest</span>
             </h1>
             <p className="text-[10px] text-slate-500">按交易日聚合宏观事件，优先回答今天最重要的事情是什么、影响哪些资产。</p>
+            <p className={clsx(
+              "mt-1 text-[10px]",
+              scanState === "failed"
+                ? "text-rose-500"
+                : scanState === "done"
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-slate-400"
+            )}>
+              {scanStatusText}
+            </p>
           </div>
         </div>
-        <Button variant="outline" size="sm" onClick={() => onRefresh(true)} disabled={loading}>
-          <RefreshCw className={clsx("mr-1.5 h-3.5 w-3.5", loading && "animate-spin")} />全网扫描热点
+        <Button variant="outline" size="sm" onClick={handleManualRefresh} disabled={loading || scanState === "running"}>
+          <RefreshCw className={clsx("mr-1.5 h-3.5 w-3.5", (loading || scanState === "running") && "animate-spin")} />
+          {scanState === "running" ? "扫描中..." : "全网扫描热点"}
         </Button>
       </div>
       <div className="grid min-h-0 flex-1 grid-cols-12 gap-4">
         <div className="col-span-12 flex min-h-0 flex-col overflow-hidden lg:col-span-4 xl:col-span-3">
-          <GlobalNewsFeed />
+          <GlobalNewsFeed refreshNonce={refreshNonce} />
         </div>
         <div className="col-span-12 flex h-full min-h-0 flex-col lg:col-span-8 xl:col-span-9">
           <div className="shrink-0 rounded-xl border border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
@@ -277,10 +314,8 @@ export function HotspotRadar({ loading, onRefresh, onSelectTicker, topics }: Hot
             </div>
             <p className="mt-1 text-[12px] text-slate-500 dark:text-slate-400">按日期输出每日最重要的宏观事件清单，而不是零散主题墙。</p>
           </div>
-
           <div className="mt-3 custom-scrollbar flex-1 space-y-4 overflow-y-auto pr-1">
             {latestPulse && <DailyPulsePanel pulse={latestPulse} />}
-
             {dailyGroups.length === 0 && !loading && (
               <div className="rounded-xl border-2 border-dashed border-slate-200 bg-white py-20 text-center dark:border-slate-800 dark:bg-slate-900">
                 <AlertCircle className="mx-auto mb-3 h-10 w-10 text-slate-300" />

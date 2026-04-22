@@ -240,6 +240,7 @@ class AIService:
         return await call_provider(provider_config, model_id, prompt, api_key, custom_url, require_json)
 
     @classmethod
+    @classmethod
     async def call_siliconflow(
         cls,
         prompt: str,
@@ -248,7 +249,10 @@ class AIService:
         db: Optional[AsyncSession] = None,
         base_url: Optional[str] = None,
     ) -> str:
-        """兼容现有宏观服务调用的 SiliconFlow 快捷入口。"""
+        """
+        [已废弃] SiliconFlow 专用快捷入口。
+        请改用 AIService.generate_text(prompt, db) —— 它会自动按 DB 配置的 provider 优先级路由，支持故障转移。
+        """
         target_model = model
         if not target_model:
             # 避免 DEFAULT_AI_MODEL 指向其他供应商（如 dashscope）导致向 siliconflow 发送不存在的模型 ID
@@ -539,6 +543,31 @@ class AIService:
             await cache_set(redis_cache_key, result, ttl_seconds=cls.RESPONSE_CACHE_TTL)
 
         return result
+
+    @classmethod
+    async def generate_text(
+        cls,
+        prompt: str,
+        db: AsyncSession,
+        model_key: Optional[str] = None,
+    ) -> str:
+        """
+        系统级通用文本生成入口（无用户上下文）。
+
+        适用于后台任务、定时任务、数据流水线等不依赖特定用户 AI 配置的场景。
+        自动按数据库中的 provider 优先级路由，支持故障转移。
+
+        Args:
+            prompt:     发送给 LLM 的完整 Prompt 字符串。
+            db:         AsyncSession，用于查询 provider 配置。
+            model_key:  模型 key（如 "qwen3.5-plus"），默认使用 settings.DEFAULT_AI_MODEL。
+
+        Returns:
+            LLM 返回的文本。失败时返回以 "**Error**" 开头的错误描述。
+        """
+        key = model_key or settings.DEFAULT_AI_MODEL
+        model_config = await cls.get_model_config(key, db)
+        return await cls._dispatch_with_fallback(prompt, model_config, user=None, db=db)
 
 
 ai_service = AIService

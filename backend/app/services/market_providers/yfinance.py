@@ -104,19 +104,42 @@ class YFinanceProvider(MarketDataProvider):
                 _restore_proxy_env(old_vals)
         return await asyncio.to_thread(wrapped)
 
-    async def search_instruments(self, query: str, limit: int = 8) -> list[dict[str, str]]:
+    async def search_instruments(self, query: str, limit: int = 20) -> list[dict[str, str]]:
+        """
+        搜索金融工具
+
+        Args:
+            query: 搜索关键词（股票代码、公司名称等）
+            limit: 最大返回结果数量（默认 20，最多返回 Yahoo 返回的全部结果）
+
+        Returns:
+            搜索结果列表，每个结果包含 ticker 和 name 字段
+        """
         normalized = (query or "").strip()
         if not normalized:
             return []
 
+        # 接受的 quote type 列表 - 扩展以包含更多市场类型
+        # EQUITY: 普通股
+        # ETF: 交易所交易基金
+        # MUTUALFUND: 共同基金
+        # INDEX: 指数（如 ^GSPC, ^IXIC）
+        # CURRENCY: 货币对
+        # CRYPTOCURRENCY: 加密货币
+        # FUTURE: 期货
+        # MARKET: 市场指数
+        ACCEPTED_QUOTE_TYPES = {"EQUITY", "ETF", "MUTUALFUND", "INDEX", "CURRENCY", "CRYPTOCURRENCY", "FUTURE", "MARKET"}
+
         try:
             def run_search() -> list[dict[str, Any]]:
+                # 增加 max_results 以获取更多候选结果
+                # Yahoo 实际返回的结果可能少于 max_results，所以设置大一点更安全
                 search = yf.Search(
                     normalized,
-                    max_results=limit,
+                    max_results=max(limit, 30),  # 至少请求 30 条，确保足够筛选
                     news_count=0,
                     lists_count=0,
-                    recommended=limit,
+                    recommended=max(limit, 30),
                     include_cb=False,
                     enable_fuzzy_query=True,
                     raise_errors=False,
@@ -126,13 +149,16 @@ class YFinanceProvider(MarketDataProvider):
             quotes = await self._run_sync(run_search)
             results: list[dict[str, str]] = []
             seen: set[str] = set()
+
             for item in quotes:
                 ticker = str(item.get("symbol") or "").strip().upper()
                 if not ticker or ticker in seen:
                     continue
 
                 quote_type = str(item.get("quoteType") or "").upper()
-                if quote_type and quote_type not in {"EQUITY", "ETF", "MUTUALFUND"}:
+                # 放宽过滤条件：如果没有 quote_type 信息，也保留该结果（某些市场可能不返回此字段）
+                if quote_type and quote_type not in ACCEPTED_QUOTE_TYPES:
+                    logger.debug(f"YFinance search: skipping {ticker} with quote_type={quote_type}")
                     continue
 
                 name = (
@@ -144,6 +170,8 @@ class YFinanceProvider(MarketDataProvider):
                 results.append({"ticker": ticker, "name": name})
                 if len(results) >= limit:
                     break
+
+            logger.debug(f"YFinance search for '{query}': found {len(results)} results (requested {limit})")
             return results
         except Exception as exc:
             logger.warning(f"YFinance search_instruments failed for {query}: {exc}")

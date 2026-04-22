@@ -21,6 +21,10 @@ async def get_macro_radar(
     current_user = Depends(deps.get_current_user)
 ):
     """获取宏观雷达热点，支持静默自动刷新"""
+    if refresh:
+        await MacroService.update_global_radar(db)
+        return await MacroService.get_latest_radar(db)
+
     topics = await MacroService.get_latest_radar(db)
     
     # 逻辑：如果强制刷新，或者数据库为空，或者最新数据早于 4 小时前，则触发更新
@@ -32,7 +36,7 @@ async def get_macro_radar(
         if utc_now_naive() - last_updated > timedelta(hours=5):
             should_auto_update = True
             
-    if refresh or should_auto_update:
+    if should_auto_update:
         # 使用 BackgroundTasks 进行异步更新，不阻塞当前请求
         # 注意：此处不再传递 db，由 MacroService 内部按需创建 Session，避免会话冲突
         background_tasks.add_task(MacroService.update_global_radar)
@@ -77,3 +81,23 @@ async def get_cls_news(
             "content": item.content
         } for item in news_items
     ]
+
+
+@router.get("/radar/portfolio-alerts")
+async def get_radar_portfolio_alerts(
+    db: AsyncSession = Depends(deps.get_db),
+    current_user=Depends(deps.get_current_user),
+):
+    """
+    【雷达持仓穿透】将当前宏观雷达主题与用户持仓做 Ticker 级交叉比对。
+
+    响应说明：
+    - alerts: 命中告警列表（按热度降序），含方向(bullish/bearish)、主题、时间层、传导逻辑
+    - market_pulse: 市场体温计（overall_sentiment / risk_level / rates_direction / one_line）
+    - total_topics: 扫描的主题总数
+    - affected_tickers: 持仓中被宏观主题命中的 Ticker 列表
+    """
+    return await MacroService.get_radar_portfolio_alerts(
+        user_id=current_user.id,
+        db=db,
+    )

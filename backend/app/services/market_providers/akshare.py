@@ -348,7 +348,17 @@ class AkShareProvider(MarketDataProvider):
             results.append({"ticker": ticker, "name": name})
         return results
 
-    async def search_instruments(self, query: str, limit: int = 10) -> list[dict[str, str]]:
+    async def search_instruments(self, query: str, limit: int = 20) -> list[dict[str, str]]:
+        """
+        搜索 A 股/港股/美股/基金工具
+
+        Args:
+            query: 搜索关键词（股票代码、名称拼音等）
+            limit: 最大返回结果数量（默认 20）
+
+        Returns:
+            搜索结果列表，每个结果包含 ticker 和 name 字段
+        """
         await self._update_spot_cache()
         await self._update_hk_spot_cache()
         await self._update_fund_cache()

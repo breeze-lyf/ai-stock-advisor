@@ -68,11 +68,12 @@ async def search_stocks(
         return []
     repo = StockRepository(db)
     try:
+        # 增加搜索限制以返回更多结果
         return await PortfolioSearchEngine(repo).search(
             query,
             preferred_source=current_user.preferred_data_source,
             remote=remote,
-            limit=10,
+            limit=20,  # 从 10 增加到 20，允许返回更多搜索结果
         )
     except Exception as e:
         logger.error(f"Search failed for {query}: {e}", exc_info=True)

@@ -34,6 +34,8 @@ class MacroRepository:
                 "logic": topic_data.get("logic"),
                 "beneficiaries": topic_data.get("beneficiaries", []),
                 "detriments": topic_data.get("detriments", []),
+                "time_layer": topic_data.get("time_layer", "narrative"),
+                "market_pulse": topic_data.get("market_pulse", {}),
             }
             if not impact_analysis:
                 impact_analysis = self.default_impact_analysis()

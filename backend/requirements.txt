@@ -73,6 +73,7 @@ webencodings==0.5.1
 websockets>=13.0,<15.0
 gunicorn==23.0.0
 akshare
+feedparser>=6.0.0
 ib_async
 yfinance>=1.2.2
 slowapi>=0.1.9

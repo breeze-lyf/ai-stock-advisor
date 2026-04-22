@@ -37,33 +37,42 @@ class PortfolioSearchEngine:
         for source in build_provider_order(preferred_source, query):
             provider = ProviderFactory.get_provider(normalized, preferred_source=source)
 
-            if not exact_match:
-                for candidate in search_candidates:
-                    quote = await provider.get_quote(candidate)
-                    if not quote:
-                        continue
-
-                    resolved_ticker = (quote.ticker or candidate).upper()
-                    await self._ensure_stock(resolved_ticker, quote.name or resolved_ticker, quote.price)
-                    if resolved_ticker not in seen:
-                        results.append(SearchResult(ticker=resolved_ticker, name=quote.name or resolved_ticker))
-                        seen.add(resolved_ticker)
-                    exact_match = True
-                    break
-
+            # 优先使用 search_instruments (快速搜索，不等待行情)
             search_instruments = getattr(provider, "search_instruments", None)
             if callable(search_instruments):
-                remote_results = await search_instruments(query, limit=limit)
-                for item in remote_results:
-                    ticker = str(item.get("ticker") or "").strip().upper()
-                    name = str(item.get("name") or ticker).strip() or ticker
-                    if not ticker or ticker in seen:
+                try:
+                    remote_results = await search_instruments(query, limit=limit)
+                    for item in remote_results:
+                        ticker = str(item.get("ticker") or "").strip().upper()
+                        name = str(item.get("name") or ticker).strip() or ticker
+                        if not ticker or ticker in seen:
+                            continue
+                        await self._ensure_stock(ticker, name)
+                        results.append(SearchResult(ticker=ticker, name=name))
+                        seen.add(ticker)
+                        if len(results) >= limit:
+                            return results[:limit]
+                except Exception as e:
+                    logger.debug(f"search_instruments failed for {source}: {e}")
+
+            # 如果 search_instruments 没找到精确匹配，再尝试 get_quote 验证候选代码
+            if not exact_match:
+                for candidate in search_candidates:
+                    try:
+                        quote = await provider.get_quote(candidate)
+                        if not quote:
+                            continue
+
+                        resolved_ticker = (quote.ticker or candidate).upper()
+                        await self._ensure_stock(resolved_ticker, quote.name or resolved_ticker, quote.price)
+                        if resolved_ticker not in seen:
+                            results.append(SearchResult(ticker=resolved_ticker, name=quote.name or resolved_ticker))
+                            seen.add(resolved_ticker)
+                        exact_match = True
+                        break
+                    except Exception as e:
+                        logger.debug(f"get_quote failed for {candidate}: {e}")
                         continue
-                    await self._ensure_stock(ticker, name)
-                    results.append(SearchResult(ticker=ticker, name=name))
-                    seen.add(ticker)
-                    if len(results) >= limit:
-                        return results
 
             if len(results) >= limit:
                 break

@@ -238,12 +238,7 @@ class GenerateStockCapsuleUseCase:
 
     async def _call_ai(self, prompt: str, model: str, require_json: bool = False) -> str:
         """Route through AIService without user context (system-level call)."""
-        from app.models.ai_config import AIModelConfig
-        from sqlalchemy.future import select as sa_select
-
-        model_config = await AIService.get_model_config(model, self.db)
-        # Use system-level key resolution (user=None)
-        return await AIService._dispatch_with_fallback(prompt, model_config, user=None, db=self.db)
+        return await AIService.generate_text(prompt, self.db, model_key=model)
 
     async def _get_stock_news(self, ticker: str, limit: int = 25):
         stmt = (

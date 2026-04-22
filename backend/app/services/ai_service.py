@@ -235,9 +235,11 @@ class AIService:
         api_key: str,
         custom_url: str = None,
         require_json: bool = True,
+        max_tokens: Optional[int] = None,
+        extra_params: Optional[dict] = None,
     ) -> str:
         """通用供应商调用器 — 委托至 ai_provider_client.call_provider"""
-        return await call_provider(provider_config, model_id, prompt, api_key, custom_url, require_json)
+        return await call_provider(provider_config, model_id, prompt, api_key, custom_url, require_json, max_tokens=max_tokens, extra_params=extra_params)
 
     @classmethod
     @classmethod
@@ -331,7 +333,7 @@ class AIService:
         return infer_provider_key(base_url, provider_hint)
 
     @classmethod
-    async def _dispatch_with_fallback(cls, prompt: str, model_config: AIModelRuntimeConfig, user: Optional[User], db: AsyncSession) -> str:
+    async def _dispatch_with_fallback(cls, prompt: str, model_config: AIModelRuntimeConfig, user: Optional[User], db: AsyncSession, max_tokens: Optional[int] = None, extra_params: Optional[dict] = None) -> str:
         """核心路由：带故障转移的提供商分发"""
 
         # 1. 获取所有可用的供应商列表，按优先级排序
@@ -388,7 +390,7 @@ class AIService:
                     timeout_seconds=provider.get("timeout_seconds", 120),
                 )
                 attempted += 1
-                return await cls.call_provider(provider_config, current_model_id, prompt, api_key, custom_url)
+                return await cls.call_provider(provider_config, current_model_id, prompt, api_key, custom_url, max_tokens=max_tokens, extra_params=extra_params)
             except Exception as e:
                 err = cls._format_exception(e)
                 provider_errors.append(f"{provider_key}: {err}")
@@ -550,6 +552,8 @@ class AIService:
         prompt: str,
         db: AsyncSession,
         model_key: Optional[str] = None,
+        max_tokens: Optional[int] = None,
+        extra_params: Optional[dict] = None,
     ) -> str:
         """
         系统级通用文本生成入口（无用户上下文）。
@@ -567,7 +571,7 @@ class AIService:
         """
         key = model_key or settings.DEFAULT_AI_MODEL
         model_config = await cls.get_model_config(key, db)
-        return await cls._dispatch_with_fallback(prompt, model_config, user=None, db=db)
+        return await cls._dispatch_with_fallback(prompt, model_config, user=None, db=db, max_tokens=max_tokens, extra_params=extra_params)
 
 
 ai_service = AIService

@@ -52,6 +52,8 @@ async def call_provider(
     api_key: str,
     custom_url: Optional[str] = None,
     require_json: bool = True,
+    max_tokens: Optional[int] = None,
+    extra_params: Optional[dict] = None,
 ) -> str:
     """
     通用供应商调用器（OpenAI 兼容接口）。
@@ -90,6 +92,10 @@ async def call_provider(
             "messages": [{"role": "user", "content": prompt}],
             "temperature": 0.3,
         }
+        if max_tokens is not None:
+            payload["max_tokens"] = max_tokens
+        if extra_params:
+            payload.update(extra_params)
         if use_json:
             payload["response_format"] = {"type": "json_object"}
 

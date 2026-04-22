@@ -411,7 +411,7 @@ class AkShareProvider(MarketDataProvider):
                     try:
                         quote = await self._get_tencent_quote(query)
                         if quote:
-                            results.append(SearchResult(ticker=quote.ticker, name=quote.name))
+                            results.append({"ticker": quote.ticker, "name": quote.name or quote.ticker})
                             seen.add(quote.ticker.upper())
                     except Exception as te:
                         logger.error(f"Tencent search fallback failed for {query}: {te}")

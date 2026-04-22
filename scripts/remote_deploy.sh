@@ -67,7 +67,10 @@ ssh $SSH_OPTS "$REMOTE_TARGET" << 'EOF'
     # Run migrations (PostgreSQL mode assumes alembic is configured)
     echo "🔄 Running database migrations..."
     if $DOCKER_COMPOSE_CMD ps | grep -q "backend"; then
-        $DOCKER_COMPOSE_CMD exec -T backend alembic upgrade head || echo "⚠️ Migration warning: No migrations executed or failed."
+        if ! $DOCKER_COMPOSE_CMD exec -T backend alembic upgrade head; then
+            echo "❌ Database migration failed on remote!"
+            exit 1
+        fi
     fi
     
     echo "🧹 Cleaning up old images..."

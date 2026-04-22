@@ -20,12 +20,19 @@ class MacroAIService:
     """
 
     @staticmethod
-    async def _call_ai(prompt: str, db=None) -> str:
-      """系统级 AI 调用入口：宏观扫描使用更短的业务超时，避免前端长时间空转。"""
+    async def _call_ai(prompt: str, db=None, max_tokens: int = 2048) -> str:
+      """系统级 AI 调用入口：禁用思考模式以加速响应，适用于摘要类任务。"""
       try:
-        return await asyncio.wait_for(AIService.generate_text(prompt, db), timeout=45)
+        return await asyncio.wait_for(
+            AIService.generate_text(
+                prompt, db,
+                max_tokens=max_tokens,
+                extra_params={"enable_thinking": False},
+            ),
+            timeout=90,
+        )
       except asyncio.TimeoutError:
-        logger.error("Macro AI call exceeded 45s business timeout")
+        logger.error("Macro AI call exceeded 90s business timeout")
         return ""
 
     @staticmethod
@@ -33,9 +40,9 @@ class MacroAIService:
         """
         [AI 逻辑] 宏观雷达主题深度提炼——三层时间维度架构：
 
-        - immediate (即时催化层, 0-4h)：突发事件、数据公布、官员讲话，需当日仓位响应
-        - narrative (主题演绎层, 1-3d)：板块轮动叙事、财报季趋势、政策预期变化，波段决策参考
-        - cycle (周期定位层, 1-4w)：利率周期、通胀趋势、美元周期，组合配置比例参考
+        - immediate (即时催化层，0-4h)：突发事件、数据公布、官员讲话，需当日仓位响应
+        - narrative (主题演绎层，1-3d)：板块轮动叙事、财报季趋势、政策预期变化，波段决策参考
+        - cycle (周期定位层，1-4w)：利率周期、通胀趋势、美元周期，组合配置比例参考
 
         同时输出 market_pulse（市场体温计），帮助用户秒懂当前风险环境。
         """
@@ -49,12 +56,12 @@ class MacroAIService:
 你的职责是将以下来自多个信源的原始新闻，转化为可直接指导交易决策的结构化宏观情报。
 
 数据来源说明：
-- [东财/同花顺]：中国视角的全球宏观快讯，A股关联性强
+- [东财/同花顺]：中国视角的全球宏观快讯，A 股关联性强
 - [yfinance/SPY|QQQ|^VIX|^TNX]：美股四大核心定价因子的实时动态
-- [美联储/CNBC经济/MarketWatch]：高权威度政策与市场信号
+- [美联储/CNBC 经济/MarketWatch]：高权威度政策与市场信号
 
 原始新闻：
-{{news_context}}
+{news_context}
 
 ---
 请完成两项分析任务：
@@ -70,9 +77,9 @@ class MacroAIService:
 提炼 4-5 个对股票市场影响最大的宏观主题，严格按三层时间维度分类：
 
 时间层定义：
-- "immediate"：0-4小时内的即时催化事件（突发、数据公布、官员讲话），影响当日仓位
-- "narrative"：1-3天的板块轮动叙事或政策预期演绎，影响波段仓位方向
-- "cycle"：1-4周的宏观周期定位信号（利率周期/通胀趋势/美元强弱），影响组合配置比例
+- "immediate"：0-4 小时内的即时催化事件（突发、数据公布、官员讲话），影响当日仓位
+- "narrative"：1-3 天的板块轮动叙事或政策预期演绎，影响波段仓位方向
+- "cycle"：1-4 周的宏观周期定位信号（利率周期/通胀趋势/美元强弱），影响组合配置比例
 
 对每个主题：
 1. 完整传导链条：事件→货币/财政/情绪机制→板块→具体标的
@@ -81,30 +88,30 @@ class MacroAIService:
 4. 热度评分：0-100，90+ 代表需立即关注的紧急信号
 
 请严格返回以下 JSON（不要有任何前缀或 Markdown 包裹）：
-{{{{
-  "market_pulse": {{{{
+{{
+  "market_pulse": {{
     "overall_sentiment": "中性偏空",
     "risk_level": "high",
     "rates_direction": "上行",
     "one_line": "避险情绪升温"
-  }}}},
+  }},
   "topics": [
-    {{{{
+    {{
       "title": "主题标题（简洁有力）",
-      "summary": "50字以内的背景总结",
+      "summary": "50 字以内的背景总结",
       "time_layer": "immediate",
       "heat_score": 88,
       "logic": "事件→机制→板块→标的 完整传导链",
       "beneficiaries": [
-        {{{{"ticker": "GLD", "reason": "利好传导路径"}}}}
+        {{"ticker": "GLD", "reason": "利好传导路径"}}
       ],
       "detriments": [
-        {{{{"ticker": "QQQ", "reason": "利空传导路径"}}}}
+        {{"ticker": "QQQ", "reason": "利空传导路径"}}
       ],
       "sources": []
-    }}}}
+    }}
   ]
-}}}}
+}}
 """
 
         ai_response = await MacroAIService._call_ai(prompt, db)
@@ -127,42 +134,33 @@ class MacroAIService:
             topic["market_pulse"] = market_pulse
 
         return topics
+
     @staticmethod
     async def generate_hourly_report(news_items, db):
         """
         [AI 逻辑] 整点精要报告生成：
-        - 输入：过去一小时的快讯标题。
+        - 输入：过去一小时最重要的快讯标题（上限 20 条）。
         - 输出：带情绪评估和标的影响图谱的 JSON。
         """
-        titles = [f"- {item.title or item.content[:50]}" for item in news_items]
+        recent = news_items[:20]
+        titles = [f"- {item.title or item.content[:50]}" for item in recent]
         content_for_ai = "\n".join(titles)
-        
-        # 提示词设计：强调“对冲基金经理”视角及“影响图谱”
-        prompt = f"""
-        你是一位全球对冲基金首席策略师。以下是过去一小时内发生的财联社新闻汇总：
 
-        {content_for_ai}
+        prompt = f"""你是全球对冲基金策略师。以下是过去一小时的财联社新闻：
 
-        请执行以下深度分析任务：
-        1. **【全局综述】**: 用 50-100 字概括本小时最重要的 1-3 件核心驱动事件及整体市场情绪。
-        2. **【影响图谱 (Impact Map)】**: 识别这些新闻受影响最直接的 5-10 个标的代码 (Tickers)，并说明其利好/利空逻辑。
+{content_for_ai}
 
-        请严格返回以下 JSON 格式：
-        {{
-          "core_summary": "**【核心综述】**\\n具体内容...",
-          "sentiment": "看多/看空/中性",
-          "impact_map": {{
-            "AAPL": "利好理由...",
-            "TSLA": "利空理由..."
-          }}
-        }}
-        """
+请返回 JSON（不要 Markdown 包裹）：
+{{
+  "core_summary": "**【核心综述】**\\n50 字以内概括最重要的 1-2 件事及市场情绪",
+  "sentiment": "看多/看空/中性",
+  "impact_map": {{
+    "TICKER": "10 字以内利好或利空理由"
+  }}
+}}
+impact_map 只列最直接相关的 3-5 个标的。"""
 
-        ai_response = await MacroAIService._call_ai(prompt, db)
-        # 【多轮决策支持】AI 总结后的解析步骤：
-        # 1. 使用正则表达式匹配 JSON，防止 AI 自言自语或输出 Markdown 代码块。
-        # 2. 将全局“核心综述”与具体的“标的影响图谱”分离。
-        # 3. 影响图谱 (Impact Map) 的设计初衷是为了实现后续的“持仓穿透”，即通过 Ticker 匹配直接定位用户关注的风险。
+        ai_response = await MacroAIService._call_ai(prompt, db, max_tokens=1024)
         json_match = re.search(r"(\{.*\})", ai_response, re.DOTALL)
         if not json_match:
             return None

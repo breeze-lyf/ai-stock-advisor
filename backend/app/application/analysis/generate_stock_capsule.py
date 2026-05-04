@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
+from app.utils.time import utc_now_naive
 from typing import Any, Optional, cast
 
 from sqlalchemy import select
@@ -308,7 +309,7 @@ class GenerateStockCapsuleUseCase:
         model_used: str,
     ) -> StockCapsule:
         """Insert or update the capsule row (upsert on ticker+capsule_type)."""
-        now = datetime.utcnow()
+        now = utc_now_naive()
 
         stmt = (
             pg_insert(StockCapsule)

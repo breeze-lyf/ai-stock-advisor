@@ -5,6 +5,7 @@
 import logging
 from typing import Optional, Dict, Any, List
 from datetime import datetime, time
+from app.utils.time import utc_now_naive
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -461,7 +462,7 @@ class NotificationServiceV2:
 
         if existing:
             # 更新现有订阅
-            existing.last_used_at = datetime.utcnow()
+            existing.last_used_at = utc_now_naive()
             await db.commit()
             await db.refresh(existing)
             return existing

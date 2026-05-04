@@ -114,10 +114,8 @@ async def get_scenario_analysis(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"情景分析生成失败：{str(e)[:200]}"
-        )
+        logger.error(f"Scenario analysis failed for {ticker}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/{ticker}/risk-analysis")
@@ -181,10 +179,8 @@ async def get_risk_analysis(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"风险分析生成失败：{str(e)[:200]}"
-        )
+        logger.error(f"Risk analysis failed for {ticker}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/{ticker}/multi-timeframe")
@@ -237,10 +233,8 @@ async def get_multi_timeframe_analysis(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"多时间框架分析生成失败：{str(e)[:200]}"
-        )
+        logger.error(f"Multi-timeframe analysis failed for {ticker}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.get("/{ticker}/enhanced-analysis")
@@ -359,7 +353,5 @@ async def get_enhanced_analysis(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"增强分析生成失败：{str(e)[:200]}"
-        )
+        logger.error(f"Enhanced analysis failed for {ticker}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")

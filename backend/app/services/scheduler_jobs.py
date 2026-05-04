@@ -1,6 +1,7 @@
 import asyncio
 import logging
 from datetime import datetime, timedelta
+from app.utils.time import utc_now_naive
 
 import pytz
 
@@ -365,7 +366,7 @@ def should_auto_analyze(ticker: str, report) -> bool:
     """
     if report is None:
         return True
-    age = datetime.utcnow() - report.created_at
+    age = utc_now_naive() - report.created_at
     threshold = timedelta(hours=4) if _is_market_open_for(ticker) else timedelta(hours=24)
     return age > threshold
 
@@ -387,7 +388,7 @@ async def run_auto_refresh_stale_analysis_job(session_factory, max_per_run: int 
             if should_auto_analyze(ticker, report):
                 age_h = None
                 if report:
-                    age_h = (datetime.utcnow() - report.created_at).total_seconds() / 3600
+                    age_h = (utc_now_naive() - report.created_at).total_seconds() / 3600
                 stale.append((ticker, age_h))
 
     if not stale:
@@ -450,7 +451,7 @@ async def run_stock_capsule_refresh_job(session_factory) -> int:
             (row.ticker, row.capsule_type): row for row in result.scalars().all()
         }
 
-    cutoff = datetime.utcnow() - timedelta(hours=STALE_HOURS)
+    cutoff = utc_now_naive() - timedelta(hours=STALE_HOURS)
     for ticker in tickers:
         for ctype in ("news", "fundamental"):
             row = existing.get((ticker, ctype))

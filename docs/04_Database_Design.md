@@ -2,20 +2,25 @@
 
 **存储底座:** Neon PostgreSQL Serverless
 **ORM:** SQLAlchemy (Async)
+**更新时间：** 2026年5月4日
 
 ---
 
 ## 1. 实体关系图 (ER Diagram)
 
-数据库采用了规范化的关系型设计。此图为最新版本的数据库脉络，包含 `max_drawdown` 与 `max_favorable_excursion` 等支持 **Truth Tracker 2.0** 的深度量化字段。
+数据库采用了规范化的关系型设计。此图为最新版本的数据库脉络。
 
 ```mermaid
 erDiagram
     USERS ||--o{ PORTFOLIOS : "拥有"
     USERS ||--o{ ANALYSIS_REPORTS : "触发诊断"
+    USERS ||--o{ TRADES : "模拟交易"
+    USERS ||--o{ NOTIFICATIONS : "接收"
+    USERS ||--o{ USER_PREFERENCES : "偏好设置"
     STOCKS ||--|| MARKET_DATA_CACHE : "行情级联 (1:1)"
     STOCKS ||--o{ PORTFOLIOS : "被持有"
     STOCKS ||--o{ ANALYSIS_REPORTS : "被复盘"
+    STOCKS ||--o{ STOCK_CAPSULES : "胶囊摘要"
 
     USERS {
         uuid id PK "用户全局唯一标识"
@@ -23,6 +28,7 @@ erDiagram
         string hashed_password "暗文密码"
         boolean is_active "是否启用状态"
         string preferred_ai_model "首选大模型"
+        string membership_tier "会员等级 (FREE/PRO)"
     }
 
     STOCKS {
@@ -53,7 +59,7 @@ erDiagram
         text action_advice "核心指令(BUY/HODL/SELL)"
         float target_price "AI划定阻力止盈位"
         float stop_loss_price "AI划定支撑止损位"
-        jsonb thought_process "推演思维链 (DeepSeek思路)"
+        jsonb thought_process "推演思维链"
         float max_drawdown "最大回撤(MAE)"
         float max_favorable_excursion "最大浮盈(MFE)"
         jsonb scenario_tags "场景多向标签"
@@ -68,6 +74,26 @@ erDiagram
         float quantity "持有单位"
         float avg_cost "建仓均价"
         datetime updated_at "调仓时刻"
+    }
+
+    STOCK_CAPSULES {
+        uuid id PK "胶囊ID"
+        string ticker FK "标的"
+        string capsule_type "类型 (news/fundamental)"
+        jsonb content "AI摘要内容"
+        integer source_count "引用源数量"
+        datetime updated_at "更新时间"
+    }
+
+    TRADES {
+        uuid id PK "模拟交易ID"
+        uuid user_id FK "属主"
+        string ticker "标的"
+        float entry_price "入场价"
+        float target_price "目标价"
+        float stop_loss_price "止损价"
+        string status "状态 (OPEN/CLOSED)"
+        datetime entry_date "建仓时间"
     }
 ```
 

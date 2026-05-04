@@ -3,6 +3,7 @@
 """
 from typing import Optional, List
 from datetime import datetime, date, timedelta
+from app.utils.time import utc_now_naive
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -263,7 +264,7 @@ async def cancel_subscription(
         raise HTTPException(status_code=404, detail="No active subscription found")
 
     subscription.status = "CANCELLED"
-    subscription.cancelled_at = datetime.utcnow()
+    subscription.cancelled_at = utc_now_naive()
     subscription.cancel_reason = reason
 
     await db.commit()

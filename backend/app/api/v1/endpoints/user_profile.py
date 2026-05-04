@@ -4,6 +4,7 @@
 """
 from typing import Optional, Dict, Any
 from datetime import datetime
+from app.utils.time import utc_now_naive
 from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -84,7 +85,7 @@ async def create_or_update_profile(
         profile.portfolio_size = portfolio_size
         profile.target_annual_return = target_annual_return
         profile.onboarding_completed = True
-        profile.onboarding_completed_at = datetime.utcnow()
+        profile.onboarding_completed_at = utc_now_naive()
     else:
         # 创建新记录
         profile = UserInvestmentProfile(
@@ -100,7 +101,7 @@ async def create_or_update_profile(
             portfolio_size=portfolio_size,
             target_annual_return=target_annual_return,
             onboarding_completed=True,
-            onboarding_completed_at=datetime.utcnow(),
+            onboarding_completed_at=utc_now_naive(),
         )
         db.add(profile)
 

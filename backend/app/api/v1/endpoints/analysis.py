@@ -1,8 +1,9 @@
 import logging
 from typing import List, Optional
-from fastapi import APIRouter, Depends, BackgroundTasks
+from fastapi import APIRouter, Depends, BackgroundTasks, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
+from app.core.rate_limiter import limiter
 from app.application.analysis.analyze_stock import (
     AnalyzeStockUseCase,
 )
@@ -28,7 +29,9 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 @router.post("/portfolio", response_model=PortfolioAnalysisResponse)
+@limiter.limit("5/minute")
 async def analyze_portfolio(
+    request: Request,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -50,8 +53,10 @@ async def get_portfolio_analysis(
     return await GetLatestPortfolioAnalysisUseCase(db, current_user).execute()
 
 @router.post("/{ticker}", response_model=AnalysisResponse)
+@limiter.limit("10/minute")
 async def analyze_stock(
-    ticker: str, 
+    request: Request,
+    ticker: str,
     force: bool = False,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -85,7 +90,7 @@ async def get_analysis_status(
     current_user: User = Depends(get_current_user),
 ):
     """轻量轮询端点：返回最新分析时间戳和陈旧状态，供前端 banner 判断是否有新版"""
-    from datetime import datetime
+    from app.utils.time import utc_now_naive
     from app.infrastructure.db.repositories.scheduler_repository import SchedulerRepository
     from app.services.scheduler_jobs import should_auto_analyze
     from app.application.analysis.query_analysis import GetLatestAnalysisUseCase
@@ -100,7 +105,7 @@ async def get_analysis_status(
 
     if report:
         last_analyzed_at = report.created_at
-        age_minutes = int((datetime.utcnow() - report.created_at).total_seconds() / 60)
+        age_minutes = int((utc_now_naive() - report.created_at).total_seconds() / 60)
         scheduler_repo = SchedulerRepository(db)
         latest_raw = await scheduler_repo.get_latest_shared_analysis_report(ticker.upper())
         is_stale = should_auto_analyze(ticker, latest_raw) if latest_raw else True

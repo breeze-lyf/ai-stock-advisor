@@ -4,6 +4,7 @@
 """
 from typing import Optional, List
 from datetime import datetime
+from app.utils.time import utc_now_naive
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -174,13 +175,13 @@ async def get_lesson(
             course_id=lesson.course_id,
             lesson_id=lesson_id,
             status="IN_PROGRESS",
-            started_at=datetime.utcnow(),
+            started_at=utc_now_naive(),
         )
         db.add(progress)
         await db.commit()
     elif progress.status == "NOT_STARTED":
         progress.status = "IN_PROGRESS"
-        progress.started_at = datetime.utcnow()
+        progress.started_at = utc_now_naive()
         await db.commit()
 
     return {
@@ -237,7 +238,7 @@ async def complete_lesson(
 
     # 更新进度
     progress.status = "COMPLETED"
-    progress.completed_at = datetime.utcnow()
+    progress.completed_at = utc_now_naive()
     progress.time_spent_minutes += time_spent_minutes
 
     if quiz_score is not None and lesson.has_quiz:

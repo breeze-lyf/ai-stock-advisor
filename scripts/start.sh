@@ -34,7 +34,12 @@ install_backend_deps() {
 
     if [ ! -f "$stamp_file" ] || [ "$ROOT_DIR/backend/requirements.txt" -nt "$stamp_file" ]; then
         echo "Installing backend dependencies..."
-        "$pip_exec" install -r "$ROOT_DIR/backend/requirements.txt" >/dev/null
+        if ! "$pip_exec" install -r "$ROOT_DIR/backend/requirements.txt" >/dev/null 2>&1; then
+            echo "[start.sh] Default PyPI install failed, retrying with Tsinghua mirror..."
+            "$pip_exec" install -r "$ROOT_DIR/backend/requirements.txt" \
+                -i https://pypi.tuna.tsinghua.edu.cn/simple \
+                --trusted-host pypi.tuna.tsinghua.edu.cn >/dev/null
+        fi
         touch "$stamp_file"
     fi
 }
@@ -72,6 +77,18 @@ start_dev() {
     local runtime_log_dir="$ROOT_DIR/backend/.local/runtime-logs"
     mkdir -p "$runtime_log_dir"
 
+    # Proxy reachability check: pip/npm inherit shell env vars, so an unreachable proxy
+    # causes connection timeouts before the app even starts.
+    if [ -n "${HTTP_PROXY:-}" ] || [ -n "${HTTPS_PROXY:-}" ]; then
+        proxy_to_check="${HTTP_PROXY:-$HTTPS_PROXY}"
+        proxy_host=$(echo "$proxy_to_check" | sed -E 's|https?://||' | cut -d: -f1)
+        proxy_port=$(echo "$proxy_to_check" | sed -E 's|https?://[^:]*:||')
+        if ! (echo >/dev/tcp/"$proxy_host"/"$proxy_port") 2>/dev/null; then
+            echo "[start.sh] Proxy $proxy_to_check unreachable — clearing HTTP_PROXY/HTTPS_PROXY for this session"
+            unset HTTP_PROXY HTTPS_PROXY http_proxy https_proxy ALL_PROXY all_proxy
+        fi
+    fi
+
     if ! command -v npm >/dev/null 2>&1; then
         echo "Error: npm is not installed"
         exit 1
@@ -94,6 +111,11 @@ start_dev() {
 
     ensure_port_free "$BACKEND_PORT" "backend"
     ensure_port_free "$FRONTEND_PORT" "frontend"
+
+    # Initialize PID vars early so cleanup() works even on early failure
+    FRONTEND_PID=""
+    BACKEND_PID=""
+    WORKER_PID=""
 
     # Cleanup function to kill all child processes
     cleanup() {

@@ -6,6 +6,7 @@ import hashlib
 import base64
 import time
 from datetime import datetime, timedelta, timezone
+from app.utils.time import utc_now_naive
 from typing import Dict, Any, Optional, List
 from app.core.config import settings
 from app.utils.time import utc_now_naive
@@ -28,8 +29,8 @@ class NotificationService:
 
     @staticmethod
     async def send_feishu_card(
-        title: str, 
-        content: str, 
+        title: str,
+        content: str,
         elements: Optional[List[Dict[str, Any]]] = None,
         color: str = "blue",
         webhook_url: Optional[str] = None,
@@ -37,8 +38,10 @@ class NotificationService:
         ticker: Optional[str] = None,
         user_id: Optional[str] = None
     ) -> bool:
-        """
-        发送飞书富文本卡片消息，包含 24 小时去重逻辑
+        """发送飞书富文本卡片消息，包含 24 小时去重逻辑。
+
+        修复：复用同一个 DB session 用于 master switch 检查 + dedup 检查 + log 写入，
+        避免每个通知创建 2-3 个独立 session。
         """
         from app.core.database import SessionLocal
         from app.models.user import User
@@ -46,48 +49,42 @@ class NotificationService:
         from sqlalchemy.future import select
         from datetime import datetime, timedelta
 
-        # --- 1. 总开关校验 (仅当提供了 user_id 时) ---
-        if user_id:
-            try:
-                async with SessionLocal() as db:
+        _eff_url = webhook_url or settings.FEISHU_WEBHOOK_URL
+        SKIP_24H_DEDUPE = ["MACRO_SUMMARY", "HOURLY_NEWS_SUMMARY"]
+        one_summary_window = utc_now_naive() - timedelta(minutes=30)
+
+        # 使用单一 session 完成所有 DB 操作
+        async with SessionLocal() as db:
+            # --- 1. 总开关校验 ---
+            if user_id:
+                try:
                     user = await db.get(User, user_id)
                     if user and not getattr(user, "notifications_enabled", True):
                         logger.info(f"Notification master switch is OFF for user {user_id}. Terminating.")
                         return False
-            except Exception as e:
-                logger.warning(f"Master notification switch check failed: {e}. Proceeding.")
+                except Exception as e:
+                    logger.warning(f"Master notification switch check failed: {e}. Proceeding.")
 
-        # --- 1.5. Redis webhook 级去重 (防止多账号共用同一 Webhook 时重复推送) ---
-        # 以 hash(webhook_url) + msg_type + ticker + 日期 为 key，24 小时内只发一次
-        _eff_url = webhook_url or settings.FEISHU_WEBHOOK_URL
-        if _eff_url and msg_type not in ("MACRO_SUMMARY", "HOURLY_NEWS_SUMMARY"):
+            # --- 1.5. Redis webhook 级去重 ---
+            if _eff_url and msg_type not in ("MACRO_SUMMARY", "HOURLY_NEWS_SUMMARY"):
+                try:
+                    import hashlib
+                    from app.core.redis_client import get_redis
+                    _url_hash = hashlib.md5(_eff_url.encode()).hexdigest()[:12]
+                    _date_str = utc_now_naive().strftime("%Y-%m-%d")
+                    _redis_key = f"notif_dedup:{_url_hash}:{msg_type}:{ticker or 'none'}:{_date_str}"
+                    _redis = await get_redis()
+                    if _redis:
+                        _already = not await _redis.set(_redis_key, "1", nx=True, ex=86400)
+                        if _already:
+                            logger.info(f"[Dedup/Redis] Webhook-level dedup hit: {msg_type}/{ticker}")
+                            return True
+                except Exception as _re:
+                    logger.debug(f"[Dedup/Redis] Graceful fallback to DB dedup: {_re}")
+
+            # --- 2. 24 小时去重检查 ---
             try:
-                import hashlib
-                from app.core.redis_client import get_redis
-                _url_hash = hashlib.md5(_eff_url.encode()).hexdigest()[:12]
-                _date_str = datetime.utcnow().strftime("%Y-%m-%d")
-                _redis_key = f"notif_dedup:{_url_hash}:{msg_type}:{ticker or 'none'}:{_date_str}"
-                _redis = await get_redis()
-                if _redis:
-                    _already = not await _redis.set(_redis_key, "1", nx=True, ex=86400)
-                    if _already:
-                        logger.info(f"[Dedup/Redis] Webhook-level dedup hit: {msg_type}/{ticker}")
-                        return True
-            except Exception as _re:
-                logger.debug(f"[Dedup/Redis] Graceful fallback to DB dedup: {_re}")
-
-        # --- 2. 24 小时去重检查 (带异常保护) ---
-
-        try:
-            async with SessionLocal() as db:
-                # 定义需要跳过 24 小时严格去重的主动推送类型 (如每小时摘要、雷达汇总)
-                # 这些类型应仅在 1 分钟内去重，防止并发冲突
-                SKIP_24H_DEDUPE = ["MACRO_SUMMARY", "HOURLY_NEWS_SUMMARY"]
-                
-                one_day_ago = utc_now_naive() - timedelta(hours=24 if msg_type not in SKIP_24H_DEDUPE else 0)
-                # 对于跳过 24h 的类型，设定更稳健的 30 分钟防重窗口（防止整点触发逻辑重叠）
-                one_summary_window = utc_now_naive() - timedelta(minutes=30)
-                
+                one_day_ago = utc_now_naive() - timedelta(hours=24)
                 check_threshold = one_day_ago if msg_type not in SKIP_24H_DEDUPE else one_summary_window
 
                 stmt = select(NotificationLog).where(
@@ -99,13 +96,12 @@ class NotificationService:
                 )
                 res = await db.execute(stmt)
                 if res.scalars().first():
-                    logger.info(f"Notification deduplication hit for user {user_id}: {msg_type} (Threshold: {msg_type not in SKIP_24H_DEDUPE})")
+                    logger.info(f"Notification deduplication hit for user {user_id}: {msg_type}")
                     return True
-        except Exception as db_e:
-            # 数据库故障时不应阻塞推送，仅记录日志并继续
-            logger.warning(f"Notification deduplication check failed (DB Error): {db_e}. Proceeding anyway.")
+            except Exception as db_e:
+                logger.warning(f"Notification deduplication check failed (DB Error): {db_e}. Proceeding anyway.")
 
-        # --- 2. 构建并发送 ---
+        # --- 3. 构建并发送 ---
         url = webhook_url or settings.FEISHU_WEBHOOK_URL
         if not url:
             logger.warning("FEISHU_WEBHOOK_URL not configured, skipping notification.")
@@ -138,7 +134,6 @@ class NotificationService:
                 result = response.json()
                 if result.get("code") == 0:
                     logger.info(f"Feishu notification sent successfully: {title}")
-                    # 记录成功日志
                     async with SessionLocal() as db:
                         log = NotificationLog(
                             user_id=user_id,

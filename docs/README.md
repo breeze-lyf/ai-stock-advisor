@@ -4,11 +4,13 @@
 
 ## 建议阅读顺序
 
-1. `01_Product_Requirements_Document.md`
-2. `02_Developer_SOP_and_Guide.md`
-3. `05_Current_Feature_Status_Matrix.md`
-4. `04_Database_Design.md`
-5. `03_Mainland_Deployment_Guide.md`
+1. `01_Product_Requirements_Document.md` — 产品目标与阶段规划
+2. `02_Developer_SOP_and_Guide.md` — 研发规范与代码基线
+3. `05_Current_Feature_Status_Matrix.md` — 功能落地状态与测试清单
+4. `04_Database_Design.md` — 数据库结构与设计意图
+5. `03_Mainland_Deployment_Guide.md` — 大陆部署与网络适配
+6. `06_AI_Analysis_Implementation_Guide.md` — AI 增强分析架构与实现
+7. `07_Agent_Architecture_Design.md` — Agent 任务拆解与输出规范
 
 ## 文档职责
 
@@ -18,7 +20,9 @@
 | `02_Developer_SOP_and_Guide.md` | 开发执行规范、分层约束、交付规则 | 研发流程或技术基线变化时 |
 | `03_Mainland_Deployment_Guide.md` | 大陆环境部署方式与网络适配 | 部署链路、环境变量或代理方案变化时 |
 | `04_Database_Design.md` | 核心表结构与数据设计 | 模型结构或迁移策略变化时 |
-| `05_Current_Feature_Status_Matrix.md` | 当前功能落地状态、测试优先级、最小回归集 | 新功能进入仓库或状态变化时 |
+| `05_Current_Feature_Status_Matrix.md` | 功能落地状态、测试优先级、回归集 | 新功能进入仓库或状态变化时 |
+| `06_AI_Analysis_Implementation_Guide.md` | AI 增强分析架构、数据流、组件设计 | 增强分析模块实现或重构时 |
+| `07_Agent_Architecture_Design.md` | Agent 架构类型、任务拆解、输出规范 | Agent 相关能力开发或架构调整时 |
 
 ## 目录规则
 

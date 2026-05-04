@@ -1,5 +1,6 @@
 from __future__ import annotations
 import json
+import logging
 import re
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -25,13 +26,12 @@ from app.schemas.user_settings import (
     MarketDataSourceOption,
     PasswordChange,
     ProviderConfigResponse,
-    TavilyTestRequest,
-    TestConnectionRequest,
     TestConnectionResponse,
     UserProviderCredentialResponse,
     UserProfile,
-    UserSettingsUpdate,
 )
+
+logger = logging.getLogger(__name__)
 from app.core import security
 
 router = APIRouter()
@@ -337,7 +337,8 @@ async def test_tavily_connection(
             return TestConnectionResponse(status="success", message=f"Tavily connection successful (items={len(news)})")
         return TestConnectionResponse(status="error", message="Tavily returned unexpected response")
     except Exception as exc:
-        return TestConnectionResponse(status="error", message=f"Tavily connection failed: {exc}")
+        logger.error(f"Tavily connection test failed: {exc}")
+        return TestConnectionResponse(status="error", message="Tavily connection failed")
 
 
 @router.post("/test-feishu-webhook", response_model=TestConnectionResponse)
@@ -373,10 +374,11 @@ async def test_feishu_webhook(
             return TestConnectionResponse(status="error", message=f"HTTP {response.status_code}: {response.text}")
     except httpx.TimeoutException:
         return TestConnectionResponse(status="error", message="请求超时，请检查网络连接")
-    except httpx.ConnectError as exc:
-        return TestConnectionResponse(status="error", message=f"连接失败：{exc}")
+    except httpx.ConnectError:
+        return TestConnectionResponse(status="error", message="连接失败，请检查网络")
     except Exception as exc:
-        return TestConnectionResponse(status="error", message=f"测试失败：{exc}")
+        logger.error(f"Feishu webhook test failed: {exc}")
+        return TestConnectionResponse(status="error", message="测试失败")
 
 
 @router.get("/ai-models", response_model=list[AIModelConfigResponse])

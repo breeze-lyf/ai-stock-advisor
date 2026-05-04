@@ -1,8 +1,19 @@
 # Agent 架构设计文档
 
-**文档版本：** v1.0  
-**更新日期：** 2026-04-09  
+**文档版本：** v1.1  
+**更新日期：** 2026-05-04  
 **目标：** 说明 Agent 的架构设计、任务拆解方式、输出格式规范
+
+---
+
+## 零、AI 服务架构说明（2026-05 更新）
+
+AI 调用链路已拆分为三层：
+- `services/ai_service.py` — 编排层（Prompt 构建、缓存检查）
+- `services/model_resolver.py` — 配置层（模型配置查询、API Key 解析）
+- `services/provider_router.py` — 路由层（LLM 分发、容灾切换、缓存）
+
+代码示例中出现的 `call_provider` 来自 `ai_service.py` 的向后兼容导出，实际路由由 `ProviderRouter` 执行。
 
 ---
 

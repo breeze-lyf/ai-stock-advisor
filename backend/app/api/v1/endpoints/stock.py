@@ -2,7 +2,7 @@ from __future__ import annotations
 import math
 from typing import List, Optional
 import logging
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 import pandas as pd
 from datetime import datetime
@@ -13,6 +13,7 @@ from sqlalchemy.future import select
 
 from app.api.deps import get_optional_current_user
 from app.core.database import get_db
+from app.core.rate_limiter import limiter
 from app.core.security import sanitize_float
 from app.schemas.market_data import OHLCVItem
 from app.schemas.portfolio import PortfolioItem
@@ -143,13 +144,15 @@ async def get_stock_snapshot(
         stock = await StockRepository(db).get_stock(ticker)
 
         if not cache and not stock:
-            raise HTTPException(status_code=404, detail=f"未找到股票: {ticker}")
+            logger.warning(f"Stock not found: {ticker}")
+            raise HTTPException(status_code=404, detail="Stock not found")
 
         return _snapshot_to_portfolio_item(ticker, cache, stock)
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"获取股票详情失败: {str(e)}")
+        logger.error(f"Failed to get stock snapshot: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.get("/{ticker}/history", response_model=List[OHLCVItem])
 async def get_stock_history(
@@ -237,10 +240,13 @@ async def get_stock_history(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"获取行情历史失败: {str(e)}")
+        logger.error(f"Failed to get stock history for {ticker}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.post("/refresh_all")
+@limiter.limit("2/minute")
 async def refresh_all_stocks(
+    request: Request,
     price_only: bool = False, # 支持仅刷新价格模式
     db: AsyncSession = Depends(get_db)
 ):
@@ -288,4 +294,5 @@ async def refresh_all_stocks(
         }
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"批量刷新任务失败: {str(e)}")
+        logger.error(f"Batch refresh failed: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")

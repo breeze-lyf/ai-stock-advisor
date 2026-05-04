@@ -5,6 +5,7 @@
 import logging
 from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime, timedelta
+from app.utils.time import utc_now_naive
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import and_
@@ -42,7 +43,7 @@ class BacktestEngine:
         Returns:
             BacktestResult: 回测结果
         """
-        start_time = datetime.utcnow()
+        start_time = utc_now_naive()
 
         # 创建回测结果记录
         result = BacktestResult(
@@ -83,7 +84,7 @@ class BacktestEngine:
 
             # 更新结果
             result.status = "COMPLETED"
-            result.completed_at = datetime.utcnow()
+            result.completed_at = utc_now_naive()
             result.execution_time_seconds = (result.completed_at - start_time).total_seconds()
 
             # 填充指标
@@ -120,7 +121,7 @@ class BacktestEngine:
         except Exception as e:
             result.status = "FAILED"
             result.error_message = str(e)
-            result.completed_at = datetime.utcnow()
+            result.completed_at = utc_now_naive()
             await db.commit()
             logger.error(f"Backtest failed for config {config.id}: {e}")
             raise

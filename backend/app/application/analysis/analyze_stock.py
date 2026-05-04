@@ -116,7 +116,7 @@ class AnalyzeStockUseCase:
         
         if isinstance(results[1], Exception):
             logger.error(f"Failed to fetch market data for {ticker}: {results[1]}")
-            raise HTTPException(status_code=500, detail=f"Market data fetch error: {str(results[1])}")
+            raise HTTPException(status_code=500, detail="Market data fetch failed")
         
         # Step 3: Build derived data objects
         build_start = time.time()
@@ -192,8 +192,8 @@ class AnalyzeStockUseCase:
             except Exception:
                 pass
             raise HTTPException(
-                status_code=503, 
-                detail=f"AI 服务暂时不可用: {str(ai_error)[:200]}"
+                status_code=503,
+                detail="AI service temporarily unavailable",
             )
         
         ai_elapsed = time.time() - ai_start
@@ -315,8 +315,8 @@ class AnalyzeStockUseCase:
         return {
             "current_price": market_data_obj.get("currentPrice"),
             "change_percent": market_data_obj.get("regularMarketChangePercent"),
-            "rsi_14": 50.0,
-            "market_status": "OPEN",
+            "rsi_14": None,
+            "market_status": None,
         }
 
     async def _get_news_data(self, ticker: str) -> list[dict[str, Any]]:

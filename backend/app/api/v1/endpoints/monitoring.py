@@ -4,6 +4,7 @@
 """
 from typing import Optional, List
 from datetime import datetime, timedelta, date
+from app.utils.time import utc_now_naive
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -199,7 +200,7 @@ async def resolve_error(
         raise HTTPException(status_code=404, detail="Error log not found")
 
     error.resolved = True
-    error.resolved_at = datetime.utcnow()
+    error.resolved_at = utc_now_naive()
     error.resolved_by = current_user.id
     if notes:
         error.notes = notes
@@ -307,7 +308,7 @@ async def acknowledge_alert(
         raise HTTPException(status_code=404, detail="Alert not found")
 
     alert.status = "ACKNOWLEDGED"
-    alert.acknowledged_at = datetime.utcnow()
+    alert.acknowledged_at = utc_now_naive()
     alert.acknowledged_by = current_user.id
 
     await db.commit()
@@ -331,7 +332,7 @@ async def resolve_alert(
         raise HTTPException(status_code=404, detail="Alert not found")
 
     alert.status = "RESOLVED"
-    alert.resolved_at = datetime.utcnow()
+    alert.resolved_at = utc_now_naive()
     alert.resolved_by = current_user.id
     if notes:
         alert.notes = notes

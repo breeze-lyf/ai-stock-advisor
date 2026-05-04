@@ -5,6 +5,7 @@ AI 信号追踪服务
 import logging
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
+from app.utils.time import utc_now_naive
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import and_, func, update
@@ -126,14 +127,14 @@ class SignalTrackerService:
             signal.exit_price = signal.target_price
             signal.exit_reason = "TARGET_HIT"
             signal.pnl_percent = pnl_percent
-            signal.closed_at = datetime.utcnow()
+            signal.closed_at = utc_now_naive()
             logger.info(f"Signal {signal_id} closed: target hit @ ${current_price:.2f}, PnL: {pnl_percent:.2f}%")
         elif signal.stop_loss_price and current_price <= signal.stop_loss_price:
             signal.signal_status = SignalStatus.CLOSED
             signal.exit_price = signal.stop_loss_price
             signal.exit_reason = "STOP_LOSS"
             signal.pnl_percent = pnl_percent
-            signal.closed_at = datetime.utcnow()
+            signal.closed_at = utc_now_naive()
             logger.info(f"Signal {signal_id} closed: stop loss @ ${current_price:.2f}, PnL: {pnl_percent:.2f}%")
 
         await db.commit()
@@ -176,7 +177,7 @@ class SignalTrackerService:
         signal.exit_price = exit_price
         signal.exit_reason = exit_reason
         signal.pnl_percent = pnl_percent
-        signal.closed_at = datetime.utcnow()
+        signal.closed_at = utc_now_naive()
 
         db.add(signal)
         await db.commit()
@@ -241,7 +242,7 @@ class SignalTrackerService:
             表现统计数据
         """
         # 获取时间范围
-        now = datetime.utcnow()
+        now = utc_now_naive()
         if period == "DAILY":
             start_date = now - timedelta(days=1)
         elif period == "WEEKLY":
@@ -355,7 +356,7 @@ class SignalTrackerService:
         Returns:
             关闭的信号数量
         """
-        cutoff_date = datetime.utcnow() - timedelta(days=max_age_days)
+        cutoff_date = utc_now_naive() - timedelta(days=max_age_days)
 
         stmt = (
             update(AISignalHistory)
@@ -368,7 +369,7 @@ class SignalTrackerService:
             .values(
                 signal_status=SignalStatus.EXPIRED,
                 exit_reason="TIME_EXPIRED",
-                updated_at=datetime.utcnow()
+                updated_at=utc_now_naive()
             )
         )
         result = await db.execute(stmt)

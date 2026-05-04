@@ -4,6 +4,7 @@
 """
 from typing import List, Optional
 from datetime import datetime
+from app.utils.time import utc_now_naive
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -205,7 +206,7 @@ async def update_stock_list(
     stock_list.description = data.description
     stock_list.is_default = data.is_default
     stock_list.is_public = data.is_public
-    stock_list.updated_at = datetime.utcnow()
+    stock_list.updated_at = utc_now_naive()
 
     await db.commit()
     await db.refresh(stock_list)

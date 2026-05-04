@@ -16,11 +16,13 @@
 
 ### 1.2 后端
 
-- FastAPI（Python 3.10+）
+- FastAPI（Python 3.10+），main.py 仅做组装（79 行）
+- 启动生命周期独立于 `core/lifespan.py`
+- 中间件独立于 `core/middleware.py`
 - SQLAlchemy 2.0（Async）+ Alembic
 - Neon Postgres / PostgreSQL（主数据源）
-- Redis（缓存、去重、通知辅助）
-- FastAPI lifespan 拉起后台调度协程
+- Redis（缓存、去重、通知辅助、调度器分布式锁）
+- 自定义异步调度器（`services/scheduler.py`，基于 asyncio + Redis 锁）
 
 ### 1.3 移动端
 
@@ -131,9 +133,10 @@ alembic upgrade head
 ## 6. AI 能力开发约束
 
 1. 默认系统模型按当前注册信息走 `qwen3.5-plus`，不要在业务代码写死临时模型名。
-2. BYOK 配置必须走用户模型配置链路，不直接读取明文 Key 到日志。
-3. AI 输出解析必须保持结构化字段兼容，关键字段变更需要同步前端展示组件。
-4. 供应商错误必须区分可重试与不可重试（鉴权失败、模型不存在、超时）。
+2. AI 服务链路已拆分为 `ai_service.py`（编排）+ `model_resolver.py`（配置/Key 解析）+ `provider_router.py`（供应商路由/容灾）。
+3. BYOK 配置必须走用户模型配置链路，不直接读取明文 Key 到日志。
+4. AI 输出解析必须保持结构化字段兼容，关键字段变更需要同步前端展示组件。
+5. 供应商错误必须区分可重试与不可重试（鉴权失败、模型不存在、超时）。
 
 ---
 

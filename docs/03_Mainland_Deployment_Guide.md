@@ -1,7 +1,7 @@
 # 03. 大陆环境部署指南 (Mainland Deployment Guide)
 
 **定位：** 本文档对齐当前 README 与开发 SOP 的统一口径，描述大陆网络环境下可执行、可维护的部署流程。  
-**更新时间：** 2026 年 4 月 3 日。
+**更新时间：** 2026年5月4日。
 
 ---
 
@@ -32,6 +32,7 @@
 - pip 镜像：`https://pypi.tuna.tsinghua.edu.cn/simple`
 
 说明：生产推荐走镜像分发后，服务器通常不再需要频繁执行 npm/pip 安装。
+启动脚本（`scripts/start.sh`）已内置代理可达性检测：若 `HTTP_PROXY`/`HTTPS_PROXY` 配置的代理不可达，会自动清除这些变量，避免 pip 安装超时。Tsinghua 镜像作为 pip 默认失败后的回退源。
 
 ---
 

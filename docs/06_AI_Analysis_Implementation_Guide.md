@@ -1,8 +1,24 @@
 # AI 分析增强页面 - 架构与实现指南
 
-**文档版本：** v1.0  
-**更新日期：** 2026-04-09  
+**文档版本：** v1.1  
+**更新日期：** 2026-05-04  
 **目标：** 实现无幻觉的 AI 增强分析页面
+
+---
+
+## AI 服务架构说明（2026-05 更新）
+
+AI 调用链路已从单体 `ai_service.py` 拆分为三层：
+
+| 文件 | 职责 |
+|------|------|
+| `services/ai_service.py` | 编排层：Prompt 构建、缓存检查、结果解析 |
+| `services/model_resolver.py` | 配置层：用户模型配置查询、API Key 解析、供应商默认值 |
+| `services/provider_router.py` | 路由层：LLM 分发、容灾切换、连通性测试、响应缓存 |
+
+向后兼容：`ai_service.py` 重新导出了 `call_provider`、`test_connection` 等静态方法，旧代码无需修改。
+
+默认模型：`qwen3.5-plus`（DashScope 通义千问）
 
 ---
 

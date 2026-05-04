@@ -2,7 +2,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from jose import JWTError
 
 from app.core import security
@@ -16,7 +16,7 @@ router = APIRouter()
 
 class UserCreate(BaseModel):
     email: EmailStr
-    password: str
+    password: str = Field(..., min_length=8, max_length=128, description="密码长度 8-128 位")
 
 
 class Token(BaseModel):
@@ -27,6 +27,16 @@ class Token(BaseModel):
 
 class RefreshRequest(BaseModel):
     refresh_token: str
+
+
+def _validate_password(password: str) -> None:
+    """Validate password strength."""
+    if len(password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+    if not any(c.isdigit() for c in password):
+        raise HTTPException(status_code=400, detail="Password must contain at least one digit")
+    if not any(c.isalpha() for c in password):
+        raise HTTPException(status_code=400, detail="Password must contain at least one letter")
 
 
 def _issue_tokens(user_id) -> dict:
@@ -59,12 +69,18 @@ async def login_access_token(
 
 
 @router.post("/register", response_model=Token)
+@limiter.limit("5/minute")
 async def register_user(
+    request: Request,
     user_in: UserCreate, db: AsyncSession = Depends(get_db)
 ) -> Any:
     """
     用户注册接口 — 注册成功后直接返回 Token 实现自动登录。
+    限流：每 IP 每分钟最多 5 次注册尝试。
+    密码强度：至少 8 位，包含字母和数字。
     """
+    _validate_password(user_in.password)
+
     repo = UserRepository(db)
     existing_user = await repo.get_by_email(user_in.email)
     if existing_user:

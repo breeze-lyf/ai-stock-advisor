@@ -32,7 +32,7 @@ except ImportError:
 # 支持JSON格式日志，便于Loki聚合分析
 log_format = os.getenv("LOG_FORMAT", "json")
 log_level = os.getenv("LOG_LEVEL", "INFO")
-environment = os.getenv("ENVIRONMENT", "production")
+environment = os.getenv("ENVIRONMENT", "development")
 
 logger = setup_logging(
     log_format=log_format,

@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional, cast
 
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
@@ -53,7 +53,7 @@ class GenerateStockCapsuleUseCase:
     # Public entry points
     # ------------------------------------------------------------------
 
-    async def generate_news_capsule(self, ticker: str, model: str = None) -> Optional[StockCapsule]:
+    async def generate_news_capsule(self, ticker: str, model: Optional[str] = None) -> Optional[StockCapsule]:
         """Build and persist the news capsule for `ticker`."""
         ticker = ticker.upper().strip()
         model = model or settings.DEFAULT_AI_MODEL
@@ -67,11 +67,19 @@ class GenerateStockCapsuleUseCase:
             return None
 
         stock_news_lines = "\n".join(
-            [f"- [{n.publish_time.strftime('%m-%d %H:%M') if n.publish_time else ''}] {n.title} ({n.publisher})" for n in stock_news]
+            [
+                f"- [{self._format_datetime(self._get_datetime_attr(n, 'publish_time'))}] "
+                f"{self._get_str_attr(n, 'title') or ''} ({self._get_str_attr(n, 'publisher') or ''})"
+                for n in stock_news
+            ]
         ) or "暂无个股新闻。"
 
         macro_lines = "\n".join(
-            [f"- [{n.published_at[:16] if isinstance(n.published_at, str) else (n.published_at.strftime('%m-%d %H:%M') if n.published_at else '')}] {n.content[:120]}..." for n in global_news]
+            [
+                f"- [{self._format_published_at(self._get_attr(n, 'published_at'))}] "
+                f"{(self._get_str_attr(n, 'content') or '')[:120]}..."
+                for n in global_news
+            ]
         ) if global_news else "暂无宏观快讯。"
 
         prompt = NEWS_CAPSULE_PROMPT_TEMPLATE.format(
@@ -96,7 +104,7 @@ class GenerateStockCapsuleUseCase:
         logger.info(f"[Capsule] News capsule saved for {ticker} ({len(stock_news)} stock + {len(global_news)} macro headlines)")
         return capsule
 
-    async def generate_fundamental_capsule(self, ticker: str, model: str = None) -> Optional[StockCapsule]:
+    async def generate_fundamental_capsule(self, ticker: str, model: Optional[str] = None) -> Optional[StockCapsule]:
         """Build and persist the fundamental capsule for `ticker`."""
         ticker = ticker.upper().strip()
         model = model or settings.DEFAULT_AI_MODEL
@@ -107,29 +115,30 @@ class GenerateStockCapsuleUseCase:
             return None
 
         market_cache = await self._get_market_cache(ticker)
-        current_price = getattr(market_cache, "current_price", None)
+        current_price = self._get_attr(market_cache, "current_price") if market_cache else None
 
         analyst_parts = []
-        buy = stock.analyst_buy_count or 0
-        hold = stock.analyst_hold_count or 0
-        sell = stock.analyst_sell_count or 0
-        total = stock.analyst_count or (buy + hold + sell)
+        buy = self._get_int_attr(stock, "analyst_buy_count") or 0
+        hold = self._get_int_attr(stock, "analyst_hold_count") or 0
+        sell = self._get_int_attr(stock, "analyst_sell_count") or 0
+        total = self._get_int_attr(stock, "analyst_count") or (buy + hold + sell)
         if total > 0:
             analyst_parts.append(f"买入 {buy} / 持有 {hold} / 卖出 {sell}（共 {total} 位）")
-        if stock.target_price_mean:
-            analyst_parts.append(f"目标价 ${stock.target_price_mean:.2f}")
+        target_price_mean = self._get_float_attr(stock, "target_price_mean")
+        if target_price_mean is not None:
+            analyst_parts.append(f"目标价 ${target_price_mean:.2f}")
         analyst_summary = "，".join(analyst_parts) or "N/A"
 
         prompt = FUNDAMENTAL_CAPSULE_PROMPT_TEMPLATE.format(
             ticker=ticker,
-            sector=stock.sector or "未知",
-            industry=stock.industry or "未知",
-            market_cap=stock.market_cap or "N/A",
-            pe_ratio=stock.pe_ratio or "N/A",
-            forward_pe=stock.forward_pe or "N/A",
-            beta=stock.beta or "N/A",
-            fifty_two_week_low=stock.fifty_two_week_low or "N/A",
-            fifty_two_week_high=stock.fifty_two_week_high or "N/A",
+            sector=self._get_str_attr(stock, "sector") or "未知",
+            industry=self._get_str_attr(stock, "industry") or "未知",
+            market_cap=self._get_attr(stock, "market_cap") or "N/A",
+            pe_ratio=self._get_attr(stock, "pe_ratio") or "N/A",
+            forward_pe=self._get_attr(stock, "forward_pe") or "N/A",
+            beta=self._get_attr(stock, "beta") or "N/A",
+            fifty_two_week_low=self._get_attr(stock, "fifty_two_week_low") or "N/A",
+            fifty_two_week_high=self._get_attr(stock, "fifty_two_week_high") or "N/A",
             analyst_summary=analyst_summary,
             current_price=current_price or "N/A",
         )
@@ -150,7 +159,7 @@ class GenerateStockCapsuleUseCase:
         logger.info(f"[Capsule] Fundamental capsule saved for {ticker}")
         return capsule
 
-    async def generate_technical_capsule(self, ticker: str, model: str = None) -> Optional[StockCapsule]:
+    async def generate_technical_capsule(self, ticker: str, model: Optional[str] = None) -> Optional[StockCapsule]:
         """Build and persist the technical capsule for `ticker`."""
         ticker = ticker.upper().strip()
         model = model or settings.DEFAULT_AI_MODEL
@@ -205,7 +214,7 @@ class GenerateStockCapsuleUseCase:
         logger.info(f"[Capsule] Technical capsule saved for {ticker}")
         return capsule
 
-    async def generate_all(self, ticker: str, model: str = None) -> dict[str, Optional[StockCapsule]]:
+    async def generate_all(self, ticker: str, model: Optional[str] = None) -> dict[str, Optional[StockCapsule]]:
         """Generate all three capsule types and return them as a dict."""
         news = await self.generate_news_capsule(ticker, model)
         fundamental = await self.generate_fundamental_capsule(ticker, model)
@@ -228,8 +237,9 @@ class GenerateStockCapsuleUseCase:
             CAPSULE_TYPE_TECHNICAL: None,
         }
         for row in rows:
-            if row.capsule_type in out:
-                out[row.capsule_type] = row
+            capsule_type = self._get_str_attr(row, "capsule_type")
+            if capsule_type in out:
+                out[capsule_type] = row
         return out
 
     # ------------------------------------------------------------------
@@ -239,6 +249,37 @@ class GenerateStockCapsuleUseCase:
     async def _call_ai(self, prompt: str, model: str, require_json: bool = False) -> str:
         """Route through AIService without user context (system-level call)."""
         return await AIService.generate_text(prompt, self.db, model_key=model)
+
+    def _get_attr(self, obj: Any, attr: str) -> Any:
+        if obj is None:
+            return None
+        return cast(Any, getattr(obj, attr, None))
+
+    def _get_str_attr(self, obj: Any, attr: str) -> Optional[str]:
+        value = self._get_attr(obj, attr)
+        return value if isinstance(value, str) else None
+
+    def _get_int_attr(self, obj: Any, attr: str) -> Optional[int]:
+        value = self._get_attr(obj, attr)
+        return value if isinstance(value, int) else None
+
+    def _get_float_attr(self, obj: Any, attr: str) -> Optional[float]:
+        value = self._get_attr(obj, attr)
+        return value if isinstance(value, (int, float)) else None
+
+    def _get_datetime_attr(self, obj: Any, attr: str) -> Optional[datetime]:
+        value = self._get_attr(obj, attr)
+        return value if isinstance(value, datetime) else None
+
+    def _format_datetime(self, value: Optional[datetime]) -> str:
+        return value.strftime('%m-%d %H:%M') if value is not None else ''
+
+    def _format_published_at(self, value: Any) -> str:
+        if isinstance(value, str):
+            return value[:16]
+        if isinstance(value, datetime):
+            return value.strftime('%m-%d %H:%M')
+        return ''
 
     async def _get_stock_news(self, ticker: str, limit: int = 25):
         stmt = (

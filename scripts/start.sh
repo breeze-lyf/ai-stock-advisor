@@ -67,7 +67,6 @@ EOF
 }
 
 start_dev() {
-    trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
 
     echo "Starting local development stack..."
     local runtime_log_dir="$ROOT_DIR/backend/.local/runtime-logs"
@@ -100,15 +99,30 @@ start_dev() {
     cleanup() {
         echo ""
         echo "Shutting down development stack..."
-        # Kill the entire process group to catch uvicorn reloader + worker
-        kill -9 $$ 2>/dev/null || true
-        # Also kill any processes still holding our ports
-        lsof -ti:"$BACKEND_PORT" | xargs kill -9 2>/dev/null || true
-        lsof -ti:"$FRONTEND_PORT" | xargs kill -9 2>/dev/null || true
+        # First try to gracefully stop tracked child processes
+        for pid in $FRONTEND_PID $BACKEND_PID $WORKER_PID; do
+            if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+                kill "$pid" 2>/dev/null || true
+            fi
+        done
+        # Wait a moment for graceful shutdown
+        sleep 1
+        # Force kill tracked processes that are still alive
+        for pid in $FRONTEND_PID $BACKEND_PID $WORKER_PID; do
+            if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+                kill -9 "$pid" 2>/dev/null || true
+            fi
+        done
+        # Kill the entire process group as a safety net
+        kill -9 -- -$$ 2>/dev/null || true
+        # Kill any processes still holding our ports (catches detached/orphaned processes)
+        lsof -ti:"$BACKEND_PORT" 2>/dev/null | xargs kill -9 2>/dev/null || true
+        lsof -ti:"$FRONTEND_PORT" 2>/dev/null | xargs kill -9 2>/dev/null || true
+        echo "All services stopped."
         exit 0
     }
 
-    trap cleanup SIGINT SIGTERM EXIT
+    trap cleanup SIGINT SIGTERM SIGHUP EXIT
 
     echo "Starting backend on http://$DEV_HOST:$BACKEND_PORT ..."
     cd "$ROOT_DIR/backend"

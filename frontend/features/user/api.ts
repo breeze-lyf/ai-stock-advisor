@@ -136,6 +136,11 @@ export async function deleteAIModel(modelKey: string): Promise<{ status: string;
   return response.data;
 }
 
+export async function testDataSource(provider: string): Promise<TestConnectionResponse> {
+  const response = await api.post("/api/v1/user/data-sources/test", { provider });
+  return response.data;
+}
+
 // User Preferences & Onboarding
 export type InvestmentProfile = "CONSERVATIVE" | "BALANCED" | "AGGRESSIVE";
 export type MarketPreference = "A_SHARE" | "HK_SHARE" | "US_SHARE";

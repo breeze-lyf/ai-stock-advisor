@@ -34,6 +34,7 @@ import {
   getProfile,
   listAIModels,
   testAIConnection,
+  testDataSource,
   testTavilyConnection,
   testFeishuWebhook,
   updateDataSourceSettings,
@@ -446,19 +447,21 @@ export default function SettingsPage() {
     setTestingDataSource(market);
     setDataSourceTestMessage(null);
     try {
-      // Use the existing test connection API - it tests the current provider
-      const result = await testAIConnection({
-        provider_note: "YFINANCE",
-        model_id: `test_${market}_data`,
-      });
+      const sourceMap: Record<keyof MarketDataSourceConfig, string> = {
+        a_share: "AKSHARE",
+        hk_share: "AKSHARE",
+        us_share: "YFINANCE",
+      };
+      const result = await testDataSource(sourceMap[market]);
       setDataSourceTestMessage({
-        text: `${market === "a_share" ? "A 股" : market === "hk_share" ? "港股" : "美股"}数据源连接正常。`,
+        text: result.message || `${market === "a_share" ? "A 股" : market === "hk_share" ? "港股" : "美股"}数据源连接正常。`,
         type: "success"
       });
     } catch (error: unknown) {
-      const axiosErr = error as { response?: { data?: { detail?: string } } };
+      const axiosErr = error as { response?: { data?: { message?: string; detail?: string } } };
+      const detail = axiosErr.response?.data?.message || axiosErr.response?.data?.detail;
       setDataSourceTestMessage({
-        text: `连接测试失败：${axiosErr.response?.data?.detail || "无法连接到数据源"}`,
+        text: detail || "无法连接到数据源",
         type: "error"
       });
     } finally {

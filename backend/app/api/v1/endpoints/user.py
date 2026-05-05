@@ -574,3 +574,48 @@ async def update_data_sources(
     await user_repo.save(current_user)
 
     return {"status": "success", "message": "数据源配置已更新"}
+
+
+@router.post("/data-sources/test", response_model=TestConnectionResponse)
+async def test_data_source_connection(
+    request: TestConnectionRequest,
+    current_user: User = Depends(get_current_user),
+):
+    """测试数据源连接。用指定 provider 抓取 AAPL 最新行情验证连通性。"""
+    from app.services.market_providers.factory import get_provider
+    from app.services.market_providers.yfinance import YFinanceProvider
+    from app.services.market_providers.akshare import AkShareProvider
+    import time
+
+    provider_key = request.provider or ""
+
+    # 根据 provider 选择测试标的
+    test_tickers = {
+        "YFINANCE": "AAPL",
+        "AKSHARE": "000001",
+    }
+    ticker = test_tickers.get(provider_key, "AAPL")
+
+    try:
+        start = time.time()
+        if provider_key == "YFINANCE":
+            provider = YFinanceProvider()
+        elif provider_key == "AKSHARE":
+            provider = AkShareProvider()
+        else:
+            return TestConnectionResponse(status="error", message=f"不支持的数据源: {provider_key}")
+
+        result = await provider.get_quote(ticker)
+        elapsed = time.time() - start
+
+        if result and result.get("current_price"):
+            return TestConnectionResponse(
+                status="success",
+                message=f"连接成功 (耗时 {elapsed:.1f}s, {ticker} 最新价: {result['current_price']})"
+            )
+        return TestConnectionResponse(status="error", message=f"数据源返回空结果 (耗时 {elapsed:.1f}s)")
+    except Exception as exc:
+        error_msg = str(exc)
+        if "Too Many Requests" in error_msg or "429" in error_msg:
+            error_msg = "Yahoo Finance 频率限制，请稍后重试。服务器位于中国大陆时建议配置 Cloudflare Worker 代理。"
+        return TestConnectionResponse(status="error", message=f"连接测试失败: {error_msg}")

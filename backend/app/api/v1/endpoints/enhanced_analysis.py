@@ -2,6 +2,7 @@
 增强型 AI 分析 API
 提供情景分析、多时间框架分析、风险因子分解等功能
 """
+import logging
 from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,6 +13,8 @@ from app.models.user import User
 from app.services.enhanced_ai_analysis import EnhancedAIAnalysisService
 from app.services.market_data import MarketDataService
 from app.application.analysis.analyze_stock import AnalyzeStockUseCase
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 

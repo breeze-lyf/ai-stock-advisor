@@ -76,3 +76,33 @@ backend/resume/
 backend/resume
 .vercel
 .env*.local
+
+# AI tool configs
+.agent/
+.agents/
+.qoder/
+.cursorrules
+
+# System files
+.DS_Store
+
+# Logs
+logs/
+backend/.local/
+
+# Backups
+backend/backups/
+
+# Test caches
+.pytest_cache/
+backend/.pytest_cache/
+
+# Vercel
+.vercel/
+
+# Mobile (if ever recreated)
+mobile/node_modules/
+mobile/.swc/
+
+# Skills lock
+skills-lock.json

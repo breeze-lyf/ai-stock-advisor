@@ -608,10 +608,10 @@ async def test_data_source_connection(
         result = await provider.get_quote(ticker)
         elapsed = time.time() - start
 
-        if result and result.get("current_price"):
+        if result and result.price:
             return TestConnectionResponse(
                 status="success",
-                message=f"连接成功 (耗时 {elapsed:.1f}s, {ticker} 最新价: {result['current_price']})"
+                message=f"连接成功 (耗时 {elapsed:.1f}s, {ticker} 最新价: {result.price})"
             )
         return TestConnectionResponse(status="error", message=f"数据源返回空结果 (耗时 {elapsed:.1f}s)")
     except Exception as exc:

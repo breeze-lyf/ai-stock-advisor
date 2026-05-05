@@ -21,9 +21,16 @@ logger = logging.getLogger(__name__)
 # 代理环境变量列表
 _PROXY_ENV_VARS = ['HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY', 'http_proxy', 'https_proxy', 'all_proxy', 'no_proxy', 'NO_PROXY']
 
+# 是否启用系统代理（通过环境变量控制）
+_USE_SYSTEM_PROXY = os.environ.get("YFINANCE_USE_PROXY", "").lower() in ("1", "true", "yes")
+
 
 def _disable_proxy_env():
-    """临时禁用代理环境变量，返回原始值"""
+    """临时禁用代理环境变量，返回原始值。
+    当 YFINANCE_USE_PROXY=1 时保留代理设置，让 yfinance 走系统代理。
+    """
+    if _USE_SYSTEM_PROXY:
+        return {}
     old_vals = {var: os.environ.pop(var, None) for var in _PROXY_ENV_VARS}
     return old_vals
 

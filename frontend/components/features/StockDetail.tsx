@@ -37,6 +37,7 @@ import { SignalPerformancePanel } from "./stock-detail/SignalPerformance";
 import { SectorExposurePanel } from "./stock-detail/SectorExposure";
 import { KeyAssumptions } from "./stock-detail/KeyAssumptions";
 import { CatalystTimeline } from "./stock-detail/CatalystTimeline";
+import { PortfolioLinkage } from "./stock-detail/PortfolioLinkage";
 
 // --- 增强分析 Hook ---
 import { useEnhancedAnalysis } from "@/features/analysis/hooks/useEnhancedAnalysis";
@@ -374,6 +375,15 @@ export function StockDetail({
 
             {/* 组合行业敞口 */}
             <SectorExposurePanel />
+
+            {/* 组合联动视角 */}
+            {activeTab === "analysis" && aiData && (
+                <PortfolioLinkage
+                    ticker={selectedItem.ticker}
+                    positionPct={aiData.max_position_pct ?? 5}
+                    impactData={null}
+                />
+            )}
               </>
             )}
 

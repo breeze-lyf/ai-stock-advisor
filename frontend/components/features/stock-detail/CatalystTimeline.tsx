@@ -1,7 +1,6 @@
-"use client";
 
-import React from "react";
 import { TrendingUp, TrendingDown, Minus, Calendar, Zap } from "lucide-react";
+import clsx from "clsx";
 
 interface Catalyst {
     date: string;
@@ -9,6 +8,7 @@ interface Catalyst {
     type: string;
     impact: string;
     description: string;
+    impact_level?: string;
 }
 
 interface CatalystTimelineProps {
@@ -32,24 +32,15 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 const IMPACT_CONFIG = {
-    bullish: {
-        icon: TrendingUp,
-        color: "text-emerald-500",
-        dotColor: "bg-emerald-500",
-        lineColor: "border-emerald-200 dark:border-emerald-900",
-    },
-    bearish: {
-        icon: TrendingDown,
-        color: "text-red-500",
-        dotColor: "bg-red-500",
-        lineColor: "border-red-200 dark:border-red-900",
-    },
-    neutral: {
-        icon: Minus,
-        color: "text-slate-400",
-        dotColor: "bg-slate-400",
-        lineColor: "border-slate-200 dark:border-slate-700",
-    },
+    bullish: { icon: TrendingUp, color: "text-emerald-500", dotColor: "bg-emerald-500", lineColor: "border-emerald-200 dark:border-emerald-900" },
+    bearish: { icon: TrendingDown, color: "text-red-500", dotColor: "bg-red-500", lineColor: "border-red-200 dark:border-red-900" },
+    neutral: { icon: Minus, color: "text-slate-400", dotColor: "bg-slate-400", lineColor: "border-slate-200 dark:border-slate-700" },
+};
+
+const IMPACT_LEVEL_CONFIG = {
+    high: { dotColor: "border-rose-400", dotFill: "bg-rose-500", textColor: "text-rose-600", bgTag: "bg-rose-500/10 text-rose-600 border-rose-200 dark:border-rose-900" },
+    medium: { dotColor: "border-amber-400", dotFill: "bg-amber-500", textColor: "text-amber-600", bgTag: "bg-amber-500/10 text-amber-600 border-amber-200 dark:border-amber-900" },
+    low: { dotColor: "border-slate-300", dotFill: "bg-slate-400", textColor: "text-slate-500", bgTag: "bg-slate-500/10 text-slate-500 border-slate-200 dark:border-slate-700" },
 };
 
 function formatDate(dateStr: string): string {
@@ -71,7 +62,7 @@ function getDaysAway(dateStr: string): string | null {
         const diff = Math.ceil((d.getTime() - Date.now()) / 86400000);
         if (diff < 0) return "已过";
         if (diff === 0) return "今日";
-        return `${diff}天后`;
+        return `${diff}天`;
     } catch {
         return null;
     }
@@ -80,7 +71,6 @@ function getDaysAway(dateStr: string): string | null {
 export function CatalystTimeline({ catalysts }: CatalystTimelineProps) {
     if (!catalysts || catalysts.length === 0) return null;
 
-    // Sort by date ascending, unknowns last
     const sorted = [...catalysts].sort((a, b) => {
         if (a.date === "未知") return 1;
         if (b.date === "未知") return -1;
@@ -91,18 +81,19 @@ export function CatalystTimeline({ catalysts }: CatalystTimelineProps) {
         <div className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 rounded-2xl p-4 space-y-3">
             {/* Header */}
             <div className="flex items-center gap-2">
-                <Calendar className="h-3.5 w-3.5 text-slate-400" strokeWidth={2.5} />
-                <h3 className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                <Calendar className="h-3.5 w-3.5 text-amber-600" strokeWidth={2.5} />
+                <h3 className="text-xs font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">
                     催化剂时间轴
                 </h3>
+                <span className="text-[10px] text-slate-400">— 未来30天内可能影响判断的关键事件</span>
             </div>
 
             {/* Timeline */}
-            <div className="relative pl-5">
+            <div className="relative">
                 {/* Vertical line */}
-                <div className="absolute left-[7px] top-2 bottom-2 w-px bg-slate-100 dark:bg-zinc-800" />
+                <div className="absolute left-3 top-2 bottom-2 w-0.5 bg-slate-100 dark:bg-zinc-800" />
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                     {sorted.map((catalyst, idx) => {
                         const impact = IMPACT_CONFIG[catalyst.impact as keyof typeof IMPACT_CONFIG] ?? IMPACT_CONFIG.neutral;
                         const ImpactIcon = impact.icon;
@@ -110,45 +101,48 @@ export function CatalystTimeline({ catalysts }: CatalystTimelineProps) {
                         const typeLabel = TYPE_LABELS[catalyst.type] ?? catalyst.type;
                         const typeColor = TYPE_COLORS[catalyst.type] ?? TYPE_COLORS.macro;
 
+                        // Impact level colors
+                        const impactLevelKey = catalyst.impact_level as keyof typeof IMPACT_LEVEL_CONFIG | undefined;
+                        const levelConfig = impactLevelKey ? IMPACT_LEVEL_CONFIG[impactLevelKey] : null;
+
                         return (
-                            <div key={idx} className="relative flex items-start gap-3">
+                            <div key={idx} className="flex items-start gap-4 relative">
                                 {/* Timeline dot */}
-                                <div className={`absolute -left-5 mt-1.5 w-3 h-3 rounded-full border-2 border-white dark:border-zinc-900 ${impact.dotColor} flex-shrink-0`} />
+                                <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 z-10 ${levelConfig ? `bg-slate-100 dark:bg-zinc-800 border-2 ${levelConfig.dotColor}` : `${impact.dotColor} border-2 border-white dark:border-zinc-900`}`}>
+                                    <div className={`w-2 h-2 rounded-full ${levelConfig ? levelConfig.dotFill : impact.dotColor}`} />
+                                </div>
 
                                 {/* Content */}
-                                <div className="flex-1 min-w-0 space-y-1">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                        {/* Date badge */}
-                                        <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 tabular-nums">
-                                            {formatDate(catalyst.date)}
+                                <div className="flex-1 pb-1">
+                                    <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                                        <span className="font-bold text-sm text-slate-900 dark:text-slate-200">
+                                            {catalyst.event}
                                         </span>
-
-                                        {/* Days away */}
-                                        {daysAway && (
-                                            <span className="text-[9px] font-semibold text-slate-400 dark:text-slate-500">
-                                                ({daysAway})
+                                        {levelConfig && (
+                                            <span className={`text-[9px] font-black px-1.5 py-0.5 rounded border ${levelConfig.bgTag}`}>
+                                                {catalyst.impact_level === "high" ? "高影响" : catalyst.impact_level === "medium" ? "中影响" : "低影响"}
                                             </span>
                                         )}
-
-                                        {/* Type tag */}
                                         <span className={`text-[9px] font-black px-1.5 py-0.5 rounded border ${typeColor}`}>
                                             {typeLabel}
                                         </span>
-
-                                        {/* Impact icon */}
                                         <ImpactIcon className={`h-3 w-3 ${impact.color}`} strokeWidth={2.5} />
                                     </div>
-
-                                    {/* Event name */}
-                                    <p className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 leading-snug">
-                                        {catalyst.event}
-                                    </p>
-
-                                    {/* Description */}
-                                    <p className="text-[10px] text-slate-400 dark:text-slate-500 leading-snug">
-                                        {catalyst.description}
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                                        距今 <span className={clsx("font-bold", levelConfig?.textColor ?? impact.color)}>{daysAway ?? "待定"}</span> · {formatDate(catalyst.date)}
+                                        {catalyst.description && ` · ${catalyst.description}`}
                                     </p>
                                 </div>
+
+                                {/* Countdown column */}
+                                {daysAway && daysAway !== "已过" && (
+                                    <div className="shrink-0 text-right">
+                                        <div className="text-[10px] text-slate-400">倒计时</div>
+                                        <div className={`text-lg font-black mono ${levelConfig?.textColor ?? impact.color}`}>
+                                            {daysAway.replace("天", "d")}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         );
                     })}

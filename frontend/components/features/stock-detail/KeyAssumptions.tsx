@@ -1,16 +1,48 @@
 "use client";
 
-import React, { useState } from "react";
-import { AlertTriangle, ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
 
 interface Assumption {
     assumption: string;
     breakpoint: string;
+    risk_level?: string;
+    metric_label?: string;
+    metric_value?: string;
 }
 
 interface KeyAssumptionsProps {
     assumptions?: Assumption[];
 }
+
+const RISK_CONFIG = {
+    high: {
+        dotColor: "bg-rose-100 border-rose-200 text-rose-600",
+        tagBg: "bg-rose-50 dark:bg-rose-600/10",
+        tagColor: "text-rose-600 dark:text-rose-400",
+        tagBorder: "border-rose-200 dark:border-rose-600/20",
+        metricColor: "text-rose-600 dark:text-rose-400",
+        pulse: true,
+        label: "核心假设",
+    },
+    medium: {
+        dotColor: "bg-amber-100 border-amber-200 text-amber-600",
+        tagBg: "bg-amber-50 dark:bg-amber-600/10",
+        tagColor: "text-amber-600 dark:text-amber-400",
+        tagBorder: "border-amber-200 dark:border-amber-600/20",
+        metricColor: "text-amber-600 dark:text-amber-400",
+        pulse: false,
+        label: "辅助假设",
+    },
+    low: {
+        dotColor: "bg-emerald-100 border-emerald-200 text-emerald-600",
+        tagBg: "bg-emerald-50 dark:bg-emerald-600/10",
+        tagColor: "text-emerald-600 dark:text-emerald-400",
+        tagBorder: "border-emerald-200 dark:border-emerald-600/20",
+        metricColor: "text-emerald-600 dark:text-emerald-400",
+        pulse: false,
+        label: "基本面假设",
+    },
+} as const;
 
 export function KeyAssumptions({ assumptions }: KeyAssumptionsProps) {
     const [expanded, setExpanded] = useState<number | null>(null);
@@ -18,57 +50,58 @@ export function KeyAssumptions({ assumptions }: KeyAssumptionsProps) {
     if (!assumptions || assumptions.length === 0) return null;
 
     return (
-        <div className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 rounded-2xl p-4 space-y-3">
+        <div className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 rounded-2xl overflow-hidden">
             {/* Header */}
-            <div className="flex items-center gap-2">
-                <AlertTriangle className="h-3.5 w-3.5 text-amber-500" strokeWidth={2.5} />
-                <h3 className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-                    关键假设 &amp; 断点
+            <div className="px-6 py-3 border-b border-slate-100 dark:border-zinc-800 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
+                <h3 className="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                    关键假设断点
                 </h3>
+                <span className="text-[10px] text-slate-400">— 任意一项失效，策略逻辑瓦解</span>
+                <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-md bg-orange-50 dark:bg-orange-600/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-600/20">
+                    ⚠ 需持续监控
+                </span>
             </div>
 
             {/* Assumption list */}
-            <div className="space-y-2">
+            <div className="divide-y divide-slate-50 dark:divide-zinc-800">
                 {assumptions.map((item, idx) => {
                     const isOpen = expanded === idx;
+                    const riskLevel = item.risk_level as keyof typeof RISK_CONFIG | undefined;
+                    const risk = riskLevel && RISK_CONFIG[riskLevel] ? RISK_CONFIG[riskLevel] : RISK_CONFIG.medium;
+
                     return (
                         <div
                             key={idx}
-                            className="border border-slate-100 dark:border-zinc-800 rounded-xl overflow-hidden"
+                            className={`px-6 py-4 flex items-start gap-4 cursor-pointer transition-colors ${risk.pulse ? "assumption-pulse" : ""} hover:bg-rose-50/30 dark:hover:bg-rose-600/5`}
+                            onClick={() => setExpanded(isOpen ? null : idx)}
                         >
-                            {/* Assumption row */}
-                            <button
-                                className="w-full flex items-start justify-between gap-3 p-3 text-left hover:bg-slate-50 dark:hover:bg-zinc-800/60 transition-colors"
-                                onClick={() => setExpanded(isOpen ? null : idx)}
-                            >
-                                <div className="flex items-start gap-2 min-w-0">
-                                    <span className="mt-0.5 flex-shrink-0 w-4 h-4 rounded-full bg-slate-100 dark:bg-zinc-800 text-[9px] font-black text-slate-500 dark:text-slate-400 flex items-center justify-center">
-                                        {idx + 1}
-                                    </span>
-                                    <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 leading-snug">
+                            {/* Number dot */}
+                            <div className={`flex-shrink-0 mt-0.5 w-6 h-6 rounded-full flex items-center justify-center border ${risk.dotColor}`}>
+                                <span className="text-[10px] font-black">{idx + 1}</span>
+                            </div>
+
+                            {/* Content */}
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap mb-1">
+                                    <span className="font-bold text-sm text-slate-900 dark:text-slate-200">
                                         {item.assumption}
                                     </span>
+                                    <span className={`text-[9px] font-black px-1.5 py-0.5 rounded border ${risk.tagBg} ${risk.tagColor} ${risk.tagBorder}`}>
+                                        {risk.label}
+                                    </span>
                                 </div>
-                                {isOpen ? (
-                                    <ChevronUp className="flex-shrink-0 h-3.5 w-3.5 text-slate-400 mt-0.5" />
-                                ) : (
-                                    <ChevronDown className="flex-shrink-0 h-3.5 w-3.5 text-slate-400 mt-0.5" />
-                                )}
-                            </button>
+                                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                                    {item.breakpoint}
+                                </p>
+                            </div>
 
-                            {/* Breakpoint (collapsible) */}
-                            {isOpen && (
-                                <div className="px-3 pb-3 pt-0">
-                                    <div className="flex items-start gap-2 bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/40 rounded-lg p-2.5">
-                                        <AlertTriangle className="flex-shrink-0 h-3 w-3 text-red-400 mt-0.5" strokeWidth={2.5} />
-                                        <div>
-                                            <p className="text-[9px] font-black text-red-400 uppercase tracking-wider mb-0.5">
-                                                假设失效条件
-                                            </p>
-                                            <p className="text-[11px] text-red-600 dark:text-red-400 leading-snug">
-                                                {item.breakpoint}
-                                            </p>
-                                        </div>
+                            {/* Right metric column */}
+                            {item.metric_label && item.metric_value && (
+                                <div className="flex-shrink-0 text-right">
+                                    <div className="text-[10px] text-slate-400">{item.metric_label}</div>
+                                    <div className={`text-lg font-black mono ${risk.metricColor}`}>
+                                        {item.metric_value}
                                     </div>
                                 </div>
                             )}

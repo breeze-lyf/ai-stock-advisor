@@ -49,8 +49,8 @@ export interface AIData {
         macro?: number;
         sentiment?: number;
     };
-    key_assumptions?: Array<{ assumption: string; breakpoint: string }>;
-    catalysts?: Array<{ date: string; event: string; type: string; impact: string; description: string }>;
+    key_assumptions?: Array<{ assumption: string; breakpoint: string; risk_level?: string; metric_label?: string; metric_value?: string }>;
+    catalysts?: Array<{ date: string; event: string; type: string; impact: string; description: string; impact_level?: string }>;
     thought_process?: Array<{ step: string; content: string }>;
     scenario_tags?: Array<{ category: string; value: string }>;
     is_cached?: boolean;

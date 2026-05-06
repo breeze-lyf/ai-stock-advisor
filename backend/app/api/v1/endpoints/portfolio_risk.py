@@ -142,3 +142,25 @@ async def get_full_risk_report(
             "performance_attribution": performance,
         },
     }
+
+
+@router.get("/risk/impact-analysis")
+async def get_position_impact_analysis(
+    ticker: str = Query(..., description="目标股票代码"),
+    position_pct: float = Query(5.0, description="建议加仓比例（百分比）"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    分析加仓某只股票对组合的影响
+
+    返回当前/预测行业敞口对比、Beta/Sharpe 变化、AI 调仓建议、超限警告
+    """
+    result = await PortfolioRiskService.analyze_position_impact(
+        db, current_user.id, ticker, position_pct
+    )
+
+    return {
+        "status": "success",
+        "data": result,
+    }

@@ -55,6 +55,9 @@ export interface AnalysisResponse {
     bull_case?: string;
     base_case?: string;
     bear_case?: string;
+    confidence_breakdown?: { technical?: number; fundamental?: number; macro?: number; sentiment?: number };
+    key_assumptions?: Array<{ assumption: string; breakpoint: string; risk_level?: string; metric_label?: string; metric_value?: string }>;
+    catalysts?: Array<{ date: string; event: string; type: string; impact: string; description: string; impact_level?: string }>;
     is_cached?: boolean;
     model_used?: string;
     created_at?: string;

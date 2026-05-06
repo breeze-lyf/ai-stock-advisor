@@ -26,9 +26,12 @@ from app.schemas.user_settings import (
     MarketDataSourceOption,
     PasswordChange,
     ProviderConfigResponse,
+    TavilyTestRequest,
+    TestConnectionRequest,
     TestConnectionResponse,
     UserProviderCredentialResponse,
     UserProfile,
+    UserSettingsUpdate,
 )
 
 logger = logging.getLogger(__name__)

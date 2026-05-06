@@ -370,6 +370,9 @@ function AIVerdictContent({
                             <InlineConfidenceBreakdown
                                 confidenceLevel={aiData.confidence_level}
                                 breakdown={aiData.confidence_breakdown}
+                                technicalRationale={aiData.technical_analysis}
+                                fundamentalRationale={aiData.fundamental_analysis}
+                                macroRationale={aiData.macro_risk_note}
                             />
                         ) : (
                             /* Fallback: legacy sentiment bar */
@@ -453,6 +456,15 @@ function AIVerdictContent({
                         selectedItem={selectedItem}
                         aiData={aiData}
                         sanitizePrice={sanitizePrice}
+                    />
+
+                    {/* Detailed Trading Cards */}
+                    <TradeExecutionDetails
+                        aiData={aiData}
+                        currentPrice={current}
+                        stop={stop}
+                        entryLow={entryLow}
+                        entryHigh={entryHigh}
                     />
                 </div>
             </div>
@@ -572,18 +584,35 @@ function AIVerdictContent({
 // Inline Confidence Breakdown (replaces sentiment bar when AI returns breakdown data)
 // ========================================
 const CONF_DIMS = [
-    { key: "technical" as const, label: "技术面", color: "bg-cyan-500", textColor: "text-cyan-600 dark:text-cyan-400" },
-    { key: "fundamental" as const, label: "基本面", color: "bg-blue-500", textColor: "text-blue-600 dark:text-blue-400" },
-    { key: "macro" as const, label: "宏观面", color: "bg-amber-500", textColor: "text-amber-600 dark:text-amber-400" },
-    { key: "sentiment" as const, label: "情绪面", color: "bg-purple-500", textColor: "text-purple-600 dark:text-purple-400" },
+    { key: "technical" as const, label: "技术面", color: "bg-cyan-500", textColor: "text-cyan-600 dark:text-cyan-400", rationaleKey: "technical" as const },
+    { key: "fundamental" as const, label: "基本面", color: "bg-blue-500", textColor: "text-blue-600 dark:text-blue-400", rationaleKey: "fundamental" as const },
+    { key: "macro" as const, label: "宏观面", color: "bg-amber-500", textColor: "text-amber-600 dark:text-amber-400", rationaleKey: "macro" as const },
 ];
+
+const RATIONALE_SOURCES = {
+    technical: (d: { technicalRationale?: string }) => d.technicalRationale,
+    fundamental: (d: { fundamentalRationale?: string }) => d.fundamentalRationale,
+    macro: (d: { macroRationale?: string }) => d.macroRationale,
+} as const;
+
+function extractRationale(text?: string, maxLen = 50): string {
+    if (!text) return "";
+    const normalized = text.replace(/\s+/g, " ").trim();
+    return normalized.length <= maxLen ? normalized : normalized.slice(0, maxLen) + "...";
+}
 
 function InlineConfidenceBreakdown({
     confidenceLevel,
     breakdown,
+    technicalRationale,
+    fundamentalRationale,
+    macroRationale,
 }: {
     confidenceLevel?: number;
     breakdown?: { technical?: number; fundamental?: number; macro?: number; sentiment?: number };
+    technicalRationale?: string;
+    fundamentalRationale?: string;
+    macroRationale?: string;
 }) {
     return (
         <div className="space-y-3">
@@ -592,7 +621,6 @@ function InlineConfidenceBreakdown({
                 <div className="flex items-center gap-2">
                     <Activity className="h-4 w-4 text-blue-600" />
                     <span className="text-[11px] font-black uppercase text-slate-400 tracking-[0.3em]">信心构成分解</span>
-                    <span className="text-[8px] font-black px-1.5 py-0.5 rounded-md bg-blue-600 text-white uppercase tracking-wider">NEW</span>
                 </div>
                 {confidenceLevel != null && (
                     <div className="flex items-center gap-1.5">
@@ -607,23 +635,35 @@ function InlineConfidenceBreakdown({
                 )}
             </div>
 
-            {/* Dimension bars */}
-            <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                {CONF_DIMS.map(({ key, label, color, textColor }) => {
+            {/* Dimension cards — 3 column */}
+            <div className="grid grid-cols-3 gap-3">
+                {CONF_DIMS.map(({ key, label, color, textColor, rationaleKey }) => {
                     const val = breakdown?.[key];
                     if (val == null) return null;
+                    const sourceFn = RATIONALE_SOURCES[rationaleKey];
+                    const rationale = extractRationale(sourceFn({ technicalRationale, fundamentalRationale, macroRationale } as never));
+
+                    const dimColors: Record<string, { bg: string; border: string }> = {
+                        technical: { bg: "bg-emerald-50 dark:bg-emerald-600/10", border: "border-emerald-100 dark:border-emerald-600/20" },
+                        fundamental: { bg: "bg-blue-50 dark:bg-blue-600/10", border: "border-blue-100 dark:border-blue-600/20" },
+                        macro: { bg: "bg-amber-50 dark:bg-amber-600/10", border: "border-amber-100 dark:border-amber-600/20" },
+                    };
+
                     return (
-                        <div key={key} className="space-y-1">
-                            <div className="flex items-center justify-between">
-                                <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">{label}</span>
-                                <span className={clsx("text-[11px] font-black tabular-nums", textColor)}>{val}</span>
+                        <div key={key} className={clsx("rounded-xl p-3 border", dimColors[rationaleKey]?.bg, dimColors[rationaleKey]?.border)}>
+                            <div className="flex items-center justify-between mb-2">
+                                <span className={clsx("text-[10px] font-black uppercase", textColor)}>{label}</span>
+                                <span className={clsx("text-sm font-black tabular-nums", textColor)}>{val}%</span>
                             </div>
-                            <div className="h-1.5 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                            <div className="h-1.5 w-full bg-white/50 dark:bg-black/20 rounded-full overflow-hidden">
                                 <div
                                     className={clsx("h-full rounded-full transition-all duration-700", color)}
                                     style={{ width: `${Math.min(100, Math.max(0, val))}%` }}
                                 />
                             </div>
+                            {rationale && (
+                                <p className={clsx("text-[10px] mt-2 leading-relaxed", textColor)}>{rationale}</p>
+                            )}
                         </div>
                     );
                 })}
@@ -837,6 +877,157 @@ function TradeAxisVisual({
                     </div>
                 ))}
             </div>
+        </div>
+    );
+}
+
+// ========================================
+// 交易执行详情 (Trade Execution Details)
+// ========================================
+
+function TradeExecutionDetails({
+    aiData,
+    currentPrice,
+    stop,
+    entryLow,
+    entryHigh,
+}: {
+    aiData: NonNullable<AIVerdictProps["aiData"]>;
+    currentPrice: number;
+    stop: number;
+    entryLow: number;
+    entryHigh: number;
+}) {
+    const target = aiData.target_price;
+    const rr = aiData.rr_ratio;
+    const t1 = aiData.target_price_1;
+    const maxPct = aiData.max_position_pct;
+    const horizon = aiData.investment_horizon;
+
+    const t1PctChange = t1 && currentPrice ? ((t1 - currentPrice) / currentPrice * 100) : null;
+    const stopPctChange = stop && currentPrice ? ((stop - currentPrice) / currentPrice * 100) : null;
+
+    const horizonLabel = (() => {
+        if (!horizon) return "波段";
+        if (horizon.includes("周") || horizon.includes("week")) return "波段";
+        if (horizon.includes("月") || horizon.includes("month")) return "中线";
+        return "波段";
+    })();
+
+    return (
+        <div className="mt-4 space-y-3">
+            {/* 四卡片：Entry / T1 / Stop / R/R */}
+            <div className="grid grid-cols-4 gap-3">
+                {/* Entry */}
+                <div className="bg-emerald-50 dark:bg-emerald-600/5 border border-emerald-100 dark:border-emerald-600/10 rounded-xl p-3">
+                    <div className="flex items-center justify-between mb-1">
+                        <span className="text-[9px] font-black text-emerald-700 dark:text-emerald-400 uppercase">入场 Entry</span>
+                        <span className="tag text-[9px] font-black px-1.5 py-0.5 rounded border bg-emerald-100/50 dark:bg-emerald-600/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-600/20">最优</span>
+                    </div>
+                    <div className="text-lg font-black text-emerald-600 dark:text-emerald-400 mono tabular-nums">
+                        ${entryLow.toFixed(0)}–{entryHigh.toFixed(0)}
+                    </div>
+                    <p className="text-[9px] text-emerald-700 dark:text-emerald-400/80 mt-0.5">
+                        当前 ${currentPrice.toFixed(2)} · 等待回踩
+                    </p>
+                </div>
+
+                {/* T1 Target */}
+                <div className="bg-blue-50 dark:bg-blue-600/5 border border-blue-100 dark:border-blue-600/10 rounded-xl p-3">
+                    <div className="flex items-center justify-between mb-1">
+                        <span className="text-[9px] font-black text-blue-700 dark:text-blue-400 uppercase">T1 目标</span>
+                        {t1PctChange != null && (
+                            <span className="text-[9px] text-blue-500 font-semibold">+{t1PctChange.toFixed(1)}%</span>
+                        )}
+                    </div>
+                    <div className="text-lg font-black text-blue-600 dark:text-blue-400 mono tabular-nums">
+                        ${t1?.toFixed(2) ?? target?.toFixed(2) ?? "--"}
+                    </div>
+                </div>
+
+                {/* Stop */}
+                <div className="bg-rose-50 dark:bg-rose-600/5 border border-rose-100 dark:border-rose-600/10 rounded-xl p-3">
+                    <div className="flex items-center justify-between mb-1">
+                        <span className="text-[9px] font-black text-rose-700 dark:text-rose-400 uppercase">止损 Stop</span>
+                        <span className="tag text-[9px] font-black px-1.5 py-0.5 rounded border bg-rose-100/50 dark:bg-rose-600/10 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-600/20">纪律</span>
+                    </div>
+                    <div className="text-lg font-black text-rose-600 dark:text-rose-400 mono tabular-nums">
+                        ${stop.toFixed(2)}
+                    </div>
+                    {stopPctChange != null && (
+                        <p className="text-[9px] text-rose-700 dark:text-rose-400/80 mt-0.5">
+                            {stopPctChange.toFixed(1)}% · 前低支撑下方
+                        </p>
+                    )}
+                </div>
+
+                {/* R/R */}
+                <div className="bg-amber-50 dark:bg-amber-600/5 border border-amber-100 dark:border-amber-600/10 rounded-xl p-3">
+                    <div className="flex items-center justify-between mb-1">
+                        <span className="text-[9px] font-black text-amber-700 dark:text-amber-400 uppercase">风险回报 R/R</span>
+                    </div>
+                    <div className="text-lg font-black text-amber-600 dark:text-amber-400 mono tabular-nums">
+                        {rr ? `1:${rr}` : "--"}
+                    </div>
+                    <p className="text-[9px] text-amber-700 dark:text-amber-400/80 mt-0.5">潜在盈利 / 潜在亏损</p>
+                </div>
+            </div>
+
+            {/* 三卡片：Max仓位 / 投资期限 / 建议仓位 */}
+            <div className="grid grid-cols-3 gap-3">
+                {/* Max Position */}
+                <div className="bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800 rounded-xl p-3">
+                    <div className="flex items-center justify-between mb-1">
+                        <span className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase">最大仓位 Max</span>
+                        <span className="tag text-[9px] font-black px-1.5 py-0.5 rounded border bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-zinc-700">风控</span>
+                    </div>
+                    <div className="text-2xl font-black text-slate-700 dark:text-slate-200 mono tabular-nums">
+                        {maxPct != null ? `${maxPct.toFixed(1)}%` : "--"}
+                    </div>
+                    <p className="text-[9px] text-slate-500 dark:text-slate-500 mt-0.5">基于组合波动率限制</p>
+                </div>
+
+                {/* Horizon */}
+                <div className="bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800 rounded-xl p-3">
+                    <div className="flex items-center justify-between mb-1">
+                        <span className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase">投资期限 Horizon</span>
+                        <span className="tag text-[9px] font-black px-1.5 py-0.5 rounded border bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-zinc-700">{horizonLabel}</span>
+                    </div>
+                    <div className="text-2xl font-black text-slate-700 dark:text-slate-200 mono tabular-nums">
+                        {horizon || "1-2 周"}
+                    </div>
+                    <p className="text-[9px] text-slate-500 dark:text-slate-500 mt-0.5">技术面窗口预期</p>
+                </div>
+
+                {/* Suggested Size */}
+                <div className="bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800 rounded-xl p-3">
+                    <div className="flex items-center justify-between mb-1">
+                        <span className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase">建议仓位 Size</span>
+                        <span className="tag text-[9px] font-black px-1.5 py-0.5 rounded border bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-zinc-700">分笔</span>
+                    </div>
+                    <div className="text-2xl font-black text-slate-700 dark:text-slate-200 mono tabular-nums">
+                        {maxPct != null ? `${(maxPct * 0.7).toFixed(1)}% → ${maxPct.toFixed(1)}%` : "--"}
+                    </div>
+                    <p className="text-[9px] text-slate-500 dark:text-slate-500 mt-0.5">分 2 笔建仓，回踩确认后补至满仓</p>
+                </div>
+            </div>
+
+            {/* Execution Strategy */}
+            {aiData.action_advice && (
+                <div className="bg-linear-to-r from-emerald-50 to-blue-50 dark:from-emerald-600/5 dark:to-blue-600/5 border border-emerald-100 dark:border-emerald-600/10 rounded-xl p-3">
+                    <div className="flex items-start gap-2">
+                        <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div>
+                            <p className="text-[10px] text-slate-700 dark:text-slate-300 font-bold leading-relaxed">
+                                <span className="font-black text-emerald-700 dark:text-emerald-400">执行策略：</span>
+                                {compactSentence(aiData.action_advice, 100)}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

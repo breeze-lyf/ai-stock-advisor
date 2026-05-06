@@ -22,10 +22,8 @@
   <div class="h-8 w-1.5 bg-blue-600 rounded-full" style="box-shadow:0 0 12px rgba(37,99,235,0.5)"></div>
   <h1 class="text-xl font-black tracking-tight text-slate-900 uppercase">AI 智能判研指标</h1>
   <span class="tag" style="background:#eff6ff;color:#2563eb;border-color:#bfdbfe">原型预览</span>
-  <div class="ml-auto">
-    <button class="bg-slate-900 text-white font-black px-6 h-10 rounded-xl text-sm">开启深度诊断</button>
-  </div>
 </div>
+</header>
 
 <div class="space-y-4 max-w-5xl mx-auto">
 
@@ -114,88 +112,126 @@
   <!-- ①.5 交易执行区间 ✨ 新增模块 -->
   <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
     <div class="px-6 py-3 border-b border-slate-100 flex items-center gap-2">
-      <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+      <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>
       <span class="text-[11px] font-black text-slate-700 uppercase tracking-wider">交易执行区间</span>
       <span class="text-[10px] text-slate-400 ml-1">— 基于当前技术面与波动率的最优建仓方案</span>
       <span class="tag ml-auto" style="background:#f0fdf4;color:#16a34a;border-color:#bbf7d0">可执行</span>
     </div>
     <div class="p-6">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-        <!-- 入场区间 -->
-        <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-[9px] font-black text-emerald-700 uppercase">入场区间 Entry</span>
-            <span class="tag" style="background:#f0fdf4;color:#16a34a;border-color:#bbf7d0">最优</span>
+      <!-- 价格区间轴（主视觉） -->
+      <div class="mb-6">
+        <!-- 三卡片 -->
+        <div class="flex items-end justify-between mb-6 gap-3">
+          <!-- 预设止损 -->
+          <div class="flex-1 bg-rose-50 border border-rose-100 rounded-2xl p-3 text-center">
+            <div class="text-[9px] font-black text-rose-600 uppercase mb-1">预设止损</div>
+            <div class="text-xl font-black text-rose-500 mono">$295.00</div>
           </div>
-          <div class="text-xl font-black text-emerald-600 mono">$302.50 - $308.00</div>
-          <p class="text-[9px] text-emerald-700 mt-1">当前 $305.50 · 位于区间中部</p>
+          <!-- 建仓区间 -->
+          <div class="flex-1 bg-emerald-50 border border-emerald-100 rounded-2xl p-3 text-center">
+            <div class="text-[9px] font-black text-emerald-600 uppercase mb-1">建仓区间</div>
+            <div class="text-xl font-black text-emerald-600 mono">$315.00 - $325.00</div>
+          </div>
+          <!-- 目标止盈 -->
+          <div class="flex-1 bg-blue-50 border border-blue-100 rounded-2xl p-3 text-center">
+            <div class="text-[9px] font-black text-blue-600 uppercase mb-1">目标止盈</div>
+            <div class="text-xl font-black text-blue-500 mono">$378.50</div>
+          </div>
         </div>
 
-        <!-- 目标价格 -->
+        <!-- 价格轴（对齐生产版 TradeAxisVisual 风格） -->
+        <div class="relative">
+          <!-- 当前价标记：悬浮气泡 + 倒三角 + 圆点 -->
+          <div class="absolute top-0 z-20 flex flex-col items-center transition-all duration-500" style="left:calc((383.25-280)/(400-280)*100%);transform:translateX(-50%)">
+            <div class="absolute bottom-full mb-2 flex flex-col items-center">
+              <div class="bg-slate-900 text-white text-[10px] font-black px-2.5 py-1 rounded-lg shadow-2xl border border-white/10 whitespace-nowrap">$383.25</div>
+              <div class="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-slate-900 -mt-px"></div>
+            </div>
+            <div class="w-4 h-4 bg-blue-600 rounded-full border-[3px] border-white shadow-lg ring-4 ring-blue-600/10"></div>
+          </div>
+
+          <!-- 底色条 -->
+          <div class="relative h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+            <div class="h-full w-full flex overflow-hidden">
+              <!-- 止损区（浅红斜纹） -->
+              <div style="width:calc((295-280)/(400-280)*100%)">
+                <div class="h-full w-full opacity-90" style="background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(244,63,94,0.5) 4px,rgba(244,63,94,0.5) 8px)"></div>
+              </div>
+              <!-- 建仓区间（绿色） -->
+              <div style="width:calc((325-295)/(400-280)*100%)">
+                <div class="h-full w-full bg-emerald-600"></div>
+              </div>
+              <!-- 观望/持有（灰色） -->
+              <div style="width:calc((378.50-325)/(400-280)*100%)">
+                <div class="h-full w-full bg-[#E8EAED]"></div>
+              </div>
+              <!-- 止盈区（蓝色） -->
+              <div style="width:calc((400-378.50)/(400-280)*100%)">
+                <div class="h-full w-full bg-blue-600 rounded-r-full"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 关键价位刻度 -->
+          <div class="relative h-6 mt-4">
+            <div class="absolute flex flex-col items-center -translate-x-1/2" style="left:calc((295-280)/(400-280)*100%)">
+              <div class="w-px h-1.5 bg-slate-200 mb-1"></div>
+              <span class="text-[9px] font-bold text-slate-400 tabular-nums">295.00</span>
+            </div>
+            <div class="absolute flex flex-col items-center -translate-x-1/2" style="left:calc((315-280)/(400-280)*100%)">
+              <div class="w-px h-1.5 bg-slate-200 mb-1"></div>
+              <span class="text-[9px] font-bold text-slate-400 tabular-nums">315.00</span>
+            </div>
+            <div class="absolute flex flex-col items-center -translate-x-1/2" style="left:calc((325-280)/(400-280)*100%)">
+              <div class="w-px h-1.5 bg-slate-200 mb-1"></div>
+              <span class="text-[9px] font-bold text-slate-400 tabular-nums">325.00</span>
+            </div>
+            <div class="absolute flex flex-col items-center -translate-x-1/2" style="left:calc((378.50-280)/(400-280)*100%)">
+              <div class="w-px h-1.5 bg-slate-200 mb-1"></div>
+              <span class="text-[9px] font-bold text-slate-400 tabular-nums">378.50</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 目标价分步 -->
+      <div class="grid grid-cols-4 gap-4 mb-4">
+        <!-- 入场区间 -->
+        <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[9px] font-black text-emerald-700 uppercase">入场 Entry</span>
+            <span class="tag" style="background:#f0fdf4;color:#16a34a;border-color:#bbf7d0">最优</span>
+          </div>
+          <div class="text-lg font-black text-emerald-600 mono">$315-325</div>
+          <p class="text-[9px] text-emerald-700 mt-0.5">当前 $383.25 · 等待回踩</p>
+        </div>
+
+        <!-- 目标 T1 -->
         <div class="bg-blue-50 border border-blue-100 rounded-xl p-3">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-[9px] font-black text-blue-700 uppercase">目标价 Targets</span>
-            <span class="tag" style="background:#eff6ff;color:#2563eb;border-color:#bfdbfe">分步</span>
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[9px] font-black text-blue-700 uppercase">T1 目标</span>
+            <span class="text-[9px] text-blue-500">+3.1%</span>
           </div>
-          <!-- 水平价格轴 -->
-          <div class="mb-3 relative h-8">
-            <div class="absolute inset-x-0 top-1/2 h-0.5 bg-slate-200"></div>
-            <!-- 当前价标记 -->
-            <div class="absolute top-1/2 -translate-y-1/2" style="left:calc((305.50-290)/(335-290)*100%)">
-              <div class="w-2 h-2 rounded-full bg-slate-400 border-2 border-white" title="当前价 $305.50"></div>
-            </div>
-            <!-- T1 标记 -->
-            <div class="absolute top-1/2 -translate-y-1/2" style="left:calc((315-290)/(335-290)*100%)">
-              <div class="w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow"></div>
-            </div>
-            <!-- T2 标记 -->
-            <div class="absolute top-1/2 -translate-y-1/2" style="left:calc((320-290)/(335-290)*100%)">
-              <div class="w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow"></div>
-            </div>
-            <!-- T3 标记 -->
-            <div class="absolute top-1/2 -translate-y-1/2" style="left:calc((328-290)/(335-290)*100%)">
-              <div class="w-3 h-3 rounded-full bg-blue-600 border-2 border-white shadow"></div>
-            </div>
-            <!-- 入场区间标记 -->
-            <div class="absolute top-1/2 -translate-y-1/2 h-4 w-8 bg-emerald-200/50 rounded border border-emerald-400" style="left:calc((302.50-290)/(335-290)*100%); width:calc((308-302.50)/(335-290)*100%)" title="入场区间 $302.50-$308"></div>
-            <!-- 刻度标签 -->
-            <div class="absolute -bottom-5 left-0 text-[8px] text-slate-400 mono">$290</div>
-            <div class="absolute -bottom-5 right-0 text-[8px] text-slate-400 mono">$335</div>
-          </div>
-          <div class="space-y-1">
-            <div class="flex justify-between items-center">
-              <span class="text-[9px] text-blue-600">T1</span>
-              <span class="text-sm font-black text-blue-700 mono">$315.00 <span class="text-[8px] text-blue-500">+3.1%</span></span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-[9px] text-blue-600">T2</span>
-              <span class="text-sm font-black text-blue-700 mono">$320.00 <span class="text-[8px] text-blue-500">+4.7%</span></span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-[9px] text-blue-600">T3</span>
-              <span class="text-sm font-black text-blue-700 mono">$328.00 <span class="text-[8px] text-blue-500">+7.4%</span></span>
-            </div>
-          </div>
+          <div class="text-lg font-black text-blue-600 mono">$396.00</div>
         </div>
 
         <!-- 止损价 -->
         <div class="bg-rose-50 border border-rose-100 rounded-xl p-3">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-[9px] font-black text-rose-700 uppercase">止损价 Stop</span>
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-[9px] font-black text-rose-700 uppercase">止损 Stop</span>
             <span class="tag" style="background:#fef2f2;color:#dc2626;border-color:#fecaca">纪律</span>
           </div>
-          <div class="text-xl font-black text-rose-600 mono">$295.00</div>
-          <p class="text-[9px] text-rose-700 mt-1">-3.4% · 前低支撑下方</p>
+          <div class="text-lg font-black text-rose-600 mono">$295.00</div>
+          <p class="text-[9px] text-rose-700 mt-0.5">-3.4% · 前低支撑下方</p>
         </div>
 
         <!-- 风险回报 -->
         <div class="bg-amber-50 border border-amber-100 rounded-xl p-3">
-          <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center justify-between mb-1">
             <span class="text-[9px] font-black text-amber-700 uppercase">风险回报 R/R</span>
-            <span class="tag" style="background:#fffbeb;color:#b45309;border-color:#fde68a">1:1.44</span>
           </div>
-          <div class="text-xl font-black text-amber-600 mono">1.44</div>
-          <p class="text-[9px] text-amber-700 mt-1">潜在盈利 / 潜在亏损</p>
+          <div class="text-lg font-black text-amber-600 mono">1:2.34</div>
+          <p class="text-[9px] text-amber-700 mt-0.5">潜在盈利 / 潜在亏损</p>
         </div>
       </div>
 
@@ -203,46 +239,44 @@
       <div class="grid grid-cols-3 gap-4">
         <!-- 最大仓位 -->
         <div class="bg-slate-50 border border-slate-100 rounded-xl p-3">
-          <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center justify-between mb-1">
             <span class="text-[9px] font-black text-slate-600 uppercase">最大仓位 Max</span>
             <span class="tag" style="background:#f9fafb;color:#374151;border-color:#e5e7eb">风控</span>
           </div>
           <div class="text-2xl font-black text-slate-700 mono">5.0%</div>
-          <p class="text-[9px] text-slate-500 mt-1">基于组合波动率限制</p>
+          <p class="text-[9px] text-slate-500 mt-0.5">基于组合波动率限制</p>
         </div>
 
         <!-- 投资期限 -->
         <div class="bg-slate-50 border border-slate-100 rounded-xl p-3">
-          <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center justify-between mb-1">
             <span class="text-[9px] font-black text-slate-600 uppercase">投资期限 Horizon</span>
             <span class="tag" style="background:#f9fafb;color:#374151;border-color:#e5e7eb">波段</span>
           </div>
           <div class="text-2xl font-black text-slate-700 mono">1-2 周</div>
-          <p class="text-[9px] text-slate-500 mt-1">技术面窗口预期</p>
+          <p class="text-[9px] text-slate-500 mt-0.5">技术面窗口预期</p>
         </div>
 
         <!-- 建议仓位 -->
         <div class="bg-slate-50 border border-slate-100 rounded-xl p-3">
-          <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center justify-between mb-1">
             <span class="text-[9px] font-black text-slate-600 uppercase">建议仓位 Size</span>
             <span class="tag" style="background:#f9fafb;color:#374151;border-color:#e5e7eb">分笔</span>
           </div>
-          <div class="flex items-baseline gap-2">
-            <div class="text-2xl font-black text-slate-700 mono">3.5% → 5.0%</div>
-          </div>
-          <p class="text-[9px] text-slate-500 mt-1">分 2 笔建仓：302.5 补至 5%</p>
+          <div class="text-2xl font-black text-slate-700 mono">3.5% → 5.0%</div>
+          <p class="text-[9px] text-slate-500 mt-0.5">分 2 笔建仓：315 补至 5%</p>
         </div>
       </div>
 
       <!-- 执行说明 -->
-      <div class="mt-4 bg-linear-to-r from-emerald-50 to-blue-50 border border-emerald-100 rounded-xl p-3">
+      <div class="mt-4 bg-gradient-to-r from-emerald-50 to-blue-50 border border-emerald-100 rounded-xl p-3">
         <div class="flex items-start gap-2">
           <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           <div>
             <p class="text-[10px] text-slate-700 font-bold leading-relaxed">
               <span class="font-black text-emerald-700">执行策略：</span>
-              现价 $305.50 可建立初始仓位 3.5%，若回踩 $302.50 附近补至 5.0% 满仓。
-              任一口径下，收盘价连续 2 日低于 $295.00 严格止损，达到 T1 后可减仓 1/3 锁定利润。
+              现价 $383.25 暂不追高，等待价格回踩 $315-325 建仓区间再入场。
+              初始仓位 3.5%，回踩确认后补至 5.0% 满仓。收盘价连续 2 日低于 $295.00 严格止损，达到 T1 后减仓 1/3 锁定利润。
             </p>
           </div>
         </div>

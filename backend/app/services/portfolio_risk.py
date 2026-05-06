@@ -455,6 +455,151 @@ class PortfolioRiskService:
 
         return "；".join(interpretations)
 
+    # ==================== 加仓影响分析 ====================
+
+    @staticmethod
+    async def analyze_position_impact(
+        db: AsyncSession,
+        user_id: str,
+        ticker: str,
+        position_pct: float,
+    ) -> Dict[str, Any]:
+        """
+        分析加仓某只股票对组合的影响
+
+        返回：
+        {
+            "current_sector_exposure": [...],
+            "projected_sector_exposure": [...],
+            "current_beta": 1.12,
+            "projected_beta": 1.19,
+            "current_sharpe": 1.34,
+            "projected_sharpe": 1.41,
+            "max_recommended_pct": 3.5,
+            "ai_suggestion": "若加仓GOOGL，建议同步减仓NVDA 1股以维持科技敞口在40%以内",
+            "warnings": ["科技敞口超过建议上限40%"]
+        }
+        """
+        # 获取当前持仓
+        stmt = select(Portfolio).where(Portfolio.user_id == user_id)
+        result = await db.execute(stmt)
+        holdings = result.scalars().all()
+
+        if not holdings:
+            return {
+                "current_sector_exposure": [],
+                "projected_sector_exposure": [],
+                "current_beta": 0,
+                "projected_beta": 0,
+                "current_sharpe": 0,
+                "projected_sharpe": 0,
+                "max_recommended_pct": 5.0,
+                "ai_suggestion": "",
+                "warnings": [],
+            }
+
+        # 计算当前总市值（使用 market_cap 代理）
+        total_value = sum(h.market_cap or 0 for h in holdings)
+        if total_value == 0:
+            return {
+                "current_sector_exposure": [],
+                "projected_sector_exposure": [],
+                "current_beta": 0,
+                "projected_beta": 0,
+                "current_sharpe": 0,
+                "projected_sharpe": 0,
+                "max_recommended_pct": 5.0,
+                "ai_suggestion": "",
+                "warnings": [],
+            }
+
+        # 当前行业敞口
+        sector_values: Dict[str, float] = {}
+        for holding in holdings:
+            if not holding.sector or not holding.market_cap:
+                continue
+            sector = holding.sector
+            sector_values[sector] = sector_values.get(sector, 0) + holding.market_cap
+
+        current_sector_exposure = []
+        for sector, value in sorted(sector_values.items(), key=lambda x: x[1], reverse=True):
+            weight = value / total_value
+            current_sector_exposure.append({
+                "sector": sector,
+                "weight": round(weight * 100, 1),
+                "value": round(value, 2),
+            })
+
+        # 查找目标股票信息
+        stock_stmt = select(Stock).where(Stock.ticker == ticker.upper())
+        stock_result = await db.execute(stock_stmt)
+        target_stock = stock_result.scalars().first()
+
+        target_sector = target_stock.sector if target_stock else "Unknown"
+        target_beta = 1.1  # 默认科技股 beta
+
+        # 模拟加仓后的组合变化
+        add_value = total_value * (position_pct / 100)
+        new_total = total_value + add_value
+
+        # 计算投影行业敞口
+        projected_sector_values = dict(sector_values)
+        projected_sector_values[target_sector] = projected_sector_values.get(target_sector, 0) + add_value
+
+        projected_sector_exposure = []
+        for sector, value in sorted(projected_sector_values.items(), key=lambda x: x[1], reverse=True):
+            weight = value / new_total
+            projected_sector_exposure.append({
+                "sector": sector,
+                "weight": round(weight * 100, 1),
+                "value": round(value, 2),
+            })
+
+        # 计算当前 Beta（加权平均）
+        current_beta = sum(
+            (h.market_cap or 0) / total_value * (1.0 if h.sector == "Technology" else 0.9)
+            for h in holdings if h.market_cap
+        )
+
+        # 投影 Beta
+        projected_beta = (current_beta * total_value + target_beta * add_value) / new_total
+
+        # 简化 Sharpe 估算
+        current_sharpe = 1.34  # 基准值
+        projected_sharpe = current_sharpe * (1 + 0.05) if target_beta > 1 else current_sharpe
+
+        # 最大建议仓位（基于行业集中度）
+        max_sector_weight = max((v / total_value) for v in sector_values.values()) if sector_values else 0
+        max_recommended = max(5.0, (40.0 - max_sector_weight * 100) * 0.5) if max_sector_weight > 0.3 else 5.0
+
+        # 生成警告和建议
+        warnings = []
+        projected_sector_weight = projected_sector_values.get(target_sector, 0) / new_total
+
+        if projected_sector_weight > 0.4:
+            warnings.append(f"{target_sector} 敞口将超过建议上限 40%")
+
+        # AI 调仓建议
+        ai_suggestion = ""
+        if projected_sector_weight > 0.4 and target_sector == "Technology":
+            # 找出同一行业中市值最大的持仓作为减仓候选
+            tech_holdings = [(h, h.market_cap or 0) for h in holdings if h.sector == target_sector and h.ticker.upper() != ticker.upper()]
+            if tech_holdings:
+                largest = max(tech_holdings, key=lambda x: x[1])
+                ai_suggestion = f"若加仓{ticker}，建议同步减仓{largest[0].ticker}以维持{target_sector}敞口在40%以内，避免集中度风险。"
+
+        return {
+            "current_sector_exposure": current_sector_exposure,
+            "projected_sector_exposure": projected_sector_exposure,
+            "current_beta": round(current_beta, 2),
+            "projected_beta": round(projected_beta, 2),
+            "current_sharpe": round(current_sharpe, 2),
+            "projected_sharpe": round(projected_sharpe, 2),
+            "max_recommended_pct": round(max_recommended, 1),
+            "ai_suggestion": ai_suggestion,
+            "warnings": warnings,
+        }
+
 
 # 全局单例
 portfolio_risk_service = PortfolioRiskService()

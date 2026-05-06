@@ -196,7 +196,7 @@ export default function SettingsPage() {
     setMessage(null);
     try {
       await updateSettings({ preferred_ai_model: modelKey });
-      await loadProfile();
+      await Promise.all([loadProfile(), loadModels()]);
       setMessage({ text: "默认分析模型已更新。", type: "success" });
     } catch (error) {
       console.error("Failed to update default model", error);
@@ -234,26 +234,11 @@ export default function SettingsPage() {
 
     try {
       const savedModel = await createAIModel(payload);
-      
-      // 1. Update models list immediately
-      setAvailableModels((prev) => [savedModel, ...prev.filter((item) => item.key !== savedModel.key)]);
-      
-      // 2. Optimistic Profile Update & Non-blocking Settings Update
-      const needsProfileUpdate = customModel.is_default && profile?.preferred_ai_model !== savedModel.key;
-      
-      if (needsProfileUpdate) {
-        // Fire and forget settings update
-        updateSettings({ preferred_ai_model: savedModel.key }).catch(err => {
-          console.error("Failed to update preferred model:", err);
-        });
-        
-        // Optimistically update local profile
-        if (profile) {
-          setProfile({ ...profile, preferred_ai_model: savedModel.key });
-        }
-      }
 
-      // 3. Immediate UI Reset
+      // Refresh all data from server
+      await Promise.all([loadModels(), loadProfile()]);
+
+      // UI reset
       setCustomModel({
         key: "",
         display_name: "",
@@ -266,18 +251,13 @@ export default function SettingsPage() {
       setEditingModelKey(null);
       setModelTestMessage(null);
       setIsAddModelOpen(false);
-      
-      setMessage({ 
-        text: editingModelKey 
-          ? `模型 ${savedModel.display_name} 已更新。` 
-          : (customModel.is_default ? `模型 ${savedModel.display_name} 已添加并设为默认。` : `模型 ${savedModel.display_name} 已添加。`), 
-        type: "success" 
-      });
 
-      // 4. Background sync if needed, but don't block UI closure
-      if (needsProfileUpdate) {
-          setTimeout(() => loadProfile(), 1000); // Debounced background sync
-      }
+      setMessage({
+        text: editingModelKey
+          ? `模型 ${savedModel.display_name} 已更新。`
+          : (payload.is_default ? `模型 ${savedModel.display_name} 已添加并设为默认。` : `模型 ${savedModel.display_name} 已添加。`),
+        type: "success",
+      });
     } catch (error: unknown) {
       const axiosErr = error as { response?: { data?: { detail?: string } } };
       setMessage({ text: axiosErr.response?.data?.detail || (editingModelKey ? "更新模型失败。" : "添加模型失败。"), type: "error" });
@@ -361,8 +341,7 @@ export default function SettingsPage() {
     setMessage(null);
     try {
       const response = await deleteAIModel(modelKey);
-      setAvailableModels((prev) => prev.filter((model) => model.key !== modelKey));
-      await loadProfile();
+      await Promise.all([loadModels(), loadProfile()]);
       setMessage({ text: response.message || "模型已删除。", type: "success" });
     } catch (error: unknown) {
       const axiosErr = error as { response?: { data?: { detail?: string } } };
@@ -664,7 +643,22 @@ export default function SettingsPage() {
           <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">我的模型</h3>
           <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{availableModels.length} 个已配置的模型</p>
         </div>
-        <Dialog
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={async () => {
+              await Promise.all([loadModels(), loadProfile(), loadDataSources()]);
+              setMessage({ text: "数据已刷新。", type: "success" });
+            }}
+          >
+            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            刷新
+          </Button>
+          <Dialog
           open={isAddModelOpen}
           onOpenChange={(open) => {
             setIsAddModelOpen(open);
@@ -733,6 +727,7 @@ export default function SettingsPage() {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <div className="mt-4">

@@ -188,7 +188,12 @@ export function StockDetail({
     }, [selectedItem?.ticker]);
 
     // --- 空状态 ---
-    if (!selectedItem) {
+    // mounted pattern: ensures server/client render the same tree on first pass,
+    // avoiding hydration mismatch when selectedItem is only available client-side
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => setMounted(true), []);
+
+    if (!mounted || !selectedItem) {
         return (
             <div className="flex-1 bg-white dark:bg-zinc-950 p-6 flex flex-col items-center justify-center h-full text-slate-300 gap-4">
                 <div className="p-8 rounded-full bg-slate-50 dark:bg-zinc-900 shadow-inner">

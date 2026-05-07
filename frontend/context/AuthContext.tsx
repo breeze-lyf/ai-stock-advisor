@@ -17,7 +17,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const PUBLIC_ROUTES = ["/login", "/register"];
+const PUBLIC_ROUTES = ["/login", "/register", "/open-claw"];
 
 function getApiBaseURL(): string {
     // Browser: use relative URLs so Next.js rewrites proxy to the backend

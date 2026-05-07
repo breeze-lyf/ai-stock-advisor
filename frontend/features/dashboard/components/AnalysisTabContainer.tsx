@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import clsx from "clsx";
 
 import { PortfolioList } from "@/components/features/PortfolioList";
 import { StockDetail } from "@/components/features/StockDetail";
+import { fetchStockSnapshot } from "@/features/market/api";
 import type { AnalysisResponse, PortfolioItem } from "@/types";
 
 type StockNewsItem = Record<string, unknown>;
@@ -41,20 +43,25 @@ export function AnalysisTabContainer({
 }: AnalysisTabContainerProps) {
   let selectedItem = portfolio.find((item) => item.ticker === selectedTicker) || null;
 
-  // 如果 selectedTicker 存在但不在组合中，创建一个基础对象以便渲染详情页
-  if (!selectedItem && selectedTicker) {
-    selectedItem = {
-      ticker: selectedTicker,
-      name: selectedTicker,
-      current_price: 0,
-      change_percent: 0,
-      avg_cost: 0,
-      quantity: 0,
-      unrealized_pl: 0,
-      pl_percent: 0,
-      market_value: 0,
-    } as PortfolioItem;
-  }
+  // Fetch snapshot for non-holding stocks
+  const [snapshot, setSnapshot] = useState<PortfolioItem | null>(null);
+  useEffect(() => {
+    if (!selectedTicker) {
+      setSnapshot(null);
+      return;
+    }
+    if (selectedItem) {
+      setSnapshot(null);
+      return;
+    }
+    let cancelled = false;
+    fetchStockSnapshot(selectedTicker)
+      .then((data) => { if (!cancelled) setSnapshot(data); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [selectedTicker, selectedItem]);
+
+  const displayItem = snapshot || selectedItem;
 
   return (
     <div className="flex h-full overflow-hidden">
@@ -82,7 +89,7 @@ export function AnalysisTabContainer({
       >
         <StockDetail
           key={selectedTicker || "empty"}
-          selectedItem={selectedItem}
+          selectedItem={displayItem}
           onAnalyze={onAnalyze}
           onRefresh={onRefreshDetail}
           onBack={() => onSelectTicker(null)}

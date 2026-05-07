@@ -96,10 +96,14 @@ class NotificationService:
                 )
                 res = await db.execute(stmt)
                 if res.scalars().first():
-                    logger.info(f"Notification deduplication hit for user {user_id}: {msg_type}")
+                    logger.info(f"Notification deduplication hit for user {user_id}: {msg_type}/{ticker}")
                     return True
             except Exception as db_e:
-                logger.warning(f"Notification deduplication check failed (DB Error): {db_e}. Proceeding anyway.")
+                error_str = str(db_e)
+                if "does not exist" in error_str or "UndefinedTableError" in error_str:
+                    logger.warning(f"Notification dedup skipped: notification_logs table missing. Sending anyway.")
+                else:
+                    logger.warning(f"Notification deduplication check failed (DB Error): {db_e}. Proceeding anyway.")
 
         # --- 3. 构建并发送 ---
         url = webhook_url or settings.FEISHU_WEBHOOK_URL

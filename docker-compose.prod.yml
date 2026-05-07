@@ -14,7 +14,7 @@ services:
       - "8000:8000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    mem_limit: 800m
+    mem_limit: 1000m
     cpus: "1.0"
     pids_limit: 256
     healthcheck:

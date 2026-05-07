@@ -4,13 +4,15 @@ import asyncio
 import logging
 import httpx
 import os
+import time
 from datetime import datetime
+from functools import wraps
 from typing import Any, Dict, List, Optional
 
 import pandas as pd
 import yfinance as yf
 
-from app.schemas.market_data import MarketStatus, OHLCVItem, ProviderFundamental, ProviderNews, ProviderQuote
+from app.schemas.market_data import MarketStatus, OHLCVItem, ProviderFundamental, ProviderNews, ProviderQuote, FullMarketData, ProviderTechnical
 from app.services.indicators import TechnicalIndicators
 from app.services.market_providers.base import MarketDataProvider
 from app.utils.time import utc_now_naive
@@ -23,6 +25,34 @@ _PROXY_ENV_VARS = ['HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY', 'http_proxy', 'http
 
 # 是否启用系统代理（通过环境变量控制）
 _USE_SYSTEM_PROXY = os.environ.get("YFINANCE_USE_PROXY", "").lower() in ("1", "true", "yes")
+
+# 类级别缓存：info 结果（60s TTL），VIX（5min TTL）
+_info_cache: dict[str, tuple[Any, float]] = {}
+_vix_cache: tuple[Optional[float], float] = (None, 0.0)
+_INFO_CACHE_TTL = 60
+_VIX_CACHE_TTL = 300
+
+
+def _retry_with_backoff(max_retries=2, base_delay=2.0):
+    """重试装饰器：指数退避 2s → 4s"""
+    def decorator(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            last_exc = None
+            for attempt in range(max_retries + 1):
+                try:
+                    return func(self, *args, **kwargs)
+                except Exception as exc:
+                    last_exc = exc
+                    if "Too Many Requests" in str(exc) or "rate" in str(exc).lower():
+                        delay = base_delay * (2 ** attempt)
+                        logger.warning(f"YFinance rate limited, retry {attempt+1}/{max_retries} after {delay}s")
+                        time.sleep(delay)
+                    else:
+                        raise
+            raise last_exc
+        return wrapper
+    return decorator
 
 
 def _disable_proxy_env():
@@ -67,6 +97,10 @@ class YFinanceProvider(MarketDataProvider):
     # 初始为 False（默认直连），当直连失败时设置为 True
     _use_worker_proxy: bool = False
 
+    # 类级别熔断器：限频时阻止后续所有请求
+    _rate_limited_until: float = 0.0
+    _RATE_LIMIT_COOLDOWN = 60  # 限频后冷却 60 秒
+
     @classmethod
     def get_proxy_status(cls) -> bool:
         """获取当前代理状态"""
@@ -77,6 +111,69 @@ class YFinanceProvider(MarketDataProvider):
         """重置代理标志，恢复直连模式"""
         cls._use_worker_proxy = False
         logger.info("[YFinance] Proxy flag reset, resuming direct connection")
+
+    @classmethod
+    def is_rate_limited(cls) -> bool:
+        """检查是否处于限频冷却期"""
+        return time.time() < cls._rate_limited_until
+
+    @classmethod
+    def _activate_rate_limit_cooldown(cls):
+        """触发限频冷却，30 秒内拒绝新请求"""
+        cls._rate_limited_until = time.time() + cls._RATE_LIMIT_COOLDOWN
+        logger.warning(f"[YFinance] Rate limit circuit breaker activated, {cls._RATE_LIMIT_COOLDOWN}s cooldown")
+
+    @staticmethod
+    def _get_cached_info(symbol: str, ticker_obj=None) -> dict[str, Any]:
+        """获取缓存的 .info 结果，避免同一 symbol 重复请求 Yahoo 同一端点"""
+        now = time.time()
+        if symbol in _info_cache:
+            cached_val, cached_time = _info_cache[symbol]
+            if now - cached_time < _INFO_CACHE_TTL:
+                return cached_val
+        # Cache miss — fetch fresh (with calendar & recommendations if ticker available)
+        info = dict(getattr(ticker_obj, "info", {}) or {}) if ticker_obj else {}
+        if info and ticker_obj:
+            # 额外拉取日历和推荐信息（只在 cache miss 时执行）
+            try:
+                cal = ticker_obj.calendar
+                if cal is not None and isinstance(cal, dict):
+                    earn = cal.get("Earnings Date")
+                    if earn is not None:
+                        if isinstance(earn, list) and len(earn) > 0:
+                            info["_earnings_date"] = str(earn[0])[:10]
+                        else:
+                            info["_earnings_date"] = str(earn)[:10]
+            except Exception:
+                pass
+            try:
+                rec = ticker_obj.recommendations_summary
+                if rec is not None and hasattr(rec, "itertuples") and len(rec) > 0:
+                    latest = rec.iloc[0]
+                    info["_analyst_buy"] = int(getattr(latest, "strongBuy", 0) or 0) + int(getattr(latest, "buy", 0) or 0)
+                    info["_analyst_hold"] = int(getattr(latest, "hold", 0) or 0)
+                    info["_analyst_sell"] = int(getattr(latest, "sell", 0) or 0) + int(getattr(latest, "strongSell", 0) or 0)
+            except Exception:
+                pass
+            _info_cache[symbol] = (info, now)
+        return info
+
+    @staticmethod
+    def _get_cached_vix() -> Optional[float]:
+        """进程级 VIX 缓存，5 分钟 TTL"""
+        now = time.time()
+        global _vix_cache
+        cached_val, cached_time = _vix_cache
+        if now - cached_time < _VIX_CACHE_TTL and cached_val is not None:
+            return cached_val
+        try:
+            vix_info = dict(getattr(yf.Ticker("^VIX"), "info", {}) or {})
+            price = vix_info.get("regularMarketPrice") or vix_info.get("previousClose")
+            result = float(price) if price is not None else None
+            _vix_cache = (result, now)
+            return result
+        except Exception:
+            return cached_val
 
     @staticmethod
     def _normalize_ticker(ticker: str) -> str:
@@ -312,15 +409,156 @@ class YFinanceProvider(MarketDataProvider):
             logger.warning(f"[Worker] Error for {symbol}: {e}")
             return None
 
+    async def get_full_data(self, ticker: str) -> Optional[FullMarketData]:
+        """一站式获取全量数据：单次 yf.Ticker 实例，避免重复 .info 请求。
+        这是解决 Yahoo Finance 限频的核心优化。
+        """
+        if self.is_rate_limited():
+            logger.debug(f"[YFinance] Circuit breaker active for {ticker}, skipping")
+            return None
+
+        symbol = self._normalize_ticker(ticker)
+
+        def fetch_all():
+            stock = yf.Ticker(symbol)
+            info = self._get_cached_info(symbol, stock)
+            if not info:
+                return None
+
+            fast_info = dict(getattr(stock, "fast_info", {}) or {})
+            price = fast_info.get("lastPrice") or info.get("regularMarketPrice") or info.get("currentPrice")
+            previous_close = fast_info.get("previousClose") or info.get("regularMarketPreviousClose") or info.get("previousClose")
+            if price is None:
+                return None
+            change = float(price) - float(previous_close) if previous_close not in (None, 0) else 0.0
+            change_percent = (change / float(previous_close) * 100) if previous_close not in (None, 0) else 0.0
+            name = info.get("shortName") or info.get("longName") or ticker.upper()
+            quote = ProviderQuote(
+                ticker=ticker.upper(),
+                price=float(price),
+                change=change,
+                change_percent=change_percent,
+                name=name,
+                market_status=self._market_status_from_info(info),
+                last_updated=utc_now_naive(),
+            )
+
+            try:
+                history = stock.history(period="1y", interval="1d", auto_adjust=False, actions=False)
+                hist_df = self._history_to_dataframe(history)
+                indicators = None
+                if hist_df is not None and not hist_df.empty:
+                    indicators = TechnicalIndicators.calculate_all(hist_df.set_index("Date"))
+            except Exception:
+                indicators = None
+
+            buy_c = info.get("_analyst_buy")
+            hold_c = info.get("_analyst_hold")
+            sell_c = info.get("_analyst_sell")
+            total_count = None
+            if buy_c is not None or hold_c is not None or sell_c is not None:
+                total_count = (buy_c or 0) + (hold_c or 0) + (sell_c or 0)
+
+            vix_value = self._get_cached_vix()
+
+            fundamental = ProviderFundamental(
+                name=info.get("shortName") or info.get("longName"),
+                sector=info.get("sector"),
+                industry=info.get("industry"),
+                market_cap=float(info["marketCap"]) if info.get("marketCap") is not None else None,
+                pe_ratio=float(info["trailingPE"]) if info.get("trailingPE") is not None else None,
+                forward_pe=float(info["forwardPE"]) if info.get("forwardPE") is not None else None,
+                eps=float(info["trailingEps"]) if info.get("trailingEps") is not None else None,
+                dividend_yield=float(info["dividendYield"]) if info.get("dividendYield") is not None else None,
+                beta=float(info["beta"]) if info.get("beta") is not None else None,
+                fifty_two_week_high=float(info["fiftyTwoWeekHigh"]) if info.get("fiftyTwoWeekHigh") is not None else None,
+                fifty_two_week_low=float(info["fiftyTwoWeekLow"]) if info.get("fiftyTwoWeekLow") is not None else None,
+                earnings_date=info.get("_earnings_date"),
+                target_price_mean=float(info["targetMeanPrice"]) if info.get("targetMeanPrice") is not None else None,
+                analyst_count=int(info["numberOfAnalystOpinions"]) if info.get("numberOfAnalystOpinions") is not None else total_count,
+                analyst_buy_count=buy_c,
+                analyst_hold_count=hold_c,
+                analyst_sell_count=sell_c,
+                vix=vix_value,
+            )
+
+            news = []
+            try:
+                raw_items = list(getattr(stock, "news", None) or [])
+                seen_links: set[str] = set()
+                for index, item in enumerate(raw_items[:10]):
+                    content = item.get("content") or {}
+                    title = content.get("title") or item.get("title")
+                    link = content.get("canonicalUrl", {}).get("url") or content.get("clickThroughUrl", {}).get("url") or item.get("link")
+                    publisher = content.get("provider", {}).get("displayName") or item.get("publisher")
+                    summary = content.get("summary") or item.get("summary")
+                    pub_ts = content.get("pubDate") or item.get("providerPublishTime")
+                    if not title or not link or link in seen_links:
+                        continue
+                    publish_time = utc_now_naive()
+                    if pub_ts:
+                        try:
+                            if isinstance(pub_ts, (int, float)):
+                                publish_time = datetime.fromtimestamp(pub_ts)
+                            else:
+                                publish_time = pd.to_datetime(pub_ts).to_pydatetime().replace(tzinfo=None)
+                        except Exception:
+                            pass
+                    news.append(
+                        ProviderNews(
+                            id=f"yfinance-{symbol.lower()}-{index}",
+                            title=title,
+                            publisher=publisher or "Yahoo Finance",
+                            link=link,
+                            summary=summary,
+                            publish_time=publish_time,
+                        )
+                    )
+                    seen_links.add(link)
+            except Exception:
+                pass
+
+            return FullMarketData(
+                quote=quote,
+                fundamental=fundamental,
+                technical=ProviderTechnical(indicators=indicators) if indicators else None,
+                news=news,
+            )
+
+        # 重试逻辑：Yahoo 限频时自动退避重试
+        max_retries = 3
+        base_delay = 3.0
+        last_exc = None
+        for attempt in range(max_retries + 1):
+            try:
+                result = await self._run_sync(fetch_all)
+                if result:
+                    logger.info(f"[YFinance] get_full_data completed for {ticker} (single Ticker session, attempt {attempt+1})")
+                return result
+            except Exception as exc:
+                last_exc = exc
+                error_msg = str(exc)
+                if "Too Many Requests" in error_msg or "rate" in error_msg.lower():
+                    delay = base_delay * (2 ** attempt)
+                    logger.warning(f"YFinance rate limited for {ticker}, retry {attempt+1}/{max_retries} after {delay}s: {exc}")
+                    time.sleep(delay)
+                else:
+                    raise
+        logger.warning(f"YFinance get_full_data exhausted all retries for {ticker}: {last_exc}")
+        self._activate_rate_limit_cooldown()
+        return None
+
     async def get_quote(self, ticker: str) -> Optional[ProviderQuote]:
+        if self.is_rate_limited():
+            return None
         symbol = self._normalize_ticker(ticker)
 
         try:
             def fetch_quote() -> tuple[dict[str, Any], dict[str, Any]]:
                 stock = yf.Ticker(symbol)
                 fast_info = getattr(stock, "fast_info", {}) or {}
-                info = getattr(stock, "info", {}) or {}
-                return dict(fast_info), dict(info)
+                info = dict(getattr(stock, "info", {}) or {})
+                return dict(fast_info), info
 
             fast_info, info = await self._run_sync(fetch_quote)
             price = fast_info.get("lastPrice") or info.get("regularMarketPrice") or info.get("currentPrice")
@@ -346,53 +584,20 @@ class YFinanceProvider(MarketDataProvider):
             return None
 
     async def get_fundamental_data(self, ticker: str) -> Optional[ProviderFundamental]:
+        if self.is_rate_limited():
+            return None
         symbol = self._normalize_ticker(ticker)
         try:
             def fetch_info() -> dict[str, Any]:
                 stock = yf.Ticker(symbol)
-                info = dict(getattr(stock, "info", {}) or {})
-
-                # --- 财报日期 (from calendar) ---
-                try:
-                    cal = stock.calendar
-                    if cal is not None and isinstance(cal, dict):
-                        earn = cal.get("Earnings Date")
-                        if earn is not None:
-                            # Can be a list of dates or a single date
-                            if isinstance(earn, list) and len(earn) > 0:
-                                info["_earnings_date"] = str(earn[0])[:10]
-                            else:
-                                info["_earnings_date"] = str(earn)[:10]
-                except Exception:
-                    pass
-
-                # --- 分析师推荐汇总 (from recommendations_summary) ---
-                try:
-                    rec = stock.recommendations_summary
-                    if rec is not None and hasattr(rec, "itertuples") and len(rec) > 0:
-                        latest = rec.iloc[0]
-                        info["_analyst_buy"] = int(getattr(latest, "strongBuy", 0) or 0) + int(getattr(latest, "buy", 0) or 0)
-                        info["_analyst_hold"] = int(getattr(latest, "hold", 0) or 0)
-                        info["_analyst_sell"] = int(getattr(latest, "sell", 0) or 0) + int(getattr(latest, "strongSell", 0) or 0)
-                except Exception:
-                    pass
-
-                return info
+                return self._get_cached_info(symbol, stock)
 
             info = await self._run_sync(fetch_info)
             if not info:
                 return None
 
-            # --- VIX (fetch separately, only once per process in memory is fine) ---
-            vix_value: Optional[float] = None
-            try:
-                def fetch_vix() -> Optional[float]:
-                    vix_info = dict(getattr(yf.Ticker("^VIX"), "info", {}) or {})
-                    price = vix_info.get("regularMarketPrice") or vix_info.get("previousClose")
-                    return float(price) if price is not None else None
-                vix_value = await self._run_sync(fetch_vix)
-            except Exception:
-                pass
+            # --- VIX from process-level cache (no extra Yahoo call) ---
+            vix_value = self._get_cached_vix()
 
             # --- Analyst counts ---
             buy_c = info.get("_analyst_buy")
@@ -433,6 +638,8 @@ class YFinanceProvider(MarketDataProvider):
         period: str = "1mo",
         end_date: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
+        if self.is_rate_limited():
+            return None
         try:
             df = await self._get_history_df(ticker, period=period, interval=interval)
             if df is None or df.empty or len(df) < 2:
@@ -504,6 +711,8 @@ class YFinanceProvider(MarketDataProvider):
             return []
 
     async def get_news(self, ticker: str) -> List[ProviderNews]:
+        if self.is_rate_limited():
+            return []
         symbol = self._normalize_ticker(ticker)
         try:
             def fetch_news() -> list[dict[str, Any]]:

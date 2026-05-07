@@ -160,14 +160,13 @@ async def run_refresh_all_stocks_job(db, should_refresh_fn, session_factory) -> 
         return 0
 
     logger.info(f"[Scheduler] 发现 {len(active_tickers)} 只股票需要更新（盘中或盘后补录），开始后台刷新...")
-    # 优化：并发数从 1 提升到 3，配合 5 秒间隔，实现平滑请求流
-    # 每秒约 0.6 个请求，避免触发 AkShare 反爬
-    semaphore = asyncio.Semaphore(3)
+    # 优化：降低并发度，配合 8 秒间隔，大幅降低对 Yahoo Finance 的请求密度
+    semaphore = asyncio.Semaphore(2)
 
     async def safe_refresh(ticker: str):
         async with semaphore:
             try:
-                await asyncio.sleep(5)  # 增加到 5 秒，平滑请求分布
+                await asyncio.sleep(8)  # 增加到 8 秒，降低请求频率，避免触发 YFinance 限频
                 async with session_factory() as local_db:
                     updated_data = await MarketDataService.get_real_time_data(
                         ticker,

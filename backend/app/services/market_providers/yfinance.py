@@ -38,6 +38,10 @@ _vix_cache: tuple[Optional[float], float] = (None, 0.0)
 _INFO_CACHE_TTL = 60
 _VIX_CACHE_TTL = 300
 
+# 请求去重：同一 ticker 的并发 FullMarketData 请求共享结果
+_inflight_full_data: dict[str, asyncio.Future] = {}
+_inflight_lock = asyncio.Lock()
+
 
 def _retry_with_backoff(max_retries=2, base_delay=2.0):
     """重试装饰器：指数退避 2s → 4s"""
@@ -274,6 +278,28 @@ class YFinanceProvider(MarketDataProvider):
     async def get_full_data(self, ticker: str) -> Optional[FullMarketData]:
         symbol = self._normalize_ticker(ticker)
 
+        # 请求去重：同一 ticker 的在途请求共享结果
+        async with _inflight_lock:
+            if symbol in _inflight_full_data:
+                logger.debug(f"[YFinance] Dedup: waiting for in-flight full_data for {symbol}")
+                return await _inflight_full_data[symbol]
+            future = asyncio.get_event_loop().create_future()
+            _inflight_full_data[symbol] = future
+
+        try:
+            result = await self._execute_full_data(ticker, symbol)
+            if not future.done():
+                future.set_result(result)
+            return result
+        except Exception as exc:
+            if not future.done():
+                future.set_exception(exc)
+            raise
+        finally:
+            async with _inflight_lock:
+                _inflight_full_data.pop(symbol, None)
+
+    async def _execute_full_data(self, ticker: str, symbol: str) -> Optional[FullMarketData]:
         def fetch_all():
             stock = yf.Ticker(symbol)
             info = self._get_cached_info(symbol, stock)

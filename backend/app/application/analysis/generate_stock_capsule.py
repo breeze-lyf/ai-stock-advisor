@@ -54,7 +54,7 @@ class GenerateStockCapsuleUseCase:
     # Public entry points
     # ------------------------------------------------------------------
 
-    async def generate_news_capsule(self, ticker: str, model: Optional[str] = None) -> Optional[StockCapsule]:
+    async def generate_news_capsule(self, ticker: str, model: Optional[str] = None, user_id: str | None = None) -> Optional[StockCapsule]:
         """Build and persist the news capsule for `ticker`."""
         ticker = ticker.upper().strip()
         model = model or settings.DEFAULT_AI_MODEL
@@ -90,7 +90,7 @@ class GenerateStockCapsuleUseCase:
         )
 
         try:
-            content = await self._call_ai(prompt, model, require_json=False)
+            content = await self._call_ai(prompt, model, require_json=False, user_id=user_id)
         except Exception as exc:
             logger.error(f"[Capsule] News capsule AI call failed for {ticker}: {exc}")
             return None
@@ -105,7 +105,7 @@ class GenerateStockCapsuleUseCase:
         logger.info(f"[Capsule] News capsule saved for {ticker} ({len(stock_news)} stock + {len(global_news)} macro headlines)")
         return capsule
 
-    async def generate_fundamental_capsule(self, ticker: str, model: Optional[str] = None) -> Optional[StockCapsule]:
+    async def generate_fundamental_capsule(self, ticker: str, model: Optional[str] = None, user_id: str | None = None) -> Optional[StockCapsule]:
         """Build and persist the fundamental capsule for `ticker`."""
         ticker = ticker.upper().strip()
         model = model or settings.DEFAULT_AI_MODEL
@@ -145,7 +145,7 @@ class GenerateStockCapsuleUseCase:
         )
 
         try:
-            content = await self._call_ai(prompt, model, require_json=False)
+            content = await self._call_ai(prompt, model, require_json=False, user_id=user_id)
         except Exception as exc:
             logger.error(f"[Capsule] Fundamental capsule AI call failed for {ticker}: {exc}")
             return None
@@ -160,7 +160,7 @@ class GenerateStockCapsuleUseCase:
         logger.info(f"[Capsule] Fundamental capsule saved for {ticker}")
         return capsule
 
-    async def generate_technical_capsule(self, ticker: str, model: Optional[str] = None) -> Optional[StockCapsule]:
+    async def generate_technical_capsule(self, ticker: str, model: Optional[str] = None, user_id: str | None = None) -> Optional[StockCapsule]:
         """Build and persist the technical capsule for `ticker`."""
         ticker = ticker.upper().strip()
         model = model or settings.DEFAULT_AI_MODEL
@@ -200,7 +200,7 @@ class GenerateStockCapsuleUseCase:
         )
 
         try:
-            content = await self._call_ai(prompt, model, require_json=False)
+            content = await self._call_ai(prompt, model, require_json=False, user_id=user_id)
         except Exception as exc:
             logger.error(f"[Capsule] Technical capsule AI call failed for {ticker}: {exc}")
             return None
@@ -215,11 +215,11 @@ class GenerateStockCapsuleUseCase:
         logger.info(f"[Capsule] Technical capsule saved for {ticker}")
         return capsule
 
-    async def generate_all(self, ticker: str, model: Optional[str] = None) -> dict[str, Optional[StockCapsule]]:
+    async def generate_all(self, ticker: str, model: Optional[str] = None, user_id: str | None = None) -> dict[str, Optional[StockCapsule]]:
         """Generate all three capsule types and return them as a dict."""
-        news = await self.generate_news_capsule(ticker, model)
-        fundamental = await self.generate_fundamental_capsule(ticker, model)
-        technical = await self.generate_technical_capsule(ticker, model)
+        news = await self.generate_news_capsule(ticker, model, user_id=user_id)
+        fundamental = await self.generate_fundamental_capsule(ticker, model, user_id=user_id)
+        technical = await self.generate_technical_capsule(ticker, model, user_id=user_id)
         return {CAPSULE_TYPE_NEWS: news, CAPSULE_TYPE_FUNDAMENTAL: fundamental, CAPSULE_TYPE_TECHNICAL: technical}
 
     # ------------------------------------------------------------------
@@ -247,9 +247,9 @@ class GenerateStockCapsuleUseCase:
     # Private helpers
     # ------------------------------------------------------------------
 
-    async def _call_ai(self, prompt: str, model: str, require_json: bool = False) -> str:
-        """Route through AIService without user context (system-level call)."""
-        return await AIService.generate_text(prompt, self.db, model_key=model)
+    async def _call_ai(self, prompt: str, model: str, require_json: bool = False, user_id: str | None = None) -> str:
+        """Route through AIService with optional user context for personal AI config."""
+        return await AIService.generate_text(prompt, self.db, model_key=model, user_id=user_id)
 
     def _get_attr(self, obj: Any, attr: str) -> Any:
         if obj is None:

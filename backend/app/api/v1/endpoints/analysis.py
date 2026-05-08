@@ -248,6 +248,7 @@ async def _background_capsule_generation(
             await use_case.generate_all(
                 ticker,
                 model=preferred_model,
+                user_id=user_id,
             )
             logger.info(f"[CapsuleRefresh] Background capsule generation completed for {ticker}")
         except Exception as exc:

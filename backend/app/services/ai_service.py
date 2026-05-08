@@ -192,12 +192,31 @@ class AIService:
         model_key: Optional[str] = None,
         max_tokens: Optional[int] = None,
         extra_params: Optional[dict] = None,
+        user_id: Optional[str] = None,
     ) -> str:
-        """系统级通用文本生成入口（无用户上下文）。"""
+        """系统级通用文本生成入口（可选 user_id 以使用个人 AI 配置）。"""
         key = model_key or settings.DEFAULT_AI_MODEL
+
+        user = None
+        if user_id and db:
+            try:
+                user = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
+            except Exception as e:
+                logger.warning(f"Failed to get user info: {e}")
+
+        if user and db:
+            user_model = await ModelResolver.get_user_ai_model(key, user.id, db)
+            if user_model:
+                try:
+                    result = await ProviderRouter.call_user_ai_model(user_model, prompt)
+                    return result
+                except Exception as e:
+                    logger.warning(f"User custom model {key} failed: {e}")
+                    return f"**Error**: 用户自定义模型 {key} 调用失败。错误：{e}"
+
         model_config = await ModelResolver.get_model_config(key, db)
         return await ProviderRouter.dispatch_with_fallback(
-            prompt, model_config, user=None, db=db,
+            prompt, model_config, user=user, db=db,
             max_tokens=max_tokens, extra_params=extra_params,
         )
 

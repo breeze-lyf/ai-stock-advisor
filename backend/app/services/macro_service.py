@@ -200,10 +200,7 @@ class MacroService:
 
         try:
             # 调用 AI 生成高度压缩的精要总结
-            # 此处会产出核心摘要、情绪倾向以及 影响标的 -> 逻辑 的映射表
             parsed_report = await MacroAIService.generate_hourly_report(news_items, db)
-            
-            # 保存报告并关联到对应小时的 Key
             new_report, existed = await repo.get_or_create_hourly_report(hour_key, parsed_report, len(news_items))
             if existed:
                 logger.info(f"Global hourly report for {hour_key} already exists. Skipping AI call.")
@@ -212,8 +209,16 @@ class MacroService:
             return new_report
         except Exception as e:
             logger.error(f"Failed to generate global hourly report: {e}")
-            await repo.rollback()
-            return None
+            # AI 失败时不抛异常，生成基础报告保留新闻计数
+            fallback_report = {
+                "core_summary": f"本小时共收录 {len(news_items)} 条快讯，AI 分析暂不可用。",
+                "sentiment": "中性",
+                "impact_map": {},
+            }
+            new_report, _ = await repo.get_or_create_hourly_report(hour_key, fallback_report, len(news_items))
+            if new_report:
+                logger.info(f"Created fallback hourly report for {hour_key} with {len(news_items)} news items")
+            return new_report
 
     @staticmethod
     async def generate_hourly_news_summary(db: AsyncSession, user_id: str) -> Dict[str, Any]:

@@ -20,7 +20,7 @@ class MacroAIService:
     """
 
     @staticmethod
-    async def _call_ai(prompt: str, db=None, max_tokens: int = 2048) -> str:
+    async def _call_ai(prompt: str, db=None, max_tokens: int = 2048, user_id: str | None = None) -> str:
       """系统级 AI 调用入口：禁用思考模式以加速响应，适用于摘要类任务。"""
       try:
         return await asyncio.wait_for(
@@ -28,6 +28,7 @@ class MacroAIService:
                 prompt, db,
                 max_tokens=max_tokens,
                 extra_params={"enable_thinking": False},
+                user_id=user_id,
             ),
             timeout=90,
         )

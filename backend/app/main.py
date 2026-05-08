@@ -80,29 +80,8 @@ async def health_check():
 
 @app.get("/health/yfinance", tags=["System"])
 async def yfinance_health_check():
-    """Yahoo Finance 连接健康检查接口"""
-    from app.services.market_providers.yfinance import YFinanceProvider
-    from app.services.yfinance_health_checker import get_health_checker
-    import asyncio
-
-    proxy_status = YFinanceProvider.get_proxy_status()
-
-    result = {
-        "status": "ok",
-        "direct_connection": not proxy_status,
-        "using_worker_proxy": proxy_status,
-        "worker_configured": bool(
-            getattr(settings, "CLOUDFLARE_WORKER_URL", None) and
-            getattr(settings, "CLOUDFLARE_WORKER_KEY", None)
-        ),
-    }
-
-    health_checker = get_health_checker()
-    if health_checker:
-        asyncio.create_task(health_checker.run_check_and_reset())
-        result["background_check_triggered"] = True
-
-    return result
+    """Yahoo Finance 连接健康检查接口（通过 mihomo 代理走海外节点）"""
+    return {"status": "ok", "proxy": "mihomo"}
 
 
 @app.get("/readiness", tags=["System"])

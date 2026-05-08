@@ -165,7 +165,6 @@ async def lifespan(app: FastAPI):
     from app.core.database import SessionLocal
     from app.services.system_ai_registry import ensure_system_ai_registry
     from app.services.scheduler import start_scheduler
-    from app.services.yfinance_health_checker import init_health_checker
 
     async with SessionLocal() as db:
         await ensure_system_ai_registry(db)
@@ -176,22 +175,6 @@ async def lifespan(app: FastAPI):
 
     from app.websocket.manager import websocket_manager
     await websocket_manager.start()
-
-    health_checker = init_health_checker(
-        check_interval=900,
-        timeout=10.0,
-        worker_url=getattr(settings, "CLOUDFLARE_WORKER_URL", None),
-        worker_key=getattr(settings, "CLOUDFLARE_WORKER_KEY", None)
-    )
-
-    from app.services.market_providers.yfinance import YFinanceProvider
-    async def reset_yf_proxy():
-        YFinanceProvider.reset_proxy_flag()
-    health_checker.set_reset_callback(reset_yf_proxy)
-
-    await health_checker.start()
-    app.state.health_checker = health_checker
-    logger.info("PHASE: Yahoo Finance health checker started.")
 
     try:
         yield

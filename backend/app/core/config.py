@@ -67,13 +67,6 @@ class Settings(BaseSettings):
     # False = 本地环境（有代理，YFinance 美股数据更全）
     IS_SERVER_ENV: bool = False
 
-    # Cloudflare Worker 代理配置 (用于绕过 Yahoo Finance 访问限制)
-    # 部署在 Cloudflare Workers 的代理脚本 URL
-    # 例如：https://yahoo-proxy.your-account.workers.dev
-    CLOUDFLARE_WORKER_URL: Optional[str] = None
-    # Worker 鉴权密钥 (需与 Worker 环境变量 PROXY_KEY 一致)
-    CLOUDFLARE_WORKER_KEY: Optional[str] = None
-
     # 邮件服务配置 (用于发送每日报告、价格预警等)
     SMTP_SERVER: Optional[str] = None
     SMTP_PORT: int = 587

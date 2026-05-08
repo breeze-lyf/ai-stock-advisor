@@ -1,0 +1,6 @@
+name = "yahoo-finance-proxy"
+main = "yahoo-worker.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+WORKER_API_KEY = "my-yahoo-proxy-key-2026"

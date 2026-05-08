@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 import yfinance as yf
+from yfinance.config import YfConfig
 
 from app.schemas.market_data import MarketStatus, OHLCVItem, ProviderFundamental, ProviderNews, ProviderQuote, FullMarketData, ProviderTechnical
 from app.services.indicators import TechnicalIndicators
@@ -25,6 +26,13 @@ _PROXY_ENV_VARS = ['HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY', 'http_proxy', 'http
 
 # 是否启用系统代理（通过环境变量控制）
 _USE_SYSTEM_PROXY = os.environ.get("YFINANCE_USE_PROXY", "").lower() in ("1", "true", "yes")
+
+# 配置 yfinance 使用代理（走 mihomo/clash 海外节点绕过阿里云 IP 限频）
+_http_proxy = os.environ.get("HTTP_PROXY") or os.environ.get("http_proxy")
+if _USE_SYSTEM_PROXY and _http_proxy:
+    proxy_config = {"http": _http_proxy, "https": _http_proxy}
+    YfConfig.network.proxy = proxy_config
+    logger.info(f"[YFinance] Configured proxy: {_http_proxy}")
 
 # 类级别缓存：info 结果（60s TTL），VIX（5min TTL）
 _info_cache: dict[str, tuple[Any, float]] = {}
@@ -94,8 +102,8 @@ class YFinanceProvider(MarketDataProvider):
     _worker_key: Optional[str] = getattr(settings, "CLOUDFLARE_WORKER_KEY", None)
 
     # 类变量：记录是否需要使用 Worker 代理
-    # 初始为 False（默认直连），当直连失败时设置为 True
-    _use_worker_proxy: bool = False
+    # 配置了 Worker URL 时默认启用；否则直连失败后切换
+    _use_worker_proxy: bool = getattr(settings, "CLOUDFLARE_WORKER_URL", None) is not None
 
     # 类级别熔断器：限频时阻止后续所有请求
     _rate_limited_until: float = 0.0
@@ -342,6 +350,40 @@ class YFinanceProvider(MarketDataProvider):
 
         return None
 
+    # Class-level cache for Worker crumb (shared across all requests)
+    _worker_crumb: Optional[str] = None
+    _worker_cookie: Optional[str] = None
+    _worker_auth_expires: float = 0.0
+
+    async def _proxy_via_worker(self, yahoo_url: str, method: str = "GET", body: Optional[dict] = None) -> Optional[Any]:
+        """通用 Worker 代理：支持所有 Yahoo Finance API 端点。
+
+        Worker 自动处理 Yahoo crumb 认证，客户端无需关心 auth 流程。
+        """
+        if not self._worker_url or not self._worker_key:
+            return None
+
+        try:
+            worker_base = self._worker_url.rstrip("/")
+            # 构建 Worker 请求 URL
+            worker_url = f"{worker_base}/?url={httpx.URL(yahoo_url)}"
+            headers = {"X-Proxy-Key": self._worker_key}
+
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                if method == "POST":
+                    response = await client.post(worker_url, headers=headers, json=body)
+                else:
+                    response = await client.get(worker_url, headers=headers)
+
+                if response.status_code != 200:
+                    logger.warning(f"[Worker] HTTP {response.status_code}: {yahoo_url[:80]}")
+                    return None
+
+                return response.json()
+        except Exception as e:
+            logger.debug(f"[Worker] Error: {e}")
+            return None
+
     async def _get_history_df_via_worker(
         self,
         symbol: str,
@@ -358,56 +400,215 @@ class YFinanceProvider(MarketDataProvider):
         yahoo_url = f"https://query2.finance.yahoo.com/v8/finance/chart/{symbol}?interval={interval}&range={period}"
 
         try:
-            # 通过 Worker 代理请求
-            worker_request_url = f"{self._worker_url.rstrip('/')}/?url={httpx.URL(yahoo_url)}"
+            data = await self._proxy_via_worker(yahoo_url)
+            if not data:
+                return None
 
-            async with httpx.AsyncClient(timeout=15.0) as client:
-                response = await client.get(
-                    worker_request_url,
-                    headers={"X-Proxy-Key": self._worker_key},
-                    follow_redirects=True,
-                )
+            # 解析 Yahoo Chart API 响应
+            result = data.get("chart", {}).get("result", [])
+            if not result:
+                return None
 
-                if response.status_code != 200:
-                    logger.warning(f"[Worker] HTTP {response.status_code} for {symbol}")
-                    return None
+            quote = result[0]
+            timestamps = quote.get("timestamp", [])
+            ind = quote.get("indicators", {}).get("quote", [{}])[0]
 
-                data = response.json()
+            if not timestamps:
+                return None
 
-                # 解析 Yahoo Chart API 响应
-                result = data.get("chart", {}).get("result", [])
-                if not result:
-                    return None
+            # 构建 DataFrame
+            df = pd.DataFrame({
+                "Date": pd.to_datetime(timestamps, unit='s'),
+                "Open": ind.get("open", []),
+                "High": ind.get("high", []),
+                "Low": ind.get("low", []),
+                "Close": ind.get("close", []),
+                "Volume": ind.get("volume", []),
+            })
 
-                quote = result[0]
-                timestamps = quote.get("timestamp", [])
-                ind = quote.get("indicators", {}).get("quote", [{}])[0]
+            # 清理数据
+            df = df.dropna(subset=["Close"])
+            df.set_index("Date", inplace=True)
 
-                if not timestamps:
-                    return None
+            return df if not df.empty else None
 
-                # 构建 DataFrame
-                df = pd.DataFrame({
-                    "Date": pd.to_datetime(timestamps, unit='s'),
-                    "Open": ind.get("open", []),
-                    "High": ind.get("high", []),
-                    "Low": ind.get("low", []),
-                    "Close": ind.get("close", []),
-                    "Volume": ind.get("volume", []),
-                })
-
-                # 清理数据
-                df = df.dropna(subset=["Close"])
-                df.set_index("Date", inplace=True)
-
-                return df if not df.empty else None
-
-        except httpx.TimeoutException:
-            logger.warning(f"[Worker] Timeout for {symbol}")
-            return None
         except Exception as e:
             logger.warning(f"[Worker] Error for {symbol}: {e}")
             return None
+
+    async def _get_quote_summary_via_worker(self, symbol: str) -> Optional[dict]:
+        """通过 Worker 获取 quoteSummary（info 数据来源）"""
+        url = (
+            f"https://query2.finance.yahoo.com/v10/finance/quoteSummary/{symbol}"
+            f"?modules=financialData,quoteType,defaultKeyStatistics,assetProfile,summaryDetail"
+            f"&symbol={symbol}"
+        )
+        data = await self._proxy_via_worker(url)
+        if not data:
+            return None
+        result = data.get("quoteSummary", {}).get("result", [])
+        return result[0] if result else None
+
+    async def _get_recommendations_via_worker(self, symbol: str) -> Optional[dict]:
+        """通过 Worker 获取 analyst recommendations"""
+        url = (
+            f"https://query2.finance.yahoo.com/v10/finance/quoteSummary/{symbol}"
+            f"?modules=recommendationTrend&symbol={symbol}"
+        )
+        data = await self._proxy_via_worker(url)
+        if not data:
+            return None
+        result = data.get("quoteSummary", {}).get("result", [])
+        return result[0] if result else None
+
+    async def _get_calendar_via_worker(self, symbol: str) -> Optional[dict]:
+        """通过 Worker 获取 calendar events（earnings date 等）"""
+        url = (
+            f"https://query2.finance.yahoo.com/v10/finance/quoteSummary/{symbol}"
+            f"?modules=calendarEvents&symbol={symbol}"
+        )
+        data = await self._proxy_via_worker(url)
+        if not data:
+            return None
+        result = data.get("quoteSummary", {}).get("result", [])
+        return result[0] if result else None
+
+    async def _get_v7_quote_via_worker(self, symbol: str) -> Optional[dict]:
+        """通过 Worker 获取 v7/finance/quote（快速行情）"""
+        url = f"https://query1.finance.yahoo.com/v7/finance/quote?symbols={symbol}"
+        data = await self._proxy_via_worker(url)
+        if not data:
+            return None
+        result = data.get("quoteResponse", {}).get("result", [])
+        return result[0] if result else None
+
+    async def _get_news_via_worker(self, symbol: str) -> Optional[list]:
+        """通过 Worker 获取新闻（POST 到 finance.yahoo.com/xhr/ncp）"""
+        url = "https://finance.yahoo.com/xhr/ncp?queryRef=latestNews&serviceKey=ncp_fin"
+        data = await self._proxy_via_worker(
+            url,
+            method="POST",
+            body={"serviceConfig": {"snippetCount": 10, "s": [symbol]}}
+        )
+        if not data:
+            return None
+        return data.get("data", {}).get("content", {}).get("stream", [])
+
+    def _parse_quote_summary_to_info(self, qs: dict) -> dict:
+        """将 quoteSummary 结果解析为 yfinance .info 兼容格式"""
+        info = {}
+        modules = {
+            "financialData": ["currentPrice", "targetMeanPrice", "numberOfAnalystOpinions",
+                              "trailingPE", "forwardPE", "dividendYield", "beta", "marketCap",
+                              "trailingEps", "returnOnEquity", "revenueGrowth", "earningsGrowth",
+                              "grossMargins", "operatingMargins", "profitMargins",
+                              "totalDebt", "totalRevenue", "debtToEquity", "returnOnAssets"],
+            "quoteType": ["symbol", "shortName", "longName", "quoteType", "sector", "industry",
+                          "marketState", "exchange", "currency"],
+            "defaultKeyStatistics": ["marketCap", "fiftyTwoWeekHigh", "fiftyTwoWeekLow",
+                                     "sharesOutstanding", "heldPercentInsiders",
+                                     "heldPercentInstitutions"],
+            "assetProfile": ["sector", "industry", "longBusinessSummary",
+                             "city", "state", "country", "fullTimeEmployees"],
+            "summaryDetail": ["regularMarketPrice", "regularMarketPreviousClose",
+                              "regularMarketDayHigh", "regularMarketDayLow",
+                              "regularMarketVolume", "averageVolume", "fiftyDayAverage",
+                              "twoHundredDayAverage", "trailingPE", "forwardPE",
+                              "dividendYield", "beta", "marketCap", "priceToBook",
+                              "earningsQuarterlyGrowth"],
+        }
+        for module_name, fields in modules.items():
+            module_data = qs.get(module_name, {})
+            if not module_data:
+                continue
+            for field in fields:
+                val = module_data.get(field)
+                if val is not None:
+                    # Unwrap Yahoo API nested values
+                    if isinstance(val, dict) and "raw" in val:
+                        val = val["raw"]
+                    elif isinstance(val, dict) and "fmt" in val:
+                        val = val["fmt"]
+                    info[field] = val
+        return info
+
+    async def _get_full_data_via_worker(self, ticker: str) -> Optional[FullMarketData]:
+        """熔断时通过 Worker 代理获取全量数据"""
+        if not self._worker_url or not self._worker_key:
+            return None
+        symbol = self._normalize_ticker(ticker)
+
+        # 并发获取多个端点
+        qs_task = self._get_quote_summary_via_worker(symbol)
+        rec_task = self._get_recommendations_via_worker(symbol)
+        cal_task = self._get_calendar_via_worker(symbol)
+        hist_task = self._get_history_df_via_worker(symbol, "1y", "1d")
+        news_task = self._get_news_via_worker_raw(symbol)
+
+        qs, rec_data, cal_data, hist_df, news_stream = await asyncio.gather(
+            qs_task, rec_task, cal_task, hist_task, news_task,
+            return_exceptions=True
+        )
+
+        if not qs or isinstance(qs, Exception):
+            return None
+
+        info = self._parse_quote_summary_to_info(qs)
+
+        # 补充 analyst 数据
+        if rec_data and not isinstance(rec_data, Exception):
+            rec_trend = rec_data.get("recommendationTrend", {}).get("trend", [])
+            if rec_trend:
+                latest = rec_trend[0]
+                info["_analyst_buy"] = int(latest.get("strongBuy", 0) or 0) + int(latest.get("buy", 0) or 0)
+                info["_analyst_hold"] = int(latest.get("hold", 0) or 0)
+                info["_analyst_sell"] = int(latest.get("sell", 0) or 0) + int(latest.get("strongSell", 0) or 0)
+
+        if cal_data and not isinstance(cal_data, Exception):
+            cal_events = cal_data.get("calendarEvents", {})
+            earn = cal_events.get("earnings", {}).get("earningsDate")
+            if earn:
+                if isinstance(earn, list) and len(earn) > 0:
+                    raw = earn[0].get("raw") or earn[0].get("fmt")
+                    info["_earnings_date"] = str(raw)[:10] if raw else None
+                else:
+                    raw = earn.get("raw") or earn.get("fmt")
+                    info["_earnings_date"] = str(raw)[:10] if raw else None
+
+        price = info.get("regularMarketPrice") or info.get("currentPrice")
+        previous_close = info.get("regularMarketPreviousClose") or info.get("previousClose")
+        if price is None:
+            return None
+
+        change = float(price) - float(previous_close) if previous_close not in (None, 0) else 0.0
+        change_percent = (change / float(previous_close) * 100) if previous_close not in (None, 0) else 0.0
+
+        quote = ProviderQuote(
+            ticker=ticker.upper(),
+            price=float(price),
+            change=change,
+            change_percent=change_percent,
+            name=info.get("shortName") or info.get("longName") or ticker.upper(),
+            market_status=self._market_status_from_info(info),
+            last_updated=utc_now_naive(),
+        )
+
+        indicators = None
+        if hist_df is not None and not isinstance(hist_df, Exception) and not hist_df.empty:
+            indicators = TechnicalIndicators.calculate_all(hist_df.set_index("Date"))
+
+        fundamental = self._build_fundamental_from_info(info, ticker)
+
+        news = []
+        if news_stream and not isinstance(news_stream, Exception):
+            news = self._parse_worker_news(news_stream, symbol)
+
+        return FullMarketData(
+            quote=quote,
+            fundamental=fundamental,
+            technical=ProviderTechnical(indicators=indicators) if indicators else None,
+            news=news,
+        )
 
     async def get_full_data(self, ticker: str) -> Optional[FullMarketData]:
         """一站式获取全量数据：单次 yf.Ticker 实例，避免重复 .info 请求。
@@ -546,11 +747,12 @@ class YFinanceProvider(MarketDataProvider):
                     raise
         logger.warning(f"YFinance get_full_data exhausted all retries for {ticker}: {last_exc}")
         self._activate_rate_limit_cooldown()
-        return None
+        return await self._get_full_data_via_worker(ticker)
 
     async def get_quote(self, ticker: str) -> Optional[ProviderQuote]:
         if self.is_rate_limited():
-            return None
+            # 熔断期间走 Worker 代理
+            return await self._get_quote_via_worker(ticker)
         symbol = self._normalize_ticker(ticker)
 
         try:
@@ -581,11 +783,58 @@ class YFinanceProvider(MarketDataProvider):
             )
         except Exception as exc:
             logger.warning(f"YFinance get_quote failed for {ticker}: {exc}")
+            return await self._get_quote_via_worker(ticker)
+
+    async def _get_quote_via_worker(self, ticker: str) -> Optional[ProviderQuote]:
+        """熔断时通过 Worker 代理获取 quote"""
+        if not self._worker_url or not self._worker_key:
             return None
+        symbol = self._normalize_ticker(ticker)
+
+        v7_data = await self._get_v7_quote_via_worker(symbol)
+        if v7_data:
+            price = v7_data.get("regularMarketPrice")
+            previous_close = v7_data.get("regularMarketPreviousClose")
+            name = v7_data.get("shortName") or v7_data.get("longName") or ticker.upper()
+            state = v7_data.get("marketState", "REGULAR")
+            if price is not None:
+                change = float(price) - float(previous_close) if previous_close not in (None, 0) else 0.0
+                change_percent = (change / float(previous_close) * 100) if previous_close not in (None, 0) else 0.0
+                status_map = {"PRE": MarketStatus.PRE_MARKET, "POST": MarketStatus.AFTER_HOURS, "AFTER_HOURS": MarketStatus.AFTER_HOURS}
+                return ProviderQuote(
+                    ticker=ticker.upper(),
+                    price=float(price),
+                    change=change,
+                    change_percent=change_percent,
+                    name=name,
+                    market_status=status_map.get(state, MarketStatus.OPEN),
+                    last_updated=utc_now_naive(),
+                )
+
+        # Fallback: 尝试 quoteSummary
+        qs = await self._get_quote_summary_via_worker(symbol)
+        if not qs:
+            return None
+        info = self._parse_quote_summary_to_info(qs)
+        price = info.get("regularMarketPrice") or info.get("currentPrice")
+        previous_close = info.get("regularMarketPreviousClose") or info.get("previousClose")
+        if price is None:
+            return None
+        change = float(price) - float(previous_close) if previous_close not in (None, 0) else 0.0
+        change_percent = (change / float(previous_close) * 100) if previous_close not in (None, 0) else 0.0
+        return ProviderQuote(
+            ticker=ticker.upper(),
+            price=float(price),
+            change=change,
+            change_percent=change_percent,
+            name=info.get("shortName") or info.get("longName") or ticker.upper(),
+            market_status=self._market_status_from_info(info),
+            last_updated=utc_now_naive(),
+        )
 
     async def get_fundamental_data(self, ticker: str) -> Optional[ProviderFundamental]:
         if self.is_rate_limited():
-            return None
+            return await self._get_fundamental_via_worker(ticker)
         symbol = self._normalize_ticker(ticker)
         try:
             def fetch_info() -> dict[str, Any]:
@@ -594,42 +843,79 @@ class YFinanceProvider(MarketDataProvider):
 
             info = await self._run_sync(fetch_info)
             if not info:
-                return None
+                return await self._get_fundamental_via_worker(ticker)
 
-            # --- VIX from process-level cache (no extra Yahoo call) ---
-            vix_value = self._get_cached_vix()
-
-            # --- Analyst counts ---
-            buy_c = info.get("_analyst_buy")
-            hold_c = info.get("_analyst_hold")
-            sell_c = info.get("_analyst_sell")
-            total_count = None
-            if buy_c is not None or hold_c is not None or sell_c is not None:
-                total_count = (buy_c or 0) + (hold_c or 0) + (sell_c or 0)
-
-            return ProviderFundamental(
-                name=info.get("shortName") or info.get("longName"),
-                sector=info.get("sector"),
-                industry=info.get("industry"),
-                market_cap=float(info["marketCap"]) if info.get("marketCap") is not None else None,
-                pe_ratio=float(info["trailingPE"]) if info.get("trailingPE") is not None else None,
-                forward_pe=float(info["forwardPE"]) if info.get("forwardPE") is not None else None,
-                eps=float(info["trailingEps"]) if info.get("trailingEps") is not None else None,
-                dividend_yield=float(info["dividendYield"]) if info.get("dividendYield") is not None else None,
-                beta=float(info["beta"]) if info.get("beta") is not None else None,
-                fifty_two_week_high=float(info["fiftyTwoWeekHigh"]) if info.get("fiftyTwoWeekHigh") is not None else None,
-                fifty_two_week_low=float(info["fiftyTwoWeekLow"]) if info.get("fiftyTwoWeekLow") is not None else None,
-                earnings_date=info.get("_earnings_date"),
-                target_price_mean=float(info["targetMeanPrice"]) if info.get("targetMeanPrice") is not None else None,
-                analyst_count=int(info["numberOfAnalystOpinions"]) if info.get("numberOfAnalystOpinions") is not None else total_count,
-                analyst_buy_count=buy_c,
-                analyst_hold_count=hold_c,
-                analyst_sell_count=sell_c,
-                vix=vix_value,
-            )
+            return self._build_fundamental_from_info(info, ticker)
         except Exception as exc:
             logger.warning(f"YFinance get_fundamental_data failed for {ticker}: {exc}")
+            return await self._get_fundamental_via_worker(ticker)
+
+    def _build_fundamental_from_info(self, info: dict, ticker: str) -> ProviderFundamental:
+        """从 info dict 构建 Fundamental 对象（直连和 Worker 共用）"""
+        vix_value = self._get_cached_vix()
+        buy_c = info.get("_analyst_buy")
+        hold_c = info.get("_analyst_hold")
+        sell_c = info.get("_analyst_sell")
+        total_count = None
+        if buy_c is not None or hold_c is not None or sell_c is not None:
+            total_count = (buy_c or 0) + (hold_c or 0) + (sell_c or 0)
+
+        return ProviderFundamental(
+            name=info.get("shortName") or info.get("longName"),
+            sector=info.get("sector"),
+            industry=info.get("industry"),
+            market_cap=float(info["marketCap"]) if info.get("marketCap") is not None else None,
+            pe_ratio=float(info["trailingPE"]) if info.get("trailingPE") is not None else None,
+            forward_pe=float(info["forwardPE"]) if info.get("forwardPE") is not None else None,
+            eps=float(info["trailingEps"]) if info.get("trailingEps") is not None else None,
+            dividend_yield=float(info["dividendYield"]) if info.get("dividendYield") is not None else None,
+            beta=float(info["beta"]) if info.get("beta") is not None else None,
+            fifty_two_week_high=float(info["fiftyTwoWeekHigh"]) if info.get("fiftyTwoWeekHigh") is not None else None,
+            fifty_two_week_low=float(info["fiftyTwoWeekLow"]) if info.get("fiftyTwoWeekLow") is not None else None,
+            earnings_date=info.get("_earnings_date"),
+            target_price_mean=float(info["targetMeanPrice"]) if info.get("targetMeanPrice") is not None else None,
+            analyst_count=int(info["numberOfAnalystOpinions"]) if info.get("numberOfAnalystOpinions") is not None else total_count,
+            analyst_buy_count=buy_c,
+            analyst_hold_count=hold_c,
+            analyst_sell_count=sell_c,
+            vix=vix_value,
+        )
+
+    async def _get_fundamental_via_worker(self, ticker: str) -> Optional[ProviderFundamental]:
+        """熔断时通过 Worker 代理获取 fundamental data"""
+        if not self._worker_url or not self._worker_key:
             return None
+        symbol = self._normalize_ticker(ticker)
+
+        qs = await self._get_quote_summary_via_worker(symbol)
+        if not qs:
+            return None
+        info = self._parse_quote_summary_to_info(qs)
+
+        # 额外获取 recommendations 和 calendar
+        rec_data = await self._get_recommendations_via_worker(symbol)
+        cal_data = await self._get_calendar_via_worker(symbol)
+
+        if rec_data:
+            rec_trend = rec_data.get("recommendationTrend", {}).get("trend", [])
+            if rec_trend:
+                latest = rec_trend[0]
+                info["_analyst_buy"] = int(latest.get("strongBuy", 0) or 0) + int(latest.get("buy", 0) or 0)
+                info["_analyst_hold"] = int(latest.get("hold", 0) or 0)
+                info["_analyst_sell"] = int(latest.get("sell", 0) or 0) + int(latest.get("strongSell", 0) or 0)
+
+        if cal_data:
+            cal_events = cal_data.get("calendarEvents", {})
+            earn = cal_events.get("earnings", {}).get("earningsDate")
+            if earn:
+                if isinstance(earn, list) and len(earn) > 0:
+                    raw = earn[0].get("raw") or earn[0].get("fmt")
+                    info["_earnings_date"] = str(raw)[:10] if raw else None
+                else:
+                    raw = earn.get("raw") or earn.get("fmt")
+                    info["_earnings_date"] = str(raw)[:10] if raw else None
+
+        return self._build_fundamental_from_info(info, ticker)
 
     async def get_historical_data(
         self,
@@ -638,8 +924,7 @@ class YFinanceProvider(MarketDataProvider):
         period: str = "1mo",
         end_date: Optional[str] = None,
     ) -> Optional[Dict[str, Any]]:
-        if self.is_rate_limited():
-            return None
+        # _get_history_df 内部已处理 Worker 代理 fallback，无需在此拦截
         try:
             df = await self._get_history_df(ticker, period=period, interval=interval)
             if df is None or df.empty or len(df) < 2:
@@ -712,7 +997,7 @@ class YFinanceProvider(MarketDataProvider):
 
     async def get_news(self, ticker: str) -> List[ProviderNews]:
         if self.is_rate_limited():
-            return []
+            return await self._get_news_via_worker(ticker)
         symbol = self._normalize_ticker(ticker)
         try:
             def fetch_news() -> list[dict[str, Any]]:
@@ -721,43 +1006,109 @@ class YFinanceProvider(MarketDataProvider):
                 return list(raw_news)
 
             raw_items = await self._run_sync(fetch_news)
-            results: list[ProviderNews] = []
-            seen_links: set[str] = set()
-
-            for index, item in enumerate(raw_items[:10]):
-                content = item.get("content") or {}
-                title = content.get("title") or item.get("title")
-                link = content.get("canonicalUrl", {}).get("url") or content.get("clickThroughUrl", {}).get("url") or item.get("link")
-                publisher = content.get("provider", {}).get("displayName") or item.get("publisher")
-                summary = content.get("summary") or item.get("summary")
-                pub_ts = content.get("pubDate") or item.get("providerPublishTime")
-
-                if not title or not link or link in seen_links:
-                    continue
-
-                publish_time = utc_now_naive()
-                if pub_ts:
-                    try:
-                        if isinstance(pub_ts, (int, float)):
-                            publish_time = datetime.fromtimestamp(pub_ts)
-                        else:
-                            publish_time = pd.to_datetime(pub_ts).to_pydatetime().replace(tzinfo=None)
-                    except Exception:
-                        publish_time = utc_now_naive()
-
-                results.append(
-                    ProviderNews(
-                        id=f"yfinance-{symbol.lower()}-{index}",
-                        title=title,
-                        publisher=publisher or "Yahoo Finance",
-                        link=link,
-                        summary=summary,
-                        publish_time=publish_time,
-                    )
-                )
-                seen_links.add(link)
-
-            return results
+            results = self._parse_news_items(raw_items, symbol)
+            return results if results else await self._get_news_via_worker(ticker)
         except Exception as exc:
             logger.warning(f"YFinance get_news failed for {ticker}: {exc}")
+            return await self._get_news_via_worker(ticker)
+
+    @staticmethod
+    def _parse_news_items(raw_items: list, symbol: str) -> list[ProviderNews]:
+        """统一解析新闻列表"""
+        results: list[ProviderNews] = []
+        seen_links: set[str] = set()
+        for index, item in enumerate(raw_items[:10]):
+            content = item.get("content") or {}
+            title = content.get("title") or item.get("title")
+            link = content.get("canonicalUrl", {}).get("url") or content.get("clickThroughUrl", {}).get("url") or item.get("link")
+            publisher = content.get("provider", {}).get("displayName") or item.get("publisher")
+            summary = content.get("summary") or item.get("summary")
+            pub_ts = content.get("pubDate") or item.get("providerPublishTime")
+
+            if not title or not link or link in seen_links:
+                continue
+
+            publish_time = utc_now_naive()
+            if pub_ts:
+                try:
+                    if isinstance(pub_ts, (int, float)):
+                        publish_time = datetime.fromtimestamp(pub_ts)
+                    else:
+                        publish_time = pd.to_datetime(pub_ts).to_pydatetime().replace(tzinfo=None)
+                except Exception:
+                    publish_time = utc_now_naive()
+
+            results.append(
+                ProviderNews(
+                    id=f"yfinance-{symbol.lower()}-{index}",
+                    title=title,
+                    publisher=publisher or "Yahoo Finance",
+                    link=link,
+                    summary=summary,
+                    publish_time=publish_time,
+                )
+            )
+            seen_links.add(link)
+        return results
+
+    async def _get_news_via_worker(self, ticker: str) -> List[ProviderNews]:
+        """熔断时通过 Worker 代理获取新闻"""
+        if not self._worker_url or not self._worker_key:
             return []
+        symbol = self._normalize_ticker(ticker)
+
+        stream = await self._get_news_via_worker_raw(symbol)
+        if not stream:
+            return []
+        return self._parse_worker_news(stream, symbol)
+
+    async def _get_news_via_worker_raw(self, symbol: str) -> Optional[list]:
+        """Worker 新闻原始数据"""
+        url = "https://finance.yahoo.com/xhr/ncp?queryRef=latestNews&serviceKey=ncp_fin"
+        data = await self._proxy_via_worker(
+            url,
+            method="POST",
+            body={"serviceConfig": {"snippetCount": 10, "s": [symbol]}}
+        )
+        if not data:
+            return None
+        return data.get("data", {}).get("content", {}).get("stream", [])
+
+    @staticmethod
+    def _parse_worker_news(stream: list, symbol: str) -> list[ProviderNews]:
+        """解析 Worker 返回的新闻流"""
+        results: list[ProviderNews] = []
+        seen_links: set[str] = set()
+        for index, item in enumerate(stream[:10]):
+            content = item.get("content") or {}
+            title = content.get("title") or item.get("title")
+            link = content.get("canonicalUrl", {}).get("url") or content.get("clickThroughUrl", {}).get("url") or item.get("link")
+            publisher = content.get("provider", {}).get("displayName") or item.get("publisher")
+            summary = content.get("summary") or item.get("summary")
+            pub_ts = content.get("pubDate") or item.get("providerPublishTime")
+
+            if not title or not link or link in seen_links:
+                continue
+
+            publish_time = utc_now_naive()
+            if pub_ts:
+                try:
+                    if isinstance(pub_ts, (int, float)):
+                        publish_time = datetime.fromtimestamp(pub_ts)
+                    else:
+                        publish_time = pd.to_datetime(pub_ts).to_pydatetime().replace(tzinfo=None)
+                except Exception:
+                    pass
+
+            results.append(
+                ProviderNews(
+                    id=f"yfinance-worker-{symbol.lower()}-{index}",
+                    title=title,
+                    publisher=publisher or "Yahoo Finance",
+                    link=link,
+                    summary=summary,
+                    publish_time=publish_time,
+                )
+            )
+            seen_links.add(link)
+        return results

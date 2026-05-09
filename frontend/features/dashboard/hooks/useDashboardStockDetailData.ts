@@ -89,7 +89,8 @@ export function useDashboardStockDetailData(
   return {
     analysisHistory: analysisHistoryResource.data || EMPTY_ARRAY,
     historyData: stockHistoryResource.data || EMPTY_ARRAY,
-
+    stockHistoryLoading: stockHistoryResource.loading,
+    analysisHistoryLoading: analysisHistoryResource.loading,
     historyLoading: stockHistoryResource.loading || analysisHistoryResource.loading,
     refreshHistoryData: async () => {
       await Promise.all([

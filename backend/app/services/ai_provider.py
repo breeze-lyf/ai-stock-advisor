@@ -1,0 +1,223 @@
+"""
+AI Provider — 传输层协议
+职责：定义 AI 模型调用接口，提供 HTTP 实现和测试替身。
+"""
+import asyncio
+import logging
+from typing import Optional, Protocol, runtime_checkable
+
+import httpx
+
+logger = logging.getLogger(__name__)
+ai_call_logger = logging.getLogger("app.ai_calls")
+_MAX_LLM_CALL_TIMEOUT = 180
+
+
+@runtime_checkable
+class AIProvider(Protocol):
+    """AI 模型调用接口 — seam 所在之处。"""
+
+    async def complete(
+        self,
+        prompt: str,
+        model_id: str,
+        api_key: str,
+        base_url: str,
+        provider_key: str = "unknown",
+        require_json: bool = True,
+        max_tokens: Optional[int] = None,
+        extra_params: Optional[dict] = None,
+    ) -> str: ...
+
+
+class OpenAICompatibleProvider:
+    """真实适配器：调用 OpenAI 兼容的 /chat/completions HTTP API。"""
+
+    def __init__(self, default_timeout: int = 120):
+        self.default_timeout = default_timeout
+
+    async def complete(
+        self,
+        prompt: str,
+        model_id: str,
+        api_key: str,
+        base_url: str,
+        provider_key: str = "unknown",
+        require_json: bool = True,
+        max_tokens: Optional[int] = None,
+        extra_params: Optional[dict] = None,
+    ) -> str:
+        call_start = __import__("time").monotonic()
+
+        ai_call_logger.info(
+            f"[PROMPT] {provider_key}/{model_id}",
+            extra={
+                "provider": provider_key,
+                "model": model_id,
+                "prompt_len": len(prompt),
+                "prompt": prompt,
+                "phase": "request",
+            },
+        )
+        logger.info(f"[AI] 调用 {provider_key}/{model_id} (prompt {len(prompt)}字符)")
+
+        timeout = min(max(self.default_timeout, 30), _MAX_LLM_CALL_TIMEOUT)
+        url = f"{base_url.rstrip('/')}/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+
+        async def _do_call(use_json: bool):
+            payload: dict = {
+                "model": model_id,
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.3,
+            }
+            if max_tokens is not None:
+                payload["max_tokens"] = max_tokens
+            if extra_params:
+                payload.update(extra_params)
+            if use_json:
+                payload["response_format"] = {"type": "json_object"}
+
+            client_kwargs = {
+                "timeout": httpx.Timeout(timeout, connect=10.0),
+                "trust_env": True,
+            }
+            t_send = __import__("time").monotonic()
+            async with httpx.AsyncClient(**client_kwargs) as client:
+                response = await client.post(url, json=payload, headers=headers)
+            t_recv = __import__("time").monotonic()
+            ai_call_logger.debug(
+                f"[HTTP] {provider_key} http={response.status_code}",
+                extra={
+                    "provider": provider_key,
+                    "phase": "http",
+                    "http_status": response.status_code,
+                    "request_s": round(t_recv - t_send, 3),
+                    "total_s": round(t_recv - call_start, 3),
+                },
+            )
+            return response
+
+        try:
+            response = await asyncio.wait_for(_do_call(use_json=require_json), timeout=_MAX_LLM_CALL_TIMEOUT)
+        except asyncio.TimeoutError:
+            elapsed = __import__("time").monotonic() - call_start
+            ai_call_logger.error(
+                f"[TIMEOUT] {provider_key}: hard limit {_MAX_LLM_CALL_TIMEOUT}s exceeded",
+                extra={"provider": provider_key, "phase": "timeout", "total_s": round(elapsed, 3)},
+            )
+            logger.warning(f"[AI] 请求达到硬性超时上限 ({provider_key}, {_MAX_LLM_CALL_TIMEOUT}s)")
+            raise httpx.ReadTimeout(f"LLM call exceeded hard timeout of {_MAX_LLM_CALL_TIMEOUT}s", request=None)
+        except httpx.TimeoutException as e:
+            elapsed = __import__("time").monotonic() - call_start
+            ai_call_logger.error(
+                f"[TIMEOUT] {provider_key}: {_format_exception(e)}",
+                extra={"provider": provider_key, "phase": "timeout", "total_s": round(elapsed, 3)},
+            )
+            logger.warning(f"[AI] 请求超时 ({provider_key}, {elapsed:.1f}s)")
+            raise
+
+        if response.status_code == 400 and require_json:
+            error_data: dict = {}
+            try:
+                if "application/json" in response.headers.get("content-type", ""):
+                    error_data = response.json()
+            except Exception:
+                pass
+            error_msg = error_data.get("error", {}).get("message", "").lower()
+            if "response_format" in error_msg or "json_object" in error_msg:
+                logger.info(f"[AI] 降级重试 (no json_object)...")
+                response = await asyncio.wait_for(_do_call(use_json=False), timeout=_MAX_LLM_CALL_TIMEOUT)
+
+        if response.status_code != 200:
+            error_text = response.text
+            elapsed = __import__("time").monotonic() - call_start
+            ai_call_logger.error(
+                f"[FAIL] {provider_key} HTTP {response.status_code}",
+                extra={
+                    "provider": provider_key,
+                    "phase": "error",
+                    "http_status": response.status_code,
+                    "response_body": error_text[:500],
+                    "total_s": round(elapsed, 3),
+                },
+            )
+            logger.warning(f"[AI] {provider_key} 返回 {response.status_code} ({elapsed:.1f}s)")
+            if response.status_code in [401, 402]:
+                raise ValueError(f"Auth Error: {response.status_code}")
+            if response.status_code == 404:
+                raise RuntimeError(
+                    f"{provider_key} HTTP 404: 模型未找到 — 请确认模型 ID「{model_id}」"
+                    f" 在该供应商的推理 API 中已可用（新上架模型可能存在延迟，或需账户充值后才可调用）"
+                )
+            raise RuntimeError(
+                f"{provider_key} HTTP {response.status_code}: {(error_text or '').strip()[:300]}"
+            )
+
+        result = response.json()
+        content = result["choices"][0]["message"]["content"]
+        elapsed = __import__("time").monotonic() - call_start
+        ai_call_logger.info(
+            f"[DONE] {provider_key}/{model_id}",
+            extra={
+                "provider": provider_key,
+                "model": model_id,
+                "phase": "done",
+                "total_s": round(elapsed, 3),
+                "response_len": len(content),
+                "response": content,
+            },
+        )
+        logger.info(f"[AI] {provider_key} 完成 ✔  {elapsed:.1f}s | {len(content)}字符")
+        return content
+
+
+class FakeAIProvider:
+    """测试替身：返回预设响应。"""
+
+    def __init__(self, response: str = "mock response"):
+        self.response = response
+
+    async def complete(
+        self,
+        prompt: str,
+        model_id: str,
+        api_key: str,
+        base_url: str,
+        provider_key: str = "unknown",
+        require_json: bool = True,
+        max_tokens: Optional[int] = None,
+        extra_params: Optional[dict] = None,
+    ) -> str:
+        return self.response
+
+
+def _format_exception(e: Exception) -> str:
+    msg = str(e).strip()
+    return msg if msg else e.__class__.__name__
+
+
+def infer_provider_key(base_url: Optional[str] = None, provider_hint: Optional[str] = None) -> str:
+    """根据 base_url / provider_hint 推断供应商标识。"""
+    hint = (provider_hint or "").strip().lower()
+    url = (base_url or "").strip().lower()
+
+    combined = f"{hint} {url}"
+    if any(token in combined for token in ["gemini", "googleapis.com", "generativelanguage"]):
+        return "gemini"
+    if "siliconflow" in combined:
+        return "siliconflow"
+    if "deepseek" in combined:
+        return "deepseek"
+    if "dashscope" in combined or "aliyuncs.com" in combined or "qwen" in combined:
+        return "dashscope"
+    if "minimax" in combined:
+        return "minimax"
+    if "anthropic" in combined or "claude" in combined:
+        return "anthropic"
+    if "openrouter" in combined:
+        return "openrouter"
+    return "openai-compatible"

@@ -16,6 +16,7 @@ from app.application.analysis.helpers import (
     to_str,
 )
 from app.core.config import settings
+from app.core.prompts import build_stock_analysis_prompt
 from app.core.security import sanitize_float
 from app.infrastructure.db.repositories.analysis_repository import AnalysisRepository
 from app.infrastructure.db.repositories.user_provider_credential_repository import UserProviderCredentialRepository
@@ -39,10 +40,17 @@ def _log_duration(label: str, start: float) -> float:
 
 
 class AnalyzeStockUseCase:
-    def __init__(self, db: AsyncSession, current_user: User):
-        self.db = db
+    def __init__(
+        self,
+        analysis_repo: AnalysisRepository,
+        ai_service: AIService,
+        current_user: User,
+        db: AsyncSession,
+    ):
+        self.repo = analysis_repo
+        self.ai = ai_service
         self.current_user = current_user
-        self.repo = AnalysisRepository(db)
+        self.db = db
 
     async def _has_personal_api_key(self) -> bool:
         # Legacy user-level keys
@@ -166,16 +174,13 @@ class AnalyzeStockUseCase:
         logger.info(f"🤖 开始调用 AI (预计 60-180 秒)...")
         
         try:
-            ai_raw_response = await AIService.generate_analysis(
-                ticker,
-                market_data,
-                news_data,
+            prompt = build_stock_analysis_prompt(
+                ticker=ticker,
+                market_data=market_data,
+                fundamental_data=fundamental_data or {},
+                news_data=news_data or [],
                 macro_context=macro_context,
-                fundamental_data=fundamental_data,
                 previous_analysis=previous_analysis_context,
-                model=preferred_model,
-                db=self.db,
-                user_id=self.current_user.id,
                 fomc_days_away=fomc_days_away,
                 next_fomc_date=next_fomc_date,
                 earnings_date=earnings_date,
@@ -184,6 +189,7 @@ class AnalyzeStockUseCase:
                 pre_computed_news=capsules.get("news") and capsules["news"].content,
                 pre_computed_fundamental=capsules.get("fundamental") and capsules["fundamental"].content,
             )
+            ai_raw_response = await self.ai.call_with_fallback(prompt, preferred_model)
         except Exception as ai_error:
             logger.error(f"AI 分析调用失败: {ai_error}")
             # 尝试回滚事务
@@ -223,48 +229,7 @@ class AnalyzeStockUseCase:
         total_elapsed = time.time() - total_start
         logger.info(f"🎉🎉🎉 分析完成! 总耗时: {total_elapsed:.2f}秒 ({total_elapsed/60:.1f}分钟)")
 
-        return {
-            "ticker": ticker,
-            "decision_mode": to_str(parsed_data.get("decision_mode")),
-            "dominant_driver": to_str(parsed_data.get("dominant_driver")),
-            "trade_setup_status": to_str(parsed_data.get("trade_setup_status")),
-            "sentiment_score": to_float(parsed_data.get("sentiment_score")),
-            "summary_status": to_str(parsed_data.get("summary_status")),
-            "risk_level": to_str(parsed_data.get("risk_level")),
-            "trigger_condition": to_str(parsed_data.get("trigger_condition")),
-            "invalidation_condition": to_str(parsed_data.get("invalidation_condition")),
-            "next_review_point": to_str(parsed_data.get("next_review_point")),
-            "technical_analysis": to_str(parsed_data.get("technical_analysis")),
-            "fundamental_news": to_str(parsed_data.get("fundamental_news")),
-            "news_summary": to_str(parsed_data.get("news_summary")) or to_str(parsed_data.get("fundamental_news")),
-            "fundamental_analysis": to_str(parsed_data.get("fundamental_analysis")),
-            "macro_risk_note": to_str(parsed_data.get("macro_risk_note")),
-            "add_on_trigger": to_str(parsed_data.get("add_on_trigger")),
-            "action_advice": to_str(parsed_data.get("action_advice")),
-            "investment_horizon": to_str(parsed_data.get("investment_horizon")),
-            "confidence_level": to_float(parsed_data.get("confidence_level")),
-            "immediate_action": to_str(parsed_data.get("immediate_action")),
-            "target_price": to_float(parsed_data.get("target_price")),
-            "target_price_1": to_float(parsed_data.get("target_price_1")),
-            "target_price_2": to_float(parsed_data.get("target_price_2")),
-            "stop_loss_price": to_float(parsed_data.get("stop_loss_price")),
-            "max_position_pct": to_float(parsed_data.get("max_position_pct")),
-            "entry_zone": new_report.entry_zone if new_report else to_str(parsed_data.get("entry_zone")),
-            "entry_price_low": new_report.entry_price_low if new_report else to_float(parsed_data.get("entry_price_low")),
-            "entry_price_high": new_report.entry_price_high if new_report else to_float(parsed_data.get("entry_price_high")),
-            "rr_ratio": final_rr_str,
-            "bull_case": to_str(parsed_data.get("bull_case")),
-            "base_case": to_str(parsed_data.get("base_case")),
-            "bear_case": to_str(parsed_data.get("bear_case")),
-            "scenario_tags": parsed_data.get("scenario_tags"),
-            "thought_process": parsed_data.get("thought_process"),
-            "confidence_breakdown": parsed_data.get("confidence_breakdown"),
-            "key_assumptions": parsed_data.get("key_assumptions"),
-            "catalysts": parsed_data.get("catalysts"),
-            "is_cached": False,
-            "model_used": preferred_model,
-            "created_at": new_report.created_at if new_report else utc_now_naive(),
-        }
+        return self._build_response(ticker, parsed_data, new_report, final_rr_str, preferred_model)
 
     async def _check_free_tier_limit(self):
         # 系统级 API Key (如 SiliconFlow) 的免费额度限制
@@ -476,29 +441,8 @@ class AnalyzeStockUseCase:
         }
 
     async def _get_latest_shared_report(self, ticker: str, preferred_model: str | None) -> Optional[AnalysisReport]:
-        candidates = await self.repo.get_latest_reports_for_ticker(ticker, limit=10, model_used=preferred_model)
-        shared_report = self._pick_shared_scope_report(candidates)
-        if shared_report:
-            return shared_report
-
-        if preferred_model:
-            fallback_candidates = await self.repo.get_latest_reports_for_ticker(ticker, limit=10)
-            return self._pick_shared_scope_report(fallback_candidates)
-
-        return None
-
-    @staticmethod
-    def _pick_shared_scope_report(reports: list[AnalysisReport]) -> Optional[AnalysisReport]:
-        if not reports:
-            return None
-
-        for report in reports:
-            if getattr(report, "report_scope", None) == AnalysisRepository.SHARED_SCOPE:
-                return report
-            snapshot = report.input_context_snapshot or {}
-            if isinstance(snapshot, dict) and snapshot.get("analysis_scope") == "stock_shared":
-                return report
-        return None
+        from app.application.analysis.helpers import find_latest_shared_report
+        return await find_latest_shared_report(self.repo, ticker, preferred_model)
 
     def _resolve_rr_ratio(self, parsed_data: dict[str, Any], market_data: dict[str, Any]) -> Optional[str]:
         """
@@ -530,6 +474,57 @@ class AnalyzeStockUseCase:
         if risk > 0 and reward > 0:
             return f"{reward / risk:.2f}"
         return None
+
+    def _build_response(
+        self,
+        ticker: str,
+        parsed_data: dict[str, Any],
+        new_report: AnalysisReport | None,
+        final_rr_str: str | None,
+        preferred_model: str,
+    ) -> dict[str, Any]:
+        return {
+            "ticker": ticker,
+            "decision_mode": to_str(parsed_data.get("decision_mode")),
+            "dominant_driver": to_str(parsed_data.get("dominant_driver")),
+            "trade_setup_status": to_str(parsed_data.get("trade_setup_status")),
+            "sentiment_score": to_float(parsed_data.get("sentiment_score")),
+            "summary_status": to_str(parsed_data.get("summary_status")),
+            "risk_level": to_str(parsed_data.get("risk_level")),
+            "trigger_condition": to_str(parsed_data.get("trigger_condition")),
+            "invalidation_condition": to_str(parsed_data.get("invalidation_condition")),
+            "next_review_point": to_str(parsed_data.get("next_review_point")),
+            "technical_analysis": to_str(parsed_data.get("technical_analysis")),
+            "fundamental_news": to_str(parsed_data.get("fundamental_news")),
+            "news_summary": to_str(parsed_data.get("news_summary")) or to_str(parsed_data.get("fundamental_news")),
+            "fundamental_analysis": to_str(parsed_data.get("fundamental_analysis")),
+            "macro_risk_note": to_str(parsed_data.get("macro_risk_note")),
+            "add_on_trigger": to_str(parsed_data.get("add_on_trigger")),
+            "action_advice": to_str(parsed_data.get("action_advice")),
+            "investment_horizon": to_str(parsed_data.get("investment_horizon")),
+            "confidence_level": to_float(parsed_data.get("confidence_level")),
+            "immediate_action": to_str(parsed_data.get("immediate_action")),
+            "target_price": to_float(parsed_data.get("target_price")),
+            "target_price_1": to_float(parsed_data.get("target_price_1")),
+            "target_price_2": to_float(parsed_data.get("target_price_2")),
+            "stop_loss_price": to_float(parsed_data.get("stop_loss_price")),
+            "max_position_pct": to_float(parsed_data.get("max_position_pct")),
+            "entry_zone": new_report.entry_zone if new_report else to_str(parsed_data.get("entry_zone")),
+            "entry_price_low": new_report.entry_price_low if new_report else to_float(parsed_data.get("entry_price_low")),
+            "entry_price_high": new_report.entry_price_high if new_report else to_float(parsed_data.get("entry_price_high")),
+            "rr_ratio": final_rr_str,
+            "bull_case": to_str(parsed_data.get("bull_case")),
+            "base_case": to_str(parsed_data.get("base_case")),
+            "bear_case": to_str(parsed_data.get("bear_case")),
+            "scenario_tags": parsed_data.get("scenario_tags"),
+            "thought_process": parsed_data.get("thought_process"),
+            "confidence_breakdown": parsed_data.get("confidence_breakdown"),
+            "key_assumptions": parsed_data.get("key_assumptions"),
+            "catalysts": parsed_data.get("catalysts"),
+            "is_cached": False,
+            "model_used": preferred_model,
+            "created_at": new_report.created_at if new_report else utc_now_naive(),
+        }
 
     async def _persist_report(
         self,

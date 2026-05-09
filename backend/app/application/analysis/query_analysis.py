@@ -1,11 +1,12 @@
 import logging
+from typing import Optional
 
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.analysis.helpers import (
-    extract_entry_prices_fallback,
-    extract_entry_zone_fallback,
+    find_latest_shared_report,
+    is_error_report,
 )
 from app.application.analysis.mappers import serialize_analysis_report
 from app.infrastructure.db.repositories.analysis_repository import AnalysisRepository
@@ -14,27 +15,21 @@ from app.models.user import User
 logger = logging.getLogger(__name__)
 
 
-def _is_error_report(report) -> bool:
-    raw = (getattr(report, "ai_response_markdown", None) or "").strip()
-    return raw.startswith("**Error**")
-
-
 class GetLatestAnalysisUseCase:
-    def __init__(self, db: AsyncSession, current_user: User):
+    def __init__(
+        self,
+        db: AsyncSession,
+        current_user: User,
+        analysis_repo: Optional[AnalysisRepository] = None,
+    ):
         self.db = db
         self.current_user = current_user
-        self.repo = AnalysisRepository(db)
+        self.repo = analysis_repo or AnalysisRepository(db)
 
     async def execute(self, ticker: str) -> dict:
-        """
-        获取单只股票的最新研判报告。
-        
-        【查询逻辑】
-        1. 优先获取该用户偏好模型（如 DeepSeek-R1）生成的最新“共用范围”报告。
-        2. 若偏好模型无数据，逻辑回退至查询该股票的“任意模型”生成的最新有效报告。
-        3. 同步提取实时盈亏比（RRR）缓存以保证前端展示的实时性。
-        """
-        report = await self._get_latest_shared_report(ticker)
+        report = await find_latest_shared_report(
+            self.repo, ticker, self.current_user.preferred_ai_model
+        )
         if not report:
             raise HTTPException(status_code=404, detail="No analysis found for this stock and model")
 
@@ -45,51 +40,17 @@ class GetLatestAnalysisUseCase:
 
         return serialize_analysis_report(report, rr_ratio=realtime_rr)
 
-    async def _get_latest_shared_report(self, ticker: str):
-        preferred_model = self.current_user.preferred_ai_model or None
-        candidates = await self.repo.get_latest_reports_for_ticker(ticker, limit=10, model_used=preferred_model)
-        report = self._pick_shared_scope_report(candidates)
-        if report:
-            return report
-
-        if preferred_model:
-            fallback_candidates = await self.repo.get_latest_reports_for_ticker(ticker, limit=10)
-            return self._pick_shared_scope_report(fallback_candidates)
-
-        return None
-
-    @staticmethod
-    def _pick_shared_scope_report(reports):
-        """
-        从候选报告列表中筛选最优的“共享范围”报告。
-        
-        过滤逻辑：
-        - 必须标记为 SHARED_SCOPE。
-        - 排除包含 "**Error**" 字样的 AI 报错记录。
-        """
-        first_shared = None
-        for report in reports:
-            if getattr(report, "report_scope", None) == AnalysisRepository.SHARED_SCOPE:
-                if first_shared is None:
-                    first_shared = report
-                if not _is_error_report(report):
-                    return report
-                continue
-
-            snapshot = report.input_context_snapshot or {}
-            if isinstance(snapshot, dict) and snapshot.get("analysis_scope") == "stock_shared":
-                if first_shared is None:
-                    first_shared = report
-                if not _is_error_report(report):
-                    return report
-        return first_shared
-
 
 class GetAnalysisHistoryUseCase:
-    def __init__(self, db: AsyncSession, current_user: User):
+    def __init__(
+        self,
+        db: AsyncSession,
+        current_user: User,
+        analysis_repo: Optional[AnalysisRepository] = None,
+    ):
         self.db = db
         self.current_user = current_user
-        self.repo = AnalysisRepository(db)
+        self.repo = analysis_repo or AnalysisRepository(db)
 
     async def execute(self, ticker: str, limit: int = 20) -> list[dict]:
         try:
@@ -97,30 +58,28 @@ class GetAnalysisHistoryUseCase:
             reports = await self.repo.get_report_history_for_ticker(ticker, limit * 3, model_used=preferred_model)
             shared_reports = []
             for report in reports:
-                if getattr(report, "report_scope", None) == AnalysisRepository.SHARED_SCOPE:
-                    if not _is_error_report(report):
-                        shared_reports.append(report)
-                else:
+                scope = getattr(report, "report_scope", None)
+                is_shared = scope == AnalysisRepository.SHARED_SCOPE
+                if not is_shared:
                     snapshot = report.input_context_snapshot or {}
-                    if isinstance(snapshot, dict) and snapshot.get("analysis_scope") == "stock_shared":
-                        if not _is_error_report(report):
-                            shared_reports.append(report)
-                if len(shared_reports) >= limit:
-                    break
+                    is_shared = isinstance(snapshot, dict) and snapshot.get("analysis_scope") == "stock_shared"
+                if is_shared and not is_error_report(report):
+                    shared_reports.append(report)
+                    if len(shared_reports) >= limit:
+                        break
 
             if not shared_reports and preferred_model:
                 fallback_reports = await self.repo.get_report_history_for_ticker(ticker, limit * 3)
                 for report in fallback_reports:
-                    if getattr(report, "report_scope", None) == AnalysisRepository.SHARED_SCOPE:
-                        if not _is_error_report(report):
-                            shared_reports.append(report)
-                    else:
+                    scope = getattr(report, "report_scope", None)
+                    is_shared = scope == AnalysisRepository.SHARED_SCOPE
+                    if not is_shared:
                         snapshot = report.input_context_snapshot or {}
-                        if isinstance(snapshot, dict) and snapshot.get("analysis_scope") == "stock_shared":
-                            if not _is_error_report(report):
-                                shared_reports.append(report)
-                    if len(shared_reports) >= limit:
-                        break
+                        is_shared = isinstance(snapshot, dict) and snapshot.get("analysis_scope") == "stock_shared"
+                    if is_shared and not is_error_report(report):
+                        shared_reports.append(report)
+                        if len(shared_reports) >= limit:
+                            break
 
             response = []
             for report in shared_reports:

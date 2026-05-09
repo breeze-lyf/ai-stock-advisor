@@ -25,13 +25,14 @@ import logging
 
 from app.core.database import get_db
 from app.application.portfolio.manage_portfolio import (
-    AddPortfolioItemUseCase,      # 添加持仓用例
-    DeletePortfolioItemUseCase,   # 删除持仓用例
-    RefreshPortfolioStockUseCase, # 刷新个股数据用例
-    ReorderPortfolioUseCase,      # 重排序用例
+    AddPortfolioItemUseCase,
+    DeletePortfolioItemUseCase,
+    RefreshPortfolioStockUseCase,
+    ReorderPortfolioUseCase,
 )
 from app.application.portfolio.search_engine import PortfolioSearchEngine
 from app.application.portfolio.query_portfolio import GetPortfolioSummaryUseCase, GetPortfolioUseCase
+from app.infrastructure.db.repositories.portfolio_repository import PortfolioRepository
 from app.infrastructure.db.repositories.stock_repository import StockRepository
 from app.models.user import User
 from app.api.deps import get_current_user
@@ -96,7 +97,8 @@ async def get_portfolio_summary(
     - 持仓列表 (holdings)
     - 行业分布 (sector_exposure)
     """
-    return await GetPortfolioSummaryUseCase(db, current_user).execute()
+    use_case = GetPortfolioSummaryUseCase(db, current_user, portfolio_repo=PortfolioRepository(db))
+    return await use_case.execute()
 
 
 @router.get("/", response_model=List[PortfolioItem])
@@ -116,7 +118,8 @@ async def get_portfolio(
     返回：
     - 持仓列表，包含每个持仓的详细信息
     """
-    return await GetPortfolioUseCase(db, current_user).execute(refresh=refresh, price_only=price_only)
+    use_case = GetPortfolioUseCase(db, current_user, portfolio_repo=PortfolioRepository(db))
+    return await use_case.execute(refresh=refresh, price_only=price_only)
 
 
 @router.post("/")
@@ -137,7 +140,8 @@ async def add_portfolio_item(
     - item: 持仓信息（股票代码、数量、成本价）
     - background_tasks: 后台任务队列，用于异步获取行情
     """
-    return await AddPortfolioItemUseCase(db, current_user).execute(item, background_tasks)
+    use_case = AddPortfolioItemUseCase(db, current_user, portfolio_repo=PortfolioRepository(db))
+    return await use_case.execute(item, background_tasks)
 
 
 class PortfolioUpdate(BaseModel):
@@ -210,7 +214,8 @@ async def delete_portfolio_item(
     返回：
     - 删除成功消息
     """
-    return await DeletePortfolioItemUseCase(db, current_user).execute(ticker)
+    use_case = DeletePortfolioItemUseCase(db, current_user, portfolio_repo=PortfolioRepository(db))
+    return await use_case.execute(ticker)
 
 
 @router.post("/{ticker}/refresh")
@@ -237,7 +242,8 @@ async def refresh_stock_data(
     返回：
     - 刷新结果（成功/失败状态、当前价格、涨跌幅等）
     """
-    return await RefreshPortfolioStockUseCase(db, current_user).execute(
+    use_case = RefreshPortfolioStockUseCase(db, current_user, portfolio_repo=PortfolioRepository(db))
+    return await use_case.execute(
         ticker=ticker,
         background_tasks=background_tasks,
         price_only=price_only,
@@ -294,4 +300,5 @@ async def reorder_portfolio(
     返回：
     - 重排序成功消息
     """
-    return await ReorderPortfolioUseCase(db, current_user).execute(orders)
+    use_case = ReorderPortfolioUseCase(db, current_user, portfolio_repo=PortfolioRepository(db))
+    return await use_case.execute(orders)

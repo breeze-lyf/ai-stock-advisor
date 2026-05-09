@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.api.deps import get_current_user
 from app.models.user import User
-from app.models.ai_signal_history import SignalStatus, SignalType
+from app.models.ai_signal_history import SignalStatus
 from app.services.signal_tracker import signal_tracker_service
 
 router = APIRouter()

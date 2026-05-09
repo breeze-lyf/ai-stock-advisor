@@ -24,7 +24,6 @@ from app.core.config import settings
 from app.core.prompts import build_stock_analysis_prompt, build_portfolio_analysis_prompt
 from app.core.redis_client import cache_get, cache_set
 from app.models.user import User
-from app.schemas.ai_config import AIModelRuntimeConfig
 from app.services.model_resolver import ModelResolver
 from app.services.provider_router import ProviderRouter
 
@@ -32,7 +31,146 @@ logger = logging.getLogger(__name__)
 
 
 class AIService:
-    """AI 分析服务 — 纯编排，不包含底层 provider 调用细节。"""
+    """AI 分析服务 — 纯编排，不包含底层 provider 调用细节。
+
+    实例化路径（新代码推荐）：
+        ai = AIService(db=db, user=current_user)
+        result = await ai.generate_analysis(ticker="AAPL", ...)
+
+    类方法路径（向后兼容）：
+        result = await AIService.generate_analysis(ticker="AAPL", ..., db=db, user_id=...)
+    """
+
+    def __init__(self, db: AsyncSession = None, user: User = None):
+        self.db = db
+        self.user = user
+
+    # ------------------------------------------------------------------
+    #  内部辅助
+    # ------------------------------------------------------------------
+
+    async def _resolve_user(self, user_id: str = None) -> User | None:
+        """加载用户上下文（如果尚未加载）。"""
+        if self.user:
+            return self.user
+        if user_id and self.db:
+            try:
+                self.user = (await self.db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
+            except Exception as e:
+                logger.warning(f"Failed to get user info: {e}")
+        return self.user
+
+    async def call_with_fallback(
+        self,
+        prompt: str,
+        model_key: str,
+        max_tokens: Optional[int] = None,
+        extra_params: Optional[dict] = None,
+    ) -> str:
+        """统一入口：用户自定义模型 → 系统供应商回退。
+
+        与 ProviderRouter.dispatch_with_fallback 的区别：
+        本方法在调用前先检查用户的自定义模型配置，命中则直接走用户模型；
+        未命中（或无用户上下文）则回退到系统供应商表。
+        """
+        # 1. 用户自定义模型优先
+        if self.user and self.db:
+            user_model = await ModelResolver.get_user_ai_model(model_key, self.user.id, self.db)
+            if user_model:
+                try:
+                    return await ProviderRouter.call_user_ai_model(user_model, prompt)
+                except Exception as e:
+                    logger.warning(f"User custom model {model_key} failed: {e}")
+                    return f"**Error**: 用户自定义模型 {model_key} 调用失败。错误：{e}"
+
+        # 2. 系统供应商回退
+        model_config = await ModelResolver.get_model_config(model_key, self.db)
+        return await ProviderRouter.dispatch_with_fallback(
+            prompt, model_config, user=self.user, db=self.db,
+            max_tokens=max_tokens, extra_params=extra_params,
+        )
+
+    # ------------------------------------------------------------------
+    #  缓存工具（内部使用）
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _check_memory_cache(prompt_hash: str) -> str | None:
+        cached = ProviderRouter._response_cache.get(prompt_hash)
+        if cached:
+            cached_response, cached_time = cached
+            import time
+            if time.time() - cached_time < ProviderRouter.RESPONSE_CACHE_TTL:
+                return cached_response
+        return None
+
+    @staticmethod
+    def _write_memory_cache(prompt_hash: str, result: str):
+        import time
+        ProviderRouter._response_cache[prompt_hash] = (result, time.time())
+
+    # ------------------------------------------------------------------
+    #  generate_analysis
+    # ------------------------------------------------------------------
+
+    async def generate_analysis(
+        self,
+        ticker: str,
+        market_data: dict,
+        news_data: list = None,
+        macro_context: str = None,
+        fundamental_data: dict = None,
+        previous_analysis: dict = None,
+        model: Optional[str] = None,
+        fomc_days_away: int = None,
+        next_fomc_date: str = None,
+        earnings_date: str = None,
+        vix_level: float = None,
+        analyst_summary: str = None,
+        pre_computed_news: str = None,
+        pre_computed_fundamental: str = None,
+    ) -> str:
+        """生成个股深度诊断（带缓存）。"""
+        model_key = model or settings.DEFAULT_AI_MODEL
+
+        prompt = build_stock_analysis_prompt(
+            ticker=ticker,
+            market_data=market_data,
+            fundamental_data=fundamental_data or {},
+            news_data=news_data or [],
+            macro_context=macro_context,
+            previous_analysis=previous_analysis,
+            fomc_days_away=fomc_days_away,
+            next_fomc_date=next_fomc_date,
+            earnings_date=earnings_date,
+            vix_level=vix_level,
+            analyst_summary=analyst_summary,
+            pre_computed_news=pre_computed_news,
+            pre_computed_fundamental=pre_computed_fundamental,
+        )
+
+        prompt_hash = ProviderRouter._hash_prompt(prompt)
+        redis_cache_key = f"ai:analysis:{prompt_hash}"
+
+        cached = self._check_memory_cache(prompt_hash)
+        if cached:
+            logger.info(f"[AI Cache] HIT (memory) for {ticker}")
+            return cached
+
+        cached = await cache_get(redis_cache_key)
+        if cached:
+            logger.info(f"[AI Cache] HIT (redis) for {ticker}")
+            self._write_memory_cache(prompt_hash, cached)
+            return cached
+
+        result = await self.call_with_fallback(prompt, model_key)
+
+        if not result.startswith("**Error**"):
+            await ProviderRouter.cache_result(redis_cache_key, prompt, result)
+        else:
+            await cache_set(redis_cache_key, result, ttl_seconds=60)
+
+        return result
 
     @classmethod
     async def generate_analysis(
@@ -54,23 +192,17 @@ class AIService:
         pre_computed_news: str = None,
         pre_computed_fundamental: str = None,
     ) -> str:
-        """主方法：生成个股深度诊断（带缓存）。"""
-        model_key = model or settings.DEFAULT_AI_MODEL
-
-        user = None
-        if user_id and db:
-            try:
-                user = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
-            except Exception as e:
-                logger.warning(f"Failed to get user info: {e}")
-
-        prompt = build_stock_analysis_prompt(
+        """类方法包装 — 构造实例后委托。"""
+        inst = cls(db=db)
+        await inst._resolve_user(user_id)
+        return await inst.generate_analysis(
             ticker=ticker,
             market_data=market_data,
-            fundamental_data=fundamental_data or {},
-            news_data=news_data or [],
+            news_data=news_data,
             macro_context=macro_context,
+            fundamental_data=fundamental_data,
             previous_analysis=previous_analysis,
+            model=model,
             fomc_days_away=fomc_days_away,
             next_fomc_date=next_fomc_date,
             earnings_date=earnings_date,
@@ -80,64 +212,22 @@ class AIService:
             pre_computed_fundamental=pre_computed_fundamental,
         )
 
-        prompt_hash = ProviderRouter._hash_prompt(prompt)
-        redis_cache_key = f"ai:analysis:{prompt_hash}"
+    # ------------------------------------------------------------------
+    #  generate_portfolio_analysis
+    # ------------------------------------------------------------------
 
-        # 检查内存缓存
-        if prompt_hash in ProviderRouter._response_cache:
-            cached_response, cached_time = ProviderRouter._response_cache[prompt_hash]
-            import time
-            if time.time() - cached_time < ProviderRouter.RESPONSE_CACHE_TTL:
-                logger.info(f"[AI Cache] HIT (memory) for {ticker}")
-                return cached_response
-
-        # 检查 Redis 缓存
-        cached = await cache_get(redis_cache_key)
-        if cached:
-            logger.info(f"[AI Cache] HIT (redis) for {ticker}")
-            ProviderRouter._response_cache[prompt_hash] = (cached, __import__("time").time())
-            return cached
-
-        # 用户自定义模型优先
-        if user and db:
-            user_model = await ModelResolver.get_user_ai_model(model_key, user.id, db)
-            if user_model:
-                try:
-                    result = await ProviderRouter.call_user_ai_model(user_model, prompt)
-                    await ProviderRouter.cache_result(redis_cache_key, prompt, result)
-                    return result
-                except Exception as e:
-                    logger.warning(f"User custom model {model_key} failed: {e}")
-                    return f"**Error**: 用户自定义模型 {model_key} 调用失败。错误：{e}"
-
-        model_config = await ModelResolver.get_model_config(model_key, db)
-        result = await ProviderRouter.dispatch_with_fallback(prompt, model_config, user, db)
-
-        if not result.startswith("**Error**"):
-            await ProviderRouter.cache_result(redis_cache_key, prompt, result)
-        else:
-            await cache_set(redis_cache_key, result, ttl_seconds=60)
-
-        return result
-
-    @classmethod
     async def generate_portfolio_analysis(
-        cls,
+        self,
         portfolio_items: list,
         market_news: str = None,
         macro_context: str = None,
         model: Optional[str] = None,
-        db: AsyncSession = None,
-        user_id: str = None,
     ) -> str:
         """生成全量持仓健康诊断报告（带缓存）。"""
         if not portfolio_items:
             return json.dumps({"error": "暂无持仓数据"})
 
         model_key = model or settings.DEFAULT_AI_MODEL
-        user = None
-        if user_id and db:
-            user = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
 
         holdings_text = "\n".join(
             f"- {h.get('ticker', '?')} ({h.get('name', '')}): "
@@ -152,37 +242,58 @@ class AIService:
         prompt_hash = ProviderRouter._hash_prompt(prompt)
         redis_cache_key = f"ai:portfolio:{prompt_hash}"
 
-        import time
-        if prompt_hash in ProviderRouter._response_cache:
-            cached_response, cached_time = ProviderRouter._response_cache[prompt_hash]
-            if time.time() - cached_time < ProviderRouter.RESPONSE_CACHE_TTL:
-                logger.info(f"[AI Cache] HIT (memory) for portfolio analysis")
-                return cached_response
+        cached = self._check_memory_cache(prompt_hash)
+        if cached:
+            logger.info(f"[AI Cache] HIT (memory) for portfolio analysis")
+            return cached
 
         cached = await cache_get(redis_cache_key)
         if cached:
             logger.info(f"[AI Cache] HIT (redis) for portfolio analysis")
-            ProviderRouter._response_cache[prompt_hash] = (cached, time.time())
+            self._write_memory_cache(prompt_hash, cached)
             return cached
 
-        if user and db:
-            user_model = await ModelResolver.get_user_ai_model(model_key, user.id, db)
-            if user_model:
-                try:
-                    result = await ProviderRouter.call_user_ai_model(user_model, prompt)
-                    await ProviderRouter.cache_result(redis_cache_key, prompt, result)
-                    return result
-                except Exception as e:
-                    logger.warning(f"User custom portfolio model {model_key} failed: {e}")
-                    return json.dumps({"error": f"AI 服务暂时不可用：{e}"})
-
-        model_config = await ModelResolver.get_model_config(model_key, db)
-        result = await ProviderRouter.dispatch_with_fallback(prompt, model_config, user, db)
+        result = await self.call_with_fallback(prompt, model_key)
 
         if not result.startswith("**Error**") and not result.startswith('{"error"'):
             await ProviderRouter.cache_result(redis_cache_key, prompt, result)
 
         return result
+
+    @classmethod
+    async def generate_portfolio_analysis(
+        cls,
+        portfolio_items: list,
+        market_news: str = None,
+        macro_context: str = None,
+        model: Optional[str] = None,
+        db: AsyncSession = None,
+        user_id: str = None,
+    ) -> str:
+        """类方法包装 — 构造实例后委托。"""
+        inst = cls(db=db)
+        await inst._resolve_user(user_id)
+        return await inst.generate_portfolio_analysis(
+            portfolio_items=portfolio_items,
+            market_news=market_news,
+            macro_context=macro_context,
+            model=model,
+        )
+
+    # ------------------------------------------------------------------
+    #  generate_text
+    # ------------------------------------------------------------------
+
+    async def generate_text(
+        self,
+        prompt: str,
+        model_key: Optional[str] = None,
+        max_tokens: Optional[int] = None,
+        extra_params: Optional[dict] = None,
+    ) -> str:
+        """通用文本生成入口（实例方法 — 使用 self.db / self.user）。"""
+        key = model_key or settings.DEFAULT_AI_MODEL
+        return await self.call_with_fallback(prompt, key, max_tokens=max_tokens, extra_params=extra_params)
 
     @classmethod
     async def generate_text(
@@ -194,33 +305,20 @@ class AIService:
         extra_params: Optional[dict] = None,
         user_id: Optional[str] = None,
     ) -> str:
-        """系统级通用文本生成入口（可选 user_id 以使用个人 AI 配置）。"""
-        key = model_key or settings.DEFAULT_AI_MODEL
-
-        user = None
-        if user_id and db:
-            try:
-                user = (await db.execute(select(User).where(User.id == user_id))).scalar_one_or_none()
-            except Exception as e:
-                logger.warning(f"Failed to get user info: {e}")
-
-        if user and db:
-            user_model = await ModelResolver.get_user_ai_model(key, user.id, db)
-            if user_model:
-                try:
-                    result = await ProviderRouter.call_user_ai_model(user_model, prompt)
-                    return result
-                except Exception as e:
-                    logger.warning(f"User custom model {key} failed: {e}")
-                    return f"**Error**: 用户自定义模型 {key} 调用失败。错误：{e}"
-
-        model_config = await ModelResolver.get_model_config(key, db)
-        return await ProviderRouter.dispatch_with_fallback(
-            prompt, model_config, user=user, db=db,
-            max_tokens=max_tokens, extra_params=extra_params,
+        """类方法包装 — 构造实例后委托。"""
+        inst = cls(db=db)
+        await inst._resolve_user(user_id)
+        return await inst.generate_text(
+            prompt=prompt,
+            model_key=model_key,
+            max_tokens=max_tokens,
+            extra_params=extra_params,
         )
 
-    # Re-export for backwards compatibility
+    # ------------------------------------------------------------------
+    #  向后兼容导出
+    # ------------------------------------------------------------------
+
     call_provider = ProviderRouter.call_provider
     test_connection = ProviderRouter.test_connection
     infer_provider_key = ProviderRouter.infer_provider_key

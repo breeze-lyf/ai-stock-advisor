@@ -81,7 +81,7 @@ export function StockDetail({
 }: StockDetailProps) {
     // --- 全局状态管理 ---
     const [refreshing, setRefreshing] = useState(false);
-    const { analysisHistory, historyData, historyLoading } = useDashboardStockDetailData(
+    const { analysisHistory, historyData, stockHistoryLoading } = useDashboardStockDetailData(
         selectedItem?.ticker || null,
         refreshTimestamp
     );
@@ -288,7 +288,7 @@ export function StockDetail({
                 onToggleMacd={() => setShowMacd(!showMacd)}
                 onLoadMore={handleLoadMore}
                 isLoadingMore={isLoadingMore}
-                isLoading={historyLoading}
+                isLoading={stockHistoryLoading}
             />
 
             {/* 板块 3: 技术面深度透视 */}

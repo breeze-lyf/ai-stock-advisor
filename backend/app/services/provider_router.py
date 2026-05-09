@@ -9,14 +9,16 @@ from typing import Optional, Tuple
 
 import httpx
 
-from app.core.config import settings
-from app.core.redis_client import cache_get, cache_set
 from app.schemas.ai_config import AIModelRuntimeConfig, ProviderRuntimeConfig
-from app.services.ai_provider_client import call_provider, infer_provider_key
+from app.services.ai_provider import OpenAICompatibleProvider, infer_provider_key
 from app.services.model_resolver import ModelResolver
+from app.core.redis_client import cache_set
 
 logger = logging.getLogger(__name__)
 ai_call_logger = logging.getLogger("app.ai_calls")
+
+# 共享 provider 实例（无状态，可复用）
+_provider = OpenAICompatibleProvider(default_timeout=120)
 
 
 class ProviderRouter:
@@ -44,10 +46,17 @@ class ProviderRouter:
         max_tokens: Optional[int] = None,
         extra_params: Optional[dict] = None,
     ) -> str:
-        """委托至 ai_provider_client.call_provider。"""
-        return await call_provider(
-            provider_config, model_id, prompt, api_key, custom_url,
-            require_json, max_tokens=max_tokens, extra_params=extra_params,
+        """委托至 OpenAICompatibleProvider。"""
+        provider = OpenAICompatibleProvider(default_timeout=provider_config.timeout_seconds)
+        return await provider.complete(
+            prompt=prompt,
+            model_id=model_id,
+            api_key=api_key,
+            base_url=custom_url or provider_config.base_url,
+            provider_key=provider_config.provider_key,
+            require_json=require_json,
+            max_tokens=max_tokens,
+            extra_params=extra_params,
         )
 
     @classmethod
@@ -62,14 +71,14 @@ class ProviderRouter:
         provider_note = (model.provider_note or "").lower()
         is_gemini = "gemini" in provider_note or "googleapis.com" in base_url or "generativelanguage" in base_url
 
-        provider_config = type(
-            "TempProvider", (), {
-                "provider_key": "gemini" if is_gemini else "custom",
-                "base_url": base_url,
-                "timeout_seconds": 300,
-            }
-        )()
-        return await call_provider(provider_config, model.model_id, prompt, api_key, base_url)
+        provider_key = "gemini" if is_gemini else "custom"
+        return await _provider.complete(
+            prompt=prompt,
+            model_id=model.model_id,
+            api_key=api_key,
+            base_url=base_url,
+            provider_key=provider_key,
+        )
 
     @classmethod
     async def test_connection(
@@ -160,15 +169,15 @@ class ProviderRouter:
                 )
                 logger.info(f"Using provider {provider_key} (Model: {current_model_id}) URL: {custom_url or 'default'}")
 
-                provider_config = ProviderRuntimeConfig(
-                    provider_key=provider_key,
-                    base_url=custom_url or provider["base_url"],
-                    timeout_seconds=provider.get("timeout_seconds", 120),
-                )
                 attempted += 1
-                return await cls.call_provider(
-                    provider_config, current_model_id, prompt, api_key, custom_url,
-                    max_tokens=max_tokens, extra_params=extra_params,
+                return await _provider.complete(
+                    prompt=prompt,
+                    model_id=current_model_id,
+                    api_key=api_key,
+                    base_url=custom_url or provider["base_url"],
+                    provider_key=provider_key,
+                    max_tokens=max_tokens,
+                    extra_params=extra_params,
                 )
             except Exception as e:
                 err = cls._format_exception(e)

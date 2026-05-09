@@ -1,6 +1,7 @@
 import logging
 import re
 from datetime import datetime, timedelta
+from typing import Optional
 
 from fastapi import BackgroundTasks, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -27,10 +28,15 @@ async def background_fetch(ticker: str):
 
 
 class AddPortfolioItemUseCase:
-    def __init__(self, db: AsyncSession, current_user: User):
+    def __init__(
+        self,
+        db: AsyncSession,
+        current_user: User,
+        portfolio_repo: Optional[PortfolioRepository] = None,
+    ):
         self.db = db
         self.current_user = current_user
-        self.repo = PortfolioRepository(db)
+        self.repo = portfolio_repo or PortfolioRepository(db)
 
     async def execute(self, item: PortfolioCreate, background_tasks: BackgroundTasks) -> dict:
         ticker = item.ticker.upper().strip()
@@ -67,10 +73,15 @@ class AddPortfolioItemUseCase:
 
 
 class DeletePortfolioItemUseCase:
-    def __init__(self, db: AsyncSession, current_user: User):
+    def __init__(
+        self,
+        db: AsyncSession,
+        current_user: User,
+        portfolio_repo: Optional[PortfolioRepository] = None,
+    ):
         self.db = db
         self.current_user = current_user
-        self.repo = PortfolioRepository(db)
+        self.repo = portfolio_repo or PortfolioRepository(db)
 
     async def execute(self, ticker: str) -> dict:
         item = await self.repo.get_portfolio_item(self.current_user.id, ticker)
@@ -83,10 +94,15 @@ class DeletePortfolioItemUseCase:
 
 
 class RefreshPortfolioStockUseCase:
-    def __init__(self, db: AsyncSession, current_user: User):
+    def __init__(
+        self,
+        db: AsyncSession,
+        current_user: User,
+        portfolio_repo: Optional[PortfolioRepository] = None,
+    ):
         self.db = db
         self.current_user = current_user
-        self.repo = PortfolioRepository(db)
+        self.repo = portfolio_repo or PortfolioRepository(db)
 
     async def execute(
         self,
@@ -170,10 +186,15 @@ class RefreshPortfolioStockUseCase:
 
 
 class ReorderPortfolioUseCase:
-    def __init__(self, db: AsyncSession, current_user: User):
+    def __init__(
+        self,
+        db: AsyncSession,
+        current_user: User,
+        portfolio_repo: Optional[PortfolioRepository] = None,
+    ):
         self.db = db
         self.current_user = current_user
-        self.repo = PortfolioRepository(db)
+        self.repo = portfolio_repo or PortfolioRepository(db)
 
     async def execute(self, orders: list[dict]) -> dict:
         for item in orders:

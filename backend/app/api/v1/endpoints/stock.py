@@ -1,10 +1,8 @@
 from __future__ import annotations
-import math
 from typing import List, Optional
 import logging
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-import pandas as pd
 from datetime import datetime
 import asyncio
 from app.services.market_data import MarketDataService

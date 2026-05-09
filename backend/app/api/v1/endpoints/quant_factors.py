@@ -18,7 +18,6 @@ from app.models.quant_factor import (
     QuantSignal, QuantBacktestResult, FactorICHistory,
     QuantOptimizationConfig
 )
-from app.services.factor_engine import factor_engine
 from app.services.factor_research import factor_research_service
 from app.services.portfolio_optimizer import portfolio_optimizer
 from app.services.quant_backtest import quant_backtest_engine, BacktestConfig

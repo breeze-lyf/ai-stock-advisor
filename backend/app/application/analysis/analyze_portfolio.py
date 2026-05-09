@@ -1,11 +1,11 @@
 import logging
-from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
+from app.core.prompts import build_portfolio_analysis_prompt
 from app.core.security import sanitize_float
 from app.application.portfolio.query_portfolio import GetPortfolioSummaryUseCase
 from app.infrastructure.db.repositories.portfolio_repository import PortfolioRepository
@@ -22,10 +22,17 @@ logger = logging.getLogger(__name__)
 
 
 class AnalyzePortfolioUseCase:
-    def __init__(self, db: AsyncSession, current_user: User):
-        self.db = db
+    def __init__(
+        self,
+        portfolio_repo: PortfolioRepository,
+        ai_service: AIService,
+        current_user: User,
+        db: AsyncSession,
+    ):
+        self.repo = portfolio_repo
+        self.ai = ai_service
         self.current_user = current_user
-        self.repo = PortfolioRepository(db)
+        self.db = db
 
     async def execute(self) -> PortfolioAnalysisResponse:
         summary = await GetPortfolioSummaryUseCase(self.db, self.current_user).execute()
@@ -37,14 +44,17 @@ class AnalyzePortfolioUseCase:
         macro_context = await self._build_macro_context()
         preferred_model = self.current_user.preferred_ai_model or settings.DEFAULT_AI_MODEL
 
-        ai_raw_response = await AIService.generate_portfolio_analysis(
-            portfolio_items=holdings_data,
-            market_news=market_news_context,
-            macro_context=macro_context,
-            model=preferred_model,
-            db=self.db,
-            user_id=self.current_user.id,
+        holdings_text = "\n".join(
+            f"- {h.get('ticker', '?')} ({h.get('name', '')}): "
+            f"市值=${h.get('market_value', 0):.2f}, "
+            f"盈亏={h.get('pl_percent', 0):.2f}%, "
+            f"行业={h.get('sector', '未知')}, "
+            f"RRR={h.get('rrr') if h.get('rrr') is not None else 'N/A'}"
+            for h in holdings_data
         )
+        prompt = build_portfolio_analysis_prompt(holdings_text, macro_context, market_news_context)
+
+        ai_raw_response = await self.ai.call_with_fallback(prompt, preferred_model)
         logger.info(f"AI Portfolio Analysis Response: {ai_raw_response[:500]}...")
 
         # If the AI call failed, raise immediately — don't persist garbage data
@@ -166,10 +176,15 @@ class AnalyzePortfolioUseCase:
 
 
 class GetLatestPortfolioAnalysisUseCase:
-    def __init__(self, db: AsyncSession, current_user: User):
+    def __init__(
+        self,
+        db: AsyncSession,
+        current_user: User,
+        portfolio_repo: Optional[PortfolioRepository] = None,
+    ):
         self.db = db
         self.current_user = current_user
-        self.repo = PortfolioRepository(db)
+        self.repo = portfolio_repo or PortfolioRepository(db)
 
     async def execute(self) -> PortfolioAnalysisResponse:
         report = await self.repo.latest_portfolio_analysis(self.current_user.id)

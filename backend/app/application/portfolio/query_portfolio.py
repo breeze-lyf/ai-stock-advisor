@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,10 +15,15 @@ logger = logging.getLogger(__name__)
 
 
 class GetPortfolioSummaryUseCase:
-    def __init__(self, db: AsyncSession, current_user: User):
+    def __init__(
+        self,
+        db: AsyncSession,
+        current_user: User,
+        portfolio_repo: Optional[PortfolioRepository] = None,
+    ):
         self.db = db
         self.current_user = current_user
-        self.repo = PortfolioRepository(db)
+        self.repo = portfolio_repo or PortfolioRepository(db)
 
     async def execute(self) -> PortfolioSummary:
         rows = await self.repo.get_summary_rows(self.current_user.id)
@@ -25,10 +31,15 @@ class GetPortfolioSummaryUseCase:
 
 
 class GetPortfolioUseCase:
-    def __init__(self, db: AsyncSession, current_user: User):
+    def __init__(
+        self,
+        db: AsyncSession,
+        current_user: User,
+        portfolio_repo: Optional[PortfolioRepository] = None,
+    ):
         self.db = db
         self.current_user = current_user
-        self.repo = PortfolioRepository(db)
+        self.repo = portfolio_repo or PortfolioRepository(db)
 
     async def execute(self, refresh: bool = False, price_only: bool = False) -> list[PortfolioItem]:
         rows = await self.repo.get_portfolio_rows(self.current_user.id)

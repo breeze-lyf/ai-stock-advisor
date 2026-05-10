@@ -3,6 +3,10 @@ import api from "@/shared/api/client";
 export interface NotificationLog {
   id: string;
   type: string;
+  ticker?: string | null;
+  target_id?: string | null;
+  semantic_key?: string | null;
+  priority?: string | null;
   title: string;
   content: string;
   card_payload: unknown;

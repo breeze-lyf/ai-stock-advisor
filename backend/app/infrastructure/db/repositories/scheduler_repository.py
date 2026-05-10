@@ -82,7 +82,7 @@ class SchedulerRepository:
         stmt = (
             select(User)
             .join(Portfolio)
-            .where(User.feishu_webhook_url != None, User.enable_daily_report == True)
+            .where(User.enable_daily_report == True)
             .distinct()
         )
         res = await self.db.execute(stmt)

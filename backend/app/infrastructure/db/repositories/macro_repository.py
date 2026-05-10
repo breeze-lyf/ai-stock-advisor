@@ -154,7 +154,6 @@ class MacroRepository:
 
     async def get_macro_alert_users(self):
         stmt = select(User).where(
-            User.feishu_webhook_url != None,
             User.enable_macro_alerts == True,
         )
         result = await self.db.execute(stmt)

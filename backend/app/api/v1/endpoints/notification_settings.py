@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from app.core.database import get_db
+from app.core.config import settings
 from app.api.deps import get_current_user
 from app.models.user import User
 from app.models.notification_settings import (
@@ -19,6 +20,20 @@ from app.models.notification_settings import (
 from app.services.notification_service_v2 import notification_service_v2
 
 router = APIRouter()
+
+
+@router.get("/notification-settings/browser-push/config")
+async def get_browser_push_config(
+    current_user: User = Depends(get_current_user),
+):
+    del current_user
+    return {
+        "status": "success",
+        "config": {
+            "web_push_enabled": bool(settings.WEB_PUSH_ENABLED and settings.VAPID_PUBLIC_KEY and settings.VAPID_PRIVATE_KEY),
+            "vapid_public_key": settings.VAPID_PUBLIC_KEY,
+        },
+    }
 
 
 @router.get("/notification-settings")
@@ -258,6 +273,24 @@ async def unsubscribe_browser_push(
     """取消浏览器推送订阅"""
     success = await notification_service_v2.unsubscribe_browser_push(
         db, current_user.id, subscription_id
+    )
+
+    if not success:
+        raise HTTPException(status_code=404, detail="Subscription not found")
+
+    return {"status": "success"}
+
+
+@router.delete("/notification-settings/browser-push")
+async def unsubscribe_browser_push_by_endpoint(
+    endpoint: str = Query(..., description="浏览器推送 endpoint"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    success = await notification_service_v2.unsubscribe_browser_push_by_endpoint(
+        db=db,
+        user_id=current_user.id,
+        endpoint=endpoint,
     )
 
     if not success:

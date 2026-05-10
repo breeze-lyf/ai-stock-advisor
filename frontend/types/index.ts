@@ -76,11 +76,23 @@ export type UserProviderCredentialResponse = {
 };
 export type UserProfile = components["schemas"]["UserProfile"] & {
     notifications_enabled?: boolean;
+    enable_price_alerts?: boolean;
+    enable_indicator_alerts?: boolean;
+    enable_hourly_summary?: boolean;
+    enable_daily_report?: boolean;
+    enable_macro_alerts?: boolean;
+    enable_strategy_change_alerts?: boolean;
     provider_credentials?: Record<string, UserProviderCredentialResponse> | null;
     preferred_data_source?: string;
 };
 export type UserSettingsUpdate = components["schemas"]["UserSettingsUpdate"] & {
     notifications_enabled?: boolean;
+    enable_price_alerts?: boolean;
+    enable_indicator_alerts?: boolean;
+    enable_hourly_summary?: boolean;
+    enable_daily_report?: boolean;
+    enable_macro_alerts?: boolean;
+    enable_strategy_change_alerts?: boolean;
     provider_credentials?: Record<string, UserProviderCredentialInput> | null;
     preferred_data_source?: string | null;
 };

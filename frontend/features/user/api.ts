@@ -51,6 +51,33 @@ export type DataSourceSettingsUpdate = {
   us_share?: string;
 };
 
+export type NotificationRoutingSettings = {
+  email_enabled: boolean;
+  feishu_enabled: boolean;
+  browser_push_enabled: boolean;
+  sms_enabled: boolean;
+  quiet_mode_enabled: boolean;
+  quiet_mode_start?: string | null;
+  quiet_mode_end?: string | null;
+  p0_daily_limit: number;
+  p1_daily_limit: number;
+  p2_daily_limit: number;
+  p3_daily_limit: number;
+};
+
+export type BrowserPushConfig = {
+  web_push_enabled: boolean;
+  vapid_public_key?: string | null;
+};
+
+export type BrowserPushSubscriptionItem = {
+  id: string;
+  device_name?: string | null;
+  browser?: string | null;
+  created_at: string;
+  last_used_at?: string | null;
+};
+
 export type CreateAIModelConfigInput = {
   display_name: string;
   provider_note?: string;
@@ -138,6 +165,77 @@ export async function deleteAIModel(modelKey: string): Promise<{ status: string;
 
 export async function testDataSource(provider: string): Promise<TestConnectionResponse> {
   const response = await api.post("/api/v1/user/data-sources/test", { provider });
+  return response.data;
+}
+
+export async function getNotificationRoutingSettings(): Promise<NotificationRoutingSettings> {
+  const response = await api.get("/api/v1/notification-settings/notification-settings");
+  return response.data.settings;
+}
+
+export async function updateNotificationRoutingSettings(
+  settings: Partial<NotificationRoutingSettings>
+): Promise<NotificationRoutingSettings> {
+  const params = new URLSearchParams();
+  Object.entries(settings).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === "") return;
+    params.set(key, String(value));
+  });
+  const suffix = params.toString();
+  const response = await api.patch(
+    `/api/v1/notification-settings/notification-settings${suffix ? `?${suffix}` : ""}`
+  );
+  return response.data.settings;
+}
+
+export async function testNotificationRouting(priority: "P0" | "P1" | "P2" | "P3"): Promise<{
+  status: string;
+  result: {
+    sent_channels: string[];
+    skipped_channels: string[];
+    blocked_reason: string | null;
+  };
+}> {
+  const response = await api.post(`/api/v1/notification-settings/notification-settings/test?priority=${priority}`);
+  return response.data;
+}
+
+export async function getBrowserPushConfig(): Promise<BrowserPushConfig> {
+  const response = await api.get("/api/v1/notification-settings/notification-settings/browser-push/config");
+  return response.data.config;
+}
+
+export async function getBrowserPushSubscriptions(): Promise<BrowserPushSubscriptionItem[]> {
+  const response = await api.get("/api/v1/notification-settings/notification-settings/browser-push");
+  return response.data.subscriptions;
+}
+
+export async function subscribeBrowserPush(payload: {
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  device_name?: string;
+  browser?: string;
+}): Promise<{ status: string; subscription: BrowserPushSubscriptionItem }> {
+  const params = new URLSearchParams();
+  params.set("endpoint", payload.endpoint);
+  params.set("p256dh", payload.p256dh);
+  params.set("auth", payload.auth);
+  if (payload.device_name) params.set("device_name", payload.device_name);
+  if (payload.browser) params.set("browser", payload.browser);
+  const response = await api.post(`/api/v1/notification-settings/notification-settings/browser-push/subscribe?${params.toString()}`);
+  return response.data;
+}
+
+export async function unsubscribeBrowserPush(subscriptionId: string): Promise<{ status: string }> {
+  const response = await api.delete(`/api/v1/notification-settings/notification-settings/browser-push/${subscriptionId}`);
+  return response.data;
+}
+
+export async function unsubscribeBrowserPushByEndpoint(endpoint: string): Promise<{ status: string }> {
+  const params = new URLSearchParams();
+  params.set("endpoint", endpoint);
+  const response = await api.delete(`/api/v1/notification-settings/notification-settings/browser-push?${params.toString()}`);
   return response.data;
 }
 

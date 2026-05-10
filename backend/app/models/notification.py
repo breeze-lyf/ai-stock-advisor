@@ -14,6 +14,9 @@ class NotificationLog(Base):
     user_id = Column(String, index=True, nullable=True) # 归属用户 ID
     ticker = Column(String, index=True, nullable=True) # 关联的股票代码 (用于去重)
     type = Column(String, index=True) # 提醒类型: MACRO_ALERT, PRICE_ALERT, DAILY_REPORT, INDICATOR_ALERT
+    target_id = Column(String, index=True, nullable=True) # 去重目标，如 ticker/topic/user_scope
+    semantic_key = Column(String, index=True, nullable=True) # 语义去重键
+    priority = Column(String, index=True, nullable=True)
     title = Column(String, nullable=False)
     content = Column(Text, nullable=True) # 核心纯文本内容（用于搜索/展示详情）
     card_payload = Column(JSON, nullable=True) # 完整的飞书卡片 JSON 载体

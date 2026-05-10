@@ -93,9 +93,11 @@ class UserSettingsUpdate(BaseModel):
     feishu_webhook_url: str | None = None
     notifications_enabled: bool | None = None
     enable_price_alerts: bool | None = None
+    enable_indicator_alerts: bool | None = None
     enable_hourly_summary: bool | None = None
     enable_daily_report: bool | None = None
     enable_macro_alerts: bool | None = None
+    enable_strategy_change_alerts: bool | None = None
 
 
 class UserProfile(BaseModel):
@@ -116,9 +118,11 @@ class UserProfile(BaseModel):
     feishu_webhook_url: str | None = None
     notifications_enabled: bool = True
     enable_price_alerts: bool = True
+    enable_indicator_alerts: bool = True
     enable_hourly_summary: bool = True
     enable_daily_report: bool = True
     enable_macro_alerts: bool = True
+    enable_strategy_change_alerts: bool = True
 
 
 class PasswordChange(BaseModel):

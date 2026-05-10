@@ -68,9 +68,11 @@ class User(Base):
     # --- 通知精细化控制开关 (Notification Switches) ---
     notifications_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     enable_price_alerts: Mapped[bool] = mapped_column(Boolean, default=True)
+    enable_indicator_alerts: Mapped[bool] = mapped_column(Boolean, default=True)
     enable_hourly_summary: Mapped[bool] = mapped_column(Boolean, default=True)
     enable_daily_report: Mapped[bool] = mapped_column(Boolean, default=True)
     enable_macro_alerts: Mapped[bool] = mapped_column(Boolean, default=True)
+    enable_strategy_change_alerts: Mapped[bool] = mapped_column(Boolean, default=True)
     
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     last_login: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)

@@ -1,7 +1,8 @@
 import asyncio
 import logging
+from datetime import datetime
 
-from app.services.notification_service import NotificationService
+from app.services.notification_service_v2 import NotificationServiceV2
 
 logger = logging.getLogger(__name__)
 
@@ -32,12 +33,12 @@ class MacroNotifier:
                     try:
                         # 开启异步任务发送，避免一个用户失败影响后续用户
                         asyncio.create_task(
-                            NotificationService.send_macro_alert(
+                            NotificationServiceV2.send_macro_alert(
+                                user_id=user.id,
                                 title=topic.title,
                                 summary=topic.summary,
                                 heat_score=topic.heat_score,
-                                user_id=user.id,
-                                webhook_url=user.feishu_webhook_url,
+                                topic_id=getattr(topic, "id", None),
                             )
                         )
                     except Exception as exc:
@@ -46,11 +47,11 @@ class MacroNotifier:
             # 2. 常规精要汇总推送
             try:
                 asyncio.create_task(
-                    NotificationService.send_macro_summary(
+                    NotificationServiceV2.send_macro_summary(
+                        user_id=user.id,
                         topics_count=len(topics),
                         topics_list=topics,
-                        user_id=user.id,
-                        webhook_url=user.feishu_webhook_url,
+                        summary_key=datetime.utcnow().strftime("%Y-%m-%d-%H-%M"),
                     )
                 )
             except Exception as exc:

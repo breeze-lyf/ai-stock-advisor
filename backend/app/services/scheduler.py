@@ -14,7 +14,7 @@ from app.services.scheduler_jobs import (
 )
 
 from app.infrastructure.db.repositories.scheduler_repository import SchedulerRepository
-from app.services.notification_service import NotificationService
+from app.services.notification_service_v2 import NotificationServiceV2
 
 logger = logging.getLogger(__name__)
 
@@ -160,18 +160,15 @@ async def refresh_hourly_summary():
             active_users = await repo.get_active_hourly_summary_users()
 
             for user in active_users:
-                if not user.feishu_webhook_url or not user.enable_hourly_summary:
-                    continue
-
                 summary_data = await MacroService.generate_hourly_news_summary(db, user.id)
                 if summary_data.get("summary"):
-                    await NotificationService.send_hourly_summary(
+                    await NotificationServiceV2.send_hourly_summary(
+                        user_id=user.id,
                         summary_text=summary_data["summary"],
                         count=summary_data["count"],
                         sentiment=summary_data.get("sentiment", "中性"),
                         email=user.email,
-                        user_id=user.id,
-                        webhook_url=user.feishu_webhook_url
+                        hour_key=summary_data.get("hour_key"),
                     )
         logger.info(f"[Scheduler] 已完成 {len(active_users)} 位用户的摘要生成与推送。")
     except Exception as e:

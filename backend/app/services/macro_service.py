@@ -285,7 +285,8 @@ class MacroService:
         return {
             "summary": summary,
             "count": int(global_report.news_count),
-            "sentiment": global_report.sentiment
+            "sentiment": global_report.sentiment,
+            "hour_key": global_report.hour_key,
         }
 
     @staticmethod

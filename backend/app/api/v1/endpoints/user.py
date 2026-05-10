@@ -130,9 +130,11 @@ def serialize_user_profile(current_user: User, provider_credentials: dict[str, U
         feishu_webhook_url=current_user.feishu_webhook_url,
         notifications_enabled=current_user.notifications_enabled if current_user.notifications_enabled is not None else True,
         enable_price_alerts=current_user.enable_price_alerts if current_user.enable_price_alerts is not None else True,
+        enable_indicator_alerts=current_user.enable_indicator_alerts if current_user.enable_indicator_alerts is not None else True,
         enable_hourly_summary=current_user.enable_hourly_summary if current_user.enable_hourly_summary is not None else True,
         enable_daily_report=current_user.enable_daily_report if current_user.enable_daily_report is not None else True,
         enable_macro_alerts=current_user.enable_macro_alerts if current_user.enable_macro_alerts is not None else True,
+        enable_strategy_change_alerts=current_user.enable_strategy_change_alerts if current_user.enable_strategy_change_alerts is not None else True,
     )
 
 
@@ -240,6 +242,9 @@ async def update_user_settings(
     if settings.enable_price_alerts is not None:
         current_user.enable_price_alerts = settings.enable_price_alerts
 
+    if settings.enable_indicator_alerts is not None:
+        current_user.enable_indicator_alerts = settings.enable_indicator_alerts
+
     if settings.enable_hourly_summary is not None:
         current_user.enable_hourly_summary = settings.enable_hourly_summary
 
@@ -248,6 +253,9 @@ async def update_user_settings(
 
     if settings.enable_macro_alerts is not None:
         current_user.enable_macro_alerts = settings.enable_macro_alerts
+
+    if settings.enable_strategy_change_alerts is not None:
+        current_user.enable_strategy_change_alerts = settings.enable_strategy_change_alerts
 
     saved_user = await repo.save(current_user, refresh=False)
     await credential_repo.commit()

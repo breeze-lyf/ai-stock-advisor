@@ -11,7 +11,7 @@ from app.infrastructure.db.repositories.scheduler_repository import SchedulerRep
 from app.models.trade import TradeHistoryLog, TradeStatus
 from app.services.macro_service import MacroService
 from app.services.market_data import MarketDataService
-from app.services.notification_service import NotificationService
+from app.services.notification_service_v2 import NotificationServiceV2
 from app.utils.time import utc_now_naive
 
 logger = logging.getLogger(__name__)
@@ -88,6 +88,10 @@ def detect_strategy_change(old_strat: dict, new_strat: dict):
 
 async def check_and_notify_alerts_job(ticker: str, current_data, db):
     try:
+        if not _is_market_open_for(ticker):
+            logger.info(f"[AlertGuard] {ticker} 当前非交易时段，跳过价格/指标即时告警。")
+            return
+
         repo = SchedulerRepository(db)
         users = await repo.get_users_holding_ticker(ticker)
         if not users:
@@ -95,54 +99,45 @@ async def check_and_notify_alerts_job(ticker: str, current_data, db):
 
         stock_name = await repo.get_stock_name(ticker)
         for user in users:
-            if not user.feishu_webhook_url or not user.enable_price_alerts:
-                continue
-
             report = await repo.get_latest_shared_analysis_report(ticker)
             curr_price = current_data.current_price
 
             if report and curr_price:
                 if report.target_price and curr_price >= report.target_price:
-                    await NotificationService.send_price_alert(
-                        ticker,
-                        stock_name,
-                        curr_price,
-                        report.target_price,
-                        is_stop_loss=False,
+                    await NotificationServiceV2.send_price_alert(
                         user_id=user.id,
-                        webhook_url=user.feishu_webhook_url,
+                        ticker=ticker,
+                        name=stock_name,
+                        current_price=curr_price,
+                        target_price=report.target_price,
+                        is_stop_loss=False,
                     )
                 elif report.stop_loss_price and curr_price <= report.stop_loss_price:
-                    await NotificationService.send_price_alert(
-                        ticker,
-                        stock_name,
-                        curr_price,
-                        report.stop_loss_price,
-                        is_stop_loss=True,
+                    await NotificationServiceV2.send_price_alert(
                         user_id=user.id,
-                        webhook_url=user.feishu_webhook_url,
+                        ticker=ticker,
+                        name=stock_name,
+                        current_price=curr_price,
+                        target_price=report.stop_loss_price,
+                        is_stop_loss=True,
                     )
 
             if current_data.rsi_14:
                 if current_data.rsi_14 > 75:
-                    await NotificationService.send_feishu_card(
-                        title=f"⚠️ 指标超买警报: {stock_name}",
-                        content=f"**{stock_name} ({ticker})** RSI(14) 已飙升至 `{current_data.rsi_14:.2f}`，处于严重超买区间。",
-                        color="red",
-                        msg_type="INDICATOR_ALERT",
-                        ticker=ticker,
+                    await NotificationServiceV2.send_indicator_alert(
                         user_id=user.id,
-                        webhook_url=user.feishu_webhook_url,
+                        ticker=ticker,
+                        stock_name=stock_name,
+                        rsi_value=current_data.rsi_14,
+                        alert_side="overbought",
                     )
                 elif current_data.rsi_14 < 25:
-                    await NotificationService.send_feishu_card(
-                        title=f"🟢 指标超卖警报: {stock_name}",
-                        content=f"**{stock_name} ({ticker})** RSI(14) 已跌至 `{current_data.rsi_14:.2f}`，处于严重超卖状态。",
-                        color="green",
-                        msg_type="INDICATOR_ALERT",
-                        ticker=ticker,
+                    await NotificationServiceV2.send_indicator_alert(
                         user_id=user.id,
-                        webhook_url=user.feishu_webhook_url,
+                        ticker=ticker,
+                        stock_name=stock_name,
+                        rsi_value=current_data.rsi_14,
+                        alert_side="oversold",
                     )
     except Exception as exc:
         logger.error(f"Failed to check multi-user alerts for {ticker}: {exc}")
@@ -272,7 +267,7 @@ async def run_post_market_analysis_job(db) -> list[str]:
                 logger.error(f"[Scheduler] 盘后复盘生成 {portfolio.ticker} 失败: {exc}")
                 continue
 
-            if not old_report or not user.feishu_webhook_url:
+            if not old_report:
                 continue
 
             old_strat = build_strategy_snapshot(old_report)
@@ -287,14 +282,13 @@ async def run_post_market_analysis_job(db) -> list[str]:
                 continue
 
             stock_name = await repo.get_stock_name(portfolio.ticker)
-            await NotificationService.send_strategy_change_alert(
+            await NotificationServiceV2.send_strategy_change_alert(
+                user_id=user.id,
                 ticker=portfolio.ticker,
                 name=stock_name,
                 old_strategy=old_strat,
                 new_strategy=new_strat,
                 change_reason=reason,
-                user_id=user.id,
-                webhook_url=user.feishu_webhook_url,
             )
 
     return markets_to_process
@@ -320,13 +314,9 @@ async def run_daily_portfolio_report_job(db) -> int:
             logger.error(f"[Scheduler] 用户 {user.email} 每日报告生成失败: {exc}")
             continue
 
-        await NotificationService.send_feishu_card(
-            title="📅 每日持仓全景体检报告",
-            content=f"**当前持仓摘要**:\n{analysis.detailed_report[:800]}...",
-            color="blue",
-            msg_type="DAILY_REPORT",
+        await NotificationServiceV2.send_daily_report(
             user_id=user.id,
-            webhook_url=user.feishu_webhook_url,
+            detailed_report=analysis.detailed_report,
         )
 
     return len(users)
@@ -336,23 +326,35 @@ async def run_daily_portfolio_report_job(db) -> int:
 # 自动刷新陈旧分析 (Auto-refresh stale AI analysis)
 # ---------------------------------------------------------------------------
 
-def _is_market_open_for(ticker: str) -> bool:
+def _is_market_open_for(ticker: str, now_utc: datetime | None = None) -> bool:
     """轻量判断：当前是否处于该 ticker 的交易时段"""
     from datetime import time as dt_time
     import pytz as _pytz
-    now_utc = datetime.now(_pytz.utc)
+    now_utc = now_utc or datetime.now(_pytz.utc)
+    if now_utc.tzinfo is None:
+        now_utc = _pytz.utc.localize(now_utc)
+
     ticker_up = ticker.upper()
     if ticker_up.isdigit() and len(ticker_up) == 6:  # A股
         tz = _pytz.timezone("Asia/Shanghai")
-        t = now_utc.astimezone(tz).time()
+        local_now = now_utc.astimezone(tz)
+        if local_now.weekday() >= 5:
+            return False
+        t = local_now.time()
         return (dt_time(9, 15) <= t <= dt_time(11, 30)) or (dt_time(13, 0) <= t <= dt_time(15, 0))
-    elif ticker_up.endswith(".HK"):  # 港股
+    elif (ticker_up.isdigit() and len(ticker_up) == 5) or ticker_up.endswith(".HK"):  # 港股
         tz = _pytz.timezone("Asia/Shanghai")
-        t = now_utc.astimezone(tz).time()
+        local_now = now_utc.astimezone(tz)
+        if local_now.weekday() >= 5:
+            return False
+        t = local_now.time()
         return (dt_time(9, 30) <= t <= dt_time(12, 0)) or (dt_time(13, 0) <= t <= dt_time(16, 0))
     else:  # 美股
         tz = _pytz.timezone("America/New_York")
-        t = now_utc.astimezone(tz).time()
+        local_now = now_utc.astimezone(tz)
+        if local_now.weekday() >= 5:
+            return False
+        t = local_now.time()
         return dt_time(9, 30) <= t <= dt_time(16, 0)
 
 

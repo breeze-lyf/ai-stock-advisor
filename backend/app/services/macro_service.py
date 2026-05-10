@@ -32,6 +32,13 @@ class MacroService:
         return MacroRepository(db)
 
     @staticmethod
+    def _is_fallback_hourly_report(report: GlobalHourlyReport | None) -> bool:
+        if not report:
+            return False
+        summary = (report.core_summary or "").strip()
+        return "AI 分析暂不可用" in summary or summary.startswith("本小时共收录")
+
+    @staticmethod
     def _prepare_radar_news(news_items: list[dict], max_items: int = 18) -> list[dict]:
         """压缩并去重新闻输入，降低 AI 提示长度和响应时间。"""
         deduped: list[dict] = []
@@ -198,7 +205,7 @@ class MacroService:
 
         # 缓存检查：同一小时不再重复生成
         existing_report = await repo.get_hourly_report(hour_key)
-        if existing_report:
+        if existing_report and not MacroService._is_fallback_hourly_report(existing_report):
             logger.info(f"Global hourly report for {hour_key} already exists. Skipping AI call.")
             return existing_report
 
@@ -215,6 +222,15 @@ class MacroService:
                 user_id=user_id,
                 model_key=preferred_model,
             )
+            if existing_report and MacroService._is_fallback_hourly_report(existing_report) and parsed_report:
+                existing_report.core_summary = parsed_report.get("core_summary", existing_report.core_summary)
+                existing_report.sentiment = parsed_report.get("sentiment", existing_report.sentiment)
+                existing_report.impact_map = parsed_report.get("impact_map", existing_report.impact_map or {})
+                existing_report.news_count = len(news_items)
+                await db.commit()
+                logger.info(f"Global hourly report for {hour_key} upgraded from fallback to AI summary.")
+                return existing_report
+
             new_report, existed = await repo.get_or_create_hourly_report(hour_key, parsed_report, len(news_items))
             if existed:
                 logger.info(f"Global hourly report for {hour_key} already exists. Skipping AI call.")

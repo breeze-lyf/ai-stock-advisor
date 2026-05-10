@@ -4,6 +4,7 @@ import json
 import logging
 import re
 
+from app.core.config import settings
 from app.services.ai_service import AIService
 
 logger = logging.getLogger(__name__)
@@ -28,13 +29,14 @@ class MacroAIService:
     ) -> str:
       """系统级 AI 调用入口：禁用思考模式以加速响应，适用于摘要类任务。"""
       try:
+        ai = AIService(db=db)
+        await ai._resolve_user(user_id)
         return await asyncio.wait_for(
-            AIService.generate_text(
-                prompt, db,
-                model_key=model_key,
+            ai.call_with_fallback(
+                prompt,
+                model_key or settings.DEFAULT_AI_MODEL,
                 max_tokens=max_tokens,
                 extra_params={"enable_thinking": False},
-                user_id=user_id,
             ),
             timeout=90,
         )

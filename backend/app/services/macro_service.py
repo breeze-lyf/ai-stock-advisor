@@ -4,10 +4,12 @@ from typing import List, Dict, Any
 from datetime import datetime
 from time import perf_counter
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.infrastructure.db.repositories.macro_repository import MacroRepository
 from app.models.macro import MacroTopic, GlobalNews, GlobalHourlyReport
+from app.models.user import User
 from app.services.macro_ai_service import MacroAIService
 from app.services.macro_fetcher import MacroFetcher
 from app.services.macro_notifier import MacroNotifier
@@ -177,7 +179,7 @@ class MacroService:
         return await MacroService.update_cls_news(db)
 
     @staticmethod
-    async def generate_global_hourly_report(db: AsyncSession) -> GlobalHourlyReport | None:
+    async def generate_global_hourly_report(db: AsyncSession, user_id: str | None = None) -> GlobalHourlyReport | None:
         """
         [整点精要] 定时汇总过去 1 小时快讯，生成全局宏观综述：
         1. 窗口期数据提取：仅抓取上一整点至今的所有快讯。
@@ -191,6 +193,8 @@ class MacroService:
 
         now = utc_now_naive()
         hour_key = now.strftime("%Y-%m-%d-%H")
+        if user_id:
+            hour_key = f"{hour_key}:{user_id}"
 
         # 缓存检查：同一小时不再重复生成
         existing_report = await repo.get_hourly_report(hour_key)
@@ -199,8 +203,18 @@ class MacroService:
             return existing_report
 
         try:
+            preferred_model = None
+            if user_id:
+                user_result = await db.execute(select(User).where(User.id == user_id))
+                user = user_result.scalar_one_or_none()
+                preferred_model = user.preferred_ai_model if user else None
             # 调用 AI 生成高度压缩的精要总结
-            parsed_report = await MacroAIService.generate_hourly_report(news_items, db)
+            parsed_report = await MacroAIService.generate_hourly_report(
+                news_items,
+                db,
+                user_id=user_id,
+                model_key=preferred_model,
+            )
             new_report, existed = await repo.get_or_create_hourly_report(hour_key, parsed_report, len(news_items))
             if existed:
                 logger.info(f"Global hourly report for {hour_key} already exists. Skipping AI call.")
@@ -229,7 +243,7 @@ class MacroService:
         3. 智能呈现：若无直接影响，则提示“持仓未受影响”，减少用户焦虑及无用信息骚扰。
         """
         # 1. 获取全局报告基准 (若缺失则即时触发 AI 解析)
-        global_report = await MacroService.generate_global_hourly_report(db)
+        global_report = await MacroService.generate_global_hourly_report(db, user_id=user_id)
         if not global_report:
             return {"summary": "本小时暂无关键新闻或 AI 分析正在生成中。", "count": 0}
 

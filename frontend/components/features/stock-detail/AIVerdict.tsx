@@ -251,16 +251,17 @@ function AIVerdictContent({
             <div className="py-4 px-6 md:py-6 md:px-8 bg-slate-50/50 dark:bg-white/5 border-b border-slate-100 dark:border-white/5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
                     {/* Left: Suggested Action */}
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-2">
+                    <div className="space-y-2 min-w-0">
+                        <div className="space-y-3 min-w-0">
                             <h3 className={clsx(
-                                "text-3xl font-black uppercase tracking-tight",
+                                "min-w-0 text-3xl font-black tracking-tight break-words",
                                 aiData.immediate_action?.includes("买") || aiData.immediate_action?.includes("多") ? "text-slate-900 dark:text-white" :
                                     aiData.immediate_action?.includes("卖") || aiData.immediate_action?.includes("减") ? "text-rose-600 dark:text-rose-400" :
                                         "text-slate-900 dark:text-white"
                             )}>
                                 {heroTitle}
                             </h3>
+                            <div className="flex flex-wrap items-center gap-2">
                             <span className={clsx(
                                 "text-[9px] font-black px-2 py-0.5 rounded-md border uppercase whitespace-nowrap",
                                 activeZone.bgColor,
@@ -311,6 +312,7 @@ function AIVerdictContent({
                                     <span className="text-[8px] font-bold uppercase tracking-tighter opacity-70 italic">盘后 POST</span>
                                 </div>
                             )}
+                            </div>
                         </div>
                         <div className="flex items-center gap-3">
                             <span className="text-sm font-semibold text-blue-600 dark:text-blue-600 opacity-90">

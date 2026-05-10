@@ -160,6 +160,9 @@ def _capsule_to_resp(cap):
     """Map a StockCapsule DB row to response dict, or None."""
     if cap is None:
         return None
+    content = (cap.content or "").strip()
+    if not content or content.startswith("**Error**") or content.lower().startswith("error:") or content.lower().startswith('{"error"'):
+        return None
     return {
         "ticker": cap.ticker,
         "capsule_type": cap.capsule_type,
@@ -236,6 +239,7 @@ async def refresh_stock_capsules(
         _background_capsule_generation,
         ticker,
         current_user.preferred_ai_model,
+        current_user.id,
     )
 
     return {
@@ -249,11 +253,13 @@ async def refresh_stock_capsules(
 async def _background_capsule_generation(
     ticker: str,
     preferred_model: Optional[str],
+    user_id: Optional[str],
 ):
     """Background task to regenerate capsules after market data refresh."""
     async with SessionLocal() as db:
         try:
             ai = AIService(db=db)
+            await ai._resolve_user(user_id)
             use_case = GenerateStockCapsuleUseCase(db, ai_service=ai)
             await use_case.generate_all(ticker, model=preferred_model)
             logger.info(f"[CapsuleRefresh] Background capsule generation completed for {ticker}")

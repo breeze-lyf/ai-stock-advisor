@@ -95,12 +95,18 @@ class ModelResolver:
                 logger.error(f"Query AI model config failed: {e}")
 
         fallback_map = {
+            "deepseek-v4-flash": "deepseek-v4-flash",
             "deepseek-v3": "Pro/deepseek-ai/DeepSeek-V3",
             "deepseek-r1": "Pro/deepseek-ai/DeepSeek-R1",
             "qwen-3-vl-thinking": "Qwen/Qwen3-VL-235B-A22B-Thinking",
         }
         fallback_id = fallback_map.get(model_key, "Pro/deepseek-ai/DeepSeek-V3")
-        provider = "dashscope" if ("qwen" in model_key or "dashscope" in model_key) else "siliconflow"
+        if "qwen" in model_key or "dashscope" in model_key:
+            provider = "dashscope"
+        elif model_key.startswith("deepseek-v4") or model_key == "deepseek-chat":
+            provider = "deepseek"
+        else:
+            provider = "siliconflow"
         return AIModelRuntimeConfig(key=model_key, provider=provider, model_id=fallback_id)
 
     @classmethod

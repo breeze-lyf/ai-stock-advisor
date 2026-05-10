@@ -159,8 +159,6 @@ async def refresh_hourly_summary():
             repo = SchedulerRepository(db)
             active_users = await repo.get_active_hourly_summary_users()
 
-            await MacroService.generate_global_hourly_report(db)
-
             for user in active_users:
                 if not user.feishu_webhook_url or not user.enable_hourly_summary:
                     continue

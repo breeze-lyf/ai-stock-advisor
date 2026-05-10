@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import clsx from "clsx";
+import { Zap } from "lucide-react";
 
 import { PortfolioList } from "@/components/features/PortfolioList";
 import { StockDetail } from "@/components/features/StockDetail";
@@ -41,7 +42,12 @@ export function AnalysisTabContainer({
   refreshTimestamp,
   selectedTicker,
 }: AnalysisTabContainerProps) {
+  const [mounted, setMounted] = useState(false);
   let selectedItem = portfolio.find((item) => item.ticker === selectedTicker) || null;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Fetch snapshot for non-holding stocks
   const [snapshot, setSnapshot] = useState<PortfolioItem | null>(null);
@@ -87,17 +93,29 @@ export function AnalysisTabContainer({
           selectedTicker ? "translate-x-0" : "translate-x-full lg:translate-x-0"
         )}
       >
-        <StockDetail
-          key={selectedTicker || "empty"}
-          selectedItem={displayItem}
-          onAnalyze={onAnalyze}
-          onRefresh={onRefreshDetail}
-          onBack={() => onSelectTicker(null)}
-          analyzing={analyzing}
-          aiData={aiData}
-          news={news}
-          refreshTimestamp={refreshTimestamp}
-        />
+        {!mounted ? (
+          <div className="flex-1 bg-white dark:bg-zinc-950 p-6 flex flex-col items-center justify-center h-full text-slate-300 gap-4">
+            <div className="p-8 rounded-full bg-slate-50 dark:bg-zinc-900 shadow-inner">
+              <Zap className="h-16 w-16 opacity-5 animate-pulse" />
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-black text-slate-400 dark:text-slate-600 tracking-tight uppercase">终端就绪</p>
+              <p className="text-sm font-medium text-slate-300">请选择一个代码开始深度诊断</p>
+            </div>
+          </div>
+        ) : (
+          <StockDetail
+            key={selectedTicker || "empty"}
+            selectedItem={displayItem}
+            onAnalyze={onAnalyze}
+            onRefresh={onRefreshDetail}
+            onBack={() => onSelectTicker(null)}
+            analyzing={analyzing}
+            aiData={aiData}
+            news={news}
+            refreshTimestamp={refreshTimestamp}
+          />
+        )}
       </div>
     </div>
   );

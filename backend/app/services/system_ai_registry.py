@@ -8,12 +8,51 @@ from app.infrastructure.db.repositories.provider_config_repository import Provid
 from app.models.ai_config import AIModelConfig
 from app.models.provider_config import ProviderConfig
 
-PUBLIC_SYSTEM_MODEL_KEYS = {"qwen3.5-plus"}
+PUBLIC_SYSTEM_MODEL_KEYS = {"qwen3.5-plus", "deepseek-v4-flash"}
 
 
 async def ensure_system_ai_registry(db: AsyncSession) -> None:
     provider_repo = ProviderConfigRepository(db)
     model_repo = AIModelRepository(db)
+
+    deepseek_provider = await provider_repo.get_by_key("deepseek")
+    if deepseek_provider is None:
+        deepseek_provider = ProviderConfig(
+            provider_key="deepseek",
+            display_name="DeepSeek",
+            base_url="https://api.deepseek.com/v1",
+            api_key_env="DEEPSEEK_API_KEY",
+            priority=5,
+            is_active=True,
+            max_retries=3,
+            timeout_seconds=60,
+        )
+    else:
+        deepseek_provider.display_name = "DeepSeek"
+        deepseek_provider.base_url = "https://api.deepseek.com/v1"
+        deepseek_provider.api_key_env = "DEEPSEEK_API_KEY"
+        deepseek_provider.is_active = True
+        deepseek_provider.priority = deepseek_provider.priority or 5
+        deepseek_provider.timeout_seconds = deepseek_provider.timeout_seconds or 60
+
+    await provider_repo.save(deepseek_provider)
+
+    deepseek_model = await model_repo.get_by_key("deepseek-v4-flash")
+    if deepseek_model is None:
+        deepseek_model = AIModelConfig(
+            key="deepseek-v4-flash",
+            provider="deepseek",
+            model_id="deepseek-v4-flash",
+            is_active=True,
+            description="[builtin-system] DeepSeek V4 Flash（系统内置）",
+        )
+    else:
+        deepseek_model.provider = "deepseek"
+        deepseek_model.model_id = "deepseek-v4-flash"
+        deepseek_model.is_active = True
+        deepseek_model.description = "[builtin-system] DeepSeek V4 Flash（系统内置）"
+
+    await model_repo.save(deepseek_model)
 
     provider = await provider_repo.get_by_key("dashscope")
     if provider is None:

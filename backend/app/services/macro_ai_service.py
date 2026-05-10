@@ -4,7 +4,6 @@ import json
 import logging
 import re
 
-from app.core.config import settings
 from app.services.ai_service import AIService
 
 logger = logging.getLogger(__name__)
@@ -20,12 +19,19 @@ class MacroAIService:
     """
 
     @staticmethod
-    async def _call_ai(prompt: str, db=None, max_tokens: int = 2048, user_id: str | None = None) -> str:
+    async def _call_ai(
+        prompt: str,
+        db=None,
+        max_tokens: int = 2048,
+        user_id: str | None = None,
+        model_key: str | None = None,
+    ) -> str:
       """系统级 AI 调用入口：禁用思考模式以加速响应，适用于摘要类任务。"""
       try:
         return await asyncio.wait_for(
             AIService.generate_text(
                 prompt, db,
+                model_key=model_key,
                 max_tokens=max_tokens,
                 extra_params={"enable_thinking": False},
                 user_id=user_id,
@@ -137,7 +143,7 @@ class MacroAIService:
         return topics
 
     @staticmethod
-    async def generate_hourly_report(news_items, db):
+    async def generate_hourly_report(news_items, db, user_id: str | None = None, model_key: str | None = None):
         """
         [AI 逻辑] 整点精要报告生成：
         - 输入：过去一小时最重要的快讯标题（上限 20 条）。
@@ -161,7 +167,13 @@ class MacroAIService:
 }}
 impact_map 只列最直接相关的 3-5 个标的。"""
 
-        ai_response = await MacroAIService._call_ai(prompt, db, max_tokens=1024)
+        ai_response = await MacroAIService._call_ai(
+            prompt,
+            db,
+            max_tokens=1024,
+            user_id=user_id,
+            model_key=model_key,
+        )
         json_match = re.search(r"(\{.*\})", ai_response, re.DOTALL)
         if not json_match:
             return None

@@ -93,7 +93,11 @@ class GenerateStockCapsuleUseCase:
             content = await self._call_ai(prompt, model)
         except Exception as exc:
             logger.error(f"[Capsule] News capsule AI call failed for {ticker}: {exc}")
-            return None
+            return await self._get_existing_capsule(ticker, CAPSULE_TYPE_NEWS)
+
+        if self._is_failed_ai_content(content):
+            logger.warning(f"[Capsule] News capsule returned AI error payload for {ticker}, preserving previous capsule.")
+            return await self._get_existing_capsule(ticker, CAPSULE_TYPE_NEWS)
 
         capsule = await self._upsert_capsule(
             ticker=ticker,
@@ -148,7 +152,11 @@ class GenerateStockCapsuleUseCase:
             content = await self._call_ai(prompt, model)
         except Exception as exc:
             logger.error(f"[Capsule] Fundamental capsule AI call failed for {ticker}: {exc}")
-            return None
+            return await self._get_existing_capsule(ticker, CAPSULE_TYPE_FUNDAMENTAL)
+
+        if self._is_failed_ai_content(content):
+            logger.warning(f"[Capsule] Fundamental capsule returned AI error payload for {ticker}, preserving previous capsule.")
+            return await self._get_existing_capsule(ticker, CAPSULE_TYPE_FUNDAMENTAL)
 
         capsule = await self._upsert_capsule(
             ticker=ticker,
@@ -203,7 +211,11 @@ class GenerateStockCapsuleUseCase:
             content = await self._call_ai(prompt, model)
         except Exception as exc:
             logger.error(f"[Capsule] Technical capsule AI call failed for {ticker}: {exc}")
-            return None
+            return await self._get_existing_capsule(ticker, CAPSULE_TYPE_TECHNICAL)
+
+        if self._is_failed_ai_content(content):
+            logger.warning(f"[Capsule] Technical capsule returned AI error payload for {ticker}, preserving previous capsule.")
+            return await self._get_existing_capsule(ticker, CAPSULE_TYPE_TECHNICAL)
 
         capsule = await self._upsert_capsule(
             ticker=ticker,
@@ -249,6 +261,27 @@ class GenerateStockCapsuleUseCase:
 
     async def _call_ai(self, prompt: str, model: str) -> str:
         return await self.ai.call_with_fallback(prompt, model)
+
+    def _is_failed_ai_content(self, content: Optional[str]) -> bool:
+        normalized = (content or "").strip()
+        lowered = normalized.lower()
+        return (
+            not normalized
+            or normalized.startswith("**Error**")
+            or lowered.startswith("error:")
+            or lowered.startswith('{"error"')
+        )
+
+    async def _get_existing_capsule(self, ticker: str, capsule_type: str) -> Optional[StockCapsule]:
+        stmt = select(StockCapsule).where(
+            StockCapsule.ticker == ticker,
+            StockCapsule.capsule_type == capsule_type,
+        )
+        result = await self.db.execute(stmt)
+        capsule = result.scalar_one_or_none()
+        if capsule and self._is_failed_ai_content(capsule.content):
+            return None
+        return capsule
 
     def _get_attr(self, obj: Any, attr: str) -> Any:
         if obj is None:

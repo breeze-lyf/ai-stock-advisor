@@ -6,6 +6,8 @@ import type {
 } from "@/types";
 import api from "@/shared/api/client";
 
+const NOTIFICATION_SETTINGS_BASE = "/api/v1/notification-settings/notification-settings";
+
 export type AIModelConfigItem = {
   key: string;
   display_name: string;
@@ -169,7 +171,7 @@ export async function testDataSource(provider: string): Promise<TestConnectionRe
 }
 
 export async function getNotificationRoutingSettings(): Promise<NotificationRoutingSettings> {
-  const response = await api.get("/api/v1/notification-settings/notification-settings");
+  const response = await api.get(NOTIFICATION_SETTINGS_BASE);
   return response.data.settings;
 }
 
@@ -183,7 +185,7 @@ export async function updateNotificationRoutingSettings(
   });
   const suffix = params.toString();
   const response = await api.patch(
-    `/api/v1/notification-settings/notification-settings${suffix ? `?${suffix}` : ""}`
+    `${NOTIFICATION_SETTINGS_BASE}${suffix ? `?${suffix}` : ""}`
   );
   return response.data.settings;
 }
@@ -196,17 +198,17 @@ export async function testNotificationRouting(priority: "P0" | "P1" | "P2" | "P3
     blocked_reason: string | null;
   };
 }> {
-  const response = await api.post(`/api/v1/notification-settings/notification-settings/test?priority=${priority}`);
+  const response = await api.post(`${NOTIFICATION_SETTINGS_BASE}/test?priority=${priority}`);
   return response.data;
 }
 
 export async function getBrowserPushConfig(): Promise<BrowserPushConfig> {
-  const response = await api.get("/api/v1/notification-settings/notification-settings/browser-push/config");
+  const response = await api.get(`${NOTIFICATION_SETTINGS_BASE}/browser-push/config`);
   return response.data.config;
 }
 
 export async function getBrowserPushSubscriptions(): Promise<BrowserPushSubscriptionItem[]> {
-  const response = await api.get("/api/v1/notification-settings/notification-settings/browser-push");
+  const response = await api.get(`${NOTIFICATION_SETTINGS_BASE}/browser-push`);
   return response.data.subscriptions;
 }
 
@@ -223,19 +225,19 @@ export async function subscribeBrowserPush(payload: {
   params.set("auth", payload.auth);
   if (payload.device_name) params.set("device_name", payload.device_name);
   if (payload.browser) params.set("browser", payload.browser);
-  const response = await api.post(`/api/v1/notification-settings/notification-settings/browser-push/subscribe?${params.toString()}`);
+  const response = await api.post(`${NOTIFICATION_SETTINGS_BASE}/browser-push/subscribe?${params.toString()}`);
   return response.data;
 }
 
 export async function unsubscribeBrowserPush(subscriptionId: string): Promise<{ status: string }> {
-  const response = await api.delete(`/api/v1/notification-settings/notification-settings/browser-push/${subscriptionId}`);
+  const response = await api.delete(`${NOTIFICATION_SETTINGS_BASE}/browser-push/${subscriptionId}`);
   return response.data;
 }
 
 export async function unsubscribeBrowserPushByEndpoint(endpoint: string): Promise<{ status: string }> {
   const params = new URLSearchParams();
   params.set("endpoint", endpoint);
-  const response = await api.delete(`/api/v1/notification-settings/notification-settings/browser-push?${params.toString()}`);
+  const response = await api.delete(`${NOTIFICATION_SETTINGS_BASE}/browser-push?${params.toString()}`);
   return response.data;
 }
 

@@ -52,7 +52,7 @@ async function seedNotificationHistory(accessToken) {
   const priorities = ["P0", "P1", "P2", "P3"];
 
   for (const priority of priorities) {
-    await fetch(`${BACKEND_URL}/api/v1/notification-settings/test?priority=${priority}`, {
+    await fetch(`${BACKEND_URL}/api/v1/notification-settings/notification-settings/test?priority=${priority}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -63,6 +63,15 @@ async function seedNotificationHistory(accessToken) {
 
 async function capturePage(page, url, fileName) {
   await page.goto(url, { waitUntil: "networkidle" });
+  await page.screenshot({
+    path: path.join(OUTPUT_DIR, fileName),
+    fullPage: true,
+  });
+}
+
+async function captureNotificationSettings(page, fileName) {
+  await page.goto(`${FRONTEND_URL}/settings`, { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: /通知/ }).click();
   await page.screenshot({
     path: path.join(OUTPUT_DIR, fileName),
     fullPage: true,
@@ -91,7 +100,7 @@ async function main() {
     { token: accessToken, refresh: refreshToken }
   );
 
-  await capturePage(page, `${FRONTEND_URL}/settings`, "settings-desktop-auth.png");
+  await captureNotificationSettings(page, "settings-desktop-auth.png");
   await capturePage(page, `${FRONTEND_URL}/?tab=alerts`, "alerts-desktop-auth.png");
 
   const mobileContext = await browser.newContext({
@@ -112,7 +121,7 @@ async function main() {
     { token: accessToken, refresh: refreshToken }
   );
 
-  await capturePage(mobilePage, `${FRONTEND_URL}/settings`, "settings-mobile-auth.png");
+  await captureNotificationSettings(mobilePage, "settings-mobile-auth.png");
   await capturePage(mobilePage, `${FRONTEND_URL}/?tab=alerts`, "alerts-mobile-auth.png");
 
   await mobileContext.close();

@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import {
-  BellRing,
   ArrowLeft,
   Bell,
   Bot,
@@ -244,11 +243,6 @@ export default function SettingsPage() {
     void loadNotificationRouting();
     void loadBrowserPushState();
   }, [authLoading, isAuthenticated, loadBrowserPushState, loadDataSources, loadModels, loadNotificationRouting, loadProfile, token]);
-
-  const selectedModel = useMemo(
-    () => availableModels.find((model) => model.key === (profile?.preferred_ai_model || "")) || null,
-    [availableModels, profile?.preferred_ai_model],
-  );
 
   const notificationsEnabled = Boolean(profile?.notifications_enabled ?? authUser?.notifications_enabled ?? true);
   const coreEnabledCount = [
@@ -1073,422 +1067,6 @@ export default function SettingsPage() {
     </div>
   );
 
-  const renderNotificationsSection = () => (
-    <div className="space-y-8">
-      <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-slate-50 via-white to-emerald-50/60 p-6 dark:border-slate-800 dark:from-slate-950 dark:via-slate-950 dark:to-emerald-950/20">
-        <div className="max-w-2xl">
-          <div className="text-lg font-semibold text-slate-900 dark:text-slate-100">通知应该帮你决策，不该制造噪音</div>
-          <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-            默认只建议保留最关键的 4 类提醒：价格预警、策略变更、宏观重大事件、每日复盘。
-            更细的技术指标、整点摘要和路由规则都收在下方高级设置里，需要时再展开。
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="feishu-webhook" className="text-sm font-semibold">飞书机器人 Webhook</Label>
-        <Input id="feishu-webhook" type="text" placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/..." value={feishuUrl} onChange={(e) => setFeishuUrl(e.target.value)} />
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleSaveNotificationChannel} disabled={saving}>
-            <Save className="mr-2 h-4 w-4" />
-            保存通知通道
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handleTestFeishu}
-            disabled={testingFeishu}
-            className="md:min-w-33"
-          >
-            {testingFeishu ? "测试中..." : "测试连接"}
-          </Button>
-        </div>
-        {feishuTestMessage && (
-          <div
-            className={`mt-3 rounded-xl border px-4 py-3 text-sm ${
-              feishuTestMessage.type === "success"
-                ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300"
-                : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300"
-            }`}
-          >
-            {feishuTestMessage.text}
-          </div>
-        )}
-      </div>
-
-      <div className="space-y-4">
-        <div className="flex items-center justify-between rounded-2xl border border-slate-900/5 bg-slate-50 p-6 dark:border-white/5 dark:bg-white/5">
-          <div>
-            <div className="text-base font-semibold text-slate-900 dark:text-slate-100">全局通知开关</div>
-            <div className="mt-1 text-sm text-slate-500 dark:text-slate-400">开启或关闭系统所有自动推送（如价格预警、每日报告等）。</div>
-          </div>
-          <Switch
-            checked={Boolean(profile?.notifications_enabled ?? authUser?.notifications_enabled ?? true)}
-            disabled={saving}
-            onCheckedChange={(checked) => handleToggleSwitch("notifications_enabled", checked)}
-            className="data-[state=checked]:bg-emerald-500"
-          />
-        </div>
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-2xl border border-slate-200 p-5 dark:border-slate-800">
-          <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">快速开始</div>
-          <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">不想自己逐项配置时，可以直接套用一套推荐模式。</div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button variant="outline" disabled={saving} onClick={() => void applyNotificationPreset("light")}>轻提醒</Button>
-            <Button variant="outline" disabled={saving} onClick={() => void applyNotificationPreset("balanced")}>平衡模式</Button>
-            <Button variant="outline" disabled={saving} onClick={() => void applyNotificationPreset("active")}>高敏感模式</Button>
-          </div>
-          <div className="mt-4 text-xs leading-6 text-slate-500 dark:text-slate-400">
-            轻提醒：只保留最关键事件。
-            平衡模式：适合大多数人。
-            高敏感模式：适合高频关注市场的用户。
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200 p-5 dark:border-slate-800">
-          <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">当前状态</div>
-          <div className="mt-3 space-y-3">
-            <div className="rounded-xl bg-slate-50 px-4 py-3 text-sm dark:bg-slate-900/60">
-              <div className="font-medium text-slate-900 dark:text-slate-100">
-                {notificationReadiness === "off" && "通知总开关已关闭"}
-                {notificationReadiness === "channel_missing" && "还没真正连上通知渠道"}
-                {notificationReadiness === "minimal" && "通知比较克制"}
-                {notificationReadiness === "balanced" && "通知配置比较均衡"}
-                {notificationReadiness === "complete" && "通知配置已经比较完整"}
-              </div>
-              <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                {notificationReadiness === "off" && "系统不会主动推送任何提醒。"}
-                {notificationReadiness === "channel_missing" && "建议至少配置飞书或启用浏览器推送，否则很多提醒发不出去。"}
-                {notificationReadiness === "minimal" && "适合不想被频繁打扰，但仍希望收到关键风险提醒。"}
-                {notificationReadiness === "balanced" && "已经覆盖大部分关键场景，适合作为默认配置。"}
-                {notificationReadiness === "complete" && "覆盖面最全，但也更容易在行情波动时收到较多提醒。"}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="rounded-xl border border-slate-200 px-3 py-3 dark:border-slate-800">
-                <div className="text-slate-500 dark:text-slate-400">核心通知已开启</div>
-                <div className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">{coreEnabledCount}/4</div>
-              </div>
-              <div className="rounded-xl border border-slate-200 px-3 py-3 dark:border-slate-800">
-                <div className="text-slate-500 dark:text-slate-400">可用主渠道</div>
-                <div className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">{hasAnyPrimaryChannel || feishuUrl.trim() ? "已连接" : "未连接"}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="border-t border-slate-200 pt-6 dark:border-slate-800">
-        <div className="mb-4">
-          <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">核心通知</div>
-          <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">这 4 类最值得默认开启，既能覆盖风险，也不容易把人吵烦。</div>
-        </div>
-
-        <div className="space-y-3">
-          {[
-            { key: "enable_price_alerts" as const, title: "价格预警", description: "到达止盈止损位时第一时间提醒。" },
-            { key: "enable_macro_alerts" as const, title: "全球宏观提醒", description: "推送影响全球市场的大事件与风险。" },
-            { key: "enable_strategy_change_alerts" as const, title: "策略变更", description: "盘后复盘发现操作建议显著变化时提醒。" },
-            { key: "enable_daily_report" as const, title: "每日复盘报告", description: "每天给你一份更完整的持仓体检。" },
-          ].map((item) => (
-            <div key={item.key} className="flex items-center justify-between border-b border-slate-200 py-4 last:border-b-0 dark:border-slate-800">
-              <div>
-                <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{item.title}</div>
-                <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">{item.description}</div>
-              </div>
-              <Switch
-                checked={Boolean(profile?.[item.key] ?? authUser?.[item.key])}
-                disabled={saving || !Boolean(profile?.notifications_enabled ?? authUser?.notifications_enabled ?? true)}
-                onCheckedChange={(checked) => handleToggleSwitch(item.key, checked)}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="border-t border-slate-200 pt-6 dark:border-slate-800">
-        <div className="space-y-4 rounded-2xl border border-slate-200 p-5 dark:border-slate-800">
-          <button
-            type="button"
-            className="flex w-full items-center justify-between text-left"
-            onClick={() => setAdvancedNotificationsOpen((prev) => !prev)}
-          >
-            <div>
-              <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">高级通知设置</div>
-              <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                包括技术指标提醒、整点摘要、浏览器设备、静默时段和发送规则。默认折叠，避免设置过载。
-              </div>
-            </div>
-            <ChevronRight
-              className={`h-4 w-4 text-slate-500 transition-transform ${advancedNotificationsOpen ? "rotate-90" : ""}`}
-            />
-          </button>
-
-          {advancedNotificationsOpen && (
-            <div className="space-y-8 border-t border-slate-200 pt-5 dark:border-slate-800">
-              <div>
-                <div className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">补充型通知</div>
-                <div className="space-y-3">
-                  {[
-                    { key: "enable_indicator_alerts" as const, title: "技术指标提醒", description: "RSI 等指标进入极端区间时提醒。适合盯盘型用户。" },
-                    { key: "enable_hourly_summary" as const, title: "整点摘要", description: "每小时推送一次新闻与行情总结。信息量大，更适合重度用户。" },
-                  ].map((item) => (
-                    <div key={item.key} className="flex items-center justify-between border-b border-slate-200 py-4 last:border-b-0 dark:border-slate-800">
-                      <div>
-                        <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{item.title}</div>
-                        <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">{item.description}</div>
-                      </div>
-                      <Switch
-                        checked={Boolean(profile?.[item.key] ?? authUser?.[item.key])}
-                        disabled={saving || !Boolean(profile?.notifications_enabled ?? authUser?.notifications_enabled ?? true)}
-                        onCheckedChange={(checked) => handleToggleSwitch(item.key, checked)}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <div className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">通知渠道</div>
-                {routingMessage && (
-                  <div
-                    className={`mb-4 rounded-xl border px-4 py-3 text-sm ${
-                      routingMessage.type === "success"
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/20 dark:text-emerald-300"
-                        : "border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-900/40 dark:bg-rose-950/20 dark:text-rose-300"
-                    }`}
-                  >
-                    {routingMessage.text}
-                  </div>
-                )}
-
-                <div className="space-y-3">
-                  {[
-                    { key: "feishu_enabled" as const, title: "飞书", description: "最适合接收关键提醒，及时、稳定、到达率高。" },
-                    { key: "email_enabled" as const, title: "邮件", description: "更适合日报、复盘和偏长内容。" },
-                    { key: "browser_push_enabled" as const, title: "浏览器弹窗", description: "适合办公场景，需要先完成当前浏览器订阅。" },
-                  ].map((item) => (
-                    <div key={item.key} className="flex items-center justify-between border-b border-slate-200 py-4 last:border-b-0 dark:border-slate-800">
-                      <div>
-                        <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{item.title}</div>
-                        <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">{item.description}</div>
-                      </div>
-                      <Switch
-                        checked={Boolean(notificationRouting?.[item.key])}
-                        disabled={saving || routingLoading}
-                        onCheckedChange={(checked) => void handleRoutingSettingUpdate({ [item.key]: checked })}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <div className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">当前浏览器订阅</div>
-                <div className="rounded-2xl border border-slate-200 p-5 dark:border-slate-800">
-                  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <BellRing className="h-4 w-4 text-slate-500" />
-                        <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                          {browserPushConfig?.web_push_enabled ? "浏览器推送服务已启用" : "浏览器推送服务未启用"}
-                        </span>
-                      </div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400">
-                        {browserPushConfig?.web_push_enabled
-                          ? currentBrowserSubscribed
-                            ? "当前浏览器已经拿到订阅凭证，可以接收桌面提醒。"
-                            : "当前浏览器还没有完成订阅，点击右侧按钮即可注册。"
-                          : "当前环境还没有配置 Web Push 所需密钥，所以这里暂时不能用。"}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        variant="outline"
-                        disabled={saving || browserPushLoading || !browserPushConfig?.web_push_enabled}
-                        onClick={() => void handleSubscribeCurrentBrowser()}
-                      >
-                        {saving && !currentBrowserSubscribed ? "连接中..." : "连接当前浏览器"}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        disabled={saving || browserPushLoading || (!currentBrowserSubscribed && browserPushSubscriptions.length === 0)}
-                        onClick={() => void handleUnsubscribeCurrentBrowser()}
-                      >
-                        断开当前浏览器
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="mt-5 border-t border-slate-200 pt-4 dark:border-slate-800">
-                    <div className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">已注册设备</div>
-                    {browserPushSubscriptions.length === 0 ? (
-                      <div className="rounded-xl border border-dashed border-slate-300 px-4 py-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                        还没有浏览器设备完成推送注册。
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        {browserPushSubscriptions.map((subscription) => (
-                          <div key={subscription.id} className="rounded-xl border border-slate-200 px-4 py-4 dark:border-slate-800">
-                            <div className="flex items-center justify-between gap-4">
-                              <div>
-                                <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                                  {subscription.device_name || "未命名设备"}
-                                </div>
-                                <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                  {subscription.browser || "未知浏览器"} · 创建于 {new Date(subscription.created_at).toLocaleString("zh-CN")}
-                                </div>
-                                {subscription.last_used_at && (
-                                  <div className="mt-1 text-xs text-slate-400 dark:text-slate-500">
-                                    最近使用 {new Date(subscription.last_used_at).toLocaleString("zh-CN")}
-                                  </div>
-                                )}
-                              </div>
-                              <Button
-                                variant="ghost"
-                                className="text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300"
-                                disabled={saving}
-                                onClick={async () => {
-                                  setSaving(true);
-                                  setRoutingMessage(null);
-                                  try {
-                                    await unsubscribeBrowserPush(subscription.id);
-                                    await loadBrowserPushState();
-                                    setRoutingMessage({ text: "浏览器设备订阅已移除。", type: "success" });
-                                  } catch (error) {
-                                    console.error("Failed to remove browser push subscription", error);
-                                    setRoutingMessage({ text: "移除浏览器设备失败。", type: "error" });
-                                  } finally {
-                                    setSaving(false);
-                                  }
-                                }}
-                              >
-                                移除
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <div className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">安静时段</div>
-                <div className="space-y-4 rounded-2xl border border-slate-200 p-5 dark:border-slate-800">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">夜间少打扰</div>
-                      <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">常规提醒和汇总类提醒会在这段时间暂停，紧急提醒仍会送达。</div>
-                    </div>
-                    <Switch
-                      checked={Boolean(notificationRouting?.quiet_mode_enabled)}
-                      disabled={saving || routingLoading}
-                      onCheckedChange={(checked) => void handleRoutingSettingUpdate({ quiet_mode_enabled: checked })}
-                    />
-                  </div>
-
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label htmlFor="quiet-mode-start" className="text-sm font-medium">开始时间</Label>
-                      <Input
-                        id="quiet-mode-start"
-                        type="time"
-                        value={notificationRouting?.quiet_mode_start || ""}
-                        disabled={saving || routingLoading}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setNotificationRouting((prev) => (prev ? { ...prev, quiet_mode_start: value } : prev));
-                        }}
-                        onBlur={() => void handleRoutingSettingUpdate({ quiet_mode_start: notificationRouting?.quiet_mode_start || "22:30" }, "静默开始时间已更新。")}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="quiet-mode-end" className="text-sm font-medium">结束时间</Label>
-                      <Input
-                        id="quiet-mode-end"
-                        type="time"
-                        value={notificationRouting?.quiet_mode_end || ""}
-                        disabled={saving || routingLoading}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setNotificationRouting((prev) => (prev ? { ...prev, quiet_mode_end: value } : prev));
-                        }}
-                        onBlur={() => void handleRoutingSettingUpdate({ quiet_mode_end: notificationRouting?.quiet_mode_end || "07:30" }, "静默结束时间已更新。")}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <div className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">每天最多提醒几次</div>
-                <div className="mb-3 text-xs text-slate-500 dark:text-slate-400">
-                  用更直白的话来说：
-                  “紧急提醒” 几乎不限；
-                  “重要提醒” 控制在合理范围；
-                  “常规提醒”和“汇总提醒” 尽量克制。
-                </div>
-                <div className="grid gap-4 md:grid-cols-2">
-                  {[
-                    { key: "p0_daily_limit" as const, label: "紧急提醒" },
-                    { key: "p1_daily_limit" as const, label: "重要提醒" },
-                    { key: "p2_daily_limit" as const, label: "常规提醒" },
-                    { key: "p3_daily_limit" as const, label: "汇总提醒" },
-                  ].map((item) => (
-                    <div key={item.key} className="space-y-2 rounded-2xl border border-slate-200 p-4 dark:border-slate-800">
-                      <Label htmlFor={item.key} className="text-sm font-medium">{item.label}</Label>
-                      <Input
-                        id={item.key}
-                        type="number"
-                        min={1}
-                        value={String(notificationRouting?.[item.key] ?? "")}
-                        disabled={saving || routingLoading}
-                        onChange={(e) => {
-                          const raw = Number(e.target.value || 1);
-                          setNotificationRouting((prev) => (prev ? { ...prev, [item.key]: raw } : prev));
-                        }}
-                        onBlur={() => {
-                          const value = Number(notificationRouting?.[item.key] ?? 1);
-                          void handleRoutingSettingUpdate({ [item.key]: Math.max(1, value) }, `${item.label}上限已更新。`);
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <div className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">发送规则测试</div>
-                <div className="mb-3 text-xs text-slate-500 dark:text-slate-400">用模拟通知快速验证：在当前规则下，不同级别的提醒会不会被拦住，会走哪些渠道。</div>
-                <div className="flex flex-wrap gap-2">
-                  {([
-                    { code: "P0", label: "紧急提醒" },
-                    { code: "P1", label: "重要提醒" },
-                    { code: "P2", label: "常规提醒" },
-                    { code: "P3", label: "汇总提醒" },
-                  ] as const).map((priority) => (
-                    <Button
-                      key={priority.code}
-                      variant="outline"
-                      disabled={Boolean(testingNotificationPriority) || saving || routingLoading}
-                      onClick={() => void handleTestNotificationRouting(priority.code)}
-                    >
-                      {testingNotificationPriority === priority.code ? `${priority.label}测试中...` : `测试${priority.label}`}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-
   const renderSecuritySection = () => (
     <div className="space-y-8">
       <form onSubmit={handleChangePassword} className="space-y-4">
@@ -1697,7 +1275,7 @@ export default function SettingsPage() {
   const activeSectionConfig = SECTION_ITEMS.find((item) => item.id === activeSection)!;
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-6 dark:bg-slate-950 md:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50 px-3 py-4 dark:bg-slate-950 sm:px-4 md:px-6 md:py-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-6 flex items-center gap-3">
           <Link href="/">
@@ -1725,13 +1303,13 @@ export default function SettingsPage() {
 
         <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="grid min-h-[760px] lg:grid-cols-[280px_1fr]">
-            <aside className="border-b border-slate-200 bg-slate-50/80 p-5 dark:border-slate-800 dark:bg-slate-950/80 lg:border-b-0 lg:border-r">
-              <div className="mb-6">
+            <aside className="border-b border-slate-200 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-950/80 sm:p-5 lg:border-b-0 lg:border-r">
+              <div className="mb-4 lg:mb-6">
                 <h2 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">设置</h2>
                 <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">管理您的账户、AI 模型与自动化偏好。</p>
               </div>
 
-              <nav className="space-y-2">
+              <nav className="grid gap-2 sm:grid-cols-2 lg:block lg:space-y-2">
                 {SECTION_ITEMS.map((item) => {
                   const Icon = item.icon;
                   const active = activeSection === item.id;
@@ -1758,7 +1336,7 @@ export default function SettingsPage() {
               </nav>
             </aside>
 
-            <main className="p-6 lg:p-8">
+            <main className="p-4 sm:p-6 lg:p-8">
               <div className="mb-8">
                 <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
                   <activeSectionConfig.icon className="h-4 w-4" />

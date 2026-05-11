@@ -89,7 +89,7 @@ export function NotificationSettingsSection({
   return (
     <div className="space-y-6">
       <div className="rounded-[28px] border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-emerald-50/70 p-5 shadow-sm dark:border-slate-800 dark:from-slate-950 dark:via-slate-950 dark:to-emerald-950/20 md:p-6">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex flex-col gap-5 2xl:flex-row 2xl:items-end 2xl:justify-between">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:border-emerald-900/40 dark:bg-slate-950/50 dark:text-emerald-300">
               <BellRing className="h-3.5 w-3.5" />
@@ -101,18 +101,18 @@ export function NotificationSettingsSection({
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/70">
+          <div className="grid w-full gap-3 min-[520px]:grid-cols-3 2xl:w-auto">
+            <div className="min-w-0 rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/70 2xl:min-w-[128px]">
               <div className="text-xs text-slate-500 dark:text-slate-400">核心通知已开启</div>
-              <div className="mt-1 text-2xl font-semibold text-slate-900 dark:text-slate-100">{coreEnabledCount}/4</div>
+              <div className="mt-1 whitespace-nowrap text-2xl font-semibold text-slate-900 dark:text-slate-100">{coreEnabledCount}/4</div>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/70">
+            <div className="min-w-0 rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/70 2xl:min-w-[128px]">
               <div className="text-xs text-slate-500 dark:text-slate-400">主渠道状态</div>
-              <div className="mt-1 text-2xl font-semibold text-slate-900 dark:text-slate-100">{hasAnyPrimaryChannel || feishuUrl.trim() ? "已连接" : "未连接"}</div>
+              <div className="mt-1 whitespace-nowrap text-2xl font-semibold text-slate-900 dark:text-slate-100">{hasAnyPrimaryChannel || feishuUrl.trim() ? "已连接" : "未连接"}</div>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/70">
+            <div className="min-w-0 rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/70 2xl:min-w-[128px]">
               <div className="text-xs text-slate-500 dark:text-slate-400">当前策略密度</div>
-              <div className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100">
+              <div className="mt-1 whitespace-nowrap text-lg font-semibold text-slate-900 dark:text-slate-100">
                 {notificationReadiness === "off" && "已关闭"}
                 {notificationReadiness === "channel_missing" && "待连通"}
                 {notificationReadiness === "minimal" && "轻提醒"}

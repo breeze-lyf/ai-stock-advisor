@@ -13,8 +13,8 @@ from app.models.analysis import PortfolioAnalysisReport
 from app.models.user import User
 from app.schemas.analysis import PortfolioAnalysisResponse
 from app.services.ai_service import AIService
-from app.services.macro_service import MacroService
-from app.services.market_data import MarketDataService
+from app.services.domain.macro.macro_service import MacroService
+from app.services.domain.market.market_data import MarketDataService
 from app.utils.ai_response_parser import parse_portfolio_ai_json
 from app.utils.time import utc_now_naive
 

@@ -14,7 +14,7 @@ from sqlalchemy.orm import selectinload
 from app.models.ai_signal_history import AISignalHistory, AISignalPerformance, SignalType, SignalStatus
 from app.models.analysis import AnalysisReport
 from app.models.stock import Stock
-from app.services.market_data import MarketDataService
+from app.services.domain.market.market_data import MarketDataService
 
 logger = logging.getLogger(__name__)
 

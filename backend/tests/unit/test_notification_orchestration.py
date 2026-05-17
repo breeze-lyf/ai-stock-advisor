@@ -16,7 +16,7 @@ from app.api.v1.endpoints.notifications import get_notification_history
 from app.models.notification import NotificationLog
 from app.models.notification_settings import UserNotificationSetting
 from app.models.user import User
-from app.services.notification_service_v2 import NotificationPriority, NotificationServiceV2
+from app.services.domain.notifications.notification_service_v2 import NotificationPriority, NotificationServiceV2
 from app.core.database import Base
 
 

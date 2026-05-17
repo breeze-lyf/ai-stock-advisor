@@ -10,9 +10,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.infrastructure.db.repositories.macro_repository import MacroRepository
 from app.models.macro import MacroTopic, GlobalNews, GlobalHourlyReport
 from app.models.user import User
-from app.services.macro_ai_service import MacroAIService
+from app.services.domain.macro.macro_ai_service import MacroAIService
 from app.services.integrations.market.macro_fetcher import MacroFetcher
-from app.services.macro_notifier import MacroNotifier
+from app.services.domain.macro.macro_notifier import MacroNotifier
 from app.utils.time import utc_now_naive
 
 logger = logging.getLogger(__name__)

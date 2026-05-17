@@ -8,7 +8,7 @@ from app.core.database import SessionLocal
 from app.application.portfolio.mappers import portfolio_item_from_row, portfolio_summary_from_rows
 from app.infrastructure.db.repositories.portfolio_repository import PortfolioRepository
 from app.models.user import User
-from app.services.market_data import MarketDataService
+from app.services.domain.market.market_data import MarketDataService
 from app.schemas.portfolio import PortfolioItem, PortfolioSummary
 
 logger = logging.getLogger(__name__)

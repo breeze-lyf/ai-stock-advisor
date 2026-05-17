@@ -28,7 +28,7 @@ from app.core.prompts import (
 from app.models.stock_capsule import StockCapsule
 from app.models.stock import MarketDataCache, Stock, StockNews
 from app.services.ai_service import AIService
-from app.services.macro_service import MacroService
+from app.services.domain.macro.macro_service import MacroService
 
 logger = logging.getLogger(__name__)
 

@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime, timedelta
 from app.models.user import User
 from app.api import deps
-from app.services.macro_service import MacroService
+from app.services.domain.macro.macro_service import MacroService
 from app.core import security
 from app.utils.time import utc_now_naive
 

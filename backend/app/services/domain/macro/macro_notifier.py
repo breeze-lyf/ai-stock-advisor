@@ -2,7 +2,7 @@ import asyncio
 import logging
 from datetime import datetime
 
-from app.services.notification_service_v2 import NotificationServiceV2
+from app.services.domain.notifications.notification_service_v2 import NotificationServiceV2
 
 logger = logging.getLogger(__name__)
 

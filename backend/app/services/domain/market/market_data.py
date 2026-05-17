@@ -7,7 +7,7 @@ from app.infrastructure.db.repositories.market_data_repository import MarketData
 from app.models.stock import MarketDataCache
 from app.schemas.market_data import FullMarketData
 from app.services.integrations.market.market_data_fetcher import MarketDataFetcher
-from app.services.market_data_policy import MarketDataCachePolicy
+from app.services.domain.market.market_data_policy import MarketDataCachePolicy
 from app.utils.time import utc_now_naive
 
 logger = logging.getLogger(__name__)

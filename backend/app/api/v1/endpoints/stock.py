@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 import asyncio
-from app.services.market_data import MarketDataService
+from app.services.domain.market.market_data import MarketDataService
 from app.models.portfolio import Portfolio
 from sqlalchemy.future import select
 

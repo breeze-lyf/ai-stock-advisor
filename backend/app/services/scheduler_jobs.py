@@ -9,9 +9,9 @@ from app.application.analysis.analyze_portfolio import AnalyzePortfolioUseCase
 from app.application.analysis.analyze_stock import AnalyzeStockUseCase
 from app.infrastructure.db.repositories.scheduler_repository import SchedulerRepository
 from app.models.trade import TradeHistoryLog, TradeStatus
-from app.services.macro_service import MacroService
-from app.services.market_data import MarketDataService
-from app.services.notification_service_v2 import NotificationServiceV2
+from app.services.domain.macro.macro_service import MacroService
+from app.services.domain.market.market_data import MarketDataService
+from app.services.domain.notifications.notification_service_v2 import NotificationServiceV2
 from app.utils.time import utc_now_naive
 
 logger = logging.getLogger(__name__)

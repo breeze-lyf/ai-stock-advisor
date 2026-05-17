@@ -10,8 +10,8 @@ from app.infrastructure.db.repositories.portfolio_repository import PortfolioRep
 from app.models.portfolio import Portfolio
 from app.models.user import User
 from app.schemas.portfolio import PortfolioCreate
-from app.services.market_data import MarketDataService
-from app.services.market_data_persistence import MarketDataPersistence
+from app.services.domain.market.market_data import MarketDataService
+from app.services.domain.market.market_data_persistence import MarketDataPersistence
 from app.utils.time import utc_now_naive
 
 logger = logging.getLogger(__name__)

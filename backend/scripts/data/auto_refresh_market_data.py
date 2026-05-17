@@ -7,7 +7,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from app.core.database import SessionLocal
-from app.services.market_data import MarketDataService
+from app.services.domain.market.market_data import MarketDataService
 from app.models.stock import Stock, MarketDataCache
 from sqlalchemy.future import select
 from app.utils.json_logger import setup_logging

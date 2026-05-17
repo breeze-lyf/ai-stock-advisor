@@ -21,7 +21,7 @@ from app.application.analysis.query_analysis import (
 )
 from app.models.user import User
 from app.api.deps import get_current_user
-from app.services.market_data import MarketDataService
+from app.services.domain.market.market_data import MarketDataService
 
 from app.schemas.analysis import AnalysisResponse, PortfolioAnalysisResponse, StockCapsulesResponse
 from app.application.analysis.generate_stock_capsule import GenerateStockCapsuleUseCase

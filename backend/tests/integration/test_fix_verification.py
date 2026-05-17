@@ -3,7 +3,7 @@ import logging
 from datetime import datetime
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
-from app.services.market_data import MarketDataService
+from app.services.domain.market.market_data import MarketDataService
 from app.core.config import settings
 
 logging.basicConfig(level=logging.INFO)

@@ -14,7 +14,7 @@ from app.services.scheduler_jobs import (
 )
 
 from app.infrastructure.db.repositories.scheduler_repository import SchedulerRepository
-from app.services.notification_service_v2 import NotificationServiceV2
+from app.services.domain.notifications.notification_service_v2 import NotificationServiceV2
 
 logger = logging.getLogger(__name__)
 
@@ -118,7 +118,7 @@ async def refresh_all_stocks():
             logger.error(f"[Scheduler] 轮询任务发生异常: {e}")
 
 
-from app.services.macro_service import MacroService
+from app.services.domain.macro.macro_service import MacroService
 
 
 async def refresh_macro_radar():

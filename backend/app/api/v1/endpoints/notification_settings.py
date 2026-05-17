@@ -17,7 +17,7 @@ from app.models.notification_settings import (
     BrowserPushSubscription,
     NotificationPriority,
 )
-from app.services.notification_service_v2 import notification_service_v2
+from app.services.domain.notifications.notification_service_v2 import notification_service_v2
 
 router = APIRouter()
 

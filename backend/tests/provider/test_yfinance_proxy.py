@@ -4,7 +4,7 @@ import sys
 # Add project root to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from app.services.market_data import MarketDataService
+from app.services.domain.market.market_data import MarketDataService
 from app.core.config import settings
 import asyncio
 

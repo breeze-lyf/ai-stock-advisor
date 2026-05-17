@@ -8,7 +8,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from app.core.database import SessionLocal, engine
-from app.services.market_data import MarketDataService
+from app.services.domain.market.market_data import MarketDataService
 
 async def main():
     async with SessionLocal() as session:

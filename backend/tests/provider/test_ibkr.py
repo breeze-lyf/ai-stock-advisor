@@ -23,7 +23,7 @@ async def test_connection():
     print("测试 1: IBKR 连接")
     print("=" * 60)
 
-    from app.services.market_providers.ibkr import IBKRProvider
+    from app.services.integrations.market.market_providers.ibkr import IBKRProvider
     provider = IBKRProvider()
     connected = await provider._ensure_connected()
 
@@ -41,7 +41,7 @@ async def test_quote(ticker: str = "AAPL"):
     print(f"测试 2: 获取 {ticker} 实时报价")
     print("=" * 60)
 
-    from app.services.market_providers.ibkr import IBKRProvider
+    from app.services.integrations.market.market_providers.ibkr import IBKRProvider
     provider = IBKRProvider()
     quote = await provider.get_quote(ticker)
 
@@ -63,7 +63,7 @@ async def test_fundamental(ticker: str = "AAPL"):
     print(f"测试 3: 获取 {ticker} 基本面数据")
     print("=" * 60)
 
-    from app.services.market_providers.ibkr import IBKRProvider
+    from app.services.integrations.market.market_providers.ibkr import IBKRProvider
     provider = IBKRProvider()
     fund = await provider.get_fundamental_data(ticker)
 
@@ -87,7 +87,7 @@ async def test_historical(ticker: str = "AAPL"):
     print(f"测试 4: 获取 {ticker} 历史数据与技术指标")
     print("=" * 60)
 
-    from app.services.market_providers.ibkr import IBKRProvider
+    from app.services.integrations.market.market_providers.ibkr import IBKRProvider
     provider = IBKRProvider()
     indicators = await provider.get_historical_data(ticker, period="200d")
 
@@ -108,7 +108,7 @@ async def test_ohlcv(ticker: str = "AAPL"):
     print(f"测试 5: 获取 {ticker} K 线数据 (OHLCV)")
     print("=" * 60)
 
-    from app.services.market_providers.ibkr import IBKRProvider
+    from app.services.integrations.market.market_providers.ibkr import IBKRProvider
     provider = IBKRProvider()
     data = await provider.get_ohlcv(ticker, period="1mo")
 
@@ -127,7 +127,7 @@ async def test_full_data(ticker: str = "AAPL"):
     print(f"测试 6: 获取 {ticker} 全量数据 (Full Data)")
     print("=" * 60)
 
-    from app.services.market_providers.ibkr import IBKRProvider
+    from app.services.integrations.market.market_providers.ibkr import IBKRProvider
     provider = IBKRProvider()
     full = await provider.get_full_data(ticker)
 
@@ -151,7 +151,7 @@ async def test_factory_routing():
     print(f"测试 7: 工厂路由逻辑")
     print("=" * 60)
 
-    from app.services.market_providers.factory import ProviderFactory
+    from app.services.integrations.market.market_providers.factory import ProviderFactory
 
     test_cases = [
         ("AAPL", "美股"),
@@ -172,7 +172,7 @@ async def main():
     print("=" * 60)
 
     # 检查是否可用
-    from app.services.market_providers.ibkr import IBKRProvider
+    from app.services.integrations.market.market_providers.ibkr import IBKRProvider
     if not IBKRProvider.is_available():
         print("⚠️ IBKR 未启用。请在 .env 中设置 IBKR_ENABLED=true")
         print("   仅运行工厂路由测试...")

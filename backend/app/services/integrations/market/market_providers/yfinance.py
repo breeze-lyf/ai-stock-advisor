@@ -13,8 +13,8 @@ import yfinance as yf
 from yfinance.config import YfConfig
 
 from app.schemas.market_data import MarketStatus, OHLCVItem, ProviderFundamental, ProviderNews, ProviderQuote, FullMarketData, ProviderTechnical
-from app.services.indicators import TechnicalIndicators
-from app.services.market_providers.base import MarketDataProvider
+from app.services.integrations.market.indicators import TechnicalIndicators
+from app.services.integrations.market.market_providers.base import MarketDataProvider
 from app.utils.time import utc_now_naive
 
 logger = logging.getLogger(__name__)

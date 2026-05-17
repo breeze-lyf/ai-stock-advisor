@@ -9,7 +9,7 @@ import yfinance as yf
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from app.core.security import sanitize_float
-from app.services.indicators import TechnicalIndicators
+from app.services.integrations.market.indicators import TechnicalIndicators
 
 @pytest.mark.integration
 def test_yfinance_sndk_indicator_sanitization():

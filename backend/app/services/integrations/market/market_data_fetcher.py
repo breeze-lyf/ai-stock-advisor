@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core import security
 from app.infrastructure.db.repositories.user_provider_credential_repository import UserProviderCredentialRepository
 from app.schemas.market_data import FullMarketData, ProviderFundamental, ProviderTechnical
-from app.services.market_providers import ProviderFactory
+from app.services.integrations.market.market_providers import ProviderFactory
 from app.utils.time import utc_now_naive
 
 logger = logging.getLogger(__name__)
@@ -106,7 +106,7 @@ class MarketDataFetcher:
                 fundamental_task = asyncio.create_task(provider.get_fundamental_data(ticker))
                 indicator_task = asyncio.create_task(provider.get_historical_data(ticker, period="200d"))
 
-                from app.services.market_providers.tavily import TavilyProvider
+                from app.services.integrations.market.market_providers.tavily import TavilyProvider
                 tavily_key = await MarketDataFetcher._resolve_tavily_api_key(db, user_id)
                 tavily = TavilyProvider(api_key=tavily_key)
                 news_tasks = [asyncio.create_task(provider.get_news(ticker))]

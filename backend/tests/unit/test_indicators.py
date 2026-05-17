@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import pytest
-from app.services.indicators import TechnicalIndicators
+from app.services.integrations.market.indicators import TechnicalIndicators
 
 @pytest.fixture
 def sample_data():

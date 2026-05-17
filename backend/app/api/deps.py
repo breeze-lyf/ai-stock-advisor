@@ -84,7 +84,7 @@ async def get_current_user(
 
 def _load_user_data_source_config(user: User) -> None:
     """加载用户的数据源配置到 ProviderFactory"""
-    from app.services.market_providers.factory import ProviderFactory
+    from app.services.integrations.market.market_providers.factory import ProviderFactory
 
     config = {
         "a_share": getattr(user, "data_source_a_share", "YFINANCE"),

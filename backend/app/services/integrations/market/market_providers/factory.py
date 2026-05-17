@@ -3,9 +3,9 @@ import logging
 import threading
 from contextvars import ContextVar
 
-from app.services.market_providers.base import MarketDataProvider
-from app.services.market_providers.akshare import AkShareProvider
-from app.services.market_providers.yfinance import YFinanceProvider
+from app.services.integrations.market.market_providers.base import MarketDataProvider
+from app.services.integrations.market.market_providers.akshare import AkShareProvider
+from app.services.integrations.market.market_providers.yfinance import YFinanceProvider
 
 logger = logging.getLogger(__name__)
 

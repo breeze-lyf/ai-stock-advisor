@@ -16,7 +16,7 @@ from app.core.security import sanitize_float
 from app.schemas.market_data import OHLCVItem
 from app.schemas.portfolio import PortfolioItem
 from app.infrastructure.db.repositories.stock_repository import StockRepository
-from app.services.market_providers.akshare import AkShareProvider
+from app.services.integrations.market.market_providers.akshare import AkShareProvider
 from app.models.user import User
 
 router = APIRouter()
@@ -191,7 +191,7 @@ async def get_stock_history(
         pass  # Redis 不可用时静默降级
 
     try:
-        from app.services.market_providers import ProviderFactory
+        from app.services.integrations.market.market_providers import ProviderFactory
 
         # 工厂模式：它会根据 Ticker 自动判断去哪抓数据。
         # 比如输入 'AAPL' 会去美股源，输入 '600519.SH' 则会自动切换到 A 股源。

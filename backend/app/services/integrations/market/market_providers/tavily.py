@@ -4,7 +4,7 @@ import logging
 from typing import List, Optional, Dict, Any
 from app.core.config import settings
 from app.schemas.market_data import ProviderNews
-from app.services.market_providers.base import MarketDataProvider
+from app.services.integrations.market.market_providers.base import MarketDataProvider
 from app.utils.time import utc_now_naive
 
 logger = logging.getLogger(__name__)

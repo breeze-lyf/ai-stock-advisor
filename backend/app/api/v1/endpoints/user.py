@@ -329,7 +329,7 @@ async def test_tavily_connection(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    from app.services.market_providers.tavily import TavilyProvider
+    from app.services.integrations.market.market_providers.tavily import TavilyProvider
 
     api_key = request.api_key.strip() if request.api_key and request.api_key.strip() else None
     if not api_key:
@@ -593,9 +593,9 @@ async def test_data_source_connection(
     current_user: User = Depends(get_current_user),
 ):
     """测试数据源连接。用指定 provider 抓取 AAPL 最新行情验证连通性。"""
-    from app.services.market_providers.factory import get_provider
-    from app.services.market_providers.yfinance import YFinanceProvider
-    from app.services.market_providers.akshare import AkShareProvider
+    from app.services.integrations.market.market_providers.factory import get_provider
+    from app.services.integrations.market.market_providers.yfinance import YFinanceProvider
+    from app.services.integrations.market.market_providers.akshare import AkShareProvider
     import time
 
     provider_key = request.provider or ""

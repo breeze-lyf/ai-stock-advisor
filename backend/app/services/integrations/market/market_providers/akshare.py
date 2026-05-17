@@ -50,11 +50,11 @@ def retry_on_network_error(max_retries=3, initial_delay=1):
         return wrapper
     return decorator
 
-from app.services.market_providers.base import MarketDataProvider
+from app.services.integrations.market.market_providers.base import MarketDataProvider
 from app.schemas.market_data import (
     ProviderQuote, ProviderFundamental, ProviderNews, MarketStatus
 )
-from app.services.indicators import TechnicalIndicators
+from app.services.integrations.market.indicators import TechnicalIndicators
 
 import threading
 import urllib.request

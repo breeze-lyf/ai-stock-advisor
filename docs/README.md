@@ -12,6 +12,7 @@
 6. `06_AI_Analysis_Implementation_Guide.md` — AI 增强分析架构与实现
 7. `07_Agent_Architecture_Design.md` — Agent 任务拆解与输出规范
 8. `08_Agent_Decision_Log.md` — AI 协作中的长期设计决定、假设和权衡
+9. `09_Architecture_Overview.md` — 系统架构图、核心流程图和 Module/Seam 总览
 
 ## 文档职责
 
@@ -25,6 +26,7 @@
 | `06_AI_Analysis_Implementation_Guide.md` | AI 增强分析架构、数据流、组件设计 | 增强分析模块实现或重构时 |
 | `07_Agent_Architecture_Design.md` | Agent 架构类型、任务拆解、输出规范 | Agent 相关能力开发或架构调整时 |
 | `08_Agent_Decision_Log.md` | AI 协作沉淀的长期决定、现实假设和架构权衡 | 每次会话产生长期有效决定时 |
+| `09_Architecture_Overview.md` | 当前系统架构、核心 Module、关键 Mermaid 图 | 架构 Module、核心流程或外部依赖变化时 |
 
 ## 目录规则
 

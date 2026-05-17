@@ -71,3 +71,10 @@
 - Assumption: Detailed product scope, implementation status, database design, AI architecture, and historical decisions belong in `docs/**`, not in the root README.
 - Tradeoff: The README intentionally duplicates a small amount of high-level context from docs so newcomers can orient quickly, while deferring authoritative details to the linked baseline documents.
 - Follow-up: When new major modules become active, update the README overview and `docs/05_Current_Feature_Status_Matrix.md` together.
+
+### 2026-05-17 - Add architecture overview diagrams
+
+- Decision: Add `docs/09_Architecture_Overview.md` as the canonical architecture map for system diagrams, key Module/Seam descriptions, and major Mermaid flows.
+- Assumption: Architecture understanding should start from the current modular monolith and its deepest interfaces: frontend feature API modules, backend use cases, `MarketDataService`, `AIService`, `ModelResolver`, `ProviderRouter`, `NotificationServiceV2`, and the scheduler.
+- Tradeoff: The overview intentionally stays diagram-first and does not duplicate all implementation detail from SOP, status matrix, or service files.
+- Follow-up: Update the architecture overview when AI Provider routing, market data provider strategy, notification policy, or scheduler task registration changes materially.

@@ -10,7 +10,7 @@ import json
 from app.core.database import get_db
 from app.api.deps import get_current_user
 from app.models.user import User
-from app.services.portfolio_risk import PortfolioRiskService
+from app.services.domain.portfolio.portfolio_risk import PortfolioRiskService
 
 router = APIRouter()
 

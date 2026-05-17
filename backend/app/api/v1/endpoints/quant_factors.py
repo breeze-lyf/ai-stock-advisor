@@ -18,10 +18,10 @@ from app.models.quant_factor import (
     QuantSignal, QuantBacktestResult, FactorICHistory,
     QuantOptimizationConfig
 )
-from app.services.factor_research import factor_research_service
-from app.services.portfolio_optimizer import portfolio_optimizer
-from app.services.quant_backtest import quant_backtest_engine, BacktestConfig
-from app.services.quant_signal import signal_generator, risk_manager
+from app.services.domain.quant.factor_research import factor_research_service
+from app.services.domain.portfolio.portfolio_optimizer import portfolio_optimizer
+from app.services.domain.quant.quant_backtest import quant_backtest_engine, BacktestConfig
+from app.services.domain.quant.quant_signal import signal_generator, risk_manager
 
 logger = logging.getLogger(__name__)
 

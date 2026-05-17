@@ -10,7 +10,7 @@ from app.core.database import get_db
 from app.api.deps import get_current_user
 from app.models.user import User
 from app.models.ai_signal_history import SignalStatus
-from app.services.signal_tracker import signal_tracker_service
+from app.services.domain.quant.signal_tracker import signal_tracker_service
 
 router = APIRouter()
 

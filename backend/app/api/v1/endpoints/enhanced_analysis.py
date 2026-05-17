@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
 from app.api.deps import get_current_user
 from app.models.user import User
-from app.services.enhanced_ai_analysis import EnhancedAIAnalysisService
+from app.services.domain.analysis.enhanced_ai_analysis import EnhancedAIAnalysisService
 from app.services.market_data import MarketDataService
 from app.services.macro_service import MacroService
 from app.infrastructure.db.repositories.stock_repository import StockRepository

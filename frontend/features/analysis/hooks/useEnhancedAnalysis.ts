@@ -101,6 +101,35 @@ export interface EnhancedAnalysisData {
   multi_timeframe?: MultiTimeframeAnalysisData;
 }
 
+interface ScenarioAnalysisResponse {
+  scenario_analysis?: ScenarioAnalysisData;
+}
+
+interface RiskAnalysisResponse {
+  risk_analysis?: RiskAnalysisData;
+}
+
+interface MultiTimeframeResponse {
+  multi_timeframe_analysis?: MultiTimeframeAnalysisData;
+}
+
+interface EnhancedAnalysisResponse {
+  scenario_analysis?: ScenarioAnalysisData | { error?: string };
+  risk_analysis?: RiskAnalysisData | { error?: string };
+  multi_timeframe_analysis?: MultiTimeframeAnalysisData | { error?: string };
+}
+
+function hasErrorPayload(value: unknown): value is { error?: string } {
+  return typeof value === "object" && value !== null && "error" in value;
+}
+
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+  return fallback;
+}
+
 export function useEnhancedAnalysis(ticker: string | null) {
   const [data, setData] = useState<EnhancedAnalysisData | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
@@ -110,11 +139,11 @@ export function useEnhancedAnalysis(ticker: string | null) {
     if (!ticker) return;
     try {
       setLoading("scenario");
-      const response = await api.get(`/api/v1/analysis/enhanced/${ticker}/scenario-analysis`);
-      setData((prev) => ({ ...prev, scenario_analysis: response.data }));
+      const response = await api.get<ScenarioAnalysisResponse>(`/api/v1/analysis/enhanced/${ticker}/scenario-analysis`);
+      setData((prev) => ({ ...prev, scenario_analysis: response.data.scenario_analysis }));
       setError(null);
-    } catch (e: any) {
-      setError(e.message || "Failed to fetch scenario analysis");
+    } catch (error: unknown) {
+      setError(getErrorMessage(error, "Failed to fetch scenario analysis"));
     } finally {
       setLoading(null);
     }
@@ -124,11 +153,11 @@ export function useEnhancedAnalysis(ticker: string | null) {
     if (!ticker) return;
     try {
       setLoading("risk");
-      const response = await api.get(`/api/v1/analysis/enhanced/${ticker}/risk-analysis`);
-      setData((prev) => ({ ...prev, risk_analysis: response.data }));
+      const response = await api.get<RiskAnalysisResponse>(`/api/v1/analysis/enhanced/${ticker}/risk-analysis`);
+      setData((prev) => ({ ...prev, risk_analysis: response.data.risk_analysis }));
       setError(null);
-    } catch (e: any) {
-      setError(e.message || "Failed to fetch risk analysis");
+    } catch (error: unknown) {
+      setError(getErrorMessage(error, "Failed to fetch risk analysis"));
     } finally {
       setLoading(null);
     }
@@ -138,11 +167,11 @@ export function useEnhancedAnalysis(ticker: string | null) {
     if (!ticker) return;
     try {
       setLoading("timeframe");
-      const response = await api.get(`/api/v1/analysis/enhanced/${ticker}/multi-timeframe`);
-      setData((prev) => ({ ...prev, multi_timeframe: response.data }));
+      const response = await api.get<MultiTimeframeResponse>(`/api/v1/analysis/enhanced/${ticker}/multi-timeframe`);
+      setData((prev) => ({ ...prev, multi_timeframe: response.data.multi_timeframe_analysis }));
       setError(null);
-    } catch (e: any) {
-      setError(e.message || "Failed to fetch multi-timeframe analysis");
+    } catch (error: unknown) {
+      setError(getErrorMessage(error, "Failed to fetch multi-timeframe analysis"));
     } finally {
       setLoading(null);
     }
@@ -152,11 +181,15 @@ export function useEnhancedAnalysis(ticker: string | null) {
     if (!ticker) return;
     try {
       setLoading("all");
-      const response = await api.get(`/api/v1/analysis/enhanced/${ticker}/enhanced-analysis`);
-      setData(response.data);
+      const response = await api.get<EnhancedAnalysisResponse>(`/api/v1/analysis/enhanced/${ticker}/enhanced-analysis`);
+      setData({
+        scenario_analysis: hasErrorPayload(response.data.scenario_analysis) ? undefined : response.data.scenario_analysis,
+        risk_analysis: hasErrorPayload(response.data.risk_analysis) ? undefined : response.data.risk_analysis,
+        multi_timeframe: hasErrorPayload(response.data.multi_timeframe_analysis) ? undefined : response.data.multi_timeframe_analysis,
+      });
       setError(null);
-    } catch (e: any) {
-      setError(e.message || "Failed to fetch enhanced analysis");
+    } catch (error: unknown) {
+      setError(getErrorMessage(error, "Failed to fetch enhanced analysis"));
     } finally {
       setLoading(null);
     }

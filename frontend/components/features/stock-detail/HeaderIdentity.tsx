@@ -203,7 +203,7 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
             </div>
 
             {/* 持仓信息 + Tab 导航行：持仓在左，Tab 靠右，始终渲染（Tab 无持仓时也需显示） */}
-            <div className="flex items-center flex-wrap gap-x-6 gap-y-2 mt-2 pb-1.5 border-b border-slate-100 dark:border-slate-800/50">
+            <div className="flex items-center flex-wrap gap-x-6 gap-y-3 mt-2 pb-2 border-b border-slate-100 dark:border-slate-800/50">
                 {/* 持仓信息（有持仓才显示） */}
                 {selectedItem.quantity > 0 ? (
                     <>
@@ -389,24 +389,23 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                 {/* Tab 标签导航 — 靠右，与持仓信息同行 */}
                 {onTabChange && (
                     <div className="ml-auto flex items-center">
-                        {tabs.map(({ key, label }) => (
-                            <button
-                                key={key}
-                                type="button"
-                                onClick={() => onTabChange(key)}
-                                className={clsx(
-                                    "relative px-3 py-1.5 text-xs font-semibold transition-colors duration-200",
-                                    activeTab === key
-                                        ? "text-slate-900 dark:text-white"
-                                        : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
-                                )}
-                            >
-                                {label}
-                                {activeTab === key && (
-                                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-900 dark:bg-white rounded-full" />
-                                )}
-                            </button>
-                        ))}
+                        <div className="flex items-center bg-slate-100 dark:bg-zinc-800 rounded-xl p-1 gap-1 shadow-sm">
+                            {tabs.map(({ key, label }) => (
+                                <button
+                                    key={key}
+                                    type="button"
+                                    onClick={() => onTabChange(key)}
+                                    className={clsx(
+                                        "px-3 py-1.5 text-[11px] font-semibold rounded-lg transition-all duration-150",
+                                        activeTab === key
+                                            ? "bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm"
+                                            : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+                                    )}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 )}
             </div>

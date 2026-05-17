@@ -15,7 +15,7 @@ import clsx from "clsx";
 import { Button } from "@/components/ui/button";
 import {
     TrendingUp, Target, Activity,
-    BarChart3, Zap, AlertCircle,
+    BarChart3, AlertCircle,
     Clock, ShieldCheck, ChevronDown, ChevronUp,
     LayoutDashboard
 } from "lucide-react";
@@ -243,6 +243,10 @@ function AIVerdictContent({
     const shouldShowActionReason = Boolean(actionReason) && (
         normalizeComparisonText(actionReason) !== normalizeComparisonText(heroSubtitle)
     );
+    const reviewPoint = aiData.next_review_point || "待后续事件复核";
+    const createdLabel = aiData.created_at
+        ? formatDistanceToNow(new Date(aiData.created_at + (aiData.created_at.includes("Z") ? "" : "Z")), { addSuffix: true, locale: zhCN })
+        : "";
 
     return (
         <div className="space-y-0 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none animate-in fade-in slide-in-from-bottom-2 duration-700">
@@ -314,11 +318,26 @@ function AIVerdictContent({
                             )}
                             </div>
                         </div>
+
+                        {(heroSubtitle || aiData.summary_status) && (
+                            <div className="flex items-start gap-2.5 pl-3 border-l-[3px] border-blue-500 py-1">
+                                <div className="flex-1 min-w-0">
+                                    <div className="text-[10px] font-black text-blue-700 uppercase tracking-wider mb-0.5">
+                                        等待触发
+                                    </div>
+                                    <p className="text-[15px] font-bold text-slate-900 dark:text-slate-100 leading-snug">
+                                        {heroSubtitle || aiData.summary_status}
+                                    </p>
+                                </div>
+                                {aiData.trade_setup_status && (
+                                    <span className="text-[9px] font-black px-2 py-0.5 rounded-md border shrink-0 bg-violet-50 text-violet-600 border-violet-200 dark:bg-violet-600/10 dark:text-violet-400 dark:border-violet-600/20">
+                                        {aiData.trade_setup_status}
+                                    </span>
+                                )}
+                            </div>
+                        )}
+
                         <div className="flex items-center gap-3">
-                            <span className="text-sm font-semibold text-blue-600 dark:text-blue-600 opacity-90">
-                                {heroSubtitle || aiData.summary_status || "技术修复中"}
-                            </span>
-                            
                             {/* 加入模拟交易按钮 */}
                             {(aiData.immediate_action?.includes("买") || aiData.immediate_action?.includes("多")) && (
                                 <Button
@@ -350,19 +369,15 @@ function AIVerdictContent({
                             </div>
                         )}
 
-                        <div className="flex flex-wrap items-center gap-2 pt-1">
-                            <div className="flex items-center gap-1.5 text-[9px] font-bold text-slate-500 uppercase tracking-tighter border-2 border-slate-100 dark:border-slate-800 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-950 shadow-sm">
-                                <Clock className="h-3 w-3 text-blue-400" />
-                                期限：<span className="text-slate-900 dark:text-slate-200">{aiData.investment_horizon || "中期"}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5 text-[9px] font-bold text-slate-500 uppercase tracking-tighter border-2 border-slate-100 dark:border-slate-800 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-950 shadow-sm">
-                                <Zap className="h-3 w-3 text-blue-400" />
-                                信心：<span className="text-slate-900 dark:text-slate-200">{aiData.confidence_level || "72"}%</span>
-                            </div>
-                            <div className="flex items-center gap-1.5 text-[9px] font-bold text-slate-500 uppercase tracking-tighter border-2 border-slate-100 dark:border-slate-800 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-950 shadow-sm">
-                                <AlertCircle className="h-3 w-3 text-blue-400" />
-                                风险：<span className="text-slate-900 dark:text-slate-200">{aiData.risk_level || "中"}</span>
-                            </div>
+                        <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 font-medium pt-1">
+                            <span className="flex items-center gap-1"><span className="text-slate-400">期限</span><span className="text-slate-700 dark:text-slate-200 font-semibold">{aiData.investment_horizon || "1-2 周"}</span></span>
+                            <span className="text-slate-200 dark:text-slate-700">·</span>
+                            <span className="flex items-center gap-1"><span className="text-slate-400">风险</span><span className="text-amber-600 dark:text-amber-400 font-semibold">{aiData.risk_level || "中"}</span></span>
+                            <span className="text-slate-200 dark:text-slate-700">·</span>
+                            <span className="flex items-center gap-1"><span className="text-slate-400">下次复核</span><span className="text-slate-700 dark:text-slate-200 font-semibold">{reviewPoint}</span></span>
+                            {createdLabel && (
+                                <span className="ml-auto text-[10px] text-slate-400">已分析 {createdLabel}</span>
+                            )}
                         </div>
                     </div>
 
@@ -618,18 +633,17 @@ function InlineConfidenceBreakdown({
 }) {
     return (
         <div className="space-y-3">
-            {/* Header row */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <Activity className="h-4 w-4 text-blue-600" />
-                    <span className="text-[11px] font-black uppercase text-slate-400 tracking-[0.3em]">信心构成分解</span>
-                </div>
+            <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">信心构成分解</span>
+                <span className="text-[9px] font-black px-1.5 py-0.5 rounded border bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-600/10 dark:text-blue-400 dark:border-blue-600/20">
+                    NEW
+                </span>
                 {confidenceLevel != null && (
-                    <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-medium text-slate-400">综合置信度</span>
+                    <div className="text-[10px] text-slate-400 ml-auto">
+                        总信心{" "}
                         <span className={clsx(
-                            "text-lg font-black tabular-nums",
-                            confidenceLevel >= 70 ? "text-emerald-500" : confidenceLevel >= 45 ? "text-amber-500" : "text-rose-500"
+                            "font-bold",
+                            confidenceLevel >= 70 ? "text-slate-700 dark:text-slate-200" : confidenceLevel >= 45 ? "text-amber-600 dark:text-amber-400" : "text-rose-600 dark:text-rose-400"
                         )}>
                             {confidenceLevel}%
                         </span>
@@ -637,7 +651,6 @@ function InlineConfidenceBreakdown({
                 )}
             </div>
 
-            {/* Dimension cards — 3 column */}
             <div className="grid grid-cols-3 gap-3">
                 {CONF_DIMS.map(({ key, label, color, textColor, rationaleKey }) => {
                     const val = breakdown?.[key];
@@ -663,9 +676,9 @@ function InlineConfidenceBreakdown({
                                     style={{ width: `${Math.min(100, Math.max(0, val))}%` }}
                                 />
                             </div>
-                            {rationale && (
-                                <p className={clsx("text-[10px] mt-2 leading-relaxed", textColor)}>{rationale}</p>
-                            )}
+                            <p className={clsx("text-[10px] mt-2 leading-relaxed", textColor)}>
+                                {rationale || "等待更多结构化依据补充"}
+                            </p>
                         </div>
                     );
                 })}
@@ -809,72 +822,86 @@ function TradeAxisVisual({
 
     const isHolding = (selectedItem?.quantity || 0) > 0;
 
-    // 核心：过滤掉重复或无效的区间
+    const t1 = aiData.target_price_1 && aiData.target_price_1 > entryHigh ? aiData.target_price_1 : null;
     const rawZones = [
-        { name: isHolding ? "止损" : "预设止损", start: axisMin, end: stopPrice, color: isHolding ? "bg-rose-600 dark:bg-rose-600/80" : "bg-[repeating-linear-gradient(45deg,transparent,transparent_4px,rgba(244,63,94,0.5)_4px,rgba(244,63,94,0.5)_8px)] opacity-90 border-y border-rose-600/40" },
-        { name: "观察", start: stopPrice, end: entryLow, color: "bg-[#E8EAED] dark:bg-white/5 opacity-30" },
-        { name: "买入", start: entryLow, end: entryHigh, color: "bg-emerald-600 dark:bg-emerald-600/80" },
-        { name: "持有", start: entryHigh, end: targetPrice, color: "bg-[#E8EAED] dark:bg-white/10" },
-        { name: "止盈", start: targetPrice, end: axisMax, color: "bg-blue-600 dark:bg-blue-600/80" }
+        { name: isHolding ? "止损区" : "预设止损", start: axisMin, end: stopPrice, fill: "repeating-linear-gradient(45deg,#fecdd3,#fecdd3 4px,#fee2e2 4px,#fee2e2 8px)" },
+        { name: "等待区", start: stopPrice, end: entryLow, fill: "#e2e8f0" },
+        { name: "建仓区", start: entryLow, end: entryHigh, fill: "#10b981" },
+        { name: "持有区", start: entryHigh, end: t1 ?? targetPrice, fill: "#e2e8f0" },
+        { name: "止盈区", start: t1 ?? targetPrice, end: axisMax, fill: "repeating-linear-gradient(45deg,#bfdbfe,#bfdbfe 4px,#dbeafe 4px,#dbeafe 8px)" },
     ];
 
     const visibleZones = rawZones.filter(z => z.end > z.start);
 
-    // 生成关键价位刻度
     const keyPrices = [
-        { val: stopPrice, label: "止损" },
-        { val: entryLow, label: "建仓" },
-        { val: entryHigh, label: "加码" },
-        { val: targetPrice, label: "目标" }
+        { val: stopPrice, label: "止损", color: "bg-rose-400 text-rose-600 dark:text-rose-400" },
+        { val: entryLow, label: "建仓", color: "bg-emerald-400 text-emerald-600 dark:text-emerald-400" },
+        { val: entryHigh, label: "加码", color: "bg-emerald-400 text-emerald-600 dark:text-emerald-400" },
+        ...(t1 ? [{ val: t1, label: "T1", color: "bg-blue-400 text-blue-600 dark:text-blue-400" }] : []),
+        { val: targetPrice, label: "目标", color: "bg-blue-400 text-blue-600 dark:text-blue-400" }
     ].filter((item, index, self) =>
         index === self.findIndex((t) => Math.abs(t.val - item.val) < 0.01)
     ).sort((a, b) => a.val - b.val);
 
     return (
-        <div className="relative pt-12 pb-2">
-            <div className="relative">
-                {/* Main Bar Container */}
-                <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0">
-                    <div className="h-full w-full flex overflow-hidden">
-                        {visibleZones.map((zone, idx) => (
-                            <div
-                                key={idx}
-                                className={clsx("h-full w-(--zone-width)", zone.color)}
-                                style={{ '--zone-width': `${((zone.end - zone.start) / totalRange) * 100}%` } as React.CSSProperties}
-                            />
-                        ))}
+        <div className="mb-7">
+            <div className="relative h-5 mb-2">
+                {visibleZones.map((zone, idx) => (
+                    <div
+                        key={`label-${idx}`}
+                        className="absolute -translate-x-1/2 text-center"
+                        style={{ left: `${getPos((zone.start + zone.end) / 2)}%` }}
+                    >
+                        <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            {zone.name}
+                        </span>
                     </div>
+                ))}
+            </div>
+
+            <div className="relative">
+                <div
+                    className="absolute z-20 flex flex-col items-center transition-all duration-500"
+                    style={{ left: `${getPos(current)}%`, transform: "translateX(-50%)", top: "-32px" }}
+                >
+                    <div className="bg-slate-900 dark:bg-black text-white text-[11px] font-black px-3 py-1.5 rounded-lg shadow-2xl border border-white/10 whitespace-nowrap">
+                        当前 <span className="tabular-nums">${sanitizePrice(current)}</span>
+                    </div>
+                    <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[6px] border-l-transparent border-r-transparent border-t-slate-900 dark:border-t-black" />
                 </div>
 
-                {/* Tooltip & Marker Dot Group */}
                 <div
-                    className="absolute top-1/2 -translate-y-1/2 z-20 flex flex-col items-center transition-[left] duration-500 ease-in-out left-(--marker-left)"
-                    style={{ '--marker-left': `${getPos(current)}%` } as React.CSSProperties}
+                    className="absolute z-10"
+                    style={{ left: `${getPos(current)}%`, transform: "translateX(-50%)", top: "-4px" }}
                 >
-                    {/* Tooltip */}
-                    <div className="absolute bottom-full mb-2 flex flex-col items-center">
-                        <div className="bg-slate-900 dark:bg-black text-white text-[10px] font-black px-2.5 py-1 rounded-lg shadow-2xl border border-white/10 whitespace-nowrap">
-                            ${sanitizePrice(current)}
-                        </div>
-                        <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-slate-900 dark:border-t-black -mt-px" />
-                    </div>
+                    <div className="w-6 h-6 bg-blue-600 rounded-full border-[3px] border-white dark:border-zinc-950 shadow-lg ring-4 ring-blue-600/15" />
+                </div>
 
-                    {/* Marker Dot */}
-                    <div className="w-4 h-4 bg-blue-600 rounded-full border-[3px] border-white dark:border-slate-950 shadow-lg ring-4 ring-blue-600/10" />
+                <div className="relative h-4 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex shadow-inner">
+                    {visibleZones.map((zone, idx) => {
+                        const width = `${((zone.end - zone.start) / totalRange) * 100}%`;
+                        return (
+                            <div
+                                key={idx}
+                                className="shrink-0 h-full"
+                                style={{ width, background: zone.fill }}
+                            />
+                        );
+                    })}
                 </div>
             </div>
 
-            {/* Key Price Labels */}
             <div className="relative h-6 mt-4">
                 {keyPrices.map((tick, i) => (
                     <div
                         key={i}
-                        className="absolute flex flex-col items-center -translate-x-1/2 left-(--tick-left)"
-                        style={{ '--tick-left': `${getPos(tick.val)}%` } as React.CSSProperties}
+                        className="absolute flex flex-col items-center -translate-x-1/2"
+                        style={{ left: `${getPos(tick.val)}%` }}
                     >
-                        <div className="w-px h-1.5 bg-slate-200 dark:bg-slate-700 mb-1" />
-                        <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 tabular-nums">
+                        <div className={clsx("w-px h-2 mb-1", tick.color.split(" ")[0])} />
+                        <span className={clsx("text-[10px] font-bold tabular-nums", tick.color.split(" ").slice(1).join(" "))}>
                             {tick.val.toFixed(2)}
+                            <span className="text-[8px] ml-0.5 opacity-70">{tick.label === "T1" ? "T1" : ""}</span>
                         </span>
                     </div>
                 ))}
@@ -903,11 +930,14 @@ function TradeExecutionDetails({
     const target = aiData.target_price;
     const rr = aiData.rr_ratio;
     const t1 = aiData.target_price_1;
+    const t2 = aiData.target_price_2 ?? target;
     const maxPct = aiData.max_position_pct;
     const horizon = aiData.investment_horizon;
+    const entryMid = (entryLow + entryHigh) / 2;
 
-    const t1PctChange = t1 && currentPrice ? ((t1 - currentPrice) / currentPrice * 100) : null;
-    const stopPctChange = stop && currentPrice ? ((stop - currentPrice) / currentPrice * 100) : null;
+    const t1PctChange = t1 && entryMid ? ((t1 - entryMid) / entryMid * 100) : null;
+    const t2PctChange = t2 && entryMid ? ((t2 - entryMid) / entryMid * 100) : null;
+    const stopPctChange = stop && entryMid ? ((stop - entryMid) / entryMid * 100) : null;
 
     const horizonLabel = (() => {
         if (!horizon) return "波段";
@@ -918,103 +948,70 @@ function TradeExecutionDetails({
 
     return (
         <div className="mt-4 space-y-3">
-            {/* 四卡片：Entry / T1 / Stop / R/R */}
-            <div className="grid grid-cols-4 gap-3">
-                {/* Entry */}
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
                 <div className="bg-emerald-50 dark:bg-emerald-600/5 border border-emerald-100 dark:border-emerald-600/10 rounded-xl p-3">
-                    <div className="flex items-center justify-between mb-1">
-                        <span className="text-[9px] font-black text-emerald-700 dark:text-emerald-400 uppercase">入场 Entry</span>
-                        <span className="tag text-[9px] font-black px-1.5 py-0.5 rounded border bg-emerald-100/50 dark:bg-emerald-600/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-600/20">最优</span>
-                    </div>
+                    <div className="text-[9px] font-black text-emerald-700 dark:text-emerald-400 uppercase mb-1">入场 Entry</div>
                     <div className="text-lg font-black text-emerald-600 dark:text-emerald-400 mono tabular-nums">
                         ${entryLow.toFixed(0)}–{entryHigh.toFixed(0)}
                     </div>
                     <p className="text-[9px] text-emerald-700 dark:text-emerald-400/80 mt-0.5">
-                        当前 ${currentPrice.toFixed(2)} · 等待回踩
+                        {currentPrice > entryHigh ? "等待回踩" : "接近触发"}
                     </p>
                 </div>
 
-                {/* T1 Target */}
-                <div className="bg-blue-50 dark:bg-blue-600/5 border border-blue-100 dark:border-blue-600/10 rounded-xl p-3">
-                    <div className="flex items-center justify-between mb-1">
-                        <span className="text-[9px] font-black text-blue-700 dark:text-blue-400 uppercase">T1 目标</span>
-                        {t1PctChange != null && (
-                            <span className="text-[9px] text-blue-500 font-semibold">+{t1PctChange.toFixed(1)}%</span>
-                        )}
-                    </div>
-                    <div className="text-lg font-black text-blue-600 dark:text-blue-400 mono tabular-nums">
-                        ${t1?.toFixed(2) ?? target?.toFixed(2) ?? "--"}
-                    </div>
-                </div>
-
-                {/* Stop */}
                 <div className="bg-rose-50 dark:bg-rose-600/5 border border-rose-100 dark:border-rose-600/10 rounded-xl p-3">
-                    <div className="flex items-center justify-between mb-1">
-                        <span className="text-[9px] font-black text-rose-700 dark:text-rose-400 uppercase">止损 Stop</span>
-                        <span className="tag text-[9px] font-black px-1.5 py-0.5 rounded border bg-rose-100/50 dark:bg-rose-600/10 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-600/20">纪律</span>
-                    </div>
+                    <div className="text-[9px] font-black text-rose-700 dark:text-rose-400 uppercase mb-1">止损 Stop</div>
                     <div className="text-lg font-black text-rose-600 dark:text-rose-400 mono tabular-nums">
                         ${stop.toFixed(2)}
                     </div>
                     {stopPctChange != null && (
                         <p className="text-[9px] text-rose-700 dark:text-rose-400/80 mt-0.5">
-                            {stopPctChange.toFixed(1)}% · 前低支撑下方
+                            {stopPctChange.toFixed(1)}% · 前低下方
                         </p>
                     )}
                 </div>
 
-                {/* R/R */}
-                <div className="bg-amber-50 dark:bg-amber-600/5 border border-amber-100 dark:border-amber-600/10 rounded-xl p-3">
-                    <div className="flex items-center justify-between mb-1">
-                        <span className="text-[9px] font-black text-amber-700 dark:text-amber-400 uppercase">风险回报 R/R</span>
+                <div className="bg-blue-50 dark:bg-blue-600/5 border border-blue-100 dark:border-blue-600/10 rounded-xl p-3">
+                    <div className="text-[9px] font-black text-blue-700 dark:text-blue-400 uppercase mb-1">T1 减仓 1/3</div>
+                    <div className="text-lg font-black text-blue-600 dark:text-blue-400 mono tabular-nums">
+                        ${t1?.toFixed(2) ?? target?.toFixed(2) ?? "--"}
                     </div>
+                    {t1PctChange != null && (
+                        <p className="text-[9px] text-blue-700 dark:text-blue-400/80 mt-0.5">
+                            +{t1PctChange.toFixed(1)}% · 锁利润
+                        </p>
+                    )}
+                </div>
+
+                <div className="bg-blue-50 dark:bg-blue-600/5 border border-blue-100 dark:border-blue-600/10 rounded-xl p-3">
+                    <div className="text-[9px] font-black text-blue-700 dark:text-blue-400 uppercase mb-1">T2 止盈清仓</div>
+                    <div className="text-lg font-black text-blue-600 dark:text-blue-400 mono tabular-nums">
+                        ${t2?.toFixed(2) ?? "--"}
+                    </div>
+                    {t2PctChange != null && (
+                        <p className="text-[9px] text-blue-700 dark:text-blue-400/80 mt-0.5">
+                            +{t2PctChange.toFixed(1)}% · 完整兑现
+                        </p>
+                    )}
+                </div>
+
+                <div className="bg-amber-50 dark:bg-amber-600/5 border border-amber-100 dark:border-amber-600/10 rounded-xl p-3">
+                    <div className="text-[9px] font-black text-amber-700 dark:text-amber-400 uppercase mb-1">风险回报</div>
                     <div className="text-lg font-black text-amber-600 dark:text-amber-400 mono tabular-nums">
                         {rr ? `1:${rr}` : "--"}
                     </div>
-                    <p className="text-[9px] text-amber-700 dark:text-amber-400/80 mt-0.5">潜在盈利 / 潜在亏损</p>
+                    <p className="text-[9px] text-amber-700 dark:text-amber-400/80 mt-0.5">盈 / 亏</p>
+                </div>
+
+                <div className="bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800 rounded-xl p-3">
+                    <div className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase mb-1">仓位 Size</div>
+                    <div className="text-lg font-black text-slate-700 dark:text-slate-200 mono tabular-nums">
+                        {maxPct != null ? `${(maxPct * 0.7).toFixed(1)}→${maxPct.toFixed(1)}%` : "--"}
+                    </div>
+                    <p className="text-[9px] text-slate-500 dark:text-slate-500 mt-0.5">{horizonLabel} · 分 2 笔</p>
                 </div>
             </div>
 
-            {/* 三卡片：Max仓位 / 投资期限 / 建议仓位 */}
-            <div className="grid grid-cols-3 gap-3">
-                {/* Max Position */}
-                <div className="bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800 rounded-xl p-3">
-                    <div className="flex items-center justify-between mb-1">
-                        <span className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase">最大仓位 Max</span>
-                        <span className="tag text-[9px] font-black px-1.5 py-0.5 rounded border bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-zinc-700">风控</span>
-                    </div>
-                    <div className="text-2xl font-black text-slate-700 dark:text-slate-200 mono tabular-nums">
-                        {maxPct != null ? `${maxPct.toFixed(1)}%` : "--"}
-                    </div>
-                    <p className="text-[9px] text-slate-500 dark:text-slate-500 mt-0.5">基于组合波动率限制</p>
-                </div>
-
-                {/* Horizon */}
-                <div className="bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800 rounded-xl p-3">
-                    <div className="flex items-center justify-between mb-1">
-                        <span className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase">投资期限 Horizon</span>
-                        <span className="tag text-[9px] font-black px-1.5 py-0.5 rounded border bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-zinc-700">{horizonLabel}</span>
-                    </div>
-                    <div className="text-2xl font-black text-slate-700 dark:text-slate-200 mono tabular-nums">
-                        {horizon || "1-2 周"}
-                    </div>
-                    <p className="text-[9px] text-slate-500 dark:text-slate-500 mt-0.5">技术面窗口预期</p>
-                </div>
-
-                {/* Suggested Size */}
-                <div className="bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800 rounded-xl p-3">
-                    <div className="flex items-center justify-between mb-1">
-                        <span className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase">建议仓位 Size</span>
-                        <span className="tag text-[9px] font-black px-1.5 py-0.5 rounded border bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-zinc-700">分笔</span>
-                    </div>
-                    <div className="text-2xl font-black text-slate-700 dark:text-slate-200 mono tabular-nums">
-                        {maxPct != null ? `${(maxPct * 0.7).toFixed(1)}% → ${maxPct.toFixed(1)}%` : "--"}
-                    </div>
-                    <p className="text-[9px] text-slate-500 dark:text-slate-500 mt-0.5">分 2 笔建仓，回踩确认后补至满仓</p>
-                </div>
-            </div>
-
-            {/* Execution Strategy */}
             {aiData.action_advice && (
                 <div className="bg-linear-to-r from-emerald-50 to-blue-50 dark:from-emerald-600/5 dark:to-blue-600/5 border border-emerald-100 dark:border-emerald-600/10 rounded-xl p-3">
                     <div className="flex items-start gap-2">

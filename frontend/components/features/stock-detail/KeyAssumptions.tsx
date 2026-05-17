@@ -21,6 +21,8 @@ const RISK_CONFIG = {
         tagColor: "text-rose-600 dark:text-rose-400",
         tagBorder: "border-rose-200 dark:border-rose-600/20",
         metricColor: "text-rose-600 dark:text-rose-400",
+        rowHover: "hover:bg-rose-50/40 dark:hover:bg-rose-600/10",
+        rowOpen: "bg-rose-50/25 dark:bg-rose-600/5",
         pulse: true,
         label: "核心假设",
     },
@@ -30,6 +32,8 @@ const RISK_CONFIG = {
         tagColor: "text-amber-600 dark:text-amber-400",
         tagBorder: "border-amber-200 dark:border-amber-600/20",
         metricColor: "text-amber-600 dark:text-amber-400",
+        rowHover: "hover:bg-amber-50/30 dark:hover:bg-amber-600/10",
+        rowOpen: "bg-amber-50/20 dark:bg-amber-600/5",
         pulse: false,
         label: "辅助假设",
     },
@@ -39,6 +43,8 @@ const RISK_CONFIG = {
         tagColor: "text-emerald-600 dark:text-emerald-400",
         tagBorder: "border-emerald-200 dark:border-emerald-600/20",
         metricColor: "text-emerald-600 dark:text-emerald-400",
+        rowHover: "hover:bg-emerald-50/30 dark:hover:bg-emerald-600/10",
+        rowOpen: "bg-emerald-50/20 dark:bg-emerald-600/5",
         pulse: false,
         label: "基本面假设",
     },
@@ -73,7 +79,7 @@ export function KeyAssumptions({ assumptions }: KeyAssumptionsProps) {
                     return (
                         <div
                             key={idx}
-                            className={`px-6 py-4 flex items-start gap-4 cursor-pointer transition-colors ${risk.pulse ? "assumption-pulse" : ""} hover:bg-rose-50/30 dark:hover:bg-rose-600/5`}
+                            className={`px-6 py-4 flex items-start gap-4 cursor-pointer transition-colors ${risk.pulse ? "assumption-pulse" : ""} ${risk.rowHover} ${isOpen ? risk.rowOpen : ""}`}
                             onClick={() => setExpanded(isOpen ? null : idx)}
                         >
                             {/* Number dot */}
@@ -94,6 +100,11 @@ export function KeyAssumptions({ assumptions }: KeyAssumptionsProps) {
                                 <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
                                     {item.breakpoint}
                                 </p>
+                                {isOpen && (
+                                    <div className="mt-2 text-[10px] text-slate-400 dark:text-slate-500">
+                                        点击卡片可切换查看状态，建议持续关注这一假设是否被市场数据证伪。
+                                    </div>
+                                )}
                             </div>
 
                             {/* Right metric column */}

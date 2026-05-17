@@ -17,6 +17,7 @@ import { useDashboardStockDetailData } from "@/features/dashboard/hooks/useDashb
 import { useAnalysisStatus } from "@/features/analysis/useAnalysisStatus";
 import { PortfolioItem } from "@/types";
 import { refreshStock } from "@/features/portfolio/api";
+import { getPositionImpactAnalysis, type PositionImpactAnalysis } from "@/features/portfolio/risk-api";
 import { fetchStockHistory } from "@/features/market/api";
 import type { AIData, AnalysisHistoryItem } from "./stock-detail/types";
 
@@ -81,6 +82,8 @@ export function StockDetail({
 }: StockDetailProps) {
     // --- 全局状态管理 ---
     const [refreshing, setRefreshing] = useState(false);
+    const [positionImpact, setPositionImpact] = useState<PositionImpactAnalysis | null>(null);
+    const [positionImpactLoading, setPositionImpactLoading] = useState(false);
     const { analysisHistory, historyData, stockHistoryLoading } = useDashboardStockDetailData(
         selectedItem?.ticker || null,
         refreshTimestamp
@@ -105,6 +108,44 @@ export function StockDetail({
     useEffect(() => {
         setMergedHistoryData([]);
     }, [selectedItem?.ticker]);
+
+    useEffect(() => {
+        const ticker = selectedItem?.ticker;
+        const positionPct = aiData?.max_position_pct;
+
+        if (!ticker || positionPct == null) {
+            setPositionImpact(null);
+            setPositionImpactLoading(false);
+            return;
+        }
+
+        let cancelled = false;
+
+        const loadPositionImpact = async () => {
+            setPositionImpactLoading(true);
+            try {
+                const result = await getPositionImpactAnalysis(ticker, positionPct);
+                if (!cancelled) {
+                    setPositionImpact(result);
+                }
+            } catch (err) {
+                console.error("Failed to load portfolio linkage:", err);
+                if (!cancelled) {
+                    setPositionImpact(null);
+                }
+            } finally {
+                if (!cancelled) {
+                    setPositionImpactLoading(false);
+                }
+            }
+        };
+
+        void loadPositionImpact();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [selectedItem?.ticker, aiData?.max_position_pct]);
 
     // Sync merged history with initial history data while preserving manually loaded past history
     useEffect(() => {
@@ -386,7 +427,8 @@ export function StockDetail({
                 <PortfolioLinkage
                     ticker={selectedItem.ticker}
                     positionPct={aiData.max_position_pct ?? 5}
-                    impactData={null}
+                    impactData={positionImpact}
+                    isLoading={positionImpactLoading}
                 />
             )}
               </>

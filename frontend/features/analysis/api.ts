@@ -58,6 +58,7 @@ export function normalizeAnalysisResponse(result: Record<string, unknown>): Anal
       trade_setup_status: typeof result.trade_setup_status === "string" ? result.trade_setup_status : undefined,
       sentiment_score: typeof result.sentiment_score === "number" ? result.sentiment_score : undefined,
       summary_status: typeof result.summary_status === "string" ? result.summary_status : undefined,
+      core_logic_summary: typeof result.core_logic_summary === "string" ? result.core_logic_summary : undefined,
       risk_level: typeof result.risk_level === "string" ? result.risk_level : undefined,
       trigger_condition: typeof result.trigger_condition === "string" ? result.trigger_condition : undefined,
       invalidation_condition: typeof result.invalidation_condition === "string" ? result.invalidation_condition : undefined,
@@ -84,6 +85,16 @@ export function normalizeAnalysisResponse(result: Record<string, unknown>): Anal
       bull_case: typeof result.bull_case === "string" ? result.bull_case : undefined,
       base_case: typeof result.base_case === "string" ? result.base_case : undefined,
       bear_case: typeof result.bear_case === "string" ? result.bear_case : undefined,
+      confidence_breakdown:
+        typeof result.confidence_breakdown === "object" && result.confidence_breakdown !== null
+          ? (result.confidence_breakdown as AnalysisResponse["confidence_breakdown"])
+          : undefined,
+      key_assumptions: Array.isArray(result.key_assumptions)
+        ? (result.key_assumptions as AnalysisResponse["key_assumptions"])
+        : undefined,
+      catalysts: Array.isArray(result.catalysts)
+        ? (result.catalysts as AnalysisResponse["catalysts"])
+        : undefined,
       is_cached: Boolean(result.is_cached),
       model_used: typeof result.model_used === "string" ? result.model_used : undefined,
       created_at: typeof result.created_at === "string" ? result.created_at : undefined,

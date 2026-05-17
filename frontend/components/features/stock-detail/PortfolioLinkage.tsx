@@ -2,7 +2,7 @@
 
 import React from "react";
 import clsx from "clsx";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Users } from "lucide-react";
 
 interface SectorRow {
     sector: string;
@@ -29,15 +29,55 @@ interface PortfolioLinkageProps {
     isLoading?: boolean;
 }
 
+const SECTOR_LABELS: Record<string, string> = {
+    Technology: "科技",
+    Healthcare: "医疗",
+    Financials: "金融",
+    Industrials: "工业",
+    Consumer: "消费",
+    Energy: "能源",
+    Utilities: "公用事业",
+    Unknown: "未知",
+};
+
+const SECTOR_COLORS: Record<string, { current: string; projected: string; text: string }> = {
+    Technology: { current: "bg-slate-400", projected: "bg-amber-400", text: "text-amber-400" },
+    Healthcare: { current: "bg-slate-400", projected: "bg-emerald-400", text: "text-emerald-400" },
+    Financials: { current: "bg-slate-400", projected: "bg-violet-400", text: "text-violet-400" },
+    Industrials: { current: "bg-slate-400", projected: "bg-cyan-400", text: "text-cyan-400" },
+    Consumer: { current: "bg-slate-400", projected: "bg-pink-400", text: "text-pink-400" },
+    Energy: { current: "bg-slate-400", projected: "bg-orange-400", text: "text-orange-400" },
+    Utilities: { current: "bg-slate-400", projected: "bg-sky-400", text: "text-sky-400" },
+    Unknown: { current: "bg-slate-400", projected: "bg-slate-200", text: "text-slate-200" },
+};
+
+function formatDelta(current: number, projected: number): string {
+    const diff = projected - current;
+    return `${diff >= 0 ? "+" : ""}${diff.toFixed(1)}`;
+}
+
+function buildRows(impactData: ImpactData) {
+    return impactData.projected_sector_exposure.map((projected) => {
+        const current = impactData.current_sector_exposure.find((item) => item.sector === projected.sector);
+        return {
+            sector: projected.sector,
+            currentWeight: current?.weight ?? 0,
+            projectedWeight: projected.weight,
+            isOverLimit: projected.weight > 40,
+        };
+    });
+}
+
 export function PortfolioLinkage({ ticker, positionPct, impactData, isLoading }: PortfolioLinkageProps) {
     if (isLoading) {
         return (
             <div className="rounded-2xl border overflow-hidden" style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)", borderColor: "#1e3a5f" }}>
-                <div className="px-6 py-3 border-b" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+                <div className="px-6 py-3 border-b flex items-center gap-2" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+                    <Users className="w-4 h-4 text-blue-400" />
                     <span className="text-[11px] font-black text-slate-300 uppercase tracking-wider">组合联动视角</span>
                 </div>
                 <div className="p-6 flex items-center justify-center text-slate-400 text-sm">
-                    计算中...
+                    组合影响计算中...
                 </div>
             </div>
         );
@@ -45,73 +85,81 @@ export function PortfolioLinkage({ ticker, positionPct, impactData, isLoading }:
 
     if (!impactData) return null;
 
-    const {
-        current_sector_exposure: currentSectors,
-        projected_sector_exposure: projectedSectors,
-        current_beta,
-        projected_beta,
-        current_sharpe,
-        projected_sharpe,
-        max_recommended_pct,
-        ai_suggestion,
-        warnings,
-    } = impactData;
-
-    const SECTOR_COLORS: Record<string, { current: string; projected: string }> = {
-        Technology: { current: "bg-blue-500/40", projected: "bg-amber-500" },
-        Healthcare: { current: "bg-emerald-500/40", projected: "bg-emerald-500" },
-        Financials: { current: "bg-violet-500/40", projected: "bg-violet-500" },
-        Industrials: { current: "bg-teal-500/40", projected: "bg-teal-500" },
-        Consumer: { current: "bg-pink-500/40", projected: "bg-pink-500" },
-        Energy: { current: "bg-orange-500/40", projected: "bg-orange-500" },
-    };
+    const rows = buildRows(impactData).slice(0, 4);
+    const headlineWarning = impactData.warnings[0];
 
     return (
         <div className="rounded-2xl border overflow-hidden" style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)", borderColor: "#1e3a5f" }}>
-            {/* Header */}
             <div className="px-6 py-3 border-b flex items-center gap-2" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-                <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
+                <Users className="w-4 h-4 text-blue-400" />
                 <span className="text-[11px] font-black text-slate-300 uppercase tracking-wider">组合联动视角</span>
-                <span className="text-[10px] text-slate-500">— 加仓 {ticker} {positionPct}% 对组合意味着什么</span>
+                <span className="text-[10px] text-slate-500 ml-1">— 加仓 {ticker} {positionPct}% 对组合意味着什么</span>
             </div>
 
             <div className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Left: Sector Exposure Changes */}
-                    <div>
-                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-3">
-                            加仓后行业敞口变化
+                {(headlineWarning || impactData.ai_suggestion) && (
+                    <div className="mb-5 bg-rose-500/10 border border-rose-500/20 rounded-xl px-4 py-3">
+                        <div className="flex items-start gap-2.5">
+                            <AlertTriangle className="w-4 h-4 text-rose-300 shrink-0 mt-0.5" />
+                            <p className="text-[11px] text-rose-200 leading-relaxed flex-1">
+                                <span className="font-black">关键提示：</span>
+                                {impactData.ai_suggestion || headlineWarning}
+                            </p>
                         </div>
-                        <div className="space-y-2.5">
-                            {currentSectors.map((sector) => {
-                                const projected = projectedSectors.find(s => s.sector === sector.sector);
-                                const projectedWeight = projected?.weight ?? sector.weight;
-                                const colorSet = SECTOR_COLORS[sector.sector] ?? { current: "bg-slate-500/40", projected: "bg-slate-500" };
-                                const isOverLimit = projectedWeight > 40;
+                    </div>
+                )}
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                        <div className="flex items-baseline justify-between mb-3">
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">加仓后行业敞口变化</span>
+                            <div className="flex items-center gap-3 text-[9px] text-slate-500">
+                                <span className="flex items-center gap-1"><span className="w-2 h-1 bg-slate-500 rounded" />加仓前</span>
+                                <span className="flex items-center gap-1"><span className="w-2 h-1.5 bg-amber-400 rounded" />加仓后</span>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            {rows.map((row) => {
+                                const colorSet = SECTOR_COLORS[row.sector] ?? SECTOR_COLORS.Unknown;
+                                const label = SECTOR_LABELS[row.sector] ?? row.sector;
 
                                 return (
-                                    <div key={sector.sector}>
-                                        <div className="flex items-center justify-between mb-1">
-                                            <span className="text-[10px] text-slate-300 font-medium">{sector.sector}</span>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-[10px] text-slate-500 mono">{sector.weight.toFixed(1)}%</span>
-                                                <span className={clsx("text-[10px] font-black mono", isOverLimit ? "text-amber-400" : "text-slate-300")}>
-                                                    → {projectedWeight.toFixed(1)}%
+                                    <div key={row.sector}>
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <span className="text-[11px] text-slate-200 font-semibold">
+                                                {label} <span className="text-slate-500 uppercase">{row.sector}</span>
+                                            </span>
+                                            <div className="flex items-center gap-2 mono text-[10px]">
+                                                <span className="text-slate-500">{row.currentWeight.toFixed(1)}%</span>
+                                                <span className="text-slate-500">→</span>
+                                                <span className={clsx("font-bold", row.isOverLimit ? "text-amber-400" : "text-slate-200")}>
+                                                    {row.projectedWeight.toFixed(1)}%
+                                                </span>
+                                                <span className={clsx("ml-1", row.isOverLimit ? "text-rose-400 font-bold" : colorSet.text)}>
+                                                    {formatDelta(row.currentWeight, row.projectedWeight)}
                                                 </span>
                                             </div>
                                         </div>
-                                        <div className="h-2 bg-slate-700 rounded-full overflow-hidden relative">
-                                            <div className={clsx("h-full rounded-full absolute", colorSet.current)} style={{ width: `${sector.weight}%` }} />
-                                            <div className={clsx("h-full rounded-full", colorSet.projected)} style={{ width: `${projectedWeight}%`, opacity: 0.7 }} />
-                                            {/* 40% warning line */}
-                                            <div className="absolute top-0 bottom-0 w-0.5 bg-rose-400" style={{ left: "40%" }} />
-                                        </div>
-                                        {isOverLimit && (
-                                            <div className="flex items-center gap-1 mt-1">
-                                                <span className="text-[9px] text-rose-400 font-bold">⚠ 超过建议上限 40%，行业集中度偏高</span>
+
+                                        <div>
+                                            <div className="h-1 bg-slate-700 rounded-full overflow-hidden relative">
+                                                <div className={clsx("h-full rounded-full", colorSet.current)} style={{ width: `${row.currentWeight}%` }} />
+                                                <div className="absolute top-[-3px] bottom-[-9px] w-px bg-rose-400/60" style={{ left: "40%" }} />
+                                                <div className="absolute -top-3 mono text-[8px] text-rose-400" style={{ left: "40%", transform: "translateX(-50%)" }}>
+                                                    40%
+                                                </div>
                                             </div>
+                                            <div className="h-2 bg-slate-700 rounded-full overflow-hidden mt-1 relative">
+                                                <div className={clsx("h-full rounded-full", colorSet.projected)} style={{ width: `${row.projectedWeight}%` }} />
+                                                <div className="absolute top-0 bottom-0 w-px bg-rose-400/60" style={{ left: "40%" }} />
+                                            </div>
+                                        </div>
+
+                                        {row.isOverLimit && (
+                                            <p className="text-[9px] text-rose-400 font-bold mt-1.5">
+                                                ⚠ 加仓后超过 40% 建议上限
+                                            </p>
                                         )}
                                     </div>
                                 );
@@ -119,72 +167,79 @@ export function PortfolioLinkage({ ticker, positionPct, impactData, isLoading }:
                         </div>
                     </div>
 
-                    {/* Right: Key Metrics */}
                     <div>
                         <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-3">
                             组合关键指标影响
                         </div>
+
                         <div className="space-y-3">
-                            {/* Beta */}
-                            <div className="flex items-center justify-between py-2 border-b" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
-                                <span className="text-[11px] text-slate-400">组合 Beta</span>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[10px] text-slate-500 line-through mono">{current_beta.toFixed(2)}</span>
-                                    <span className="text-sm font-black text-white mono">{projected_beta.toFixed(2)}</span>
-                                    <span className={clsx(
-                                        "text-[9px] font-black px-1.5 py-0.5 rounded border",
-                                        projected_beta > current_beta
-                                            ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
-                                            : "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
-                                    )}>
-                                        {projected_beta > current_beta ? "↑ 波动" : "↓ 稳健"}
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Sharpe */}
-                            <div className="flex items-center justify-between py-2 border-b" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
-                                <span className="text-[11px] text-slate-400">Sharpe 预期</span>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[10px] text-slate-500 line-through mono">{current_sharpe.toFixed(2)}</span>
-                                    <span className="text-sm font-black text-emerald-400 mono">{projected_sharpe.toFixed(2)}</span>
-                                    <span className="text-[9px] font-black px-1.5 py-0.5 rounded border bg-emerald-500/15 text-emerald-400 border-emerald-500/30">
-                                        ↑ 改善
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Max Position */}
+                            <MetricRow
+                                label="组合 Beta"
+                                before={impactData.current_beta.toFixed(2)}
+                                after={impactData.projected_beta.toFixed(2)}
+                                tone={impactData.projected_beta > impactData.current_beta ? "amber" : "emerald"}
+                                badge={impactData.projected_beta > impactData.current_beta ? "↑ 波动" : "↓ 稳健"}
+                            />
+                            <MetricRow
+                                label="Sharpe 预期"
+                                before={impactData.current_sharpe.toFixed(2)}
+                                after={impactData.projected_sharpe.toFixed(2)}
+                                tone={impactData.projected_sharpe >= impactData.current_sharpe ? "emerald" : "amber"}
+                                badge={impactData.projected_sharpe >= impactData.current_sharpe ? "↑ 改善" : "↓ 承压"}
+                            />
                             <div className="flex items-center justify-between py-2">
                                 <span className="text-[11px] text-slate-400">建议最大仓位</span>
                                 <span className="text-sm font-black text-blue-400 mono">
-                                    {positionPct}% → {max_recommended_pct}%
+                                    {positionPct.toFixed(1)}% → {impactData.max_recommended_pct.toFixed(1)}%
                                 </span>
                             </div>
                         </div>
 
-                        {/* AI Suggestion */}
-                        {ai_suggestion && (
-                            <div className="mt-3 bg-rose-500/10 border border-rose-500/20 rounded-xl p-3">
-                                <p className="text-[10px] text-rose-300 leading-relaxed">
-                                    <span className="font-black">AI 建议：</span>{ai_suggestion}
-                                </p>
-                            </div>
-                        )}
-
-                        {/* Warnings */}
-                        {warnings.length > 0 && (
-                            <div className="mt-2 space-y-1">
-                                {warnings.map((w, i) => (
-                                    <div key={i} className="flex items-center gap-1.5 text-[10px] text-amber-300">
+                        {impactData.warnings.length > 0 && (
+                            <div className="mt-4 space-y-1.5">
+                                {impactData.warnings.map((warning, index) => (
+                                    <div key={`${warning}-${index}`} className="flex items-center gap-1.5 text-[10px] text-amber-300">
                                         <AlertTriangle className="h-3 w-3" />
-                                        <span>{w}</span>
+                                        <span>{warning}</span>
                                     </div>
                                 ))}
                             </div>
                         )}
                     </div>
                 </div>
+            </div>
+        </div>
+    );
+}
+
+function MetricRow({
+    label,
+    before,
+    after,
+    tone,
+    badge,
+}: {
+    label: string;
+    before: string;
+    after: string;
+    tone: "amber" | "emerald";
+    badge: string;
+}) {
+    const badgeClass = tone === "amber"
+        ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
+        : "bg-emerald-500/15 text-emerald-400 border-emerald-500/30";
+
+    const valueClass = tone === "amber" ? "text-white" : "text-emerald-400";
+
+    return (
+        <div className="flex items-center justify-between py-2 border-b" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
+            <span className="text-[11px] text-slate-400">{label}</span>
+            <div className="flex items-center gap-2">
+                <span className="text-[10px] text-slate-500 line-through mono">{before}</span>
+                <span className={clsx("text-sm font-black mono", valueClass)}>{after}</span>
+                <span className={clsx("text-[9px] font-black px-1.5 py-0.5 rounded border", badgeClass)}>
+                    {badge}
+                </span>
             </div>
         </div>
     );

@@ -24,8 +24,8 @@ from app.core.config import settings
 from app.core.prompts import build_stock_analysis_prompt, build_portfolio_analysis_prompt
 from app.core.redis_client import cache_get, cache_set
 from app.models.user import User
-from app.services.model_resolver import ModelResolver
-from app.services.provider_router import ProviderRouter
+from app.services.integrations.ai.model_resolver import ModelResolver
+from app.services.integrations.ai.provider_router import ProviderRouter
 
 logger = logging.getLogger(__name__)
 

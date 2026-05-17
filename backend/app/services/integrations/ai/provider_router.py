@@ -10,8 +10,8 @@ from typing import Optional, Tuple
 import httpx
 
 from app.schemas.ai_config import AIModelRuntimeConfig, ProviderRuntimeConfig
-from app.services.ai_provider import OpenAICompatibleProvider, infer_provider_key
-from app.services.model_resolver import ModelResolver
+from app.services.integrations.ai.ai_provider import OpenAICompatibleProvider, infer_provider_key
+from app.services.integrations.ai.model_resolver import ModelResolver
 from app.core.redis_client import cache_set
 
 logger = logging.getLogger(__name__)

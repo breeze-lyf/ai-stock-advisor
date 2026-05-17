@@ -34,7 +34,7 @@ from app.models.notification_settings import (
     UserNotificationSubscription,
 )
 from app.models.user import User
-from app.services.email_service import EmailService
+from app.services.integrations.email_service import EmailService
 from app.utils.time import utc_now_naive
 
 logger = logging.getLogger(__name__)

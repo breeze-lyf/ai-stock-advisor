@@ -2,7 +2,7 @@ import pytest
 import json
 from unittest.mock import patch, MagicMock
 from app.services.ai_service import AIService
-from app.services.provider_router import ProviderRouter
+from app.services.integrations.ai.provider_router import ProviderRouter
 
 
 @pytest.mark.asyncio

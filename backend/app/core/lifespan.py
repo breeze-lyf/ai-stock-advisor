@@ -163,7 +163,7 @@ async def lifespan(app: FastAPI):
     _normalize_proxy_env()
 
     from app.core.database import SessionLocal
-    from app.services.system_ai_registry import ensure_system_ai_registry
+    from app.services.integrations.ai.system_ai_registry import ensure_system_ai_registry
     from app.services.scheduler import start_scheduler
 
     async with SessionLocal() as db:

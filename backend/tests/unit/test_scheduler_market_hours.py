@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytz
 
-from app.services.scheduler_jobs import _is_market_open_for
+from app.services.scheduler.scheduler_jobs import _is_market_open_for
 
 
 def test_us_alert_market_closed_on_sunday_beijing_evening():

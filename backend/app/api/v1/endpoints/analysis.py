@@ -28,7 +28,7 @@ from app.application.analysis.generate_stock_capsule import GenerateStockCapsule
 from app.application.analysis.helpers import find_latest_shared_report
 from app.utils.time import utc_now_naive
 from app.infrastructure.db.repositories.scheduler_repository import SchedulerRepository
-from app.services.scheduler_jobs import should_auto_analyze
+from app.services.scheduler.scheduler_jobs import should_auto_analyze
 
 logger = logging.getLogger(__name__)
 

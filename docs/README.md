@@ -11,6 +11,7 @@
 5. `03_Mainland_Deployment_Guide.md` — 大陆部署与网络适配
 6. `06_AI_Analysis_Implementation_Guide.md` — AI 增强分析架构与实现
 7. `07_Agent_Architecture_Design.md` — Agent 任务拆解与输出规范
+8. `08_Agent_Decision_Log.md` — AI 协作中的长期设计决定、假设和权衡
 
 ## 文档职责
 
@@ -23,6 +24,7 @@
 | `05_Current_Feature_Status_Matrix.md` | 功能落地状态、测试优先级、回归集 | 新功能进入仓库或状态变化时 |
 | `06_AI_Analysis_Implementation_Guide.md` | AI 增强分析架构、数据流、组件设计 | 增强分析模块实现或重构时 |
 | `07_Agent_Architecture_Design.md` | Agent 架构类型、任务拆解、输出规范 | Agent 相关能力开发或架构调整时 |
+| `08_Agent_Decision_Log.md` | AI 协作沉淀的长期决定、现实假设和架构权衡 | 每次会话产生长期有效决定时 |
 
 ## 目录规则
 

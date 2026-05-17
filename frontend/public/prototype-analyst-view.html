@@ -30,36 +30,32 @@
   <!-- ① 现有：Header 判研卡 (保留，略作改动) -->
   <div class="bg-white rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/50 overflow-hidden">
     <div class="py-5 px-8 bg-slate-50/50 border-b border-slate-100">
-      <div class="grid grid-cols-2 gap-10 items-center">
-        <!-- 左：操作建议 -->
-        <div class="space-y-2">
-          <div class="flex items-center gap-2 flex-wrap">
-            <h3 class="text-3xl font-black text-slate-900 tracking-tight">观望/低吸</h3>
-            <span class="tag" style="background:#f0fdf4;color:#16a34a;border-color:#bbf7d0">建仓</span>
-            <span class="tag" style="background:#eff6ff;color:#2563eb;border-color:#bfdbfe">计划 R/R 1.44</span>
-            <span class="tag" style="background:#f8fafc;color:#64748b;border-color:#e2e8f0">当前 R/R 1.39</span>
-            <span class="tag" style="background:#eff6ff;color:#2563eb;border-color:#bfdbfe">主驱动 技术图</span>
-            <span class="tag" style="background:#f5f3ff;color:#7c3aed;border-color:#ddd6fe">接近触发</span>
-          </div>
-          <p class="text-sm font-semibold text-blue-600">价格回踩 302.50-308.00 区间且不破 20 日均线</p>
-          <div class="flex items-center gap-4 text-xs text-slate-500 font-medium">
-            <span>⏱ 期限: 1-2周</span>
-            <span>💡 信心: 68%</span>
-            <span>⚠️ 风险: 中</span>
-          </div>
+      <div class="space-y-3">
+        <!-- 主标题 + 操作标签 -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <h3 class="text-3xl font-black text-slate-900 tracking-tight">观望/低吸</h3>
+          <span class="tag" style="background:#f0fdf4;color:#16a34a;border-color:#bbf7d0">建仓</span>
+          <span class="tag" style="background:#f9fafb;color:#374151;border-color:#e5e7eb">主驱动 技术图</span>
+          <span class="tag" style="background:#f9fafb;color:#374151;border-color:#e5e7eb">情绪 看多 65</span>
         </div>
-        <!-- 右：情绪偏差 -->
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">AI 情绪偏差</span>
-            <span class="text-sm font-black text-emerald-600">65% BULLISH</span>
+
+        <!-- 关键触发条件：单独成行，加左边框作视觉锚点 -->
+        <div class="flex items-start gap-2.5 pl-3 border-l-[3px] border-blue-500 py-1">
+          <div class="flex-1">
+            <div class="text-[10px] font-black text-blue-700 uppercase tracking-wider mb-0.5">等待触发</div>
+            <p class="text-[15px] font-bold text-slate-900 leading-snug">价格回踩 <span class="mono text-blue-600">$302.50-$308.00</span> 区间且不破 20 日均线</p>
           </div>
-          <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
-            <div class="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full" style="width:65%"></div>
-          </div>
-          <div class="flex justify-between text-[9px] text-slate-400 mt-1 font-medium">
-            <span>0: 极度看空</span><span>50: 中性</span><span>100: 极度看多</span>
-          </div>
+          <span class="tag shrink-0" style="background:#f5f3ff;color:#7c3aed;border-color:#ddd6fe">接近触发</span>
+        </div>
+
+        <!-- 元数据行：期限/风险/复核 -->
+        <div class="flex items-center gap-5 text-xs text-slate-500 font-medium pt-1">
+          <span class="flex items-center gap-1"><span class="text-slate-400">期限</span><span class="text-slate-700 font-semibold">1-2 周</span></span>
+          <span class="text-slate-200">·</span>
+          <span class="flex items-center gap-1"><span class="text-slate-400">风险</span><span class="text-amber-600 font-semibold">中</span></span>
+          <span class="text-slate-200">·</span>
+          <span class="flex items-center gap-1"><span class="text-slate-400">下次复核</span><span class="text-slate-700 font-semibold">04-13 FOMC 后</span></span>
+          <span class="ml-auto text-[10px] text-slate-400">已分析 2h 前</span>
         </div>
       </div>
     </div>
@@ -69,7 +65,7 @@
       <div class="flex items-center gap-2 mb-3">
         <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">信心构成分解</span>
         <span class="tag" style="background:#eff6ff;color:#2563eb;border-color:#bfdbfe">NEW</span>
-        <span class="text-[10px] text-slate-400 ml-auto">总信心 68% · 点击维度查看依据</span>
+        <span class="text-[10px] text-slate-400 ml-auto">总信心 <span class="font-bold text-slate-700">68%</span> · AI 综合加权</span>
       </div>
       <div class="grid grid-cols-3 gap-3">
         <!-- 技术面 -->
@@ -118,153 +114,114 @@
       <span class="tag ml-auto" style="background:#f0fdf4;color:#16a34a;border-color:#bbf7d0">可执行</span>
     </div>
     <div class="p-6">
-      <!-- 价格区间轴（主视觉） -->
-      <div class="mb-6">
-        <!-- 三卡片 -->
-        <div class="flex items-end justify-between mb-6 gap-3">
-          <!-- 预设止损 -->
-          <div class="flex-1 bg-rose-50 border border-rose-100 rounded-2xl p-3 text-center">
-            <div class="text-[9px] font-black text-rose-600 uppercase mb-1">预设止损</div>
-            <div class="text-xl font-black text-rose-500 mono">$295.00</div>
+      <!-- 价格轴（主视觉 · 放大版） -->
+      <div class="mb-7">
+        <!-- 区间标签条（轴上方） -->
+        <div class="relative h-5 mb-2">
+          <div class="absolute -translate-x-1/2 text-center" style="left:calc(100% * (287.5 - 280) / (400 - 280))">
+            <span class="text-[9px] font-black text-rose-600 uppercase tracking-wider">止损区</span>
           </div>
-          <!-- 建仓区间 -->
-          <div class="flex-1 bg-emerald-50 border border-emerald-100 rounded-2xl p-3 text-center">
-            <div class="text-[9px] font-black text-emerald-600 uppercase mb-1">建仓区间</div>
-            <div class="text-xl font-black text-emerald-600 mono">$315.00 - $325.00</div>
+          <div class="absolute -translate-x-1/2 text-center" style="left:calc(100% * (320 - 280) / (400 - 280))">
+            <span class="text-[9px] font-black text-emerald-600 uppercase tracking-wider">建仓区间</span>
           </div>
-          <!-- 目标止盈 -->
-          <div class="flex-1 bg-blue-50 border border-blue-100 rounded-2xl p-3 text-center">
-            <div class="text-[9px] font-black text-blue-600 uppercase mb-1">目标止盈</div>
-            <div class="text-xl font-black text-blue-500 mono">$378.50</div>
+          <div class="absolute -translate-x-1/2 text-center" style="left:calc(100% * (389 - 280) / (400 - 280))">
+            <span class="text-[9px] font-black text-blue-600 uppercase tracking-wider">止盈区</span>
           </div>
         </div>
 
-        <!-- 价格轴（对齐生产版 TradeAxisVisual 风格） -->
+        <!-- 价格轴主体（高度 16px） -->
         <div class="relative">
-          <!-- 当前价标记：悬浮气泡 + 倒三角 + 圆点 -->
-          <div class="absolute top-0 z-20 flex flex-col items-center transition-all duration-500" style="left:calc((383.25-280)/(400-280)*100%);transform:translateX(-50%)">
-            <div class="absolute bottom-full mb-2 flex flex-col items-center">
-              <div class="bg-slate-900 text-white text-[10px] font-black px-2.5 py-1 rounded-lg shadow-2xl border border-white/10 whitespace-nowrap">$383.25</div>
-              <div class="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-slate-900 -mt-px"></div>
+          <!-- 当前价悬浮气泡 -->
+          <div class="absolute z-20 flex flex-col items-center transition-all duration-500" style="left:calc(100% * (383.25 - 280) / (400 - 280));transform:translateX(-50%);top:-32px">
+            <div class="bg-slate-900 text-white text-[11px] font-black px-3 py-1.5 rounded-lg shadow-2xl border border-white/10 whitespace-nowrap">
+              当前 <span class="mono">$383.25</span>
             </div>
-            <div class="w-4 h-4 bg-blue-600 rounded-full border-[3px] border-white shadow-lg ring-4 ring-blue-600/10"></div>
+            <div class="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[6px] border-l-transparent border-r-transparent border-t-slate-900"></div>
+          </div>
+          <!-- 当前价圆点 -->
+          <div class="absolute z-10" style="left:calc(100% * (383.25 - 280) / (400 - 280));transform:translateX(-50%);top:-4px">
+            <div class="w-6 h-6 bg-blue-600 rounded-full border-[3px] border-white shadow-lg ring-4 ring-blue-600/15"></div>
           </div>
 
-          <!-- 底色条 -->
-          <div class="relative h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-            <div class="h-full w-full flex overflow-hidden">
-              <!-- 止损区（浅红斜纹） -->
-              <div style="width:calc((295-280)/(400-280)*100%)">
-                <div class="h-full w-full opacity-90" style="background:repeating-linear-gradient(45deg,transparent,transparent 4px,rgba(244,63,94,0.5) 4px,rgba(244,63,94,0.5) 8px)"></div>
-              </div>
-              <!-- 建仓区间（绿色） -->
-              <div style="width:calc((325-295)/(400-280)*100%)">
-                <div class="h-full w-full bg-emerald-600"></div>
-              </div>
-              <!-- 观望/持有（灰色） -->
-              <div style="width:calc((378.50-325)/(400-280)*100%)">
-                <div class="h-full w-full bg-[#E8EAED]"></div>
-              </div>
-              <!-- 止盈区（蓝色） -->
-              <div style="width:calc((400-378.50)/(400-280)*100%)">
-                <div class="h-full w-full bg-blue-600 rounded-r-full"></div>
-              </div>
-            </div>
+          <!-- 底色条（16px 高） -->
+          <div class="relative h-4 w-full bg-slate-100 rounded-full overflow-hidden flex shadow-inner">
+            <!-- 止损区（红色斜纹） -->
+            <div class="shrink-0 h-full" style="width:calc(100% * (295 - 280) / (400 - 280));background:repeating-linear-gradient(45deg,#fecdd3,#fecdd3 4px,#fee2e2 4px,#fee2e2 8px)"></div>
+            <!-- 止损 → 建仓 之间（灰色等待区） -->
+            <div class="shrink-0 h-full bg-slate-200" style="width:calc(100% * (315 - 295) / (400 - 280))"></div>
+            <!-- 建仓区间（饱和绿） -->
+            <div class="shrink-0 h-full bg-emerald-500" style="width:calc(100% * (325 - 315) / (400 - 280))"></div>
+            <!-- 持有区（淡灰） -->
+            <div class="shrink-0 h-full bg-slate-200" style="width:calc(100% * (378.5 - 325) / (400 - 280))"></div>
+            <!-- T1 标记线 -->
+            <!-- 止盈区（蓝色斜纹） -->
+            <div class="shrink-0 h-full" style="width:calc(100% * (400 - 378.5) / (400 - 280));background:repeating-linear-gradient(45deg,#bfdbfe,#bfdbfe 4px,#dbeafe 4px,#dbeafe 8px)"></div>
           </div>
 
           <!-- 关键价位刻度 -->
-          <div class="relative h-6 mt-4">
-            <div class="absolute flex flex-col items-center -translate-x-1/2" style="left:calc((295-280)/(400-280)*100%)">
-              <div class="w-px h-1.5 bg-slate-200 mb-1"></div>
-              <span class="text-[9px] font-bold text-slate-400 tabular-nums">295.00</span>
+          <div class="relative h-6 mt-2">
+            <div class="absolute flex flex-col items-center -translate-x-1/2" style="left:calc(100% * (295 - 280) / (400 - 280))">
+              <div class="w-px h-2 bg-rose-400 mb-1"></div>
+              <span class="text-[10px] font-bold text-rose-600 mono tabular-nums">295.00</span>
             </div>
-            <div class="absolute flex flex-col items-center -translate-x-1/2" style="left:calc((315-280)/(400-280)*100%)">
-              <div class="w-px h-1.5 bg-slate-200 mb-1"></div>
-              <span class="text-[9px] font-bold text-slate-400 tabular-nums">315.00</span>
+            <div class="absolute flex flex-col items-center -translate-x-1/2" style="left:calc(100% * (315 - 280) / (400 - 280))">
+              <div class="w-px h-2 bg-emerald-400 mb-1"></div>
+              <span class="text-[10px] font-bold text-emerald-600 mono tabular-nums">315.00</span>
             </div>
-            <div class="absolute flex flex-col items-center -translate-x-1/2" style="left:calc((325-280)/(400-280)*100%)">
-              <div class="w-px h-1.5 bg-slate-200 mb-1"></div>
-              <span class="text-[9px] font-bold text-slate-400 tabular-nums">325.00</span>
+            <div class="absolute flex flex-col items-center -translate-x-1/2" style="left:calc(100% * (325 - 280) / (400 - 280))">
+              <div class="w-px h-2 bg-emerald-400 mb-1"></div>
+              <span class="text-[10px] font-bold text-emerald-600 mono tabular-nums">325.00</span>
             </div>
-            <div class="absolute flex flex-col items-center -translate-x-1/2" style="left:calc((378.50-280)/(400-280)*100%)">
-              <div class="w-px h-1.5 bg-slate-200 mb-1"></div>
-              <span class="text-[9px] font-bold text-slate-400 tabular-nums">378.50</span>
+            <div class="absolute flex flex-col items-center -translate-x-1/2" style="left:calc(100% * (378.5 - 280) / (400 - 280))">
+              <div class="w-px h-2 bg-blue-400 mb-1"></div>
+              <span class="text-[10px] font-bold text-blue-600 mono tabular-nums">378.50<span class="text-[8px] text-blue-400 ml-0.5">T1</span></span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 目标价分步 -->
-      <div class="grid grid-cols-4 gap-4 mb-4">
+      <!-- 数值卡片（去除重复，6 张紧凑卡） -->
+      <div class="grid grid-cols-6 gap-3">
         <!-- 入场区间 -->
         <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3">
-          <div class="flex items-center justify-between mb-1">
-            <span class="text-[9px] font-black text-emerald-700 uppercase">入场 Entry</span>
-            <span class="tag" style="background:#f0fdf4;color:#16a34a;border-color:#bbf7d0">最优</span>
-          </div>
-          <div class="text-lg font-black text-emerald-600 mono">$315-325</div>
-          <p class="text-[9px] text-emerald-700 mt-0.5">当前 $383.25 · 等待回踩</p>
+          <div class="text-[9px] font-black text-emerald-700 uppercase mb-1">入场 Entry</div>
+          <div class="text-base font-black text-emerald-600 mono leading-tight">$315–325</div>
+          <p class="text-[9px] text-emerald-700 mt-1">等待回踩</p>
         </div>
 
-        <!-- 目标 T1 -->
-        <div class="bg-blue-50 border border-blue-100 rounded-xl p-3">
-          <div class="flex items-center justify-between mb-1">
-            <span class="text-[9px] font-black text-blue-700 uppercase">T1 目标</span>
-            <span class="text-[9px] text-blue-500">+3.1%</span>
-          </div>
-          <div class="text-lg font-black text-blue-600 mono">$396.00</div>
-        </div>
-
-        <!-- 止损价 -->
+        <!-- 止损 -->
         <div class="bg-rose-50 border border-rose-100 rounded-xl p-3">
-          <div class="flex items-center justify-between mb-1">
-            <span class="text-[9px] font-black text-rose-700 uppercase">止损 Stop</span>
-            <span class="tag" style="background:#fef2f2;color:#dc2626;border-color:#fecaca">纪律</span>
-          </div>
-          <div class="text-lg font-black text-rose-600 mono">$295.00</div>
-          <p class="text-[9px] text-rose-700 mt-0.5">-3.4% · 前低支撑下方</p>
+          <div class="text-[9px] font-black text-rose-700 uppercase mb-1">止损 Stop</div>
+          <div class="text-base font-black text-rose-600 mono leading-tight">$295.00</div>
+          <p class="text-[9px] text-rose-700 mt-1">-3.4%·前低下</p>
+        </div>
+
+        <!-- T1 减仓 -->
+        <div class="bg-blue-50 border border-blue-100 rounded-xl p-3">
+          <div class="text-[9px] font-black text-blue-700 uppercase mb-1">T1 减仓 ⅓</div>
+          <div class="text-base font-black text-blue-600 mono leading-tight">$378.50</div>
+          <p class="text-[9px] text-blue-700 mt-1">+18.3%·入场</p>
+        </div>
+
+        <!-- T2 满仓清 -->
+        <div class="bg-blue-50 border border-blue-100 rounded-xl p-3">
+          <div class="text-[9px] font-black text-blue-700 uppercase mb-1">T2 满仓清</div>
+          <div class="text-base font-black text-blue-600 mono leading-tight">$396.00</div>
+          <p class="text-[9px] text-blue-700 mt-1">+23.8%·入场</p>
         </div>
 
         <!-- 风险回报 -->
         <div class="bg-amber-50 border border-amber-100 rounded-xl p-3">
-          <div class="flex items-center justify-between mb-1">
-            <span class="text-[9px] font-black text-amber-700 uppercase">风险回报 R/R</span>
-          </div>
-          <div class="text-lg font-black text-amber-600 mono">1:2.34</div>
-          <p class="text-[9px] text-amber-700 mt-0.5">潜在盈利 / 潜在亏损</p>
-        </div>
-      </div>
-
-      <!-- 第二行：仓位与期限 -->
-      <div class="grid grid-cols-3 gap-4">
-        <!-- 最大仓位 -->
-        <div class="bg-slate-50 border border-slate-100 rounded-xl p-3">
-          <div class="flex items-center justify-between mb-1">
-            <span class="text-[9px] font-black text-slate-600 uppercase">最大仓位 Max</span>
-            <span class="tag" style="background:#f9fafb;color:#374151;border-color:#e5e7eb">风控</span>
-          </div>
-          <div class="text-2xl font-black text-slate-700 mono">5.0%</div>
-          <p class="text-[9px] text-slate-500 mt-0.5">基于组合波动率限制</p>
-        </div>
-
-        <!-- 投资期限 -->
-        <div class="bg-slate-50 border border-slate-100 rounded-xl p-3">
-          <div class="flex items-center justify-between mb-1">
-            <span class="text-[9px] font-black text-slate-600 uppercase">投资期限 Horizon</span>
-            <span class="tag" style="background:#f9fafb;color:#374151;border-color:#e5e7eb">波段</span>
-          </div>
-          <div class="text-2xl font-black text-slate-700 mono">1-2 周</div>
-          <p class="text-[9px] text-slate-500 mt-0.5">技术面窗口预期</p>
+          <div class="text-[9px] font-black text-amber-700 uppercase mb-1">风险回报</div>
+          <div class="text-base font-black text-amber-600 mono leading-tight">1 : 2.34</div>
+          <p class="text-[9px] text-amber-700 mt-1">盈/亏</p>
         </div>
 
         <!-- 建议仓位 -->
         <div class="bg-slate-50 border border-slate-100 rounded-xl p-3">
-          <div class="flex items-center justify-between mb-1">
-            <span class="text-[9px] font-black text-slate-600 uppercase">建议仓位 Size</span>
-            <span class="tag" style="background:#f9fafb;color:#374151;border-color:#e5e7eb">分笔</span>
-          </div>
-          <div class="text-2xl font-black text-slate-700 mono">3.5% → 5.0%</div>
-          <p class="text-[9px] text-slate-500 mt-0.5">分 2 笔建仓：315 补至 5%</p>
+          <div class="text-[9px] font-black text-slate-600 uppercase mb-1">仓位 Size</div>
+          <div class="text-base font-black text-slate-700 mono leading-tight">3.5→5%</div>
+          <p class="text-[9px] text-slate-500 mt-1">分 2 笔</p>
         </div>
       </div>
 
@@ -293,8 +250,8 @@
       <span class="tag ml-auto" style="background:#fff7ed;color:#c2410c;border-color:#fed7aa">⚠ 需持续监控</span>
     </div>
     <div class="divide-y divide-slate-50">
-      <!-- 假设 1 - 高风险 -->
-      <div class="px-6 py-4 flex items-start gap-4 assumption-pulse hover:bg-rose-50/30 transition-colors cursor-pointer">
+      <!-- 假设 1 - 核心 -->
+      <div class="px-6 py-4 flex items-start gap-4 hover:bg-rose-50/30 transition-colors cursor-pointer">
         <div class="flex-shrink-0 mt-0.5">
           <div class="w-6 h-6 rounded-full bg-rose-100 border border-rose-200 flex items-center justify-center">
             <span class="text-[10px] font-black text-rose-600">1</span>
@@ -304,13 +261,12 @@
           <div class="flex items-center gap-2 flex-wrap mb-1">
             <span class="font-bold text-sm text-slate-900">20日均线不被有效跌破</span>
             <span class="tag" style="background:#fef2f2;color:#dc2626;border-color:#fecaca">核心假设</span>
-            <span class="tag" style="background:#f9fafb;color:#374151;border-color:#e5e7eb">当前距离 -2.1%</span>
           </div>
-          <p class="text-[11px] text-slate-500 leading-relaxed">若收盘价连续2日低于 $299.80（当前20MA），视为趋势转弱信号，本次建仓计划终止。<span class="text-rose-600 font-bold">当前距离仅6.50，需重点监控。</span></p>
+          <p class="text-[11px] text-slate-500 leading-relaxed">若收盘价连续 2 日低于 <span class="mono font-semibold text-slate-700">$299.80</span>（当前 20MA），视为趋势转弱信号，本次建仓计划终止。当前价 $383.25 距 20MA 仍有充足缓冲。</p>
         </div>
         <div class="flex-shrink-0 text-right">
-          <div class="text-[10px] text-slate-400">距突破</div>
-          <div class="text-lg font-black text-rose-600 mono">$6.50</div>
+          <div class="text-[10px] text-slate-400">距 20MA 缓冲</div>
+          <div class="text-lg font-black text-emerald-600 mono">+27.8%</div>
         </div>
       </div>
       <!-- 假设 2 - 中风险 -->
@@ -361,80 +317,126 @@
       <span class="text-[10px] text-slate-400 ml-1">— 未来30天内可能影响判断的关键事件</span>
     </div>
     <div class="p-6">
-      <div class="relative">
-        <!-- 时间线竖线 -->
-        <div class="absolute left-[11px] top-2 bottom-2 w-0.5 bg-slate-100"></div>
-        <div class="space-y-4">
-          <!-- 事件 1: 财报 - 高影响 -->
-          <div class="flex items-start gap-4 relative">
-            <div class="w-6 h-6 rounded-full bg-rose-100 border-2 border-rose-400 flex items-center justify-center flex-shrink-0 z-10">
-              <div class="w-2 h-2 rounded-full bg-rose-500"></div>
+      <!-- 横向时间轴 -->
+      <div class="relative pt-2 pb-4 mb-5">
+        <!-- 刻度行（D+0 / +7 / +14 / +21 / +30） -->
+        <div class="relative h-4 mb-2">
+          <div class="absolute -translate-x-1/2" style="left:0%"><span class="text-[9px] mono text-slate-400">D+0</span></div>
+          <div class="absolute -translate-x-1/2" style="left:23.3%"><span class="text-[9px] mono text-slate-400">D+7</span></div>
+          <div class="absolute -translate-x-1/2" style="left:46.7%"><span class="text-[9px] mono text-slate-400">D+14</span></div>
+          <div class="absolute -translate-x-1/2" style="left:70%"><span class="text-[9px] mono text-slate-400">D+21</span></div>
+          <div class="absolute -translate-x-1/2" style="left:100%"><span class="text-[9px] mono text-slate-400">D+30</span></div>
+        </div>
+
+        <!-- 轴线 + 事件圆点 -->
+        <div class="relative h-12">
+          <!-- 轴线 -->
+          <div class="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-px bg-slate-200"></div>
+          <!-- 刻度小竖线 -->
+          <div class="absolute top-1/2 -translate-y-1/2 w-px h-1.5 bg-slate-300" style="left:0%"></div>
+          <div class="absolute top-1/2 -translate-y-1/2 w-px h-1.5 bg-slate-200" style="left:23.3%"></div>
+          <div class="absolute top-1/2 -translate-y-1/2 w-px h-1.5 bg-slate-300" style="left:46.7%"></div>
+          <div class="absolute top-1/2 -translate-y-1/2 w-px h-1.5 bg-slate-200" style="left:70%"></div>
+          <div class="absolute top-1/2 -translate-y-1/2 w-px h-1.5 bg-slate-300" style="left:100%"></div>
+
+          <!-- 事件 1: FOMC D+5 中影响 -->
+          <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-10" style="left:16.67%">
+            <div class="flex flex-col items-center">
+              <div class="w-3.5 h-3.5 rounded-full bg-white border-2 border-amber-500 shadow-sm"></div>
+              <div class="mt-1.5 text-center">
+                <div class="text-[10px] font-bold text-slate-900 leading-tight">FOMC</div>
+                <div class="text-[9px] mono text-amber-600 font-bold">D+5</div>
+              </div>
             </div>
-            <div class="flex-1 pb-1">
-              <div class="flex items-center gap-2 flex-wrap mb-0.5">
+          </div>
+
+          <!-- 事件 2: OpEx D+11 低影响 -->
+          <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-10" style="left:36.67%">
+            <div class="flex flex-col items-center">
+              <div class="w-3 h-3 rounded-full bg-white border-2 border-slate-400 shadow-sm"></div>
+              <div class="mt-1.5 text-center">
+                <div class="text-[10px] text-slate-600 leading-tight">OpEx</div>
+                <div class="text-[9px] mono text-slate-500">D+11</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 事件 3: Q1 财报 D+18 高影响（突出显示） -->
+          <div class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-20" style="left:60%">
+            <div class="flex flex-col items-center">
+              <!-- 上方提示标签 -->
+              <div class="absolute bottom-full mb-2 flex flex-col items-center">
+                <span class="bg-rose-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full whitespace-nowrap shadow-lg">焦点事件</span>
+                <div class="w-0 h-0 border-l-[4px] border-r-[4px] border-t-[4px] border-l-transparent border-r-transparent border-t-rose-500 -mt-px"></div>
+              </div>
+              <div class="w-5 h-5 rounded-full bg-rose-500 border-2 border-white shadow-lg ring-4 ring-rose-500/15"></div>
+              <div class="mt-1.5 text-center">
+                <div class="text-[10px] font-black text-slate-900 leading-tight">Q1 财报</div>
+                <div class="text-[9px] mono text-rose-600 font-bold">D+18</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 事件详情卡片（紧凑两列） -->
+      <div class="grid grid-cols-2 gap-3">
+        <!-- Q1 财报 - 高影响（突出，跨整行） -->
+        <div class="col-span-2 bg-rose-50/40 border border-rose-100 rounded-xl px-4 py-3">
+          <div class="flex items-start gap-3">
+            <div class="w-2 h-2 rounded-full bg-rose-500 mt-1.5 shrink-0"></div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap mb-1">
                 <span class="font-bold text-sm text-slate-900">Q1 2026 财报</span>
                 <span class="tag" style="background:#fef2f2;color:#dc2626;border-color:#fecaca">高影响</span>
-                <span class="tag" style="background:#fef9c3;color:#854d0e;border-color:#fde68a">盈利催化剂</span>
+                <span class="ml-auto text-[10px] mono text-slate-500">2026-04-26 盘后 · D+18</span>
               </div>
-              <p class="text-[11px] text-slate-500">距今 <span class="font-bold text-rose-600">18天</span> · 2026-04-26 盘后 · analyst EPS预期 $2.01，同比+12%</p>
-              <p class="text-[10px] text-slate-400 mt-1">⚡ 若EPS超预期 >5%，可能成为突破320阻力的催化剂；若不及预期，止损295逻辑被强化</p>
-            </div>
-            <div class="flex-shrink-0 text-right">
-              <div class="text-[10px] text-slate-400">倒计时</div>
-              <div class="text-lg font-black text-rose-600 mono">18d</div>
+              <p class="text-[11px] text-slate-600 leading-relaxed">analyst EPS 预期 <span class="mono font-semibold text-slate-900">$2.01</span>，同比 +12%。若超预期 >5%，可能成为突破 $320 阻力的催化剂；若不及预期，止损 $295 逻辑被强化。</p>
             </div>
           </div>
+        </div>
 
-          <!-- 事件 2: FOMC - 中影响 -->
-          <div class="flex items-start gap-4 relative">
-            <div class="w-6 h-6 rounded-full bg-amber-100 border-2 border-amber-400 flex items-center justify-center flex-shrink-0 z-10">
-              <div class="w-2 h-2 rounded-full bg-amber-500"></div>
-            </div>
-            <div class="flex-1 pb-1">
-              <div class="flex items-center gap-2 flex-wrap mb-0.5">
+        <!-- FOMC - 中影响 -->
+        <div class="bg-amber-50/40 border border-amber-100 rounded-xl px-4 py-3">
+          <div class="flex items-start gap-3">
+            <div class="w-2 h-2 rounded-full bg-amber-500 mt-1.5 shrink-0"></div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap mb-1">
                 <span class="font-bold text-sm text-slate-900">FOMC 利率决议</span>
                 <span class="tag" style="background:#fffbeb;color:#b45309;border-color:#fde68a">中影响</span>
-                <span class="tag" style="background:#f5f3ff;color:#7c3aed;border-color:#ddd6fe">宏观事件</span>
+                <span class="ml-auto text-[10px] mono text-slate-500">04-13 · D+5</span>
               </div>
-              <p class="text-[11px] text-slate-500">距今 <span class="font-bold text-amber-600">5天</span> · 2026-04-13 · 市场预期维持不变，CME FedWatch暗示降息概率 23%</p>
-              <p class="text-[10px] text-slate-400 mt-1">若鹰派表态超预期，科技股整体承压，当前策略需降低仓位建议</p>
-            </div>
-            <div class="flex-shrink-0 text-right">
-              <div class="text-[10px] text-slate-400">倒计时</div>
-              <div class="text-lg font-black text-amber-600 mono">5d</div>
+              <p class="text-[11px] text-slate-600 leading-relaxed">市场预期维持不变，CME FedWatch 暗示降息概率 23%。鹰派超预期则科技股承压。</p>
             </div>
           </div>
+        </div>
 
-          <!-- 事件 3: 期权到期 - 低影响 -->
-          <div class="flex items-start gap-4 relative">
-            <div class="w-6 h-6 rounded-full bg-slate-100 border-2 border-slate-300 flex items-center justify-center flex-shrink-0 z-10">
-              <div class="w-2 h-2 rounded-full bg-slate-400"></div>
-            </div>
-            <div class="flex-1 pb-1">
-              <div class="flex items-center gap-2 flex-wrap mb-0.5">
-                <span class="font-bold text-sm text-slate-900">月度期权到期日（OpEx）</span>
+        <!-- 月度 OpEx - 低影响 -->
+        <div class="bg-slate-50/60 border border-slate-100 rounded-xl px-4 py-3">
+          <div class="flex items-start gap-3">
+            <div class="w-2 h-2 rounded-full bg-slate-400 mt-1.5 shrink-0"></div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap mb-1">
+                <span class="font-bold text-sm text-slate-900">月度期权到期</span>
                 <span class="tag" style="background:#f9fafb;color:#374151;border-color:#e5e7eb">低影响</span>
-                <span class="tag" style="background:#f9fafb;color:#374151;border-color:#e5e7eb">流动性事件</span>
+                <span class="ml-auto text-[10px] mono text-slate-500">04-19 · D+11</span>
               </div>
-              <p class="text-[11px] text-slate-500">距今 <span class="font-bold text-slate-500">11天</span> · 2026-04-19 · 最大痛点价格 $300，Gamma聚集在305-315区间</p>
-            </div>
-            <div class="flex-shrink-0 text-right">
-              <div class="text-[10px] text-slate-400">倒计时</div>
-              <div class="text-lg font-black text-slate-500 mono">11d</div>
+              <p class="text-[11px] text-slate-600 leading-relaxed">短期波动提示，不影响中线建仓节奏。</p>
             </div>
           </div>
+        </div>
 
-          <!-- 事件 4: 分析师调整 -->
-          <div class="flex items-start gap-4 relative">
-            <div class="w-6 h-6 rounded-full bg-blue-100 border-2 border-blue-400 flex items-center justify-center flex-shrink-0 z-10">
-              <div class="w-2 h-2 rounded-full bg-blue-500"></div>
-            </div>
-            <div class="flex-1">
-              <div class="flex items-center gap-2 flex-wrap mb-0.5">
+        <!-- 分析师评级动向 - 滚动信号（跨整行） -->
+        <div class="col-span-2 bg-blue-50/40 border border-blue-100 rounded-xl px-4 py-3">
+          <div class="flex items-start gap-3">
+            <div class="w-2 h-2 rounded-full bg-blue-500 mt-1.5 shrink-0"></div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 flex-wrap mb-1">
                 <span class="font-bold text-sm text-slate-900">分析师评级近期动向</span>
-                <span class="tag" style="background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe">基本面信号</span>
+                <span class="tag" style="background:#f9fafb;color:#374151;border-color:#e5e7eb">基本面信号</span>
+                <span class="ml-auto text-[10px] mono text-slate-500">过去 30 天滚动</span>
               </div>
-              <p class="text-[11px] text-slate-500">过去30天内 <span class="font-bold text-blue-600">3次上调EPS预测</span>，目标价均值从 $310 上移至 $328，覆盖16家机构中12家维持买入</p>
+              <p class="text-[11px] text-slate-600 leading-relaxed">过去 30 天内 <span class="font-bold text-blue-700">3 次上调 EPS 预测</span>，目标价均值从 <span class="mono">$310</span> 上移至 <span class="mono font-semibold">$328</span>，覆盖 16 家机构中 12 家维持买入。</p>
             </div>
           </div>
         </div>
@@ -450,45 +452,95 @@
       <span class="text-[10px] text-slate-500 ml-1">— 加仓此标的对组合意味着什么</span>
     </div>
     <div class="p-6">
+      <!-- 关键提示：先告诉用户结论 -->
+      <div class="mb-5 bg-rose-500/10 border border-rose-500/20 rounded-xl px-4 py-3">
+        <div class="flex items-start gap-2.5">
+          <svg class="w-4 h-4 text-rose-300 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 9v2m0 4h.01M5 19h14a2 2 0 002-2L13 5a2 2 0 00-2 0L3 17a2 2 0 002 2z"/></svg>
+          <p class="text-[11px] text-rose-200 leading-relaxed flex-1">
+            <span class="font-black">关键提示：</span>按计划 5% 仓位加仓后，科技板块敞口将触及 <span class="font-bold text-rose-100">40% 建议上限</span>。可考虑降低本次仓位至 <span class="mono font-bold text-rose-100">3.5%</span>，或在加仓前评估现有科技持仓是否需要调整。
+          </p>
+        </div>
+      </div>
+
       <div class="grid grid-cols-2 gap-6">
-        <!-- 左：行业敞口变化 -->
+        <!-- 左：行业敞口变化（双轨对比） -->
         <div>
-          <div class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-3">加仓后行业敞口变化</div>
-          <div class="space-y-2.5">
+          <div class="flex items-baseline justify-between mb-3">
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider">加仓后行业敞口变化</span>
+            <div class="flex items-center gap-3 text-[9px] text-slate-500">
+              <span class="flex items-center gap-1"><span class="w-2 h-1 bg-slate-500 rounded"></span>加仓前</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-1.5 bg-amber-400 rounded"></span>加仓后</span>
+            </div>
+          </div>
+          <div class="space-y-4">
+            <!-- 科技：超限 -->
             <div>
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-[10px] text-slate-300 font-medium">科技 TECHNOLOGY</span>
-                <div class="flex items-center gap-2">
-                  <span class="text-[10px] text-slate-500 mono">37.6%</span>
-                  <span class="text-[10px] text-amber-400 font-black mono">→ 52.4%</span>
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[11px] text-slate-200 font-semibold">科技 TECHNOLOGY</span>
+                <div class="flex items-center gap-2 mono text-[10px]">
+                  <span class="text-slate-500">37.6%</span>
+                  <span class="text-slate-500">→</span>
+                  <span class="text-amber-400 font-bold">52.4%</span>
+                  <span class="text-rose-400 font-bold ml-1">+14.8</span>
                 </div>
               </div>
-              <div class="h-2 bg-slate-700 rounded-full overflow-hidden relative">
-                <div class="h-full bg-blue-500/40 rounded-full absolute" style="width:37.6%"></div>
-                <div class="h-full bg-amber-500 rounded-full" style="width:52.4%;opacity:0.7"></div>
-                <!-- 40% 警戒线 -->
-                <div class="absolute top-0 bottom-0 w-0.5 bg-rose-400" style="left:40%"></div>
+              <!-- 双轨并列 -->
+              <div class="relative pl-0">
+                <!-- 加仓前细线 -->
+                <div class="h-1 bg-slate-700 rounded-full overflow-hidden relative">
+                  <div class="h-full bg-slate-400 rounded-full" style="width:37.6%"></div>
+                  <!-- 40% 警戒线 -->
+                  <div class="absolute top-[-3px] bottom-[-9px] w-px bg-rose-400/60" style="left:40%"></div>
+                  <div class="absolute -top-3 mono text-[8px] text-rose-400" style="left:40%;transform:translateX(-50%)">40%</div>
+                </div>
+                <!-- 加仓后粗线 -->
+                <div class="h-2 bg-slate-700 rounded-full overflow-hidden mt-1 relative">
+                  <div class="h-full bg-amber-400 rounded-full" style="width:52.4%"></div>
+                  <div class="absolute top-0 bottom-0 w-px bg-rose-400/60" style="left:40%"></div>
+                </div>
               </div>
-              <div class="flex items-center gap-1 mt-1">
-                <span class="text-[9px] text-rose-400 font-bold">⚠ 超过建议上限 40%，行业集中度偏高</span>
+              <p class="text-[9px] text-rose-400 font-bold mt-1.5">⚠ 加仓后超过 40% 建议上限</p>
+            </div>
+
+            <!-- 工业：减少 -->
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[11px] text-slate-200 font-semibold">工业 INDUSTRIALS</span>
+                <div class="flex items-center gap-2 mono text-[10px]">
+                  <span class="text-slate-500">14.2%</span>
+                  <span class="text-slate-500">→</span>
+                  <span class="text-slate-200 font-bold">12.3%</span>
+                  <span class="text-slate-400 ml-1">-1.9</span>
+                </div>
+              </div>
+              <div>
+                <div class="h-1 bg-slate-700 rounded-full overflow-hidden">
+                  <div class="h-full bg-slate-400 rounded-full" style="width:14.2%"></div>
+                </div>
+                <div class="h-2 bg-slate-700 rounded-full overflow-hidden mt-1">
+                  <div class="h-full bg-emerald-500/70 rounded-full" style="width:12.3%"></div>
+                </div>
               </div>
             </div>
+
+            <!-- 其他：减少 -->
             <div>
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-[10px] text-slate-300 font-medium">工业 INDUSTRIALS</span>
-                <span class="text-[10px] text-slate-400 mono">14.2% → 12.3%</span>
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[11px] text-slate-200 font-semibold">未归类 / 其他</span>
+                <div class="flex items-center gap-2 mono text-[10px]">
+                  <span class="text-slate-500">36.7%</span>
+                  <span class="text-slate-500">→</span>
+                  <span class="text-slate-200 font-bold">31.8%</span>
+                  <span class="text-slate-400 ml-1">-4.9</span>
+                </div>
               </div>
-              <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
-                <div class="h-full bg-emerald-500 rounded-full" style="width:14.2%"></div>
-              </div>
-            </div>
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-[10px] text-slate-300 font-medium">未归类/其他</span>
-                <span class="text-[10px] text-slate-400 mono">36.7% → 31.8%</span>
-              </div>
-              <div class="h-2 bg-slate-700 rounded-full overflow-hidden">
-                <div class="h-full bg-slate-500 rounded-full" style="width:36.7%"></div>
+              <div>
+                <div class="h-1 bg-slate-700 rounded-full overflow-hidden">
+                  <div class="h-full bg-slate-400 rounded-full" style="width:36.7%"></div>
+                </div>
+                <div class="h-2 bg-slate-700 rounded-full overflow-hidden mt-1">
+                  <div class="h-full bg-slate-500 rounded-full" style="width:31.8%"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -500,7 +552,8 @@
             <div class="flex items-center justify-between py-2 border-b border-white/5">
               <span class="text-[11px] text-slate-400">科技敞口</span>
               <div class="flex items-center gap-2">
-                <span class="text-[10px] text-slate-500 line-through mono">37.6%</span>
+                <span class="text-[10px] text-slate-500 mono">37.6%</span>
+                <span class="text-[10px] text-slate-500">→</span>
                 <span class="text-sm font-black text-amber-400 mono">52.4%</span>
                 <span class="tag" style="background:rgba(239,68,68,0.15);color:#f87171;border-color:rgba(239,68,68,0.3)">超限</span>
               </div>
@@ -508,7 +561,8 @@
             <div class="flex items-center justify-between py-2 border-b border-white/5">
               <span class="text-[11px] text-slate-400">组合 Beta</span>
               <div class="flex items-center gap-2">
-                <span class="text-[10px] text-slate-500 line-through mono">1.12</span>
+                <span class="text-[10px] text-slate-500 mono">1.12</span>
+                <span class="text-[10px] text-slate-500">→</span>
                 <span class="text-sm font-black text-white mono">1.19</span>
                 <span class="tag" style="background:rgba(251,191,36,0.15);color:#fbbf24;border-color:rgba(251,191,36,0.3)">↑ 波动</span>
               </div>
@@ -516,7 +570,8 @@
             <div class="flex items-center justify-between py-2 border-b border-white/5">
               <span class="text-[11px] text-slate-400">Sharpe 预期</span>
               <div class="flex items-center gap-2">
-                <span class="text-[10px] text-slate-500 line-through mono">1.34</span>
+                <span class="text-[10px] text-slate-500 mono">1.34</span>
+                <span class="text-[10px] text-slate-500">→</span>
                 <span class="text-sm font-black text-emerald-400 mono">1.41</span>
                 <span class="tag" style="background:rgba(52,211,153,0.15);color:#34d399;border-color:rgba(52,211,153,0.3)">↑ 改善</span>
               </div>
@@ -525,9 +580,6 @@
               <span class="text-[11px] text-slate-400">建议最大仓位</span>
               <span class="text-sm font-black text-blue-400 mono">5% → 3.5%</span>
             </div>
-          </div>
-          <div class="mt-3 bg-rose-500/10 border border-rose-500/20 rounded-xl p-3">
-            <p class="text-[10px] text-rose-300 leading-relaxed"><span class="font-black">AI 建议：</span>若加仓GOOGL，建议同步减仓NVDA 1股以维持科技敞口在40%以内，避免集中度风险。</p>
           </div>
         </div>
       </div>

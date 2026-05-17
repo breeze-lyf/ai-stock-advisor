@@ -1,4 +1,4 @@
-# 03. 数据库设计与数据契约 (Database Schema & Contracts)
+# 04. 数据库设计与数据契约 (Database Schema & Contracts)
 
 **存储底座:** Neon PostgreSQL Serverless
 **ORM:** SQLAlchemy (Async)

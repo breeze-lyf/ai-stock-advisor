@@ -78,3 +78,17 @@
 - Assumption: Architecture understanding should start from the current modular monolith and its deepest interfaces: frontend feature API modules, backend use cases, `MarketDataService`, `AIService`, `ModelResolver`, `ProviderRouter`, `NotificationServiceV2`, and the scheduler.
 - Tradeoff: The overview intentionally stays diagram-first and does not duplicate all implementation detail from SOP, status matrix, or service files.
 - Follow-up: Update the architecture overview when AI Provider routing, market data provider strategy, notification policy, or scheduler task registration changes materially.
+
+### 2026-05-17 - Organize docs by reading path
+
+- Decision: Optimize `docs/README.md` around reading paths and document responsibility instead of deleting or immediately splitting existing documents.
+- Assumption: The current document set is small enough to keep flat, but `01_Product_Requirements_Document.md` is too large to serve as a daily entry point.
+- Tradeoff: Keep all current baseline documents in place to avoid breaking links, while making `docs/README.md` the source of truth for which document to read first.
+- Follow-up: If docs continue to grow, split the long PRD into a product subdirectory and move repeated Agent architecture material from `06`/`07` into `09`.
+
+### 2026-05-17 - Move long PRD into product docs
+
+- Decision: Move the full PRD to `docs/product/01_Product_Requirements_Document.md` and add `docs/product/README.md` as the short product entry point.
+- Assumption: The full PRD is valuable as a product reference, but too large and speculative for daily engineering navigation.
+- Tradeoff: This adds one subdirectory but keeps the long document intact and avoids deleting product context.
+- Follow-up: If product docs continue growing, split the full PRD into smaller product files by audience or lifecycle stage.

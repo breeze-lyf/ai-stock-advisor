@@ -364,7 +364,7 @@ curl http://localhost:8000/api/v1/health/yfinance
 本文件与以下文档保持同一口径：
 
 - `README.md`
-- `docs/01_Product_Requirements_Document.md`
+- `docs/product/01_Product_Requirements_Document.md`
 - `docs/02_Developer_SOP_and_Guide.md`
 - `docs/05_Current_Feature_Status_Matrix.md`
 

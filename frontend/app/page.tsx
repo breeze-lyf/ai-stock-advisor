@@ -35,7 +35,7 @@ function DashboardContent() {
   const { isAuthenticated } = useAuth();
   const [onlyHoldings, setOnlyHoldings] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const { activeTab, changeTab, selectedTicker, selectTicker } = useDashboardRouteState();
+  const { activeTab, changeTab, detailTab, changeDetailTab, selectedTicker, selectTicker } = useDashboardRouteState();
   const {
     portfolio,
     fetchPortfolioData,
@@ -86,6 +86,8 @@ function DashboardContent() {
             portfolio={portfolio}
             refreshTimestamp={refreshTimestamp}
             selectedTicker={selectedTicker}
+            detailTab={detailTab}
+            onChangeDetailTab={changeDetailTab}
           />
         )}
 

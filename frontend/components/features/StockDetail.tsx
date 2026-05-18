@@ -61,6 +61,8 @@ interface HistoryDataItem {
 // --- Props 接口 ---
 interface StockDetailProps {
     selectedItem: PortfolioItem | null;
+    activeTab: DetailTab;
+    onTabChange: (tab: DetailTab) => void;
     onAnalyze: (force?: boolean) => void;
     onRefresh: () => void;
     onBack?: () => void;
@@ -72,6 +74,8 @@ interface StockDetailProps {
 
 export function StockDetail({
     selectedItem,
+    activeTab,
+    onTabChange,
     onAnalyze,
     onRefresh,
     onBack,
@@ -193,14 +197,6 @@ export function StockDetail({
         }
     };
 
-    // 子页签切换
-    const [activeTab, setActiveTab] = useState<DetailTab>("info");
-
-    // 切换股票时重置为标的信息 tab
-    useEffect(() => {
-        setActiveTab("info");
-    }, [selectedItem?.ticker]);
-
     // 图层切换开关
     const [showBb, setShowBb] = useState(true);
     const [showRsi, setShowRsi] = useState(false);
@@ -211,6 +207,11 @@ export function StockDetail({
     const containerRef = useRef<HTMLDivElement>(null);
 
     const currency = selectedItem ? getCurrencySymbol(selectedItem.ticker) : "$";
+    const requestedAnalysisView =
+        typeof window !== "undefined" &&
+        new URLSearchParams(window.location.search).get("detail") === "analysis";
+    const resolvedActiveTab: DetailTab =
+        activeTab === "analysis" || requestedAnalysisView ? "analysis" : "info";
 
     // --- 滚动检测 Effect ---
     useEffect(() => {
@@ -278,8 +279,8 @@ export function StockDetail({
                 onBack={onBack}
                 currency={currency}
                 sanitizePrice={sanitizePrice}
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
+                activeTab={resolvedActiveTab}
+                onTabChange={onTabChange}
             />
 
             {/* 板块 0: 股票身份头 */}
@@ -289,15 +290,15 @@ export function StockDetail({
                 refreshing={refreshing}
                 onRefresh={handleRefresh}
                 onBack={onBack}
-                activeTab={activeTab}
-                onTabChange={setActiveTab}
+                activeTab={resolvedActiveTab}
+                onTabChange={onTabChange}
             />
 
             {/* 自动刷新通知 Banner */}
             {hasNewAnalysis && (
                 <div
                     className="flex items-center justify-between mx-4 mt-3 px-4 py-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 cursor-pointer hover:bg-blue-500/20 transition-colors"
-                    onClick={() => { dismissNewAnalysis(); setActiveTab("analysis"); onAnalyze(false); }}
+                    onClick={() => { dismissNewAnalysis(); onTabChange("analysis"); onAnalyze(false); }}
                 >
                     <div className="flex items-center gap-2 text-sm text-blue-400 font-medium">
                         <span className="animate-pulse">✦</span>
@@ -315,7 +316,7 @@ export function StockDetail({
 
 
             {/* === 标的信息 Tab === */}
-            {activeTab === "info" && (
+            {resolvedActiveTab === "info" && (
               <>
             {/* 板块 1: 动态行情分析 */}
             <MarketAnalysis
@@ -363,7 +364,7 @@ export function StockDetail({
             )}
 
             {/* === AI 分析 Tab === */}
-            {activeTab === "analysis" && (
+            {resolvedActiveTab === "analysis" && (
               <>
             {/* 板块 2: AI 智能判研指标 */}
             <AIVerdict
@@ -381,6 +382,7 @@ export function StockDetail({
                 aiData={aiData}
                 currency={currency}
                 sanitizePrice={sanitizePrice}
+                positionImpact={positionImpact}
             />
 
             {/* 关键假设断点 */}
@@ -423,7 +425,7 @@ export function StockDetail({
             <SectorExposurePanel />
 
             {/* 组合联动视角 */}
-            {activeTab === "analysis" && aiData && (
+            {resolvedActiveTab === "analysis" && aiData && (
                 <PortfolioLinkage
                     ticker={selectedItem.ticker}
                     positionPct={aiData.max_position_pct ?? 5}

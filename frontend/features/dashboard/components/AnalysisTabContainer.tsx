@@ -8,6 +8,7 @@ import { PortfolioList } from "@/components/features/PortfolioList";
 import { StockDetail } from "@/components/features/StockDetail";
 import { fetchStockSnapshot } from "@/features/market/api";
 import type { AnalysisResponse, PortfolioItem } from "@/types";
+import type { DashboardDetailTab } from "@/features/dashboard/hooks/useDashboardRouteState";
 
 type StockNewsItem = Record<string, unknown>;
 
@@ -25,6 +26,8 @@ interface AnalysisTabContainerProps {
   portfolio: PortfolioItem[];
   refreshTimestamp: number;
   selectedTicker: string | null;
+  detailTab: DashboardDetailTab;
+  onChangeDetailTab: (tab: DashboardDetailTab) => void;
 }
 
 export function AnalysisTabContainer({
@@ -41,6 +44,8 @@ export function AnalysisTabContainer({
   portfolio,
   refreshTimestamp,
   selectedTicker,
+  detailTab,
+  onChangeDetailTab,
 }: AnalysisTabContainerProps) {
   const [mounted, setMounted] = useState(false);
   let selectedItem = portfolio.find((item) => item.ticker === selectedTicker) || null;
@@ -114,6 +119,8 @@ export function AnalysisTabContainer({
             aiData={aiData}
             news={news}
             refreshTimestamp={refreshTimestamp}
+            activeTab={detailTab}
+            onTabChange={onChangeDetailTab}
           />
         )}
       </div>

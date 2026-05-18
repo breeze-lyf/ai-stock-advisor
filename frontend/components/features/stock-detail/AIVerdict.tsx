@@ -103,6 +103,42 @@ function splitHeroTitle(immediateAction?: string, triggerCondition?: string) {
     return { title, subtitle };
 }
 
+function forceCompactHeroTitle(value: string) {
+    return value
+        .replace(/等待/gu, "等待 ")
+        .replace(/确认/gu, "确认 ")
+        .replace(/回踩/gu, "回踩 ")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function buildHeroHeadline(immediateAction?: string, triggerCondition?: string) {
+    const raw = (immediateAction || "观望").replace(/\s+/g, "").trim();
+    if (!raw) return "观望";
+    if (raw.length <= 8) return raw;
+
+    if (raw.includes("观望") && (raw.includes("突破") || raw.includes("回踩") || raw.includes("触发"))) {
+        return "观望/等待触发";
+    }
+    if (raw.includes("低吸")) {
+        return raw.includes("观望") ? "观望/低吸" : "低吸布局";
+    }
+    if (raw.includes("持有") && raw.includes("加仓")) {
+        return "持有/等待加仓";
+    }
+    if (raw.includes("减仓") || raw.includes("止盈")) {
+        return "减仓/兑现";
+    }
+    if (raw.includes("买入") || raw.includes("建仓")) {
+        return raw.includes("回踩") ? "回踩/分批建仓" : "分批建仓";
+    }
+    if (raw.includes("观望") && triggerCondition) {
+        return "观望/等待触发";
+    }
+
+    return forceCompactHeroTitle(raw);
+}
+
 function compactSentence(value?: string, maxLength = 38) {
     if (!value) return "";
     const normalized = value.replace(/\s+/g, " ").trim();
@@ -240,32 +276,31 @@ function AIVerdictContent({
         : aiData.trade_setup_status === "未触发"
             ? `当前先观察：${compactSentence(aiData.trigger_condition || aiData.core_logic_summary, 42)}`
             : "";
-    const shouldShowActionReason = Boolean(actionReason) && (
+    const shouldShowActionReason = Boolean(actionReason) && !heroSubtitle && (
         normalizeComparisonText(actionReason) !== normalizeComparisonText(heroSubtitle)
     );
     const reviewPoint = aiData.next_review_point || "待后续事件复核";
     const createdLabel = aiData.created_at
         ? formatDistanceToNow(new Date(aiData.created_at + (aiData.created_at.includes("Z") ? "" : "Z")), { addSuffix: true, locale: zhCN })
         : "";
+    const compactHeroTitle = buildHeroHeadline(heroTitle, aiData.trigger_condition);
 
     return (
         <div className="space-y-0 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none animate-in fade-in slide-in-from-bottom-2 duration-700">
 
             {/* 1. Header & Sentiment Grid */}
             <div className="py-4 px-6 md:py-6 md:px-8 bg-slate-50/50 dark:bg-white/5 border-b border-slate-100 dark:border-white/5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-                    {/* Left: Suggested Action */}
-                    <div className="space-y-2 min-w-0">
-                        <div className="space-y-3 min-w-0">
+                <div className="space-y-4">
+                    <div className="space-y-3 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
                             <h3 className={clsx(
-                                "min-w-0 text-3xl font-black tracking-tight break-words",
+                                "min-w-0 text-[34px] leading-[0.94] md:text-[38px] md:leading-[0.92] font-black tracking-tight break-words",
                                 aiData.immediate_action?.includes("买") || aiData.immediate_action?.includes("多") ? "text-slate-900 dark:text-white" :
                                     aiData.immediate_action?.includes("卖") || aiData.immediate_action?.includes("减") ? "text-rose-600 dark:text-rose-400" :
                                         "text-slate-900 dark:text-white"
                             )}>
-                                {heroTitle}
+                                {compactHeroTitle}
                             </h3>
-                            <div className="flex flex-wrap items-center gap-2">
                             <span className={clsx(
                                 "text-[9px] font-black px-2 py-0.5 rounded-md border uppercase whitespace-nowrap",
                                 activeZone.bgColor,
@@ -274,9 +309,8 @@ function AIVerdictContent({
                             )}>
                                 {activeZone.name}
                             </span>
-                            {/* 计划盈亏比（基于建仓区间中位价，策略本身的质量） */}
                             <div className={clsx(
-                                "flex items-center gap-1.5 px-2 py-0.5 rounded-md border ml-1",
+                                "flex items-center gap-1.5 px-2 py-0.5 rounded-md border",
                                 parseFloat(effectiveRR || "0") >= 2.5 ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-600/10 dark:text-emerald-400 dark:border-emerald-600/20" :
                                     parseFloat(effectiveRR || "0") >= 1.8 ? "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-600/10 dark:text-blue-400 dark:border-blue-600/20" :
                                         "bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-600/10 dark:text-rose-400 dark:border-rose-600/20"
@@ -284,10 +318,9 @@ function AIVerdictContent({
                                 <span className="text-[8px] font-bold uppercase tracking-tighter opacity-70">计划 R/R</span>
                                 <span className="text-[10px] font-black tabular-nums">{effectiveRR || "--"}</span>
                             </div>
-                            {/* 实时盈亏比（基于当前股价，反映此刻买入是否合适） */}
                             {liveRR !== null && (
                                 <div className={clsx(
-                                    "flex items-center gap-1.5 px-2 py-0.5 rounded-md border ml-1",
+                                    "flex items-center gap-1.5 px-2 py-0.5 rounded-md border",
                                     parseFloat(liveRR) >= 2.5 ? "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-600/10 dark:text-emerald-400 dark:border-emerald-600/20" :
                                         parseFloat(liveRR) >= 1.8 ? "bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-600/10 dark:text-blue-400 dark:border-blue-600/20" :
                                             "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-600/10 dark:text-amber-400 dark:border-amber-600/20"
@@ -301,22 +334,16 @@ function AIVerdictContent({
                                     主驱动 {aiData.dominant_driver}
                                 </span>
                             )}
-                            {aiData.trade_setup_status && (
-                                <span className="text-[9px] font-black px-2 py-0.5 rounded-md border uppercase whitespace-nowrap bg-violet-50 text-violet-600 border-violet-200 dark:bg-violet-600/10 dark:text-violet-400 dark:border-violet-600/20">
-                                    {aiData.trade_setup_status}
-                                </span>
-                            )}
                             {selectedItem.market_status === "PRE_MARKET" && (
-                                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-orange-200 bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20 ml-1">
+                                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-orange-200 bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20">
                                     <span className="text-[8px] font-bold uppercase tracking-tighter opacity-70 italic">盘前 PRE</span>
                                 </div>
                             )}
                             {selectedItem.market_status === "AFTER_HOURS" && (
-                                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-slate-200 bg-slate-50 text-slate-500 dark:bg-slate-500/10 dark:text-slate-400 dark:border-slate-500/20 ml-1">
+                                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-slate-200 bg-slate-50 text-slate-500 dark:bg-slate-500/10 dark:text-slate-400 dark:border-slate-500/20">
                                     <span className="text-[8px] font-bold uppercase tracking-tighter opacity-70 italic">盘后 POST</span>
                                 </div>
                             )}
-                            </div>
                         </div>
 
                         {(heroSubtitle || aiData.summary_status) && (
@@ -330,37 +357,13 @@ function AIVerdictContent({
                                     </p>
                                 </div>
                                 {aiData.trade_setup_status && (
-                                    <span className="text-[9px] font-black px-2 py-0.5 rounded-md border shrink-0 bg-violet-50 text-violet-600 border-violet-200 dark:bg-violet-600/10 dark:text-violet-400 dark:border-violet-600/20">
+                                    <span className="shrink-0 text-[9px] font-black px-2 py-1 rounded-md border uppercase whitespace-nowrap bg-violet-50 text-violet-600 border-violet-200 dark:bg-violet-600/10 dark:text-violet-400 dark:border-violet-600/20">
                                         {aiData.trade_setup_status}
                                     </span>
                                 )}
                             </div>
                         )}
 
-                        <div className="flex items-center gap-3">
-                            {/* 加入模拟交易按钮 */}
-                            {(aiData.immediate_action?.includes("买") || aiData.immediate_action?.includes("多")) && (
-                                <Button
-                                    size="sm"
-                                    onClick={handleJoinPaperTrade}
-                                    disabled={isCreatingTrade || tradeCreated}
-                                    className={clsx(
-                                        "h-7 px-3 text-[10px] font-bold rounded-lg transition-all",
-                                        tradeCreated 
-                                            ? "bg-emerald-600 text-white hover:bg-emerald-600" 
-                                            : "bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 active:scale-95 shadow-sm shadow-blue-600/20"
-                                    )}
-                                >
-                                    {tradeCreated ? (
-                                        <span className="flex items-center gap-1"><ShieldCheck className="h-3 w-3" /> 已加入</span>
-                                    ) : isCreatingTrade ? (
-                                        "创建中..."
-                                    ) : (
-                                        <span className="flex items-center gap-1"><Play className="h-3 w-3 fill-white" /> 模拟买入</span>
-                                    )}
-                                </Button>
-                            )}
-                        </div>
                         {shouldShowActionReason && (
                             <div className="rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 px-3 py-2">
                                 <p className="text-[11px] font-medium leading-relaxed text-slate-600 dark:text-slate-300">
@@ -379,10 +382,33 @@ function AIVerdictContent({
                                 <span className="ml-auto text-[10px] text-slate-400">已分析 {createdLabel}</span>
                             )}
                         </div>
+
+                        {(aiData.immediate_action?.includes("买") || aiData.immediate_action?.includes("多")) && (
+                            <div className="flex items-center gap-3">
+                                <Button
+                                    size="sm"
+                                    onClick={handleJoinPaperTrade}
+                                    disabled={isCreatingTrade || tradeCreated}
+                                    className={clsx(
+                                        "h-7 px-3 text-[10px] font-bold rounded-lg transition-all",
+                                        tradeCreated
+                                            ? "bg-emerald-600 text-white hover:bg-emerald-600"
+                                            : "bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 active:scale-95 shadow-sm shadow-blue-600/20"
+                                    )}
+                                >
+                                    {tradeCreated ? (
+                                        <span className="flex items-center gap-1"><ShieldCheck className="h-3 w-3" /> 已加入</span>
+                                    ) : isCreatingTrade ? (
+                                        "创建中..."
+                                    ) : (
+                                        <span className="flex items-center gap-1"><Play className="h-3 w-3 fill-white" /> 模拟买入</span>
+                                    )}
+                                </Button>
+                            </div>
+                        )}
                     </div>
 
-                    {/* Right: Confidence Breakdown (new) or Sentiment Bias (fallback) */}
-                    <div className="space-y-3">
+                    <div className="pt-4 border-t border-slate-100 dark:border-white/5">
                         {aiData.confidence_breakdown && Object.values(aiData.confidence_breakdown).some(v => v != null) ? (
                             <InlineConfidenceBreakdown
                                 confidenceLevel={aiData.confidence_level}
@@ -392,38 +418,7 @@ function AIVerdictContent({
                                 macroRationale={aiData.macro_risk_note}
                             />
                         ) : (
-                            /* Fallback: legacy sentiment bar */
-                            <>
-                                <div className="flex justify-between items-center text-[11px] font-black uppercase text-slate-400 tracking-[0.3em]">
-                                    <div className="flex items-center gap-3">
-                                        <Activity className="h-4 w-4 text-blue-600" />
-                                        <span>AI 情绪偏差</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-slate-900 dark:text-white font-black italic">{aiData.sentiment_score || 58}%</span>
-                                        <span className={clsx(
-                                            "px-2 py-0.5 rounded-md border text-[9px] font-black uppercase",
-                                            (aiData.sentiment_score || 0) > 60 ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
-                                                (aiData.sentiment_score || 0) < 40 ? "bg-rose-50 text-rose-600 border-rose-200" :
-                                                    "bg-blue-50 text-blue-600 border-blue-200"
-                                        )}>
-                                            {(aiData.sentiment_score || 0) > 60 ? "Bullish" :
-                                                (aiData.sentiment_score || 0) < 40 ? "Bearish" : "Neutral"}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                    <div
-                                        className="h-full rounded-full bg-blue-600"
-                                        style={{ width: `${aiData.sentiment_score || 58}%` }}
-                                    />
-                                </div>
-                                <div className="flex justify-between text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                                    <span>0: 极度看空</span>
-                                    <span>50: 中性</span>
-                                    <span>100: 极度看多</span>
-                                </div>
-                            </>
+                            <InlineSentimentBar sentimentScore={aiData.sentiment_score || 58} />
                         )}
                     </div>
                 </div>
@@ -682,6 +677,43 @@ function InlineConfidenceBreakdown({
                         </div>
                     );
                 })}
+            </div>
+        </div>
+    );
+}
+
+function InlineSentimentBar({ sentimentScore }: { sentimentScore: number }) {
+    const sentimentLabel = sentimentScore > 60 ? "Bullish" : sentimentScore < 40 ? "Bearish" : "Neutral";
+
+    return (
+        <div className="space-y-3">
+            <div className="flex justify-between items-center text-[11px] font-black uppercase text-slate-400 tracking-[0.3em]">
+                <div className="flex items-center gap-3">
+                    <Activity className="h-4 w-4 text-blue-600" />
+                    <span>AI 情绪偏差</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <span className="text-slate-900 dark:text-white font-black italic">{sentimentScore}%</span>
+                    <span className={clsx(
+                        "px-2 py-0.5 rounded-md border text-[9px] font-black uppercase",
+                        sentimentScore > 60 ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
+                            sentimentScore < 40 ? "bg-rose-50 text-rose-600 border-rose-200" :
+                                "bg-blue-50 text-blue-600 border-blue-200"
+                    )}>
+                        {sentimentLabel}
+                    </span>
+                </div>
+            </div>
+            <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                <div
+                    className="h-full rounded-full bg-blue-600"
+                    style={{ width: `${sentimentScore}%` }}
+                />
+            </div>
+            <div className="flex justify-between text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                <span>0: 极度看空</span>
+                <span>50: 中性</span>
+                <span>100: 极度看多</span>
             </div>
         </div>
     );

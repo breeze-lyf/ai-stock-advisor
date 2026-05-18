@@ -4,12 +4,14 @@ import React from "react";
 import { Target, ShieldAlert, Wallet, TrendingUp } from "lucide-react";
 import { PortfolioItem } from "@/types";
 import type { AIData } from "./types";
+import type { PositionImpactAnalysis } from "@/features/portfolio/risk-api";
 
 interface PositionOverlayProps {
     selectedItem: PortfolioItem | null;
     aiData: AIData | null;
     currency: string;
     sanitizePrice: (val: number | null | undefined) => string;
+    positionImpact?: PositionImpactAnalysis | null;
 }
 
 function toPct(value: number) {
@@ -21,6 +23,7 @@ export const PositionOverlay = React.memo(function PositionOverlay({
     aiData,
     currency,
     sanitizePrice,
+    positionImpact,
 }: PositionOverlayProps) {
     if (!selectedItem || (selectedItem.quantity || 0) <= 0) {
         return null;
@@ -30,7 +33,10 @@ export const PositionOverlay = React.memo(function PositionOverlay({
     const avgCost = selectedItem.avg_cost || 0;
     const currentPrice = selectedItem.current_price || 0;
     const marketValue = selectedItem.market_value || currentPrice * quantity;
-    const weight = selectedItem.weight || 0;
+    const portfolioTotal =
+        positionImpact?.current_sector_exposure?.reduce((sum, row) => sum + (row.value || 0), 0) || 0;
+    const derivedWeight = portfolioTotal > 0 ? (marketValue / portfolioTotal) * 100 : 0;
+    const weight = selectedItem.weight && selectedItem.weight > 0 ? selectedItem.weight : derivedWeight;
     const pnlPct = avgCost > 0 ? ((currentPrice - avgCost) / avgCost) * 100 : 0;
     const stopLoss = aiData?.stop_loss_price;
     const entryLow = aiData?.entry_price_low;
@@ -74,7 +80,7 @@ export const PositionOverlay = React.memo(function PositionOverlay({
                         { label: "浮盈亏", value: toPct(pnlPct), icon: TrendingUp },
                         {
                             label: "仓位占比",
-                            value: weight ? `${weight.toFixed(1)}%` : `${currency}${sanitizePrice(marketValue)}`,
+                            value: weight > 0 ? `${weight.toFixed(1)}%` : `${currency}${sanitizePrice(marketValue)}`,
                             icon: ShieldAlert,
                         },
                     ].map((item) => {

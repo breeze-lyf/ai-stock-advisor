@@ -6,6 +6,7 @@ import logging
 from typing import List, Dict, Any, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
 import math
 
 from app.models.portfolio import Portfolio
@@ -24,6 +25,50 @@ class PortfolioRiskService:
     3. 再平衡建议
     4. 业绩归因分析
     """
+
+    @staticmethod
+    async def _load_holdings(
+        db: AsyncSession,
+        user_id: str,
+    ) -> List[Portfolio]:
+        stmt = (
+            select(Portfolio)
+            .where(Portfolio.user_id == user_id)
+            .options(selectinload(Portfolio.stock).selectinload(Stock.market_data))
+        )
+        result = await db.execute(stmt)
+        return result.scalars().all()
+
+    @staticmethod
+    def _holding_market_value(holding: Portfolio) -> float:
+        quantity = holding.quantity or 0
+        if quantity <= 0:
+            return 0.0
+        current_price = getattr(getattr(holding, "stock", None), "market_data", None)
+        live_price = getattr(current_price, "current_price", None)
+        price = live_price if live_price and live_price > 0 else (holding.avg_cost or 0)
+        return quantity * price if price > 0 else 0.0
+
+    @staticmethod
+    def _holding_cost_basis(holding: Portfolio) -> float:
+        quantity = holding.quantity or 0
+        avg_cost = holding.avg_cost or 0
+        return quantity * avg_cost if quantity > 0 and avg_cost > 0 else 0.0
+
+    @staticmethod
+    def _holding_sector(holding: Portfolio) -> Optional[str]:
+        return getattr(getattr(holding, "stock", None), "sector", None)
+
+    @staticmethod
+    def _holding_market_cap(holding: Portfolio) -> Optional[float]:
+        return getattr(getattr(holding, "stock", None), "market_cap", None)
+
+    @staticmethod
+    def _holding_beta(holding: Portfolio) -> float:
+        stock = getattr(holding, "stock", None)
+        if stock and stock.beta is not None:
+            return stock.beta
+        return 1.0 if PortfolioRiskService._holding_sector(holding) == "Technology" else 0.9
 
     # ==================== 风险敞口分析 ====================
 
@@ -48,9 +93,7 @@ class PortfolioRiskService:
         }
         """
         # 获取用户持仓
-        stmt = select(Portfolio).where(Portfolio.user_id == user_id)
-        result = await db.execute(stmt)
-        holdings = result.scalars().all()
+        holdings = await PortfolioRiskService._load_holdings(db, user_id)
 
         if not holdings:
             return {
@@ -65,15 +108,15 @@ class PortfolioRiskService:
         total_value = 0
 
         for holding in holdings:
-            if not holding.market_cap or not holding.sector:
+            sector = PortfolioRiskService._holding_sector(holding)
+            value = PortfolioRiskService._holding_market_value(holding)
+            if not sector or value <= 0:
                 continue
-
-            value = holding.market_cap  # 这里使用 market_cap 作为价值代理
             total_value += value
 
-            if holding.sector not in sector_values:
-                sector_values[holding.sector] = 0
-            sector_values[holding.sector] += value
+            if sector not in sector_values:
+                sector_values[sector] = 0
+            sector_values[sector] += value
 
         # 计算权重
         sector_breakdown = []
@@ -116,9 +159,7 @@ class PortfolioRiskService:
             "style_bias": "LARGE_CAP",
         }
         """
-        stmt = select(Portfolio).where(Portfolio.user_id == user_id)
-        result = await db.execute(stmt)
-        holdings = result.scalars().all()
+        holdings = await PortfolioRiskService._load_holdings(db, user_id)
 
         if not holdings:
             return {
@@ -134,18 +175,18 @@ class PortfolioRiskService:
         total = 0
 
         for holding in holdings:
-            if not holding.market_cap:
+            market_cap = PortfolioRiskService._holding_market_cap(holding)
+            value = PortfolioRiskService._holding_market_value(holding)
+            if not market_cap or value <= 0:
                 continue
-
-            market_cap = holding.market_cap
-            total += market_cap
+            total += value
 
             if market_cap > 20000000000:  # 200 亿
-                large_cap += market_cap
+                large_cap += value
             elif market_cap > 5000000000:  # 50 亿
-                mid_cap += market_cap
+                mid_cap += value
             else:
-                small_cap += market_cap
+                small_cap += value
 
         if total == 0:
             return {
@@ -203,9 +244,7 @@ class PortfolioRiskService:
             ],
         }
         """
-        stmt = select(Portfolio).where(Portfolio.user_id == user_id)
-        result = await db.execute(stmt)
-        holdings = result.scalars().all()
+        holdings = await PortfolioRiskService._load_holdings(db, user_id)
 
         if not holdings:
             return {
@@ -381,8 +420,8 @@ class PortfolioRiskService:
         # 简化版本：使用模拟数据
         # 实际实现需要获取历史持仓变化和基准指数数据
 
-        total_value = sum(h.market_cap or 0 for h in holdings)
-        total_cost = sum(h.cost_basis or h.market_cap or 0 for h in holdings)
+        total_value = sum(PortfolioRiskService._holding_market_value(h) for h in holdings)
+        total_cost = sum(PortfolioRiskService._holding_cost_basis(h) for h in holdings)
 
         if total_cost == 0:
             return {
@@ -481,9 +520,7 @@ class PortfolioRiskService:
         }
         """
         # 获取当前持仓
-        stmt = select(Portfolio).where(Portfolio.user_id == user_id)
-        result = await db.execute(stmt)
-        holdings = result.scalars().all()
+        holdings = await PortfolioRiskService._load_holdings(db, user_id)
 
         if not holdings:
             return {
@@ -499,7 +536,7 @@ class PortfolioRiskService:
             }
 
         # 计算当前总市值（使用 market_cap 代理）
-        total_value = sum(h.market_cap or 0 for h in holdings)
+        total_value = sum(PortfolioRiskService._holding_market_value(h) for h in holdings)
         if total_value == 0:
             return {
                 "current_sector_exposure": [],
@@ -516,10 +553,11 @@ class PortfolioRiskService:
         # 当前行业敞口
         sector_values: Dict[str, float] = {}
         for holding in holdings:
-            if not holding.sector or not holding.market_cap:
+            sector = PortfolioRiskService._holding_sector(holding)
+            value = PortfolioRiskService._holding_market_value(holding)
+            if not sector or value <= 0:
                 continue
-            sector = holding.sector
-            sector_values[sector] = sector_values.get(sector, 0) + holding.market_cap
+            sector_values[sector] = sector_values.get(sector, 0) + value
 
         current_sector_exposure = []
         for sector, value in sorted(sector_values.items(), key=lambda x: x[1], reverse=True):
@@ -535,8 +573,8 @@ class PortfolioRiskService:
         stock_result = await db.execute(stock_stmt)
         target_stock = stock_result.scalars().first()
 
-        target_sector = target_stock.sector if target_stock else "Unknown"
-        target_beta = 1.1  # 默认科技股 beta
+        target_sector = target_stock.sector if target_stock and target_stock.sector else "Unknown"
+        target_beta = target_stock.beta if target_stock and target_stock.beta is not None else (1.1 if target_sector == "Technology" else 0.9)
 
         # 模拟加仓后的组合变化
         add_value = total_value * (position_pct / 100)
@@ -557,8 +595,8 @@ class PortfolioRiskService:
 
         # 计算当前 Beta（加权平均）
         current_beta = sum(
-            (h.market_cap or 0) / total_value * (1.0 if h.sector == "Technology" else 0.9)
-            for h in holdings if h.market_cap
+            PortfolioRiskService._holding_market_value(h) / total_value * PortfolioRiskService._holding_beta(h)
+            for h in holdings if PortfolioRiskService._holding_market_value(h) > 0
         )
 
         # 投影 Beta
@@ -583,7 +621,13 @@ class PortfolioRiskService:
         ai_suggestion = ""
         if projected_sector_weight > 0.4 and target_sector == "Technology":
             # 找出同一行业中市值最大的持仓作为减仓候选
-            tech_holdings = [(h, h.market_cap or 0) for h in holdings if h.sector == target_sector and h.ticker.upper() != ticker.upper()]
+            tech_holdings = [
+                (h, PortfolioRiskService._holding_market_value(h))
+                for h in holdings
+                if PortfolioRiskService._holding_sector(h) == target_sector
+                and h.ticker.upper() != ticker.upper()
+                and PortfolioRiskService._holding_market_value(h) > 0
+            ]
             if tech_holdings:
                 largest = max(tech_holdings, key=lambda x: x[1])
                 ai_suggestion = f"若加仓{ticker}，建议同步减仓{largest[0].ticker}以维持{target_sector}敞口在40%以内，避免集中度风险。"

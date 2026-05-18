@@ -13,15 +13,15 @@ AI Smart Investment Advisor 是一个面向个人投资者和早期小团队的 
 
 ## 技术栈
 
-| 模块 | 技术 |
-|------|------|
-| Web Frontend | Next.js 16, React 19, TypeScript, Tailwind CSS 4, Radix UI |
-| Backend | FastAPI, SQLAlchemy Async, Alembic, Pydantic |
-| Database | PostgreSQL / Neon |
-| Cache / Coordination | Redis |
-| AI Provider | 系统内置模型 + 用户 BYOK，多 Provider 路由与容灾 |
-| Market Data | A/H/US 行情、多源 Provider、缓存与后台刷新 |
-| Deployment | Docker, GitHub Actions, Aliyun ACR, server pull mode |
+| 模块                 | 技术                                                       |
+| -------------------- | ---------------------------------------------------------- |
+| Web Frontend         | Next.js 16, React 19, TypeScript, Tailwind CSS 4, Radix UI |
+| Backend              | FastAPI, SQLAlchemy Async, Alembic, Pydantic               |
+| Database             | PostgreSQL / Neon                                          |
+| Cache / Coordination | Redis                                                      |
+| AI Provider          | 系统内置模型 + 用户 BYOK，多 Provider 路由与容灾           |
+| Market Data          | A/H/US 行情、多源 Provider、缓存与后台刷新                 |
+| Deployment           | Docker, GitHub Actions, Aliyun ACR, server pull mode       |
 
 ## 已落地能力
 
@@ -108,7 +108,7 @@ alembic revision --autogenerate -m "your_migration_name"
 alembic upgrade head
 ```
 
-## 环境变量
+## 环境变量 
 
 本地开发主要依赖 `backend/.env` 和前端公开环境变量。
 

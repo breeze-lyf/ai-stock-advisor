@@ -132,6 +132,10 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
         { key: "analysis" as const, label: "AI 分析" },
     ];
 
+    const holdingBadgeTone = selectedItem.pl_percent >= 0
+        ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-600/10 dark:text-emerald-400"
+        : "bg-rose-50 text-rose-600 dark:bg-rose-600/10 dark:text-rose-400";
+
     return (
         <div className={clsx(
             "flex flex-col gap-2 transition-all duration-500",
@@ -274,7 +278,7 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                         ) : (
                             /* 展示模式 */
                             <>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-900/80 px-3 py-2 shadow-sm">
                                     <div className="flex flex-col">
                                         <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">持有仓位</span>
                                         <span className="text-sm font-bold text-slate-700 dark:text-slate-300 tabular-nums">
@@ -290,13 +294,13 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                                         <Pencil className="h-3.5 w-3.5" />
                                     </button>
                                 </div>
-                                <div className="flex flex-col">
+                                <div className="flex flex-col rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-900/80 px-3 py-2 shadow-sm">
                                     <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">持仓均价</span>
                                     <span className="text-sm font-bold text-slate-700 dark:text-slate-300 tabular-nums">
                                         ${selectedItem.avg_cost.toFixed(2)}
                                     </span>
                                 </div>
-                                <div className="flex flex-col">
+                                <div className="flex flex-col rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-900/80 px-3 py-2 shadow-sm">
                                     <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">账面盈亏</span>
                                     <div className="flex items-center gap-1.5">
                                         <span className={clsx(
@@ -306,10 +310,8 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                                             {selectedItem.unrealized_pl >= 0 ? "+" : ""}${selectedItem.unrealized_pl.toFixed(2)}
                                         </span>
                                         <span className={clsx(
-                                            "text-[9px] font-black px-1 py-0.5 rounded-md",
-                                            selectedItem.pl_percent >= 0
-                                                ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-600/10 dark:text-emerald-400"
-                                                : "bg-rose-50 text-rose-600 dark:bg-rose-600/10 dark:text-rose-400"
+                                            "text-[9px] font-black px-1.5 py-0.5 rounded-md",
+                                            holdingBadgeTone
                                         )}>
                                             {selectedItem.pl_percent >= 0 ? "+" : ""}{selectedItem.pl_percent.toFixed(2)}%
                                         </span>
@@ -375,14 +377,21 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                             </div>
                         </>
                     ) : (
-                        <button
-                            type="button"
-                            onClick={handleStartEdit}
-                            className="flex items-center gap-1.5 h-7 px-3 rounded-md border border-dashed border-slate-300 dark:border-slate-600 text-slate-400 dark:text-slate-500 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 text-xs font-bold transition-colors"
-                        >
-                            <Pencil className="h-3 w-3" />
-                            设置持仓
-                        </button>
+                        <div className="flex items-center gap-3 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-gradient-to-r from-slate-50 to-white dark:from-zinc-900 dark:to-zinc-950 px-3.5 py-2.5 shadow-sm">
+                            <div className="flex flex-col min-w-0">
+                                <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">当前状态</span>
+                                <span className="text-sm font-bold text-slate-700 dark:text-slate-200">未建立持仓</span>
+                                <span className="text-[10px] text-slate-400 truncate">录入数量与均价后启用仓位视角</span>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={handleStartEdit}
+                                className="flex items-center gap-1.5 h-8 px-3.5 rounded-xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:scale-[1.02] active:scale-[0.98] text-xs font-bold transition-transform shadow-sm"
+                            >
+                                <Pencil className="h-3 w-3" />
+                                设置持仓
+                            </button>
+                        </div>
                     )
                 )}
 

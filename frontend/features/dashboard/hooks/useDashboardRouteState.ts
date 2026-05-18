@@ -24,6 +24,14 @@ export function useDashboardRouteState() {
     tab && VALID_TABS.includes(tab as DashboardTab) ? (tab as DashboardTab) : "analysis";
   const detailTab: DashboardDetailTab = detail === "analysis" ? "analysis" : "info";
 
+  const commitParams = (params: URLSearchParams) => {
+    const nextUrl = `${pathname}?${params.toString()}`;
+    if (typeof window !== "undefined") {
+      window.history.replaceState(window.history.state, "", nextUrl);
+    }
+    router.replace(nextUrl, { scroll: false });
+  };
+
   const selectTicker = (ticker: string | null) => {
     const params = new URLSearchParams(effectiveParams.toString());
 
@@ -36,7 +44,7 @@ export function useDashboardRouteState() {
       params.delete("ticker");
     }
 
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    commitParams(params);
   };
 
   const changeTab = (tab: DashboardTab) => {
@@ -50,7 +58,7 @@ export function useDashboardRouteState() {
       params.set("ticker", selectedTicker);
     }
 
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    commitParams(params);
   };
 
   const changeDetailTab = (nextDetailTab: DashboardDetailTab) => {
@@ -62,7 +70,7 @@ export function useDashboardRouteState() {
       params.delete("detail");
     }
 
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    commitParams(params);
   };
 
   return {

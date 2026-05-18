@@ -33,10 +33,19 @@ export const PositionOverlay = React.memo(function PositionOverlay({
     const avgCost = selectedItem.avg_cost || 0;
     const currentPrice = selectedItem.current_price || 0;
     const marketValue = selectedItem.market_value || currentPrice * quantity;
-    const portfolioTotal =
-        positionImpact?.current_sector_exposure?.reduce((sum, row) => sum + (row.value || 0), 0) || 0;
-    const derivedWeight = portfolioTotal > 0 ? (marketValue / portfolioTotal) * 100 : 0;
-    const weight = selectedItem.weight && selectedItem.weight > 0 ? selectedItem.weight : derivedWeight;
+    const sectorRows = (positionImpact?.current_sector_exposure || []).filter((row) =>
+        Number.isFinite(row.value) && Number.isFinite(row.weight)
+    );
+    const sectorMatchedRow = selectedItem.sector
+        ? sectorRows.find((row) => row.sector === selectedItem.sector)
+        : undefined;
+    const portfolioTotalFromRows = sectorRows.reduce((sum, row) => sum + row.value, 0);
+    const portfolioTotalFromSector =
+        sectorMatchedRow && sectorMatchedRow.weight > 0
+            ? sectorMatchedRow.value / (sectorMatchedRow.weight / 100)
+            : 0;
+    const portfolioTotal = portfolioTotalFromRows > 0 ? portfolioTotalFromRows : portfolioTotalFromSector;
+    const weight = portfolioTotal > 0 ? (marketValue / portfolioTotal) * 100 : 0;
     const pnlPct = avgCost > 0 ? ((currentPrice - avgCost) / avgCost) * 100 : 0;
     const stopLoss = aiData?.stop_loss_price;
     const entryLow = aiData?.entry_price_low;
@@ -63,30 +72,31 @@ export const PositionOverlay = React.memo(function PositionOverlay({
     }
 
     return (
-        <div className="space-y-6">
-            <div className="flex items-center gap-3">
-                <div className="h-8 w-1.5 bg-emerald-600 rounded-full shadow-[0_0_12px_rgba(5,150,105,0.45)]" />
-                <div>
-                    <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-slate-100 uppercase">我的持仓建议</h2>
-                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">基于你的实际成本与仓位，对公共分析结果做个性化管理补充。</p>
+        <section className="rounded-[28px] border border-slate-200 bg-white px-5 py-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 md:px-7">
+            <div className="space-y-3.5">
+                <div className="flex items-center gap-3">
+                    <div className="h-8 w-1.5 bg-emerald-600 rounded-full shadow-[0_0_12px_rgba(5,150,105,0.45)]" />
+                    <div>
+                        <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-slate-100 uppercase">我的持仓建议</h2>
+                        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">基于你的实际成本与仓位，对公共分析结果做个性化管理补充。</p>
+                    </div>
                 </div>
-            </div>
 
-            <div className="px-4 md:px-10 space-y-5">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="space-y-3.5">
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
                     {[
                         { label: "持仓数量", value: `${quantity}`, icon: Wallet },
                         { label: "持仓成本", value: `${currency}${sanitizePrice(avgCost)}`, icon: Target },
                         { label: "浮盈亏", value: toPct(pnlPct), icon: TrendingUp },
                         {
                             label: "仓位占比",
-                            value: weight > 0 ? `${weight.toFixed(1)}%` : `${currency}${sanitizePrice(marketValue)}`,
+                            value: weight > 0 ? `${weight.toFixed(1)}%` : "--",
                             icon: ShieldAlert,
                         },
                     ].map((item) => {
                         const Icon = item.icon;
                         return (
-                            <div key={item.label} className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-900 px-4 py-4">
+                            <div key={item.label} className="rounded-[22px] border border-slate-200 bg-slate-50/80 px-4 py-4 dark:border-zinc-800 dark:bg-zinc-950/60">
                                 <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500">
                                     <Icon className="h-4 w-4" />
                                     <span className="text-[10px] font-black uppercase tracking-[0.18em]">{item.label}</span>
@@ -97,12 +107,12 @@ export const PositionOverlay = React.memo(function PositionOverlay({
                     })}
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                    <div className="rounded-2xl border border-emerald-200 bg-emerald-50/70 dark:border-emerald-900/50 dark:bg-emerald-950/20 px-5 py-4">
+                <div className="grid gap-3 md:grid-cols-2 md:gap-4">
+                    <div className="rounded-[22px] border border-emerald-200 bg-emerald-50/70 px-5 py-4 dark:border-emerald-900/50 dark:bg-emerald-950/20">
                         <p className="text-[11px] font-black uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-400">仓位动作建议</p>
                         <p className="mt-2 text-sm leading-7 text-slate-700 dark:text-slate-200">{positionAdvice}</p>
                     </div>
-                    <div className="rounded-2xl border border-blue-200 bg-blue-50/70 dark:border-blue-900/50 dark:bg-blue-950/20 px-5 py-4">
+                    <div className="rounded-[22px] border border-blue-200 bg-blue-50/70 px-5 py-4 dark:border-blue-900/50 dark:bg-blue-950/20">
                         <p className="text-[11px] font-black uppercase tracking-[0.18em] text-blue-600 dark:text-blue-400">仓位约束</p>
                         <p className="mt-2 text-sm leading-7 text-slate-700 dark:text-slate-200">{weightAdvice}</p>
                         {addOnTrigger && (
@@ -114,6 +124,7 @@ export const PositionOverlay = React.memo(function PositionOverlay({
                     </div>
                 </div>
             </div>
-        </div>
+            </div>
+        </section>
     );
 });

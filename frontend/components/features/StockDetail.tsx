@@ -34,11 +34,8 @@ import { NewsFeed } from "./stock-detail/NewsFeed";
 import { ScenarioAnalysis } from "./stock-detail/ScenarioAnalysis";
 import { RiskAnalysis } from "./stock-detail/RiskAnalysis";
 import { MultiTimeframeAnalysis } from "./stock-detail/MultiTimeframeAnalysis";
-import { SignalPerformancePanel } from "./stock-detail/SignalPerformance";
-import { SectorExposurePanel } from "./stock-detail/SectorExposure";
 import { KeyAssumptions } from "./stock-detail/KeyAssumptions";
 import { CatalystTimeline } from "./stock-detail/CatalystTimeline";
-import { PortfolioLinkage } from "./stock-detail/PortfolioLinkage";
 
 // --- 增强分析 Hook ---
 import { useEnhancedAnalysis } from "@/features/analysis/hooks/useEnhancedAnalysis";
@@ -46,6 +43,30 @@ import { useEnhancedAnalysis } from "@/features/analysis/hooks/useEnhancedAnalys
 import { useStockCapsule } from "@/features/dashboard/hooks/useStockCapsule";
 
 type DetailTab = "info" | "analysis";
+
+function resolveDetailTab(
+    requestedTab: DetailTab,
+    detailTabStorageKey: string | null,
+): DetailTab {
+    if (requestedTab === "analysis") {
+        return "analysis";
+    }
+
+    if (typeof window === "undefined") {
+        return requestedTab;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("detail") === "analysis") {
+        return "analysis";
+    }
+
+    if (detailTabStorageKey && window.sessionStorage.getItem(detailTabStorageKey) === "analysis") {
+        return "analysis";
+    }
+
+    return "info";
+}
 
 // --- Types ---
 interface HistoryDataItem {
@@ -62,7 +83,7 @@ interface HistoryDataItem {
 interface StockDetailProps {
     selectedItem: PortfolioItem | null;
     activeTab: DetailTab;
-    onTabChange: (tab: DetailTab) => void;
+    onTabChange?: (tab: DetailTab) => void;
     onAnalyze: (force?: boolean) => void;
     onRefresh: () => void;
     onBack?: () => void;
@@ -87,7 +108,6 @@ export function StockDetail({
     // --- 全局状态管理 ---
     const [refreshing, setRefreshing] = useState(false);
     const [positionImpact, setPositionImpact] = useState<PositionImpactAnalysis | null>(null);
-    const [positionImpactLoading, setPositionImpactLoading] = useState(false);
     const { analysisHistory, historyData, stockHistoryLoading } = useDashboardStockDetailData(
         selectedItem?.ticker || null,
         refreshTimestamp
@@ -119,14 +139,12 @@ export function StockDetail({
 
         if (!ticker || positionPct == null) {
             setPositionImpact(null);
-            setPositionImpactLoading(false);
             return;
         }
 
         let cancelled = false;
 
         const loadPositionImpact = async () => {
-            setPositionImpactLoading(true);
             try {
                 const result = await getPositionImpactAnalysis(ticker, positionPct);
                 if (!cancelled) {
@@ -136,10 +154,6 @@ export function StockDetail({
                 console.error("Failed to load portfolio linkage:", err);
                 if (!cancelled) {
                     setPositionImpact(null);
-                }
-            } finally {
-                if (!cancelled) {
-                    setPositionImpactLoading(false);
                 }
             }
         };
@@ -207,11 +221,50 @@ export function StockDetail({
     const containerRef = useRef<HTMLDivElement>(null);
 
     const currency = selectedItem ? getCurrencySymbol(selectedItem.ticker) : "$";
-    const requestedAnalysisView =
-        typeof window !== "undefined" &&
-        new URLSearchParams(window.location.search).get("detail") === "analysis";
-    const resolvedActiveTab: DetailTab =
-        activeTab === "analysis" || requestedAnalysisView ? "analysis" : "info";
+    const detailTabStorageKey = selectedItem ? `stock-detail-tab:${selectedItem.ticker}` : null;
+    const [resolvedActiveTab, setResolvedActiveTab] = useState<DetailTab>(() =>
+        resolveDetailTab(activeTab, detailTabStorageKey)
+    );
+
+    useEffect(() => {
+        setResolvedActiveTab(resolveDetailTab(activeTab, detailTabStorageKey));
+    }, [activeTab, detailTabStorageKey]);
+
+    useEffect(() => {
+        if (typeof window === "undefined" || !detailTabStorageKey) return;
+        window.sessionStorage.setItem(detailTabStorageKey, resolvedActiveTab);
+    }, [detailTabStorageKey, resolvedActiveTab]);
+
+    useEffect(() => {
+        if (typeof onTabChange === "function" && resolvedActiveTab !== activeTab) {
+            onTabChange(resolvedActiveTab);
+        }
+    }, [activeTab, onTabChange, resolvedActiveTab]);
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+
+        const params = new URLSearchParams(window.location.search);
+        const urlDetailTab: DetailTab = params.get("detail") === "analysis" ? "analysis" : "info";
+        if (urlDetailTab === resolvedActiveTab) {
+            return;
+        }
+
+        if (resolvedActiveTab === "analysis") {
+            params.set("detail", "analysis");
+        } else {
+            params.delete("detail");
+        }
+
+        const nextQuery = params.toString();
+        const nextUrl = nextQuery ? `${window.location.pathname}?${nextQuery}` : window.location.pathname;
+        window.history.replaceState(window.history.state, "", nextUrl);
+    }, [resolvedActiveTab]);
+
+    const handleDetailTabChange = (nextTab: DetailTab) => {
+        setResolvedActiveTab(nextTab);
+        onTabChange?.(nextTab);
+    };
 
     // --- 滚动检测 Effect ---
     useEffect(() => {
@@ -237,7 +290,7 @@ export function StockDetail({
 
     if (!mounted || !selectedItem) {
         return (
-            <div className="flex-1 bg-white dark:bg-zinc-950 p-6 flex flex-col items-center justify-center h-full text-slate-300 gap-4">
+            <div className="flex-1 bg-slate-50 dark:bg-zinc-950 p-6 flex flex-col items-center justify-center h-full text-slate-300 gap-4">
                 <div className="p-8 rounded-full bg-slate-50 dark:bg-zinc-900 shadow-inner">
                     <Zap className="h-16 w-16 opacity-5 animate-pulse" />
                 </div>
@@ -266,9 +319,9 @@ export function StockDetail({
     // 渲染：组装 5 大板块
     // ===========================
     return (
-        <div 
+        <div
             ref={containerRef}
-            className="flex-1 bg-white dark:bg-zinc-950 px-4 md:px-8 pb-12 flex flex-col gap-6 md:gap-8 overflow-y-auto h-full custom-scrollbar w-full max-w-[1400px] mx-auto relative"
+            className="flex-1 bg-slate-50 dark:bg-zinc-950 px-4 md:px-8 pb-2 md:pb-4 flex flex-col gap-5 md:gap-6 overflow-y-auto h-full custom-scrollbar w-full max-w-[1400px] mx-auto relative"
         >
             {/* 板块 0: 粘性顶栏（滚动后出现） */}
             <StickyBar
@@ -280,7 +333,7 @@ export function StockDetail({
                 currency={currency}
                 sanitizePrice={sanitizePrice}
                 activeTab={resolvedActiveTab}
-                onTabChange={onTabChange}
+                onTabChange={handleDetailTabChange}
             />
 
             {/* 板块 0: 股票身份头 */}
@@ -291,14 +344,14 @@ export function StockDetail({
                 onRefresh={handleRefresh}
                 onBack={onBack}
                 activeTab={resolvedActiveTab}
-                onTabChange={onTabChange}
+                onTabChange={handleDetailTabChange}
             />
 
             {/* 自动刷新通知 Banner */}
             {hasNewAnalysis && (
                 <div
                     className="flex items-center justify-between mx-4 mt-3 px-4 py-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 cursor-pointer hover:bg-blue-500/20 transition-colors"
-                    onClick={() => { dismissNewAnalysis(); onTabChange("analysis"); onAnalyze(false); }}
+                    onClick={() => { dismissNewAnalysis(); handleDetailTabChange("analysis"); onAnalyze(false); }}
                 >
                     <div className="flex items-center gap-2 text-sm text-blue-400 font-medium">
                         <span className="animate-pulse">✦</span>
@@ -418,28 +471,9 @@ export function StockDetail({
                 </>
             )}
 
-            {/* 信号命中率 */}
-            <SignalPerformancePanel ticker={selectedItem.ticker} />
-
-            {/* 组合行业敞口 */}
-            <SectorExposurePanel />
-
-            {/* 组合联动视角 */}
-            {resolvedActiveTab === "analysis" && aiData && (
-                <PortfolioLinkage
-                    ticker={selectedItem.ticker}
-                    positionPct={aiData.max_position_pct ?? 5}
-                    impactData={positionImpact}
-                    isLoading={positionImpactLoading}
-                />
-            )}
               </>
             )}
 
-            {/* Footer */}
-            <div className="mt-8 py-4 border-t border-slate-100 dark:border-slate-800 text-center opacity-30">
-                <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em]">AI Analysis Terminal V4.0</p>
-            </div>
         </div>
     );
 }

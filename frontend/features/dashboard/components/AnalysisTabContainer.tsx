@@ -92,9 +92,9 @@ export function AnalysisTabContainer({
           onToggleOnlyHoldings={onToggleOnlyHoldings}
         />
       </div>
-      <div
-        className={clsx(
-          "flex-1 min-w-0 bg-white dark:bg-slate-950 transition-all duration-300 h-full absolute lg:static w-full inset-y-0 right-0 z-10",
+        <div
+          className={clsx(
+          "flex-1 min-w-0 bg-slate-50 dark:bg-slate-950 transition-all duration-300 h-full absolute lg:static w-full inset-y-0 right-0 z-10",
           selectedTicker ? "translate-x-0" : "translate-x-full lg:translate-x-0"
         )}
       >

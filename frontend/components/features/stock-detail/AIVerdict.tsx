@@ -78,7 +78,7 @@ export const AIVerdict = React.memo(function AIVerdict({
 
                 {/* AI 历史信号复盘 (Signal Tracker) */}
                 {analysisHistory.length > 0 && (
-                    <div className="mt-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                    <div className="mt-4 animate-in fade-in slide-in-from-bottom-4 duration-1000">
                         <TruthTracker
                             analysisHistory={analysisHistory}
                             selectedItem={selectedItem}
@@ -1075,13 +1075,13 @@ function TruthTracker({
     selectedItem: AIVerdictProps["selectedItem"];
 }) {
     return (
-        <div className="bg-slate-50/50 dark:bg-white/5 border border-slate-100 dark:border-white/5 rounded-[2rem] p-6">
-            <div className="flex items-center gap-3 mb-6">
+        <div className="rounded-[28px] border border-slate-200 bg-white px-5 py-4.5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 md:px-7">
+            <div className="mb-4 flex items-center gap-3">
                 <Clock className="h-5 w-5 text-blue-600" />
                 <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">AI 信号追踪与复盘 (The Truth Tracker)</h3>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {analysisHistory.slice(0, 3).map((report, idx) => {
                     const hPrice = report.history_price;
                     const cPrice = selectedItem.current_price;
@@ -1090,7 +1090,7 @@ function TruthTracker({
                         report.immediate_action?.includes("卖") ? (pl !== null && pl < 0) : null;
 
                     return (
-                        <div key={idx} className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 p-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow group relative overflow-hidden">
+                        <div key={idx} className="group relative overflow-hidden rounded-[22px] border border-slate-200 bg-slate-50/60 p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950/60">
                             {isWin !== null && (
                                 <div className={clsx(
                                     "absolute top-0 right-0 px-3 py-1 text-[8px] font-black uppercase rounded-bl-xl",
@@ -1100,13 +1100,13 @@ function TruthTracker({
                                 </div>
                             )}
 
-                            <div className="flex justify-between items-start mb-3">
+                            <div className="mb-2.5 flex items-start justify-between">
                                 <div className="flex flex-col">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter" suppressHydrationWarning>
                                         {report.created_at ? format(new Date(report.created_at + (report.created_at.includes('Z') ? '' : 'Z')), "MMM dd, yyyy", { locale: zhCN }) : "--"}
                                     </span>
                                     <span className={clsx(
-                                        "text-xs font-black uppercase mt-1",
+                                        "mt-1 line-clamp-2 text-[11px] font-black uppercase leading-4",
                                         report.immediate_action?.includes("买") ? "text-emerald-600" :
                                             report.immediate_action?.includes("卖") ? "text-rose-600" : "text-slate-500"
                                     )}>
@@ -1115,27 +1115,27 @@ function TruthTracker({
                                 </div>
                                 <div className="flex flex-col items-end">
                                     <span className="text-[8px] font-bold text-slate-400 uppercase">建仓时价</span>
-                                    <span className="text-xs font-black tabular-nums text-slate-700 dark:text-slate-300">
+                                    <span className="text-[11px] font-black tabular-nums text-slate-700 dark:text-slate-300">
                                         ${hPrice?.toFixed(2) || "--"}
                                     </span>
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between border-t border-slate-50 dark:border-zinc-800 pt-3">
+                            <div className="flex items-center justify-between border-t border-slate-100 pt-2.5 dark:border-zinc-800">
                                 <div className="flex flex-col">
                                     <span className="text-[8px] font-bold text-slate-400 uppercase">预期盈亏</span>
                                     <span className={clsx(
-                                        "text-sm font-black tabular-nums",
+                                        "text-[13px] font-black tabular-nums",
                                         pl && pl >= 0 ? "text-emerald-600" : "text-rose-600"
                                     )}>
                                         {pl !== null ? `${pl >= 0 ? "+" : ""}${pl.toFixed(2)}%` : "--"}
                                     </span>
                                 </div>
                                 <div className="flex gap-1.5 overflow-hidden">
-                                    <span className="text-[8px] font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded uppercase">
+                                    <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[8px] font-bold uppercase text-slate-400 dark:bg-slate-800">
                                         {String(report.risk_level || "中")}险
                                     </span>
-                                    <span className="text-[8px] font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded uppercase">
+                                    <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[8px] font-bold uppercase text-slate-400 dark:bg-slate-800">
                                         {String(report.confidence_level || "70")}%信心
                                     </span>
                                 </div>

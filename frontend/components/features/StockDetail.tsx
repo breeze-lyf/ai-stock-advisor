@@ -321,7 +321,7 @@ export function StockDetail({
     return (
         <div
             ref={containerRef}
-            className="flex-1 bg-slate-50 dark:bg-zinc-950 px-4 md:px-8 pb-2 md:pb-4 flex flex-col gap-5 md:gap-6 overflow-y-auto h-full custom-scrollbar w-full max-w-[1400px] mx-auto relative"
+            className="flex-1 bg-slate-50 dark:bg-zinc-950 px-4 md:px-8 pb-0 md:pb-1 flex flex-col gap-4 md:gap-5 overflow-y-auto h-full custom-scrollbar w-full max-w-[1400px] mx-auto relative"
         >
             {/* 板块 0: 粘性顶栏（滚动后出现） */}
             <StickyBar

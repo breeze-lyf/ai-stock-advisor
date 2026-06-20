@@ -207,7 +207,7 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
             </div>
 
             {/* 持仓信息 + Tab 导航行：持仓在左，Tab 靠右，始终渲染（Tab 无持仓时也需显示） */}
-            <div className="flex items-center flex-wrap gap-x-6 gap-y-3 mt-2 pb-2 border-b border-slate-100 dark:border-slate-800/50">
+            <div className="flex items-center flex-wrap gap-x-6 gap-y-3 mt-2 pb-1">
                 {/* 持仓信息（有持仓才显示） */}
                 {selectedItem.quantity > 0 ? (
                     <>

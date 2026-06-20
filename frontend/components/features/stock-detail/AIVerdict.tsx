@@ -78,7 +78,7 @@ export const AIVerdict = React.memo(function AIVerdict({
 
                 {/* AI 历史信号复盘 (Signal Tracker) */}
                 {analysisHistory.length > 0 && (
-                    <div className="mt-4 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                    <div className="mt-3 animate-in fade-in slide-in-from-bottom-4 duration-1000">
                         <TruthTracker
                             analysisHistory={analysisHistory}
                             selectedItem={selectedItem}
@@ -408,7 +408,7 @@ function AIVerdictContent({
                         )}
                     </div>
 
-                    <div className="pt-4 border-t border-slate-100 dark:border-white/5">
+                    <div className="pt-4">
                         {aiData.confidence_breakdown && Object.values(aiData.confidence_breakdown).some(v => v != null) ? (
                             <InlineConfidenceBreakdown
                                 confidenceLevel={aiData.confidence_level}
@@ -549,10 +549,10 @@ function AIVerdictContent({
             )}
 
             {/* 6. Logical Breakdown - Collapsable */}
-            <div className="border-t border-slate-100 dark:border-white/5">
+            <div className="px-6 pb-6">
                 <button 
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="w-full py-4 px-6 flex items-center justify-between group hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors"
+                    className="w-full rounded-[22px] border border-slate-200 bg-slate-50/80 px-5 py-4 flex items-center justify-between group hover:bg-slate-100/80 dark:border-zinc-800 dark:bg-zinc-950/70 dark:hover:bg-zinc-900 transition-colors"
                 >
                     <div className="text-sm font-black uppercase text-blue-600 dark:text-blue-600 tracking-widest flex items-center gap-2">
                         <Activity className="h-4 w-4 text-blue-600" />
@@ -565,7 +565,7 @@ function AIVerdictContent({
                 </button>
                 
                 {isExpanded && (
-                    <div className="px-6 pb-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="mt-3 rounded-[22px] border border-slate-200 bg-white px-5 py-5 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300 dark:border-zinc-800 dark:bg-zinc-950">
                         <div className="prose dark:prose-invert max-w-none text-[13px] font-normal leading-relaxed text-slate-500 dark:text-slate-400 [&>p]:m-0">
                             <MarkdownWithRefs content={aiData.action_advice || ""} />
                         </div>
@@ -573,21 +573,6 @@ function AIVerdictContent({
                 )}
             </div>
 
-            {/* 7. Footer: Disclaimer + Version */}
-            <div className="px-6 py-2.5 bg-slate-50/80 dark:bg-zinc-900/80 rounded-b-3xl">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-1.5">
-                    <div className="flex items-center gap-1.5 text-[8px] leading-relaxed text-slate-300 dark:text-slate-600 font-medium">
-                        <span className="font-black text-orange-500/60 dark:text-orange-500/40 italic shrink-0">DISCLAIMER:</span>
-                        <span>本报告基于机器学习算法自动化生成，不构成投资建议。价格建议仅供参考，不对盈亏负责。投资有风险，操作须谨慎。</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 shrink-0">
-                        <ShieldCheck className="h-2.5 w-2.5 text-slate-300 dark:text-slate-600" />
-                        <span className="text-[8px] font-bold text-slate-300 dark:text-slate-600 uppercase tracking-widest whitespace-nowrap">
-                            AI V4.0 • {(aiData.model_used || "UNKNOWN").toUpperCase()} • <span suppressHydrationWarning>{aiData.created_at ? formatDistanceToNow(new Date(aiData.created_at + (aiData.created_at.includes('Z') ? '' : 'Z')), { addSuffix: true, locale: zhCN }) : ''}</span>
-                        </span>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 }

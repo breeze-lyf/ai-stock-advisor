@@ -61,7 +61,7 @@ export function useDashboardAnalysisData(
         ticker,
         technical_analysis: `请求失败: ${errorMsg}`,
         action_advice: isQuotaLimit
-          ? "免费额度已用完。请在设置中配置个人 API Key，或稍后再试。"
+          ? "请求过于频繁，已触发限流，请稍后再试。"
           : "接口请求发生异常，请检查网络或重新登录。",
         summary_status: "调用失败",
       });

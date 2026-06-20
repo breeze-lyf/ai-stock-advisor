@@ -17,6 +17,12 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
+    # 幂等：存量环境可能已被旧的 ensure 脚本建好此表，create_all 也会抢先建。
+    # 表已存在时跳过，避免 DuplicateTableError 中断整条 migration 链。
+    bind = op.get_bind()
+    if sa.inspect(bind).has_table('notification_logs'):
+        return
+
     op.create_table('notification_logs',
         sa.Column('id', sa.String(), nullable=False),
         sa.Column('user_id', sa.String(), nullable=True),

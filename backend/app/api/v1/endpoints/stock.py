@@ -132,7 +132,9 @@ async def get_stock_snapshot(
     ticker = ticker.upper().strip()
 
     try:
-        preferred_source = current_user.preferred_data_source if current_user else "AUTO"
+        # AUTO 让 ProviderFactory 按市场(美股/港股/A股)走细分数据源配置；
+        # 直接传 preferred_data_source 会用全局选择强制覆盖细分路由，导致美股被错误路由到 AkShare。
+        preferred_source = "AUTO"
         cache = await MarketDataService.get_real_time_data(
             ticker,
             db,

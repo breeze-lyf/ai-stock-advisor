@@ -290,13 +290,13 @@ export function StockDetail({
 
     if (!mounted || !selectedItem) {
         return (
-            <div className="flex-1 bg-slate-50 dark:bg-zinc-950 p-6 flex flex-col items-center justify-center h-full text-slate-300 gap-4">
-                <div className="p-8 rounded-full bg-slate-50 dark:bg-zinc-900 shadow-inner">
+            <div className="flex-1 bg-neutral-50 dark:bg-zinc-950 p-6 flex flex-col items-center justify-center h-full text-neutral-300 gap-4">
+                <div className="p-8 rounded-full bg-neutral-50 dark:bg-zinc-900 shadow-inner">
                     <Zap className="h-16 w-16 opacity-5 animate-pulse" />
                 </div>
                 <div className="text-center">
-                    <p className="text-lg font-black text-slate-400 dark:text-slate-600 tracking-tight uppercase">终端就绪</p>
-                    <p className="text-sm font-medium text-slate-300">请选择一个代码开始深度诊断</p>
+                    <p className="text-lg font-black text-neutral-400 dark:text-neutral-600 tracking-tight uppercase">终端就绪</p>
+                    <p className="text-sm font-medium text-neutral-300">请选择一个代码开始深度诊断</p>
                 </div>
             </div>
         );
@@ -321,7 +321,7 @@ export function StockDetail({
     return (
         <div
             ref={containerRef}
-            className="flex-1 bg-slate-50 dark:bg-zinc-950 px-4 md:px-8 pb-0 md:pb-1 flex flex-col gap-4 md:gap-5 overflow-y-auto h-full custom-scrollbar w-full max-w-[1400px] mx-auto relative"
+            className="flex-1 bg-neutral-50 dark:bg-zinc-950 px-4 md:px-8 pb-0 md:pb-1 flex flex-col gap-4 md:gap-5 overflow-y-auto h-full custom-scrollbar w-full max-w-[1400px] mx-auto relative"
         >
             {/* 板块 0: 粘性顶栏（滚动后出现） */}
             <StickyBar

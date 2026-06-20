@@ -114,8 +114,8 @@ export default function OpenClawPersonaPage() {
   }, [multiplier, reviewLevel]);
 
   return (
-    <div className="min-h-screen bg-[#f7f8f3] text-slate-950">
-      <header className="border-b border-slate-200 bg-white/86 backdrop-blur">
+    <div className="min-h-screen bg-[#f7f8f3] text-neutral-950">
+      <header className="border-b border-neutral-200 bg-white/86 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
           <div className="flex items-center gap-3">
             <div className="flex size-9 items-center justify-center rounded-md bg-emerald-700 text-white">
@@ -123,10 +123,10 @@ export default function OpenClawPersonaPage() {
             </div>
             <div>
               <p className="text-sm font-semibold">Open Claw Enterprise Avatar Lab</p>
-              <p className="text-xs text-slate-500">高值医疗器械准入投标分身</p>
+              <p className="text-xs text-neutral-500">高值医疗器械准入投标分身</p>
             </div>
           </div>
-          <div className="hidden items-center gap-2 text-sm text-slate-500 sm:flex">
+          <div className="hidden items-center gap-2 text-sm text-neutral-500 sm:flex">
             <ShieldCheck className="size-4 text-emerald-700" />
             人审闭环 · 报价红线 · 经销商协同
           </div>
@@ -134,17 +134,17 @@ export default function OpenClawPersonaPage() {
       </header>
 
       <main>
-        <section className="border-b border-slate-200 bg-[#fbfcf8]">
+        <section className="border-b border-neutral-200 bg-[#fbfcf8]">
           <div className="mx-auto grid max-w-7xl gap-8 px-5 py-10 lg:grid-cols-[1.02fr_0.98fr] lg:py-14">
             <div className="flex flex-col justify-center">
               <div className="mb-5 inline-flex w-fit items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-800">
                 <Sparkles className="size-4" />
                 最具变现潜力靶点：械企省级准入经理
               </div>
-              <h1 className="max-w-3xl text-4xl font-semibold leading-tight text-slate-950 md:text-6xl">
+              <h1 className="max-w-3xl text-4xl font-semibold leading-tight text-neutral-950 md:text-6xl">
                 MedAccess Bid Twin
               </h1>
-              <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-neutral-600">
                 它不是客服，而是替高值耗材企业的“省级挂网、集采续约、经销商材料、价格红线审批”连续值守。
                 目标是减少漏申报、错报价和审批等待，把每一条公告变成可执行的投标动作。
               </p>
@@ -154,20 +154,20 @@ export default function OpenClawPersonaPage() {
                   ["审批压缩", `${roi.approvalDaysSaved}天`, "报价与材料并行预审"],
                   ["年化回本倍数", `${roi.payback}x`, "按 19.8 万/月订阅测算"],
                 ].map(([label, value, hint]) => (
-                  <div key={label} className="rounded-md border border-slate-200 bg-white p-4 shadow-sm">
-                    <p className="text-xs font-medium uppercase text-slate-500">{label}</p>
-                    <p className="mt-2 text-2xl font-semibold text-slate-950">{value}</p>
-                    <p className="mt-1 text-xs text-slate-500">{hint}</p>
+                  <div key={label} className="rounded-md border border-neutral-200 bg-white p-4 shadow-sm">
+                    <p className="text-xs font-medium uppercase text-neutral-500">{label}</p>
+                    <p className="mt-2 text-2xl font-semibold text-neutral-950">{value}</p>
+                    <p className="mt-1 text-xs text-neutral-500">{hint}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-md border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="rounded-md border border-neutral-200 bg-white p-4 shadow-sm">
               <div className="mb-4 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold">今日公告驾驶舱</p>
-                  <p className="text-xs text-slate-500">模拟数据：4 省公告、31 个 SKU、63 家目标医院</p>
+                  <p className="text-xs text-neutral-500">模拟数据：4 省公告、31 个 SKU、63 家目标医院</p>
                 </div>
                 <Gauge className="size-5 text-emerald-700" />
               </div>
@@ -179,15 +179,15 @@ export default function OpenClawPersonaPage() {
                     className={`w-full rounded-md border p-4 text-left transition ${
                       selectedTender.sku === tender.sku
                         ? "border-emerald-500 bg-emerald-50"
-                        : "border-slate-200 bg-white hover:border-slate-300"
+                        : "border-neutral-200 bg-white hover:border-neutral-300"
                     }`}
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <p className="font-semibold">{tender.city} · {tender.notice}</p>
-                        <p className="mt-1 text-sm text-slate-500">{tender.sku}</p>
+                        <p className="mt-1 text-sm text-neutral-500">{tender.sku}</p>
                       </div>
-                      <span className="rounded-md bg-slate-900 px-2.5 py-1 text-xs font-medium text-white">
+                      <span className="rounded-md bg-neutral-900 px-2.5 py-1 text-xs font-medium text-white">
                         {tender.deadline}
                       </span>
                     </div>
@@ -203,14 +203,14 @@ export default function OpenClawPersonaPage() {
         </section>
 
         <section className="mx-auto grid max-w-7xl gap-6 px-5 py-8 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-md border border-neutral-200 bg-white p-5 shadow-sm">
             <div className="flex items-center gap-2">
               <FileSearch className="size-5 text-emerald-700" />
               <h2 className="text-xl font-semibold">样本处理结果</h2>
             </div>
             <div className="mt-5 space-y-4">
-              <div className="rounded-md bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">当前公告</p>
+              <div className="rounded-md bg-neutral-50 p-4">
+                <p className="text-sm text-neutral-500">当前公告</p>
                 <p className="mt-1 font-semibold">{selectedTender.city} · {selectedTender.notice}</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
@@ -234,13 +234,13 @@ export default function OpenClawPersonaPage() {
             </div>
           </div>
 
-          <div className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="rounded-md border border-neutral-200 bg-white p-5 shadow-sm">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-2">
                 <SlidersHorizontal className="size-5 text-emerald-700" />
                 <h2 className="text-xl font-semibold">ROI 动态测算</h2>
               </div>
-              <div className="flex rounded-md border border-slate-200 bg-slate-50 p-1">
+              <div className="flex rounded-md border border-neutral-200 bg-neutral-50 p-1">
                 {[
                   ["strict", "稳健"],
                   ["balanced", "均衡"],
@@ -250,7 +250,7 @@ export default function OpenClawPersonaPage() {
                     key={key}
                     onClick={() => setReviewLevel(key as "strict" | "balanced" | "speed")}
                     className={`rounded px-3 py-1.5 text-sm font-medium ${
-                      reviewLevel === key ? "bg-white text-emerald-800 shadow-sm" : "text-slate-500"
+                      reviewLevel === key ? "bg-white text-emerald-800 shadow-sm" : "text-neutral-500"
                     }`}
                   >
                     {label}
@@ -263,8 +263,8 @@ export default function OpenClawPersonaPage() {
               <Metric label="漏申报挽回" value={formatMoney(roi.recoveredLeads)} icon={<LineChart className="size-4" />} />
               <Metric label="综合月价值" value={formatMoney(roi.monthlyValue)} icon={<CheckCircle2 className="size-4" />} />
             </div>
-            <div className="mt-6 overflow-hidden rounded-md border border-slate-200">
-              <div className="grid grid-cols-[1.2fr_0.8fr_0.8fr] bg-slate-900 px-4 py-3 text-sm font-semibold text-white">
+            <div className="mt-6 overflow-hidden rounded-md border border-neutral-200">
+              <div className="grid grid-cols-[1.2fr_0.8fr_0.8fr] bg-neutral-900 px-4 py-3 text-sm font-semibold text-white">
                 <span>成本项</span>
                 <span>传统模式</span>
                 <span>分身模式</span>
@@ -275,9 +275,9 @@ export default function OpenClawPersonaPage() {
                 ["报价审批周期", "7-12 天", `${roi.approvalDaysSaved} 天压缩`],
                 ["复核覆盖", "经理抽查", "高风险 100% 人审"],
               ].map((row) => (
-                <div key={row[0]} className="grid grid-cols-[1.2fr_0.8fr_0.8fr] border-t border-slate-200 px-4 py-3 text-sm">
+                <div key={row[0]} className="grid grid-cols-[1.2fr_0.8fr_0.8fr] border-t border-neutral-200 px-4 py-3 text-sm">
                   <span className="font-medium">{row[0]}</span>
-                  <span className="text-slate-500">{row[1]}</span>
+                  <span className="text-neutral-500">{row[1]}</span>
                   <span className="text-emerald-800">{row[2]}</span>
                 </div>
               ))}
@@ -285,7 +285,7 @@ export default function OpenClawPersonaPage() {
           </div>
         </section>
 
-        <section className="border-y border-slate-200 bg-white">
+        <section className="border-y border-neutral-200 bg-white">
           <div className="mx-auto max-w-7xl px-5 py-8">
             <div className="mb-6 flex items-center gap-2">
               <Bot className="size-5 text-emerald-700" />
@@ -293,13 +293,13 @@ export default function OpenClawPersonaPage() {
             </div>
             <div className="grid gap-4 md:grid-cols-4">
               {feedbackLoop.map((item, index) => (
-                <div key={item} className="rounded-md border border-slate-200 bg-[#fbfcf8] p-4">
+                <div key={item} className="rounded-md border border-neutral-200 bg-[#fbfcf8] p-4">
                   <div className="mb-4 flex size-8 items-center justify-center rounded-md bg-emerald-700 text-sm font-semibold text-white">
                     {index + 1}
                   </div>
-                  <p className="text-sm leading-6 text-slate-700">{item}</p>
+                  <p className="text-sm leading-6 text-neutral-700">{item}</p>
                   {index < feedbackLoop.length - 1 && (
-                    <ArrowRight className="mt-4 hidden size-4 text-slate-400 md:block" />
+                    <ArrowRight className="mt-4 hidden size-4 text-neutral-400 md:block" />
                   )}
                 </div>
               ))}
@@ -311,7 +311,7 @@ export default function OpenClawPersonaPage() {
           <div className="grid gap-6 lg:grid-cols-[0.82fr_1.18fr]">
             <div>
               <h2 className="text-2xl font-semibold">产品动态说明</h2>
-              <p className="mt-3 leading-7 text-slate-600">
+              <p className="mt-3 leading-7 text-neutral-600">
                 V0.1 版本聚焦“公告到投标动作”的单点闭环：先让准入经理少漏、少错、少等。
                 后续每周根据人工复核记录和中标结果更新规则，逐步沉淀企业自己的准入知识库。
               </p>
@@ -323,9 +323,9 @@ export default function OpenClawPersonaPage() {
                 ["Month 1", "接入 CRM 与合同毛利数据，按省份、产品线、医院等级输出 ROI 看板"],
                 ["Quarter 1", "用人工复核和真实中标结果校准阈值，形成企业级准入策略资产"],
               ].map(([time, text]) => (
-                <div key={time} className="rounded-md border border-slate-200 bg-white p-4 shadow-sm">
+                <div key={time} className="rounded-md border border-neutral-200 bg-white p-4 shadow-sm">
                   <p className="text-sm font-semibold text-emerald-800">{time}</p>
-                  <p className="mt-1 text-sm leading-6 text-slate-700">{text}</p>
+                  <p className="mt-1 text-sm leading-6 text-neutral-700">{text}</p>
                 </div>
               ))}
             </div>
@@ -346,12 +346,12 @@ function Metric({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="rounded-md border border-slate-200 bg-white p-4">
-      <div className="flex items-center justify-between gap-3 text-slate-500">
+    <div className="rounded-md border border-neutral-200 bg-white p-4">
+      <div className="flex items-center justify-between gap-3 text-neutral-500">
         <span className="text-xs font-medium uppercase">{label}</span>
         {icon}
       </div>
-      <p className="mt-3 text-2xl font-semibold text-slate-950">{value}</p>
+      <p className="mt-3 text-2xl font-semibold text-neutral-950">{value}</p>
     </div>
   );
 }

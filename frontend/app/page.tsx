@@ -24,8 +24,8 @@ const HotspotRadarDaily = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-full items-center justify-center bg-slate-50 dark:bg-slate-950">
-        <div className="text-sm text-slate-500 dark:text-slate-400">Loading radar...</div>
+      <div className="flex h-full items-center justify-center bg-neutral-50 dark:bg-neutral-950">
+        <div className="text-sm text-neutral-500 dark:text-neutral-400">Loading radar...</div>
       </div>
     ),
   }
@@ -107,19 +107,19 @@ function DashboardContent() {
         )}
 
         {activeTab === "alerts" && (
-          <div className="absolute inset-0 flex flex-col bg-white dark:bg-slate-950 overflow-y-auto">
+          <div className="absolute inset-0 flex flex-col bg-white dark:bg-neutral-950 overflow-y-auto">
             <AlertsTabContainer />
           </div>
         )}
 
         {activeTab === "papertrading" && (
-          <div className="absolute inset-0 flex flex-col bg-white dark:bg-slate-950 overflow-y-auto">
+          <div className="absolute inset-0 flex flex-col bg-white dark:bg-neutral-950 overflow-y-auto">
             <PaperTradingTabContainer />
           </div>
         )}
 
         {activeTab === "quant" && (
-          <div className="absolute inset-0 flex flex-col bg-white dark:bg-slate-950 overflow-y-auto">
+          <div className="absolute inset-0 flex flex-col bg-white dark:bg-neutral-950 overflow-y-auto">
             <QuantFactorsPage />
           </div>
         )}
@@ -129,7 +129,7 @@ function DashboardContent() {
 
 export default function Dashboard() {
   return (
-    <Suspense fallback={<div className="h-screen w-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">Loading...</div>}>
+    <Suspense fallback={<div className="h-screen w-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950">Loading...</div>}>
       <DashboardContent />
     </Suspense>
   );

@@ -56,21 +56,21 @@ export function KeyAssumptions({ assumptions }: KeyAssumptionsProps) {
     if (!assumptions || assumptions.length === 0) return null;
 
     return (
-        <div className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 rounded-2xl overflow-hidden">
+        <div className="bg-white dark:bg-zinc-900 border border-neutral-100 dark:border-zinc-800 rounded-2xl overflow-hidden">
             {/* Header */}
-            <div className="px-6 py-3 border-b border-slate-100 dark:border-zinc-800 flex items-center gap-2">
+            <div className="px-6 py-3 border-b border-neutral-100 dark:border-zinc-800 flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-                <h3 className="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                <h3 className="text-[11px] font-black text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">
                     关键假设断点
                 </h3>
-                <span className="text-[10px] text-slate-400">— 任意一项失效，策略逻辑瓦解</span>
+                <span className="text-[10px] text-neutral-400">— 任意一项失效，策略逻辑瓦解</span>
                 <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-md bg-orange-50 dark:bg-orange-600/10 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-600/20">
                     ⚠ 需持续监控
                 </span>
             </div>
 
             {/* Assumption list */}
-            <div className="divide-y divide-slate-50 dark:divide-zinc-800">
+            <div className="divide-y divide-neutral-50 dark:divide-zinc-800">
                 {assumptions.map((item, idx) => {
                     const isOpen = expanded === idx;
                     const riskLevel = item.risk_level as keyof typeof RISK_CONFIG | undefined;
@@ -90,18 +90,18 @@ export function KeyAssumptions({ assumptions }: KeyAssumptionsProps) {
                             {/* Content */}
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap mb-1">
-                                    <span className="font-bold text-sm text-slate-900 dark:text-slate-200">
+                                    <span className="font-bold text-sm text-neutral-900 dark:text-neutral-200">
                                         {item.assumption}
                                     </span>
                                     <span className={`text-[9px] font-black px-1.5 py-0.5 rounded border ${risk.tagBg} ${risk.tagColor} ${risk.tagBorder}`}>
                                         {risk.label}
                                     </span>
                                 </div>
-                                <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                                <p className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-relaxed">
                                     {item.breakpoint}
                                 </p>
                                 {isOpen && (
-                                    <div className="mt-2 text-[10px] text-slate-400 dark:text-slate-500">
+                                    <div className="mt-2 text-[10px] text-neutral-400 dark:text-neutral-500">
                                         点击卡片可切换查看状态，建议持续关注这一假设是否被市场数据证伪。
                                     </div>
                                 )}
@@ -110,7 +110,7 @@ export function KeyAssumptions({ assumptions }: KeyAssumptionsProps) {
                             {/* Right metric column */}
                             {item.metric_label && item.metric_value && (
                                 <div className="flex-shrink-0 text-right">
-                                    <div className="text-[10px] text-slate-400">{item.metric_label}</div>
+                                    <div className="text-[10px] text-neutral-400">{item.metric_label}</div>
                                     <div className={`text-lg font-black mono ${risk.metricColor}`}>
                                         {item.metric_value}
                                     </div>

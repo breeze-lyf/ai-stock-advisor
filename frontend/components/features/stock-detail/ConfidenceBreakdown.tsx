@@ -37,15 +37,15 @@ export function ConfidenceBreakdown({ confidenceLevel, breakdown }: ConfidenceBr
     const overall = confidenceLevel ?? 0;
 
     return (
-        <div className="bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 rounded-2xl p-4 space-y-3">
+        <div className="bg-white dark:bg-zinc-900 border border-neutral-100 dark:border-zinc-800 rounded-2xl p-4 space-y-3">
             {/* Header */}
             <div className="flex items-center justify-between">
-                <h3 className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                <h3 className="text-xs font-black text-neutral-500 dark:text-neutral-400 uppercase tracking-widest">
                     信心构成
                 </h3>
                 {confidenceLevel !== undefined && (
                     <div className="flex items-center gap-2">
-                        <span className="text-xs text-slate-400 dark:text-slate-500">综合置信度</span>
+                        <span className="text-xs text-neutral-400 dark:text-neutral-500">综合置信度</span>
                         <span className={`text-lg font-black tabular-nums ${getConfidenceColor(overall)}`}>
                             {overall}
                         </span>
@@ -56,7 +56,7 @@ export function ConfidenceBreakdown({ confidenceLevel, breakdown }: ConfidenceBr
             {/* Overall bar */}
             {confidenceLevel !== undefined && (
                 <div className="space-y-1">
-                    <div className="w-full bg-slate-100 dark:bg-zinc-800 rounded-full h-2 overflow-hidden">
+                    <div className="w-full bg-neutral-100 dark:bg-zinc-800 rounded-full h-2 overflow-hidden">
                         <div
                             className={`h-full rounded-full transition-all duration-700 ${getConfidenceBgColor(overall)}`}
                             style={{ width: `${Math.min(overall, 100)}%` }}
@@ -74,14 +74,14 @@ export function ConfidenceBreakdown({ confidenceLevel, breakdown }: ConfidenceBr
                         return (
                             <div key={key} className="space-y-1.5">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                                    <span className="text-[10px] font-semibold text-neutral-500 dark:text-neutral-400">
                                         {label}
                                     </span>
                                     <span className={`text-[10px] font-black tabular-nums ${getConfidenceColor(val)}`}>
                                         {val}
                                     </span>
                                 </div>
-                                <div className="w-full bg-slate-100 dark:bg-zinc-800 rounded-full h-1.5 overflow-hidden">
+                                <div className="w-full bg-neutral-100 dark:bg-zinc-800 rounded-full h-1.5 overflow-hidden">
                                     <div
                                         className={`h-full rounded-full transition-all duration-700 ${color}`}
                                         style={{ width: `${Math.min(val, 100)}%` }}

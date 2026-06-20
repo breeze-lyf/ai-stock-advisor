@@ -30,37 +30,37 @@ export const StickyBar = React.memo(function StickyBar({
         <div className="sticky top-0 z-50 h-0 overflow-visible">
             <div className={clsx(
                 "-mx-2 md:-mx-4 px-2 md:px-4 pt-2 transition-all duration-300",
-                isScrolled ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-5 pointer-events-none"
+                isScrolled ? "opacity-100 tranneutral-y-0 pointer-events-auto" : "opacity-0 -tranneutral-y-5 pointer-events-none"
             )}>
-                <div className="flex md:items-center justify-between gap-4 min-h-14 rounded-[1.35rem] border border-slate-200/80 dark:border-zinc-800 bg-white/92 dark:bg-zinc-950/92 backdrop-blur-2xl shadow-[0_20px_60px_rgba(15,23,42,0.10)] px-4 md:px-5 py-2.5">
+                <div className="flex md:items-center justify-between gap-4 min-h-14 rounded-[1.35rem] border border-neutral-200/80 dark:border-zinc-800 bg-white/92 dark:bg-zinc-950/92 backdrop-blur-2xl shadow-[0_20px_60px_rgba(15,23,42,0.10)] px-4 md:px-5 py-2.5">
                     <div className="flex items-center gap-2 md:gap-4 min-w-0">
                     {onBack && (
-                        <button onClick={onBack} title="返回" aria-label="返回" className="lg:hidden p-1 -ml-1 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
+                        <button onClick={onBack} title="返回" aria-label="返回" className="lg:hidden p-1 -ml-1 rounded-full text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">
                             <ChevronLeft className="h-6 w-6" />
                         </button>
                     )}
                     <div className="flex flex-col min-w-0">
-                        <h1 className="text-lg font-black tracking-tighter text-slate-900 dark:text-white leading-tight truncate">
+                        <h1 className="text-lg font-black tracking-tighter text-neutral-900 dark:text-white leading-tight truncate">
                             {selectedItem.name || selectedItem.ticker}
                         </h1>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">
+                        <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest leading-none">
                             {selectedItem.ticker}
                         </span>
                     </div>
                     
-                    <div className="h-6 w-px bg-slate-100 dark:bg-slate-800 mx-1 hidden md:block" />
+                    <div className="h-6 w-px bg-neutral-100 dark:bg-neutral-800 mx-1 hidden md:block" />
 
                     <div className="hidden md:flex items-center gap-2">
-                        <div className="flex flex-col items-end rounded-xl border border-slate-100 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-900 px-3 py-1.5 shadow-sm">
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">现价</span>
-                            <span className="text-lg font-black text-slate-800 dark:text-slate-100 tabular-nums leading-none">
+                        <div className="flex flex-col items-end rounded-xl border border-neutral-100 dark:border-zinc-800 bg-neutral-50/80 dark:bg-zinc-900 px-3 py-1.5 shadow-sm">
+                            <span className="text-[9px] font-black text-neutral-400 uppercase tracking-wider">现价</span>
+                            <span className="text-lg font-black text-neutral-800 dark:text-neutral-100 tabular-nums leading-none">
                                 {currency}{sanitizePrice(selectedItem.current_price)}
                             </span>
                         </div>
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="h-7 w-7 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-600/10 transition-all duration-300"
+                            className="h-7 w-7 rounded-full text-neutral-400 hover:text-blue-600 hover:bg-blue-600/10 transition-all duration-300"
                             onClick={onRefresh}
                             disabled={refreshing}
                             title="刷新行情"
@@ -82,7 +82,7 @@ export const StickyBar = React.memo(function StickyBar({
                             </span>
                         )}
                         {selectedItem.market_status === "AFTER_HOURS" && (
-                            <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-500/10 text-slate-500 dark:text-slate-400 font-black border border-slate-200 dark:border-slate-500/20 leading-none">
+                            <span className="text-[10px] px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-500/10 text-neutral-500 dark:text-neutral-400 font-black border border-neutral-200 dark:border-neutral-500/20 leading-none">
                                 POST
                             </span>
                         )}
@@ -90,8 +90,8 @@ export const StickyBar = React.memo(function StickyBar({
                     </div>
 
                     <div className="flex items-center gap-3 shrink-0">
-                        <div className="hidden lg:flex flex-col items-end rounded-xl border border-slate-100 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-900 px-3 py-1.5 shadow-sm">
-                            <span className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">最新增幅</span>
+                        <div className="hidden lg:flex flex-col items-end rounded-xl border border-neutral-100 dark:border-zinc-800 bg-neutral-50/80 dark:bg-zinc-900 px-3 py-1.5 shadow-sm">
+                            <span className="text-[10px] font-black uppercase text-neutral-400 tracking-tighter">最新增幅</span>
                             <span className={clsx("text-sm font-black tabular-nums", (selectedItem.change_percent || 0) >= 0 ? "text-emerald-600" : "text-rose-600")}>
                                 {(selectedItem.change_percent || 0) >= 0 ? "+" : ""}{(selectedItem.change_percent || 0).toFixed(2)}%
                             </span>
@@ -99,7 +99,7 @@ export const StickyBar = React.memo(function StickyBar({
 
                         {/* 粘性顶栏内的 Tab 切换 */}
                         {onTabChange && (
-                            <div className="flex items-center bg-slate-100 dark:bg-zinc-800 rounded-xl p-1 gap-1 shadow-sm">
+                            <div className="flex items-center bg-neutral-100 dark:bg-zinc-800 rounded-xl p-1 gap-1 shadow-sm">
                                 {tabs.map(({ key, label }) => (
                                     <button
                                         key={key}
@@ -107,8 +107,8 @@ export const StickyBar = React.memo(function StickyBar({
                                         className={clsx(
                                             "px-3 py-1.5 text-[11px] font-semibold rounded-lg transition-all duration-150",
                                             activeTab === key
-                                                ? "bg-white dark:bg-zinc-900 text-slate-800 dark:text-slate-100 shadow-sm"
-                                                : "text-slate-400 dark:text-slate-500 hover:text-slate-600"
+                                                ? "bg-white dark:bg-zinc-900 text-neutral-800 dark:text-neutral-100 shadow-sm"
+                                                : "text-neutral-400 dark:text-neutral-500 hover:text-neutral-600"
                                         )}
                                     >
                                         {label}

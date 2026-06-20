@@ -41,14 +41,14 @@ const SECTOR_LABELS: Record<string, string> = {
 };
 
 const SECTOR_COLORS: Record<string, { current: string; projected: string; text: string }> = {
-    Technology: { current: "bg-slate-400", projected: "bg-amber-400", text: "text-amber-400" },
-    Healthcare: { current: "bg-slate-400", projected: "bg-emerald-400", text: "text-emerald-400" },
-    Financials: { current: "bg-slate-400", projected: "bg-violet-400", text: "text-violet-400" },
-    Industrials: { current: "bg-slate-400", projected: "bg-cyan-400", text: "text-cyan-400" },
-    Consumer: { current: "bg-slate-400", projected: "bg-pink-400", text: "text-pink-400" },
-    Energy: { current: "bg-slate-400", projected: "bg-orange-400", text: "text-orange-400" },
-    Utilities: { current: "bg-slate-400", projected: "bg-sky-400", text: "text-sky-400" },
-    Unknown: { current: "bg-slate-400", projected: "bg-slate-200", text: "text-slate-200" },
+    Technology: { current: "bg-neutral-400", projected: "bg-amber-400", text: "text-amber-400" },
+    Healthcare: { current: "bg-neutral-400", projected: "bg-emerald-400", text: "text-emerald-400" },
+    Financials: { current: "bg-neutral-400", projected: "bg-violet-400", text: "text-violet-400" },
+    Industrials: { current: "bg-neutral-400", projected: "bg-cyan-400", text: "text-cyan-400" },
+    Consumer: { current: "bg-neutral-400", projected: "bg-pink-400", text: "text-pink-400" },
+    Energy: { current: "bg-neutral-400", projected: "bg-orange-400", text: "text-orange-400" },
+    Utilities: { current: "bg-neutral-400", projected: "bg-sky-400", text: "text-sky-400" },
+    Unknown: { current: "bg-neutral-400", projected: "bg-neutral-200", text: "text-neutral-200" },
 };
 
 function formatDelta(current: number, projected: number): string {
@@ -74,9 +74,9 @@ export function PortfolioLinkage({ ticker, positionPct, impactData, isLoading }:
             <div className="rounded-2xl border overflow-hidden" style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)", borderColor: "#1e3a5f" }}>
                 <div className="px-6 py-3 border-b flex items-center gap-2" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
                     <Users className="w-4 h-4 text-blue-400" />
-                    <span className="text-[11px] font-black text-slate-300 uppercase tracking-wider">组合联动视角</span>
+                    <span className="text-[11px] font-black text-neutral-300 uppercase tracking-wider">组合联动视角</span>
                 </div>
-                <div className="p-6 flex items-center justify-center text-slate-400 text-sm">
+                <div className="p-6 flex items-center justify-center text-neutral-400 text-sm">
                     组合影响计算中...
                 </div>
             </div>
@@ -92,8 +92,8 @@ export function PortfolioLinkage({ ticker, positionPct, impactData, isLoading }:
         <div className="rounded-2xl border overflow-hidden" style={{ background: "linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)", borderColor: "#1e3a5f" }}>
             <div className="px-6 py-3 border-b flex items-center gap-2" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
                 <Users className="w-4 h-4 text-blue-400" />
-                <span className="text-[11px] font-black text-slate-300 uppercase tracking-wider">组合联动视角</span>
-                <span className="text-[10px] text-slate-500 ml-1">— 加仓 {ticker} {positionPct}% 对组合意味着什么</span>
+                <span className="text-[11px] font-black text-neutral-300 uppercase tracking-wider">组合联动视角</span>
+                <span className="text-[10px] text-neutral-500 ml-1">— 加仓 {ticker} {positionPct}% 对组合意味着什么</span>
             </div>
 
             <div className="p-6">
@@ -112,9 +112,9 @@ export function PortfolioLinkage({ ticker, positionPct, impactData, isLoading }:
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div>
                         <div className="flex items-baseline justify-between mb-3">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">加仓后行业敞口变化</span>
-                            <div className="flex items-center gap-3 text-[9px] text-slate-500">
-                                <span className="flex items-center gap-1"><span className="w-2 h-1 bg-slate-500 rounded" />加仓前</span>
+                            <span className="text-[10px] font-black text-neutral-400 uppercase tracking-wider">加仓后行业敞口变化</span>
+                            <div className="flex items-center gap-3 text-[9px] text-neutral-500">
+                                <span className="flex items-center gap-1"><span className="w-2 h-1 bg-neutral-500 rounded" />加仓前</span>
                                 <span className="flex items-center gap-1"><span className="w-2 h-1.5 bg-amber-400 rounded" />加仓后</span>
                             </div>
                         </div>
@@ -127,13 +127,13 @@ export function PortfolioLinkage({ ticker, positionPct, impactData, isLoading }:
                                 return (
                                     <div key={row.sector}>
                                         <div className="flex items-center justify-between mb-1.5">
-                                            <span className="text-[11px] text-slate-200 font-semibold">
-                                                {label} <span className="text-slate-500 uppercase">{row.sector}</span>
+                                            <span className="text-[11px] text-neutral-200 font-semibold">
+                                                {label} <span className="text-neutral-500 uppercase">{row.sector}</span>
                                             </span>
                                             <div className="flex items-center gap-2 mono text-[10px]">
-                                                <span className="text-slate-500">{row.currentWeight.toFixed(1)}%</span>
-                                                <span className="text-slate-500">→</span>
-                                                <span className={clsx("font-bold", row.isOverLimit ? "text-amber-400" : "text-slate-200")}>
+                                                <span className="text-neutral-500">{row.currentWeight.toFixed(1)}%</span>
+                                                <span className="text-neutral-500">→</span>
+                                                <span className={clsx("font-bold", row.isOverLimit ? "text-amber-400" : "text-neutral-200")}>
                                                     {row.projectedWeight.toFixed(1)}%
                                                 </span>
                                                 <span className={clsx("ml-1", row.isOverLimit ? "text-rose-400 font-bold" : colorSet.text)}>
@@ -143,14 +143,14 @@ export function PortfolioLinkage({ ticker, positionPct, impactData, isLoading }:
                                         </div>
 
                                         <div>
-                                            <div className="h-1 bg-slate-700 rounded-full overflow-hidden relative">
+                                            <div className="h-1 bg-neutral-700 rounded-full overflow-hidden relative">
                                                 <div className={clsx("h-full rounded-full", colorSet.current)} style={{ width: `${row.currentWeight}%` }} />
                                                 <div className="absolute top-[-3px] bottom-[-9px] w-px bg-rose-400/60" style={{ left: "40%" }} />
                                                 <div className="absolute -top-3 mono text-[8px] text-rose-400" style={{ left: "40%", transform: "translateX(-50%)" }}>
                                                     40%
                                                 </div>
                                             </div>
-                                            <div className="h-2 bg-slate-700 rounded-full overflow-hidden mt-1 relative">
+                                            <div className="h-2 bg-neutral-700 rounded-full overflow-hidden mt-1 relative">
                                                 <div className={clsx("h-full rounded-full", colorSet.projected)} style={{ width: `${row.projectedWeight}%` }} />
                                                 <div className="absolute top-0 bottom-0 w-px bg-rose-400/60" style={{ left: "40%" }} />
                                             </div>
@@ -168,7 +168,7 @@ export function PortfolioLinkage({ ticker, positionPct, impactData, isLoading }:
                     </div>
 
                     <div>
-                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-3">
+                        <div className="text-[10px] font-black text-neutral-400 uppercase tracking-wider mb-3">
                             组合关键指标影响
                         </div>
 
@@ -188,7 +188,7 @@ export function PortfolioLinkage({ ticker, positionPct, impactData, isLoading }:
                                 badge={impactData.projected_sharpe >= impactData.current_sharpe ? "↑ 改善" : "↓ 承压"}
                             />
                             <div className="flex items-center justify-between py-2">
-                                <span className="text-[11px] text-slate-400">建议最大仓位</span>
+                                <span className="text-[11px] text-neutral-400">建议最大仓位</span>
                                 <span className="text-sm font-black text-blue-400 mono">
                                     {positionPct.toFixed(1)}% → {impactData.max_recommended_pct.toFixed(1)}%
                                 </span>
@@ -233,9 +233,9 @@ function MetricRow({
 
     return (
         <div className="flex items-center justify-between py-2 border-b" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
-            <span className="text-[11px] text-slate-400">{label}</span>
+            <span className="text-[11px] text-neutral-400">{label}</span>
             <div className="flex items-center gap-2">
-                <span className="text-[10px] text-slate-500 line-through mono">{before}</span>
+                <span className="text-[10px] text-neutral-500 line-through mono">{before}</span>
                 <span className={clsx("text-sm font-black mono", valueClass)}>{after}</span>
                 <span className={clsx("text-[9px] font-black px-1.5 py-0.5 rounded border", badgeClass)}>
                     {badge}

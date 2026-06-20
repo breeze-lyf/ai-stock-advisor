@@ -78,8 +78,8 @@ export function AnalysisTabContainer({
     <div className="flex h-full overflow-hidden">
       <div
         className={clsx(
-          "w-full lg:w-80 shrink-0 border-r dark:border-slate-800 bg-white dark:bg-slate-900 transition-all duration-300 absolute inset-y-0 left-0 lg:static z-20",
-          selectedTicker ? "-translate-x-full lg:translate-x-0 lg:block" : "translate-x-0"
+          "w-full lg:w-80 shrink-0 border-r dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-all duration-300 absolute inset-y-0 left-0 lg:static z-20",
+          selectedTicker ? "-tranneutral-x-full lg:tranneutral-x-0 lg:block" : "tranneutral-x-0"
         )}
       >
         <PortfolioList
@@ -94,18 +94,18 @@ export function AnalysisTabContainer({
       </div>
         <div
           className={clsx(
-          "flex-1 min-w-0 bg-slate-50 dark:bg-slate-950 transition-all duration-300 h-full absolute lg:static w-full inset-y-0 right-0 z-10",
-          selectedTicker ? "translate-x-0" : "translate-x-full lg:translate-x-0"
+          "flex-1 min-w-0 bg-neutral-50 dark:bg-neutral-950 transition-all duration-300 h-full absolute lg:static w-full inset-y-0 right-0 z-10",
+          selectedTicker ? "tranneutral-x-0" : "tranneutral-x-full lg:tranneutral-x-0"
         )}
       >
         {!mounted ? (
-          <div className="flex-1 bg-white dark:bg-zinc-950 p-6 flex flex-col items-center justify-center h-full text-slate-300 gap-4">
-            <div className="p-8 rounded-full bg-slate-50 dark:bg-zinc-900 shadow-inner">
+          <div className="flex-1 bg-white dark:bg-zinc-950 p-6 flex flex-col items-center justify-center h-full text-neutral-300 gap-4">
+            <div className="p-8 rounded-full bg-neutral-50 dark:bg-zinc-900 shadow-inner">
               <Zap className="h-16 w-16 opacity-5 animate-pulse" />
             </div>
             <div className="text-center">
-              <p className="text-lg font-black text-slate-400 dark:text-slate-600 tracking-tight uppercase">终端就绪</p>
-              <p className="text-sm font-medium text-slate-300">请选择一个代码开始深度诊断</p>
+              <p className="text-lg font-black text-neutral-400 dark:text-neutral-600 tracking-tight uppercase">终端就绪</p>
+              <p className="text-sm font-medium text-neutral-300">请选择一个代码开始深度诊断</p>
             </div>
           </div>
         ) : (

@@ -26,7 +26,7 @@ export function Switch({ checked = false, disabled = false, onCheckedChange, cla
       }}
       className={cn(
         "relative inline-flex h-7 w-12 items-center rounded-full transition-colors",
-        checked ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-700",
+        checked ? "bg-emerald-500" : "bg-neutral-300 dark:bg-neutral-700",
         disabled && "cursor-not-allowed opacity-60",
         className,
       )}
@@ -34,7 +34,7 @@ export function Switch({ checked = false, disabled = false, onCheckedChange, cla
       <span
         className={cn(
           "block h-5 w-5 rounded-full bg-white shadow transition-transform",
-          checked ? "translate-x-6" : "translate-x-1",
+          checked ? "tranneutral-x-6" : "tranneutral-x-1",
         )}
       />
     </button>

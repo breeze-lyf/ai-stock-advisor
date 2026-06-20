@@ -88,31 +88,31 @@ export function NotificationSettingsSection({
 }: NotificationSettingsSectionProps) {
   return (
     <div className="space-y-6">
-      <div className="rounded-[28px] border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-emerald-50/70 p-5 shadow-sm dark:border-slate-800 dark:from-slate-950 dark:via-slate-950 dark:to-emerald-950/20 md:p-6">
+      <div className="rounded-[28px] border border-neutral-200 bg-gradient-to-br from-white via-neutral-50 to-emerald-50/70 p-5 shadow-sm dark:border-neutral-800 dark:from-neutral-950 dark:via-neutral-950 dark:to-emerald-950/20 md:p-6">
         <div className="flex flex-col gap-5 2xl:flex-row 2xl:items-end 2xl:justify-between">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:border-emerald-900/40 dark:bg-slate-950/50 dark:text-emerald-300">
+            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:border-emerald-900/40 dark:bg-neutral-950/50 dark:text-emerald-300">
               <BellRing className="h-3.5 w-3.5" />
               通知体验 2.0
             </div>
-            <div className="mt-4 text-xl font-semibold text-slate-900 dark:text-slate-100">通知应该帮你判断轻重，而不是把你淹没</div>
-            <div className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+            <div className="mt-4 text-xl font-semibold text-neutral-900 dark:text-neutral-100">通知应该帮你判断轻重，而不是把你淹没</div>
+            <div className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-300">
               默认只建议保留价格预警、策略变更、宏观重大事件和每日复盘。其他提醒先折叠起来，需要时再打开，这样更接近真实使用时的节奏。
             </div>
           </div>
 
           <div className="grid w-full gap-3 min-[520px]:grid-cols-3 2xl:w-auto">
-            <div className="min-w-0 rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/70 2xl:min-w-[128px]">
-              <div className="text-xs text-slate-500 dark:text-slate-400">核心通知已开启</div>
-              <div className="mt-1 whitespace-nowrap text-2xl font-semibold text-slate-900 dark:text-slate-100">{coreEnabledCount}/4</div>
+            <div className="min-w-0 rounded-2xl border border-neutral-200 bg-white/80 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900/70 2xl:min-w-[128px]">
+              <div className="text-xs text-neutral-500 dark:text-neutral-400">核心通知已开启</div>
+              <div className="mt-1 whitespace-nowrap text-2xl font-semibold text-neutral-900 dark:text-neutral-100">{coreEnabledCount}/4</div>
             </div>
-            <div className="min-w-0 rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/70 2xl:min-w-[128px]">
-              <div className="text-xs text-slate-500 dark:text-slate-400">主渠道状态</div>
-              <div className="mt-1 whitespace-nowrap text-2xl font-semibold text-slate-900 dark:text-slate-100">{hasAnyPrimaryChannel || feishuUrl.trim() ? "已连接" : "未连接"}</div>
+            <div className="min-w-0 rounded-2xl border border-neutral-200 bg-white/80 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900/70 2xl:min-w-[128px]">
+              <div className="text-xs text-neutral-500 dark:text-neutral-400">主渠道状态</div>
+              <div className="mt-1 whitespace-nowrap text-2xl font-semibold text-neutral-900 dark:text-neutral-100">{hasAnyPrimaryChannel || feishuUrl.trim() ? "已连接" : "未连接"}</div>
             </div>
-            <div className="min-w-0 rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/70 2xl:min-w-[128px]">
-              <div className="text-xs text-slate-500 dark:text-slate-400">当前策略密度</div>
-              <div className="mt-1 whitespace-nowrap text-lg font-semibold text-slate-900 dark:text-slate-100">
+            <div className="min-w-0 rounded-2xl border border-neutral-200 bg-white/80 px-4 py-3 dark:border-neutral-800 dark:bg-neutral-900/70 2xl:min-w-[128px]">
+              <div className="text-xs text-neutral-500 dark:text-neutral-400">当前策略密度</div>
+              <div className="mt-1 whitespace-nowrap text-lg font-semibold text-neutral-900 dark:text-neutral-100">
                 {notificationReadiness === "off" && "已关闭"}
                 {notificationReadiness === "channel_missing" && "待连通"}
                 {notificationReadiness === "minimal" && "轻提醒"}
@@ -125,11 +125,11 @@ export function NotificationSettingsSection({
       </div>
 
       <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-        <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-6">
+        <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900 md:p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">快速开始</div>
-              <div className="mt-1 text-xs leading-6 text-slate-500 dark:text-slate-400">如果不想逐项判断，就先选一个更接近你使用习惯的模式。</div>
+              <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">快速开始</div>
+              <div className="mt-1 text-xs leading-6 text-neutral-500 dark:text-neutral-400">如果不想逐项判断，就先选一个更接近你使用习惯的模式。</div>
             </div>
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" disabled={saving} onClick={() => void onApplyNotificationPreset("light")}>轻提醒</Button>
@@ -144,25 +144,25 @@ export function NotificationSettingsSection({
               { title: "平衡模式", description: "覆盖关键场景，同时尽量不打扰。" },
               { title: "高敏感模式", description: "适合更高频地跟踪市场与仓位。" },
             ].map((item) => (
-              <div key={item.title} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 dark:border-slate-800 dark:bg-slate-950/60">
-                <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{item.title}</div>
-                <div className="mt-2 text-xs leading-6 text-slate-500 dark:text-slate-400">{item.description}</div>
+              <div key={item.title} className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-4 dark:border-neutral-800 dark:bg-neutral-950/60">
+                <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{item.title}</div>
+                <div className="mt-2 text-xs leading-6 text-neutral-500 dark:text-neutral-400">{item.description}</div>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-6">
-          <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">当前状态</div>
-          <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-4 dark:bg-slate-950/60">
-            <div className="font-medium text-slate-900 dark:text-slate-100">
+        <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900 md:p-6">
+          <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">当前状态</div>
+          <div className="mt-4 rounded-2xl bg-neutral-50 px-4 py-4 dark:bg-neutral-950/60">
+            <div className="font-medium text-neutral-900 dark:text-neutral-100">
               {notificationReadiness === "off" && "通知总开关已关闭"}
               {notificationReadiness === "channel_missing" && "还没真正连上通知渠道"}
               {notificationReadiness === "minimal" && "当前配置比较克制"}
               {notificationReadiness === "balanced" && "当前配置比较均衡"}
               {notificationReadiness === "complete" && "当前配置已经比较完整"}
             </div>
-            <div className="mt-2 text-xs leading-6 text-slate-500 dark:text-slate-400">
+            <div className="mt-2 text-xs leading-6 text-neutral-500 dark:text-neutral-400">
               {notificationReadiness === "off" && "系统不会主动推送任何提醒。"}
               {notificationReadiness === "channel_missing" && "建议至少连接飞书或浏览器推送，否则很多提醒虽然被触发，但没有出口。"}
               {notificationReadiness === "minimal" && "适合不想被频繁打断，但仍希望收到关键提醒的人。"}
@@ -171,10 +171,10 @@ export function NotificationSettingsSection({
             </div>
           </div>
 
-          <div className="mt-4 flex items-center justify-between rounded-2xl border border-slate-200 px-4 py-4 dark:border-slate-800">
+          <div className="mt-4 flex items-center justify-between rounded-2xl border border-neutral-200 px-4 py-4 dark:border-neutral-800">
             <div>
-              <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">全局通知开关</div>
-              <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">关闭后，系统不会再主动发出任何自动提醒。</div>
+              <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">全局通知开关</div>
+              <div className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">关闭后，系统不会再主动发出任何自动提醒。</div>
             </div>
             <Switch
               checked={Boolean(profile?.notifications_enabled ?? authUser?.notifications_enabled ?? true)}
@@ -186,24 +186,24 @@ export function NotificationSettingsSection({
         </div>
       </div>
 
-      <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-6">
+      <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900 md:p-6">
         <div className="mb-4">
-          <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">核心通知</div>
-          <div className="mt-1 text-xs leading-6 text-slate-500 dark:text-slate-400">先把最值得默认开启的四类提醒稳定下来，再考虑补充型通知。</div>
+          <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">核心通知</div>
+          <div className="mt-1 text-xs leading-6 text-neutral-500 dark:text-neutral-400">先把最值得默认开启的四类提醒稳定下来，再考虑补充型通知。</div>
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">
           {[
-            { key: "enable_price_alerts" as const, title: "价格预警", description: "到达止盈止损位时第一时间提醒。", tone: "from-emerald-50 to-white dark:from-emerald-950/20 dark:to-slate-900" },
-            { key: "enable_macro_alerts" as const, title: "全球宏观提醒", description: "推送影响全球市场的大事件与风险。", tone: "from-sky-50 to-white dark:from-sky-950/20 dark:to-slate-900" },
-            { key: "enable_strategy_change_alerts" as const, title: "策略变更", description: "盘后复盘发现操作建议显著变化时提醒。", tone: "from-violet-50 to-white dark:from-violet-950/20 dark:to-slate-900" },
-            { key: "enable_daily_report" as const, title: "每日复盘报告", description: "每天给你一份更完整的持仓体检。", tone: "from-slate-50 to-white dark:from-slate-950 dark:to-slate-900" },
+            { key: "enable_price_alerts" as const, title: "价格预警", description: "到达止盈止损位时第一时间提醒。", tone: "from-emerald-50 to-white dark:from-emerald-950/20 dark:to-neutral-900" },
+            { key: "enable_macro_alerts" as const, title: "全球宏观提醒", description: "推送影响全球市场的大事件与风险。", tone: "from-sky-50 to-white dark:from-sky-950/20 dark:to-neutral-900" },
+            { key: "enable_strategy_change_alerts" as const, title: "策略变更", description: "盘后复盘发现操作建议显著变化时提醒。", tone: "from-violet-50 to-white dark:from-violet-950/20 dark:to-neutral-900" },
+            { key: "enable_daily_report" as const, title: "每日复盘报告", description: "每天给你一份更完整的持仓体检。", tone: "from-neutral-50 to-white dark:from-neutral-950 dark:to-neutral-900" },
           ].map((item) => (
-            <div key={item.key} className={`rounded-2xl border border-slate-200 bg-gradient-to-br p-4 dark:border-slate-800 ${item.tone}`}>
+            <div key={item.key} className={`rounded-2xl border border-neutral-200 bg-gradient-to-br p-4 dark:border-neutral-800 ${item.tone}`}>
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{item.title}</div>
-                  <div className="mt-2 text-xs leading-6 text-slate-500 dark:text-slate-400">{item.description}</div>
+                  <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{item.title}</div>
+                  <div className="mt-2 text-xs leading-6 text-neutral-500 dark:text-neutral-400">{item.description}</div>
                 </div>
                 <Switch
                   checked={Boolean(profile?.[item.key] ?? authUser?.[item.key])}
@@ -216,11 +216,11 @@ export function NotificationSettingsSection({
         </div>
       </div>
 
-      <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-6">
+      <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900 md:p-6">
         <div className="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
           <div>
-            <Label htmlFor="feishu-webhook" className="text-sm font-semibold text-slate-900 dark:text-slate-100">飞书机器人 Webhook</Label>
-            <div className="mt-1 text-xs leading-6 text-slate-500 dark:text-slate-400">飞书仍然是最适合接收关键提醒的主渠道，尤其适合价格预警和策略变化。</div>
+            <Label htmlFor="feishu-webhook" className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">飞书机器人 Webhook</Label>
+            <div className="mt-1 text-xs leading-6 text-neutral-500 dark:text-neutral-400">飞书仍然是最适合接收关键提醒的主渠道，尤其适合价格预警和策略变化。</div>
             <Input id="feishu-webhook" className="mt-3" type="text" placeholder="https://open.feishu.cn/open-apis/bot/v2/hook/..." value={feishuUrl} onChange={(e) => onFeishuUrlChange(e.target.value)} />
             <div className="mt-3 flex flex-wrap gap-2">
               <Button variant="outline" onClick={() => void onSaveNotificationChannel()} disabled={saving}>
@@ -244,9 +244,9 @@ export function NotificationSettingsSection({
             )}
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 dark:border-slate-800 dark:bg-slate-950/60">
-            <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">你现在最可能需要什么</div>
-            <div className="mt-3 space-y-3 text-xs leading-6 text-slate-500 dark:text-slate-400">
+          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-4 dark:border-neutral-800 dark:bg-neutral-950/60">
+            <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">你现在最可能需要什么</div>
+            <div className="mt-3 space-y-3 text-xs leading-6 text-neutral-500 dark:text-neutral-400">
               <div>如果你主要担心错过关键价格位，先保证价格预警和飞书是开的。</div>
               <div>如果你更怕节奏被打乱，建议先用“平衡模式”，再决定是否打开整点摘要。</div>
               <div>如果你经常在电脑前工作，再补上浏览器推送，会比邮件更及时。</div>
@@ -255,27 +255,27 @@ export function NotificationSettingsSection({
         </div>
       </div>
 
-      <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900 md:p-6">
+      <div className="rounded-[28px] border border-neutral-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900 md:p-6">
         <button type="button" className="flex w-full items-center justify-between text-left" onClick={onToggleAdvancedNotifications}>
           <div>
-            <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">高级通知设置</div>
-            <div className="mt-1 text-xs leading-6 text-slate-500 dark:text-slate-400">技术指标、整点摘要、渠道路由、浏览器设备、安静时段和频控都放在这里，默认折叠，避免第一次就把用户压住。</div>
+            <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">高级通知设置</div>
+            <div className="mt-1 text-xs leading-6 text-neutral-500 dark:text-neutral-400">技术指标、整点摘要、渠道路由、浏览器设备、安静时段和频控都放在这里，默认折叠，避免第一次就把用户压住。</div>
           </div>
-          <ChevronRight className={`h-4 w-4 text-slate-500 transition-transform ${advancedNotificationsOpen ? "rotate-90" : ""}`} />
+          <ChevronRight className={`h-4 w-4 text-neutral-500 transition-transform ${advancedNotificationsOpen ? "rotate-90" : ""}`} />
         </button>
 
         {advancedNotificationsOpen && (
-          <div className="mt-5 space-y-6 border-t border-slate-200 pt-5 dark:border-slate-800">
+          <div className="mt-5 space-y-6 border-t border-neutral-200 pt-5 dark:border-neutral-800">
             <div className="grid gap-4 md:grid-cols-2">
               {[
                 { key: "enable_indicator_alerts" as const, title: "技术指标提醒", description: "RSI 等指标进入极端区间时提醒，更适合盯盘型用户。" },
                 { key: "enable_hourly_summary" as const, title: "整点摘要", description: "每小时推送一次新闻与行情总结，信息量更大。" },
               ].map((item) => (
-                <div key={item.key} className="rounded-2xl border border-slate-200 px-4 py-4 dark:border-slate-800">
+                <div key={item.key} className="rounded-2xl border border-neutral-200 px-4 py-4 dark:border-neutral-800">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{item.title}</div>
-                      <div className="mt-2 text-xs leading-6 text-slate-500 dark:text-slate-400">{item.description}</div>
+                      <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{item.title}</div>
+                      <div className="mt-2 text-xs leading-6 text-neutral-500 dark:text-neutral-400">{item.description}</div>
                     </div>
                     <Switch
                       checked={Boolean(profile?.[item.key] ?? authUser?.[item.key])}
@@ -288,7 +288,7 @@ export function NotificationSettingsSection({
             </div>
 
             <div>
-              <div className="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">通知渠道</div>
+              <div className="mb-3 text-sm font-semibold text-neutral-900 dark:text-neutral-100">通知渠道</div>
               {routingMessage && (
                 <div
                   className={`mb-4 rounded-xl border px-4 py-3 text-sm ${
@@ -307,11 +307,11 @@ export function NotificationSettingsSection({
                   { key: "email_enabled" as const, title: "邮件", description: "更适合日报、复盘和偏长内容。" },
                   { key: "browser_push_enabled" as const, title: "浏览器弹窗", description: "适合办公时即时看到，但需要先订阅当前浏览器。" },
                 ].map((item) => (
-                  <div key={item.key} className="rounded-2xl border border-slate-200 px-4 py-4 dark:border-slate-800">
+                  <div key={item.key} className="rounded-2xl border border-neutral-200 px-4 py-4 dark:border-neutral-800">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{item.title}</div>
-                        <div className="mt-2 text-xs leading-6 text-slate-500 dark:text-slate-400">{item.description}</div>
+                        <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{item.title}</div>
+                        <div className="mt-2 text-xs leading-6 text-neutral-500 dark:text-neutral-400">{item.description}</div>
                       </div>
                       <Switch
                         checked={Boolean(notificationRouting?.[item.key])}
@@ -324,11 +324,11 @@ export function NotificationSettingsSection({
               </div>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 p-5 dark:border-slate-800">
+            <div className="rounded-2xl border border-neutral-200 p-5 dark:border-neutral-800">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                  <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">当前浏览器订阅</div>
-                  <div className="mt-1 text-xs leading-6 text-slate-500 dark:text-slate-400">
+                  <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">当前浏览器订阅</div>
+                  <div className="mt-1 text-xs leading-6 text-neutral-500 dark:text-neutral-400">
                     {browserPushConfig?.web_push_enabled
                       ? currentBrowserSubscribed
                         ? "这台浏览器已经有订阅凭证，可以接收桌面提醒。"
@@ -347,24 +347,24 @@ export function NotificationSettingsSection({
                 </div>
               </div>
 
-              <div className="mt-5 border-t border-slate-200 pt-4 dark:border-slate-800">
-                <div className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">已注册设备</div>
+              <div className="mt-5 border-t border-neutral-200 pt-4 dark:border-neutral-800">
+                <div className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500 dark:text-neutral-400">已注册设备</div>
                 {browserPushSubscriptions.length === 0 ? (
-                  <div className="rounded-xl border border-dashed border-slate-300 px-4 py-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                  <div className="rounded-xl border border-dashed border-neutral-300 px-4 py-4 text-sm text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
                     还没有浏览器设备完成推送注册。
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {browserPushSubscriptions.map((subscription) => (
-                      <div key={subscription.id} className="rounded-xl border border-slate-200 px-4 py-4 dark:border-slate-800">
+                      <div key={subscription.id} className="rounded-xl border border-neutral-200 px-4 py-4 dark:border-neutral-800">
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                           <div>
-                            <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{subscription.device_name || "未命名设备"}</div>
-                            <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{subscription.device_name || "未命名设备"}</div>
+                            <div className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
                               {subscription.browser || "未知浏览器"} · 注册于 {new Date(subscription.created_at).toLocaleString("zh-CN")}
                             </div>
                             {subscription.last_used_at && (
-                              <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">最近活跃：{new Date(subscription.last_used_at).toLocaleString("zh-CN")}</div>
+                              <div className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">最近活跃：{new Date(subscription.last_used_at).toLocaleString("zh-CN")}</div>
                             )}
                           </div>
                           <Button variant="ghost" size="sm" className="text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300" disabled={saving} onClick={() => void onRemoveBrowserSubscription(subscription.id)}>
@@ -379,11 +379,11 @@ export function NotificationSettingsSection({
             </div>
 
             <div className="grid gap-4 xl:grid-cols-2">
-              <div className="rounded-2xl border border-slate-200 p-5 dark:border-slate-800">
-                <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">安静时段</div>
-                <div className="mt-1 text-xs leading-6 text-slate-500 dark:text-slate-400">P2/P3 这类不紧急的提醒会尽量避开这段时间。</div>
-                <div className="mt-4 flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-4 dark:bg-slate-950/60">
-                  <div className="text-sm text-slate-600 dark:text-slate-300">启用安静时段</div>
+              <div className="rounded-2xl border border-neutral-200 p-5 dark:border-neutral-800">
+                <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">安静时段</div>
+                <div className="mt-1 text-xs leading-6 text-neutral-500 dark:text-neutral-400">P2/P3 这类不紧急的提醒会尽量避开这段时间。</div>
+                <div className="mt-4 flex items-center justify-between rounded-2xl bg-neutral-50 px-4 py-4 dark:bg-neutral-950/60">
+                  <div className="text-sm text-neutral-600 dark:text-neutral-300">启用安静时段</div>
                   <Switch
                     checked={Boolean(notificationRouting?.quiet_mode_enabled)}
                     disabled={saving || routingLoading}
@@ -402,9 +402,9 @@ export function NotificationSettingsSection({
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 p-5 dark:border-slate-800">
-                <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">每日上限</div>
-                <div className="mt-1 text-xs leading-6 text-slate-500 dark:text-slate-400">优先级越低，建议上限越保守，避免提醒疲劳。</div>
+              <div className="rounded-2xl border border-neutral-200 p-5 dark:border-neutral-800">
+                <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">每日上限</div>
+                <div className="mt-1 text-xs leading-6 text-neutral-500 dark:text-neutral-400">优先级越低，建议上限越保守，避免提醒疲劳。</div>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
                   {[
                     { key: "p0_daily_limit" as const, title: "紧急提醒", label: "P0" },
@@ -412,9 +412,9 @@ export function NotificationSettingsSection({
                     { key: "p2_daily_limit" as const, title: "常规提醒", label: "P2" },
                     { key: "p3_daily_limit" as const, title: "汇总提醒", label: "P3" },
                   ].map((item) => (
-                    <div key={item.key} className="rounded-xl border border-slate-200 px-4 py-3 dark:border-slate-800">
-                      <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{item.title}</div>
-                      <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">{item.label}</div>
+                    <div key={item.key} className="rounded-xl border border-neutral-200 px-4 py-3 dark:border-neutral-800">
+                      <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{item.title}</div>
+                      <div className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{item.label}</div>
                       <Input
                         className="mt-3"
                         type="number"
@@ -433,8 +433,8 @@ export function NotificationSettingsSection({
             </div>
 
             <div>
-              <div className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">发送规则测试</div>
-              <div className="mb-3 text-xs text-slate-500 dark:text-slate-400">用模拟通知快速验证：在当前规则下，不同级别的提醒会不会被拦住，会走哪些渠道。</div>
+              <div className="mb-4 text-sm font-semibold text-neutral-900 dark:text-neutral-100">发送规则测试</div>
+              <div className="mb-3 text-xs text-neutral-500 dark:text-neutral-400">用模拟通知快速验证：在当前规则下，不同级别的提醒会不会被拦住，会走哪些渠道。</div>
               <div className="flex flex-wrap gap-2">
                 {([
                   { code: "P0", label: "紧急提醒" },

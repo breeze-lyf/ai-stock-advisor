@@ -27,9 +27,6 @@ if ! alembic upgrade head 2>&1 | tee "$ALEMBIC_LOG"; then
     exit 1
 fi
 
-# 确保 notification_logs 表存在（去重依赖）
-python3 /app/scripts/ensure_notification_logs_table.py 2>/dev/null || true
-
 # 启动 Gunicorn + Uvicorn
 echo "Starting backend server..."
 exec gunicorn -k uvicorn.workers.UvicornWorker \

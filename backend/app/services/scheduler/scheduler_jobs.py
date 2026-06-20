@@ -7,7 +7,9 @@ import pytz
 
 from app.application.analysis.analyze_portfolio import AnalyzePortfolioUseCase
 from app.application.analysis.analyze_stock import AnalyzeStockUseCase
+from app.infrastructure.db.repositories.analysis_repository import AnalysisRepository
 from app.infrastructure.db.repositories.scheduler_repository import SchedulerRepository
+from app.services.ai_service import AIService
 from app.models.trade import TradeHistoryLog, TradeStatus
 from app.services.domain.macro.macro_service import MacroService
 from app.services.domain.market.market_data import MarketDataService
@@ -262,7 +264,12 @@ async def run_post_market_analysis_job(db) -> list[str]:
             old_report = await repo.get_latest_shared_analysis_report(portfolio.ticker)
 
             try:
-                analysis_result = await AnalyzeStockUseCase(db, user).execute(portfolio.ticker, force=True)
+                analysis_result = await AnalyzeStockUseCase(
+                    analysis_repo=AnalysisRepository(db),
+                    ai_service=AIService(db=db, user=user),
+                    current_user=user,
+                    db=db,
+                ).execute(portfolio.ticker, force=True)
             except Exception as exc:
                 logger.error(f"[Scheduler] 盘后复盘生成 {portfolio.ticker} 失败: {exc}")
                 continue
@@ -413,7 +420,12 @@ async def run_auto_refresh_stale_analysis_job(session_factory, max_per_run: int 
                     continue
                 age_str = f"{age_h:.1f}h" if age_h is not None else "未分析"
                 logger.info(f"[AutoRefresh] 触发 {ticker} 分析 (陈旧度: {age_str})")
-                await AnalyzeStockUseCase(db, users[0]).execute(ticker, force=True)
+                await AnalyzeStockUseCase(
+                    analysis_repo=AnalysisRepository(db),
+                    ai_service=AIService(db=db, user=users[0]),
+                    current_user=users[0],
+                    db=db,
+                ).execute(ticker, force=True)
                 refreshed += 1
             except Exception as exc:
                 logger.error(f"[AutoRefresh] {ticker} 自动分析失败: {exc}")

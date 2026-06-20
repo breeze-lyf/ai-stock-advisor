@@ -195,11 +195,10 @@ async def get_stock_history(
     try:
         from app.services.integrations.market.market_providers import ProviderFactory
 
-        # 工厂模式：它会根据 Ticker 自动判断去哪抓数据。
-        # 比如输入 'AAPL' 会去美股源，输入 '600519.SH' 则会自动切换到 A 股源。
-        user_preferred_source = current_user.preferred_data_source if current_user else "AUTO"
-        preferred_source = user_preferred_source
-        provider = ProviderFactory.get_provider(ticker, preferred_source)
+        # 工厂模式：AUTO 让它按 Ticker 市场(美股/港股/A股)走细分数据源配置。
+        # 直接传 preferred_data_source 会用全局选择强制覆盖细分路由，
+        # 导致美股(AAPL/ASTS)被错误送到 AkShare 而拉不到 K 线。
+        provider = ProviderFactory.get_provider(ticker, "AUTO")
         data = await provider.get_ohlcv(ticker, interval=interval, period=period, end_date=end_date)
 
         logger.info(

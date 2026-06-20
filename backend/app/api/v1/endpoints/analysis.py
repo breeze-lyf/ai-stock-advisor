@@ -217,7 +217,7 @@ async def refresh_stock_capsules(
             MarketDataService.get_real_time_data(
                 ticker,
                 db,
-                preferred_source=current_user.preferred_data_source or "AUTO",
+                preferred_source="AUTO",  # 按市场细分路由，避免全局选择覆盖美股→YFinance
                 force_refresh=True,
                 price_only=False,
                 skip_news=False,

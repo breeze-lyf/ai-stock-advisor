@@ -67,7 +67,7 @@ async def _gather_analysis_context(ticker: str, db: AsyncSession, user_id: str) 
     market_data = _build_market_data_dict(market_data_obj)
 
     stock_repo = StockRepository(db)
-    stock = await stock_repo.get_by_ticker(ticker)
+    stock = await stock_repo.get_stock(ticker)
     fundamental_data = _build_fundamental_data(stock)
 
     news_repo = MarketDataRepository(db)

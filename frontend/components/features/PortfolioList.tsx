@@ -162,9 +162,9 @@ export function PortfolioList({
 
     return (
         <div className="flex flex-col h-full w-full bg-white dark:bg-zinc-950 overflow-hidden">
-            <div className="py-3 px-4 border-b border-slate-100 dark:border-zinc-800 font-medium text-sm text-slate-500 flex justify-between items-center bg-slate-50/50 dark:bg-zinc-900/50">
+            <div className="py-3 px-4 border-b border-neutral-100 dark:border-zinc-800 font-medium text-sm text-neutral-500 flex justify-between items-center bg-neutral-50/50 dark:bg-zinc-900/50">
                 <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-700 dark:text-slate-300">股票列表</span>
+                    <span className="font-bold text-neutral-700 dark:text-neutral-300">股票列表</span>
                     <Button
                         variant={onlyHoldings ? "secondary" : "ghost"}
                         size="icon"
@@ -179,7 +179,7 @@ export function PortfolioList({
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6 text-slate-400 hover:text-blue-600"
+                        className="h-6 w-6 text-neutral-400 hover:text-blue-600"
                         title="刷新全部"
                         onClick={async () => {
                             if (isRefreshingAll) return;
@@ -212,7 +212,7 @@ export function PortfolioList({
             </div>
 
             {/* Table Headers */}
-            <div className="grid grid-cols-4 px-4 py-1.5 border-b border-slate-100 dark:border-zinc-800 text-[10px] uppercase tracking-wider font-bold text-slate-400 bg-slate-50/50 dark:bg-zinc-900/50">
+            <div className="grid grid-cols-4 px-4 py-1.5 border-b border-neutral-100 dark:border-zinc-800 text-[10px] uppercase tracking-wider font-bold text-neutral-400 bg-neutral-50/50 dark:bg-zinc-900/50">
                 <div
                     className="cursor-pointer hover:text-blue-600 transition-colors flex items-center gap-1"
                     onClick={() => handleSort(sortBy === "manual" ? "ticker" : "manual")}
@@ -245,10 +245,10 @@ export function PortfolioList({
                     <div
                         key={item.ticker}
                         className={clsx(
-                            "border-b border-slate-100 dark:border-zinc-800/80 transition-all duration-200",
+                            "border-b border-neutral-100 dark:border-zinc-800/80 transition-all duration-200",
                             selectedTicker === item.ticker
                                 ? "bg-blue-50/50 dark:bg-blue-900/10 border-l-4 border-l-blue-600"
-                                : "hover:bg-slate-50 dark:hover:bg-zinc-800/30"
+                                : "hover:bg-neutral-50 dark:hover:bg-zinc-800/30"
                         )}
                     >
                         <div
@@ -258,11 +258,11 @@ export function PortfolioList({
                             <div className="grid grid-cols-4 items-center mb-0.5">
                                     <div className="flex items-center gap-1.5 min-w-0 flex-1">
                                         <div className="flex flex-col truncate">
-                                            <span className="font-bold text-sm text-slate-900 dark:text-slate-100 leading-tight truncate">
+                                            <span className="font-bold text-sm text-neutral-900 dark:text-neutral-100 leading-tight truncate">
                                                 {item.ticker}
                                             </span>
                                             {item.name && (
-                                                <span className="text-[10px] text-slate-400 font-bold tracking-tight truncate">
+                                                <span className="text-[10px] text-neutral-400 font-bold tracking-tight truncate">
                                                     {item.name}
                                                 </span>
                                             )}
@@ -271,7 +271,7 @@ export function PortfolioList({
                                     
                                     <div className="flex flex-col items-center">
                                         <div className="flex items-center justify-center gap-1">
-                                            <span className="font-mono text-xs text-slate-600 dark:text-slate-400">
+                                            <span className="font-mono text-xs text-neutral-600 dark:text-neutral-400">
                                                 {getCurrencySymbol(item.ticker)}{item.current_price.toFixed(2)}
                                             </span>
                                             {item.market_status === "PRE_MARKET" && (
@@ -300,7 +300,7 @@ export function PortfolioList({
                                                 </span>
                                             </div>
                                         ) : (
-                                            <span className="text-[10px] text-slate-300">--</span>
+                                            <span className="text-[10px] text-neutral-300">--</span>
                                         )}
                                     </div>
 
@@ -315,22 +315,22 @@ export function PortfolioList({
                                     </div>
                             </div>
                             <div className="flex justify-between items-end mt-0.5">
-                                <div className="text-[10px] text-slate-400 font-mono flex items-center gap-2">
+                                <div className="text-[10px] text-neutral-400 font-mono flex items-center gap-2">
                                     {item.quantity > 0 ? (
                                         <>
                                             <span className="bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 px-1 rounded font-bold border border-green-100 dark:border-green-800">
                                                 HOLD {item.quantity}
                                             </span>
-                                            <span className="text-slate-400 dark:text-slate-500">|</span>
+                                            <span className="text-neutral-400 dark:text-neutral-500">|</span>
                                             <span>AVG: {item.avg_cost.toFixed(2)}</span>
                                         </>
                                     ) : (
-                                        <span className="text-slate-400 italic">WATCHING</span>
+                                        <span className="text-neutral-400 italic">WATCHING</span>
                                     )}
                                     {item.last_updated && (
                                         <>
-                                            <span className="text-slate-400 dark:text-slate-500">|</span>
-                                            <span className="text-[9px] text-slate-400">
+                                            <span className="text-neutral-400 dark:text-neutral-500">|</span>
+                                            <span className="text-[9px] text-neutral-400">
                                                 {formatCompactAge(item.last_updated)}
                                             </span>
                                         </>
@@ -347,7 +347,7 @@ export function PortfolioList({
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="h-7 w-7 text-slate-300 hover:text-indigo-500 hover:bg-indigo-50"
+                                        className="h-7 w-7 text-neutral-300 hover:text-indigo-500 hover:bg-indigo-50"
                                         title="置顶"
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -363,7 +363,7 @@ export function PortfolioList({
                                             "h-7 w-7",
                                             refreshingTicker === item.ticker
                                                 ? "text-blue-600 bg-blue-50"
-                                                : "text-slate-300 hover:text-blue-600 hover:bg-blue-50"
+                                                : "text-neutral-300 hover:text-blue-600 hover:bg-blue-50"
                                         )}
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -380,7 +380,7 @@ export function PortfolioList({
                                             "h-7 w-7",
                                             editingTicker === item.ticker
                                                 ? "text-blue-600 bg-blue-50"
-                                                : "text-slate-300 hover:text-blue-600 hover:bg-blue-50"
+                                                : "text-neutral-300 hover:text-blue-600 hover:bg-blue-50"
                                         )}
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -404,7 +404,7 @@ export function PortfolioList({
                                             "h-7 w-7",
                                             deletingTicker === item.ticker
                                                 ? "text-rose-600 bg-rose-50"
-                                                : "text-slate-300 hover:text-rose-600 hover:bg-rose-50"
+                                                : "text-neutral-300 hover:text-rose-600 hover:bg-rose-50"
                                         )}
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -423,15 +423,15 @@ export function PortfolioList({
                                 className="px-4 pb-4 animate-in slide-in-from-top-1 duration-200"
                                 onClick={(e) => e.stopPropagation()}
                             >
-                                <div className="flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                                <div className="flex items-center gap-2 pt-3 border-t border-neutral-100 dark:border-neutral-800">
                                     <div className="flex items-center gap-1.5 flex-1">
                                         <div className="relative flex-1">
-                                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-bold">
+                                            <span className="absolute left-2 top-1/2 -tranneutral-y-1/2 text-[10px] text-neutral-400 font-bold">
                                                 持
                                             </span>
                                             <Input
                                                 type="number"
-                                                className="h-7 text-[11px] pl-6 pr-1 bg-white dark:bg-slate-900 border-slate-200 focus:border-blue-400 transition-colors shadow-none"
+                                                className="h-7 text-[11px] pl-6 pr-1 bg-white dark:bg-neutral-900 border-neutral-200 focus:border-blue-400 transition-colors shadow-none"
                                                 value={editForm.quantity}
                                                 onChange={(e) =>
                                                     setEditForm({ ...editForm, quantity: e.target.value })
@@ -439,12 +439,12 @@ export function PortfolioList({
                                             />
                                         </div>
                                         <div className="relative flex-1">
-                                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 font-bold">
+                                            <span className="absolute left-2 top-1/2 -tranneutral-y-1/2 text-[10px] text-neutral-400 font-bold">
                                                 均
                                             </span>
                                             <Input
                                                 type="number"
-                                                className="h-7 text-[11px] pl-6 pr-1 bg-white dark:bg-slate-900 border-slate-200 focus:border-blue-400 transition-colors shadow-none"
+                                                className="h-7 text-[11px] pl-6 pr-1 bg-white dark:bg-neutral-900 border-neutral-200 focus:border-blue-400 transition-colors shadow-none"
                                                 value={editForm.cost}
                                                 onChange={(e) =>
                                                     setEditForm({ ...editForm, cost: e.target.value })
@@ -462,7 +462,7 @@ export function PortfolioList({
                                     <Button
                                         variant="ghost"
                                         size="icon"
-                                        className="h-7 w-7 text-slate-300 hover:text-slate-500"
+                                        className="h-7 w-7 text-neutral-300 hover:text-neutral-500"
                                         onClick={() => setEditingTicker(null)}
                                     >
                                         <X className="h-3.5 w-3.5" />
@@ -473,7 +473,7 @@ export function PortfolioList({
                     </div>
                 ))}
                 {sortedPortfolio.length === 0 && (
-                    <div className="p-12 text-center text-slate-400 text-sm italic">列表为空</div>
+                    <div className="p-12 text-center text-neutral-400 text-sm italic">列表为空</div>
                 )}
             </div>
         </div>

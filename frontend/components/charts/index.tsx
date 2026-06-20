@@ -51,14 +51,14 @@ export function LineChart({ data, xAxisLabel = "", yAxisLabel = "", width = 600,
   }, [data, width, height]);
 
   if (!data || data.length === 0) {
-    return <div className="flex items-center justify-center h-full text-slate-400">No data</div>;
+    return <div className="flex items-center justify-center h-full text-neutral-400">No data</div>;
   }
 
   return (
     <svg width={width} height={height} className="overflow-hidden">
       {/* Y 轴标签 */}
       {yAxisLabel && (
-        <text x={10} y={height / 2} transform={`rotate(-90, 10, ${height / 2})`} className="text-xs fill-slate-500">
+        <text x={10} y={height / 2} transform={`rotate(-90, 10, ${height / 2})`} className="text-xs fill-neutral-500">
           {yAxisLabel}
         </text>
       )}
@@ -67,7 +67,7 @@ export function LineChart({ data, xAxisLabel = "", yAxisLabel = "", width = 600,
       {yTicks.map((tick, i) => (
         <g key={`y-${i}`}>
           <line x1={50} y1={tick.y} x2={width - 10} y2={tick.y} stroke="#e2e8f0" strokeDasharray="4" />
-          <text x={45} y={tick.y + 4} textAnchor="end" className="text-xs fill-slate-500">
+          <text x={45} y={tick.y + 4} textAnchor="end" className="text-xs fill-neutral-500">
             {(tick.value * 100).toFixed(0)}%
           </text>
         </g>
@@ -76,7 +76,7 @@ export function LineChart({ data, xAxisLabel = "", yAxisLabel = "", width = 600,
       {/* X 轴刻度 */}
       {xTicks.map((tick, i) => (
         <g key={`x-${i}`}>
-          <text x={tick.x} y={height - 10} textAnchor="middle" className="text-xs fill-slate-500">
+          <text x={tick.x} y={height - 10} textAnchor="middle" className="text-xs fill-neutral-500">
             {tick.value.slice(5)}
           </text>
         </g>
@@ -87,7 +87,7 @@ export function LineChart({ data, xAxisLabel = "", yAxisLabel = "", width = 600,
 
       {/* X 轴标签 */}
       {xAxisLabel && (
-        <text x={width / 2} y={height - 2} textAnchor="middle" className="text-xs fill-slate-500">
+        <text x={width / 2} y={height - 2} textAnchor="middle" className="text-xs fill-neutral-500">
           {xAxisLabel}
         </text>
       )}
@@ -147,7 +147,7 @@ export function BarChart({ data, xAxisLabel = "", yAxisLabel = "", width = 600, 
   }, [data, width, height]);
 
   if (!data || data.length === 0) {
-    return <div className="flex items-center justify-center h-full text-slate-400">No data</div>;
+    return <div className="flex items-center justify-center h-full text-neutral-400">No data</div>;
   }
 
   return (
@@ -156,7 +156,7 @@ export function BarChart({ data, xAxisLabel = "", yAxisLabel = "", width = 600, 
       {yTicks.map((tick, i) => (
         <g key={`y-${i}`}>
           <line x1={50} y1={tick.y} x2={width - 10} y2={tick.y} stroke="#e2e8f0" strokeDasharray="4" />
-          <text x={45} y={tick.y + 4} textAnchor="end" className="text-xs fill-slate-500">
+          <text x={45} y={tick.y + 4} textAnchor="end" className="text-xs fill-neutral-500">
             {(tick.value * 100).toFixed(0)}%
           </text>
         </g>
@@ -182,7 +182,7 @@ export function BarChart({ data, xAxisLabel = "", yAxisLabel = "", width = 600, 
           x={50 + i * ((width - 60) / Math.min(10, data.length)) + (width - 60) / Math.min(10, data.length) / 2}
           y={height - 10}
           textAnchor="middle"
-          className="text-xs fill-slate-500"
+          className="text-xs fill-neutral-500"
         >
           {d.x.slice(5)}
         </text>

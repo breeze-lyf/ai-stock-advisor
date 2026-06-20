@@ -13,7 +13,7 @@ export default function Page() {
   const router = useRouter();
 
   return (
-    <div className="h-screen bg-slate-50 dark:bg-slate-950 flex flex-col overflow-hidden">
+    <div className="h-screen bg-neutral-50 dark:bg-neutral-950 flex flex-col overflow-hidden">
       <DashboardHeader
         user={userProfile}
         activeTab={"quant"}

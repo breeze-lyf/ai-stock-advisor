@@ -367,7 +367,7 @@ export function AuthSplitLayout({
       <div className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.14),_rgba(255,255,255,0)_30%)]" />
         <div className="pointer-events-none absolute inset-x-0 top-0 h-[44rem] bg-[linear-gradient(180deg,_rgba(255,255,255,0.06)_0%,_rgba(5,5,7,0)_65%)]" />
-        <div className="pointer-events-none absolute left-1/2 top-28 h-72 w-[34rem] -translate-x-1/2 rounded-full bg-white/4 blur-2xl" />
+        <div className="pointer-events-none absolute left-1/2 top-28 h-72 w-[34rem] -tranneutral-x-1/2 rounded-full bg-white/4 blur-2xl" />
 
         <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <header className="fixed inset-x-0 top-4 z-50 mx-auto flex w-[min(100%-1.5rem,72rem)] items-center justify-between gap-4 rounded-full border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03))] px-3 py-3 shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_16px_40px_rgba(0,0,0,0.36)] backdrop-blur-md supports-[backdrop-filter]:bg-black/24 sm:w-[min(100%-3rem,72rem)]">
@@ -448,7 +448,7 @@ export function AuthSplitLayout({
                   {[0, 1, 2, 3, 4].map((item) => (
                     <div
                       key={item}
-                      className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#050507] bg-gradient-to-br from-slate-200 to-slate-400 text-xs font-semibold text-black"
+                      className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#050507] bg-gradient-to-br from-neutral-200 to-neutral-400 text-xs font-semibold text-black"
                     >
                       {String.fromCharCode(65 + item)}
                     </div>
@@ -643,7 +643,7 @@ export function AuthSplitLayout({
                   }`}
                 >
                   {plan.badge ? (
-                    <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-black">
+                    <div className="absolute left-1/2 top-0 -tranneutral-x-1/2 -tranneutral-y-1/2 rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-black">
                       {plan.badge}
                     </div>
                   ) : null}

@@ -236,10 +236,10 @@ export function SearchDialog({
                                     }, 250);
                                 }}
                                 onKeyDown={handleSearchKeyPress}
-                                className="h-12 rounded-2xl border-slate-200 bg-white pr-11 text-base shadow-sm transition focus-visible:ring-2 focus-visible:ring-blue-500/30 dark:border-slate-700 dark:bg-slate-950"
+                                className="h-12 rounded-2xl border-neutral-200 bg-white pr-11 text-base shadow-sm transition focus-visible:ring-2 focus-visible:ring-blue-500/30 dark:border-neutral-700 dark:bg-neutral-950"
                             />
                             {searching && (
-                                <Loader2 className="absolute right-4 top-4 h-4 w-4 animate-spin text-slate-400" />
+                                <Loader2 className="absolute right-4 top-4 h-4 w-4 animate-spin text-neutral-400" />
                             )}
                         </div>
                         <Button
@@ -251,28 +251,28 @@ export function SearchDialog({
                         </Button>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-neutral-500">
+                        <span className="rounded-full bg-neutral-100 px-2.5 py-1 font-medium text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
                             支持代码
                         </span>
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 dark:bg-slate-800">AAPL / ASTS</span>
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 dark:bg-slate-800">700 / 00700.HK</span>
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 dark:bg-slate-800">510300</span>
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 dark:bg-slate-800">Apple / 腾讯 / 沪深300ETF</span>
+                        <span className="rounded-full bg-neutral-100 px-2.5 py-1 dark:bg-neutral-800">AAPL / ASTS</span>
+                        <span className="rounded-full bg-neutral-100 px-2.5 py-1 dark:bg-neutral-800">700 / 00700.HK</span>
+                        <span className="rounded-full bg-neutral-100 px-2.5 py-1 dark:bg-neutral-800">510300</span>
+                        <span className="rounded-full bg-neutral-100 px-2.5 py-1 dark:bg-neutral-800">Apple / 腾讯 / 沪深300ETF</span>
                     </div>
 
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50/80 px-3 py-2 text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-400">
+                    <div className="rounded-2xl border border-neutral-200 bg-neutral-50/80 px-3 py-2 text-xs text-neutral-500 dark:border-neutral-800 dark:bg-neutral-900/70 dark:text-neutral-400">
                         {searchHint}
                     </div>
 
-                    <ScrollArea className="h-[320px] rounded-2xl border border-slate-200 bg-white p-2 shadow-inner dark:border-slate-800 dark:bg-slate-950">
+                    <ScrollArea className="h-[320px] rounded-2xl border border-neutral-200 bg-white p-2 shadow-inner dark:border-neutral-800 dark:bg-neutral-950">
                         {searchResults.length === 0 && !searching && !hasSearched && (
                             <div className="flex h-full min-h-[260px] flex-col items-center justify-center text-center">
                                 <div className="mb-3 rounded-2xl bg-blue-50 p-3 text-blue-600 dark:bg-blue-950/40 dark:text-blue-300">
                                     <Search className="h-5 w-5" />
                                 </div>
-                                <div className="text-sm font-semibold text-slate-700 dark:text-slate-200">开始搜索标的</div>
-                                <div className="mt-2 max-w-[280px] text-xs leading-6 text-slate-500 dark:text-slate-400">
+                                <div className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">开始搜索标的</div>
+                                <div className="mt-2 max-w-[280px] text-xs leading-6 text-neutral-500 dark:text-neutral-400">
                                     你可以按代码或名称查找美股、港股、A 股和国内基金，再一键加入自选。
                                 </div>
                             </div>
@@ -280,11 +280,11 @@ export function SearchDialog({
 
                         {searchResults.length === 0 && !searching && hasSearched && (
                             <div className="flex h-full min-h-[260px] flex-col items-center justify-center text-center">
-                                <div className="mb-3 rounded-2xl bg-slate-100 p-3 text-slate-400 dark:bg-slate-800 dark:text-slate-500">
+                                <div className="mb-3 rounded-2xl bg-neutral-100 p-3 text-neutral-400 dark:bg-neutral-800 dark:text-neutral-500">
                                     <Search className="h-5 w-5" />
                                 </div>
-                                <div className="text-sm font-semibold text-slate-700 dark:text-slate-200">未找到相关标的</div>
-                                <div className="mt-2 max-w-[280px] text-xs leading-6 text-slate-500 dark:text-slate-400">
+                                <div className="text-sm font-semibold text-neutral-700 dark:text-neutral-200">未找到相关标的</div>
+                                <div className="mt-2 max-w-[280px] text-xs leading-6 text-neutral-500 dark:text-neutral-400">
                                     试试更完整的代码格式，或点击搜索按钮触发远程检索。
                                 </div>
                             </div>
@@ -294,12 +294,12 @@ export function SearchDialog({
                                 key={stock.ticker}
                                 className="flex flex-col"
                             >
-                                <div className="group mb-2 flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50/70 p-3 transition-colors hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900/70 dark:hover:bg-slate-800">
+                                <div className="group mb-2 flex items-center justify-between rounded-2xl border border-neutral-100 bg-neutral-50/70 p-3 transition-colors hover:bg-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/70 dark:hover:bg-neutral-800">
                                     <div>
-                                        <div className="text-sm font-black tracking-wide text-slate-800 dark:text-slate-100">
+                                        <div className="text-sm font-black tracking-wide text-neutral-800 dark:text-neutral-100">
                                             {stock.ticker}
                                         </div>
-                                        <div className="mt-1 text-xs text-slate-500 dark:text-slate-400">{stock.name}</div>
+                                        <div className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{stock.name}</div>
                                     </div>
                                     <Button
                                         size="sm"

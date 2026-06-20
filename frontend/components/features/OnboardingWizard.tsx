@@ -64,10 +64,10 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     const renderStep1 = () => (
         <div className="space-y-6">
             <div className="text-center">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+                <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
                     选择您的投资偏好
                 </h2>
-                <p className="text-slate-500 dark:text-slate-400">
+                <p className="text-neutral-500 dark:text-neutral-400">
                     这将帮助我们为您提供更合适的投资建议
                 </p>
             </div>
@@ -79,22 +79,22 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                     className={`p-4 rounded-xl border-2 transition-all ${
                         data.investmentProfile === "CONSERVATIVE"
                             ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20"
-                            : "border-slate-200 dark:border-slate-700 hover:border-slate-300"
+                            : "border-neutral-200 dark:border-neutral-700 hover:border-neutral-300"
                     }`}
                 >
                     <div className="flex items-center gap-3">
                         <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
                             data.investmentProfile === "CONSERVATIVE"
                                 ? "bg-emerald-500 text-white"
-                                : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                                : "bg-neutral-100 dark:bg-neutral-800 text-neutral-500"
                         }`}>
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                             </svg>
                         </div>
                         <div className="text-left">
-                            <h3 className="font-semibold text-slate-900 dark:text-slate-100">保守型</h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                            <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">保守型</h3>
+                            <p className="text-sm text-neutral-500 dark:text-neutral-400">
                                 追求本金安全，能接受较低收益
                             </p>
                         </div>
@@ -107,22 +107,22 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                     className={`p-4 rounded-xl border-2 transition-all ${
                         data.investmentProfile === "BALANCED"
                             ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20"
-                            : "border-slate-200 dark:border-slate-700 hover:border-slate-300"
+                            : "border-neutral-200 dark:border-neutral-700 hover:border-neutral-300"
                     }`}
                 >
                     <div className="flex items-center gap-3">
                         <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
                             data.investmentProfile === "BALANCED"
                                 ? "bg-emerald-500 text-white"
-                                : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                                : "bg-neutral-100 dark:bg-neutral-800 text-neutral-500"
                         }`}>
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                             </svg>
                         </div>
                         <div className="text-left">
-                            <h3 className="font-semibold text-slate-900 dark:text-slate-100">稳健型</h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                            <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">稳健型</h3>
+                            <p className="text-sm text-neutral-500 dark:text-neutral-400">
                                 平衡风险与收益，追求长期稳定增长
                             </p>
                         </div>
@@ -135,22 +135,22 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                     className={`p-4 rounded-xl border-2 transition-all ${
                         data.investmentProfile === "AGGRESSIVE"
                             ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20"
-                            : "border-slate-200 dark:border-slate-700 hover:border-slate-300"
+                            : "border-neutral-200 dark:border-neutral-700 hover:border-neutral-300"
                     }`}
                 >
                     <div className="flex items-center gap-3">
                         <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
                             data.investmentProfile === "AGGRESSIVE"
                                 ? "bg-emerald-500 text-white"
-                                : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                                : "bg-neutral-100 dark:bg-neutral-800 text-neutral-500"
                         }`}>
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
                         </div>
                         <div className="text-left">
-                            <h3 className="font-semibold text-slate-900 dark:text-slate-100">激进型</h3>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                            <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">激进型</h3>
+                            <p className="text-sm text-neutral-500 dark:text-neutral-400">
                                 追求高收益，能承受较大波动
                             </p>
                         </div>
@@ -172,10 +172,10 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     const renderStep2 = () => (
         <div className="space-y-6">
             <div className="text-center">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+                <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
                     选择关注的市场
                 </h2>
-                <p className="text-slate-500 dark:text-slate-400">
+                <p className="text-neutral-500 dark:text-neutral-400">
                     至少选择一个市场
                 </p>
             </div>
@@ -195,26 +195,26 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                         className={`p-4 rounded-xl border-2 transition-all flex items-center justify-between ${
                             data.preferredMarkets.includes(market as MarketPreference)
                                 ? "border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20"
-                                : "border-slate-200 dark:border-slate-700 hover:border-slate-300"
+                                : "border-neutral-200 dark:border-neutral-700 hover:border-neutral-300"
                         }`}
                     >
                         <div className="flex items-center gap-3">
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                                 data.preferredMarkets.includes(market as MarketPreference)
                                     ? "bg-emerald-500 text-white"
-                                    : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                                    : "bg-neutral-100 dark:bg-neutral-800 text-neutral-500"
                             }`}>
                                 {market === "A_SHARE" && "🇨🇳"}
                                 {market === "HK_SHARE" && "🇭🇰"}
                                 {market === "US_SHARE" && "🇺🇸"}
                             </div>
                             <div className="text-left">
-                                <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+                                <h3 className="font-semibold text-neutral-900 dark:text-neutral-100">
                                     {market === "A_SHARE" && "A 股"}
                                     {market === "HK_SHARE" && "港股"}
                                     {market === "US_SHARE" && "美股"}
                                 </h3>
-                                <p className="text-sm text-slate-500 dark:text-slate-400">
+                                <p className="text-sm text-neutral-500 dark:text-neutral-400">
                                     {market === "A_SHARE" && "上海证券交易所、深圳证券交易所"}
                                     {market === "HK_SHARE" && "香港交易所"}
                                     {market === "US_SHARE" && "纽约证券交易所、纳斯达克"}
@@ -233,7 +233,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
             <div className="flex justify-between pt-4">
                 <button
                     onClick={handleBack}
-                    className="px-6 py-2.5 text-slate-600 dark:text-slate-400 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="px-6 py-2.5 text-neutral-600 dark:text-neutral-400 font-medium rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
                 >
                     返回
                 </button>
@@ -250,16 +250,16 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     const renderStep3 = () => (
         <div className="space-y-6">
             <div className="text-center">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+                <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
                     风险承受能力评估
                 </h2>
-                <p className="text-slate-500 dark:text-slate-400">
+                <p className="text-neutral-500 dark:text-neutral-400">
                     选择 1-10 分，10 分代表最能承受风险
                 </p>
             </div>
 
             <div className="space-y-4">
-                <div className="flex justify-between text-sm text-slate-500 dark:text-slate-400">
+                <div className="flex justify-between text-sm text-neutral-500 dark:text-neutral-400">
                     <span>保守 (1)</span>
                     <span>激进 (10)</span>
                 </div>
@@ -271,18 +271,18 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                             className={`h-12 rounded-lg font-semibold transition-all ${
                                 data.riskToleranceScore === score
                                     ? "bg-emerald-500 text-white scale-110"
-                                    : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
+                                    : "bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700"
                             }`}
                         >
                             {score}
                         </button>
                     ))}
                 </div>
-                <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800 text-center">
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                <div className="p-4 rounded-lg bg-neutral-50 dark:bg-neutral-800 text-center">
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400">
                         您的选择：<span className="font-bold text-emerald-600 dark:text-emerald-400">{data.riskToleranceScore}</span>
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-1">
                         {data.riskToleranceScore <= 3 && "保守型：优先保本，能接受 1-5% 的年化收益"}
                         {data.riskToleranceScore >= 4 && data.riskToleranceScore <= 7 && "稳健型：平衡风险，追求 5-15% 的年化收益"}
                         {data.riskToleranceScore >= 8 && "激进型：追求高收益，能承受 20%+ 的波动"}
@@ -293,7 +293,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
             <div className="flex justify-between pt-4">
                 <button
                     onClick={handleBack}
-                    className="px-6 py-2.5 text-slate-600 dark:text-slate-400 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="px-6 py-2.5 text-neutral-600 dark:text-neutral-400 font-medium rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
                 >
                     返回
                 </button>
@@ -310,23 +310,23 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     const renderStep4 = () => (
         <div className="space-y-6">
             <div className="text-center">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+                <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
                     投资经验与目标
                 </h2>
-                <p className="text-slate-500 dark:text-slate-400">
+                <p className="text-neutral-500 dark:text-neutral-400">
                     帮助我们了解您的投资背景
                 </p>
             </div>
 
             <div className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                         投资经验年数
                     </label>
                     <select
                         value={data.investmentExperienceYears}
                         onChange={(e) => setData({ ...data, investmentExperienceYears: parseInt(e.target.value) })}
-                        className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500"
+                        className="w-full px-4 py-2.5 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-emerald-500"
                     >
                         <option value={0}>新手入门（0 年）</option>
                         <option value={1}>1 年</option>
@@ -338,7 +338,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                         期望年化收益率 (%)
                     </label>
                     <input
@@ -352,7 +352,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                     <div className="text-center mt-2">
                         <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{data.targetAnnualReturn}%</span>
                     </div>
-                    <p className="text-xs text-slate-500 dark:text-slate-500 text-center mt-1">
+                    <p className="text-xs text-neutral-500 dark:text-neutral-500 text-center mt-1">
                         {data.targetAnnualReturn <= 10 && "稳健目标，主要通过固定收益和蓝筹股实现"}
                         {data.targetAnnualReturn > 10 && data.targetAnnualReturn <= 20 && "进取目标，需要承担中等风险"}
                         {data.targetAnnualReturn > 20 && "高目标，需要承担较高风险，建议 diversified portfolio"}
@@ -360,13 +360,13 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                 </div>
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
                         通知频率
                     </label>
                     <select
                         value={data.notificationFrequency}
                         onChange={(e) => setData({ ...data, notificationFrequency: e.target.value as NotificationFrequency })}
-                        className="w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500"
+                        className="w-full px-4 py-2.5 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-emerald-500"
                     >
                         <option value="REALTIME">实时推送（重要消息立即通知）</option>
                         <option value="HOURLY">每小时摘要（整点推送）</option>
@@ -379,7 +379,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
             <div className="flex justify-between pt-4">
                 <button
                     onClick={handleBack}
-                    className="px-6 py-2.5 text-slate-600 dark:text-slate-400 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="px-6 py-2.5 text-neutral-600 dark:text-neutral-400 font-medium rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
                 >
                     返回
                 </button>
@@ -409,7 +409,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                             ? "bg-emerald-500 text-white"
                             : s < step
                             ? "bg-emerald-200 dark:bg-emerald-800 text-emerald-600 dark:text-emerald-400"
-                            : "bg-slate-200 dark:bg-slate-700 text-slate-500"
+                            : "bg-neutral-200 dark:bg-neutral-700 text-neutral-500"
                     }`}>
                         {s < step ? (
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -421,7 +421,7 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                     </div>
                     {s < 4 && (
                         <div className={`w-12 h-1 ${
-                            s < step ? "bg-emerald-500" : "bg-slate-200 dark:bg-slate-700"
+                            s < step ? "bg-emerald-500" : "bg-neutral-200 dark:bg-neutral-700"
                         }`} />
                     )}
                 </div>
@@ -430,9 +430,9 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
     );
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-900 dark:to-neutral-950 flex items-center justify-center p-4">
             <div className="w-full max-w-md">
-                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl p-6">
+                <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl p-6">
                     {renderProgress()}
                     {step === 1 && renderStep1()}
                     {step === 2 && renderStep2()}

@@ -36,14 +36,14 @@ function SectorBar({ item, color, maxWeight }: SectorBarProps) {
         className="w-2 h-2 rounded-full shrink-0"
         style={{ backgroundColor: color }}
       />
-      <span className="text-xs text-slate-600 dark:text-slate-300 w-28 truncate">{item.sector}</span>
-      <div className="flex-1 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+      <span className="text-xs text-neutral-600 dark:text-neutral-300 w-28 truncate">{item.sector}</span>
+      <div className="flex-1 h-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-500"
           style={{ width: `${barWidth}%`, backgroundColor: color }}
         />
       </div>
-      <span className="text-xs tabular-nums text-slate-500 w-10 text-right">
+      <span className="text-xs tabular-nums text-neutral-500 w-10 text-right">
         {(item.weight * 100).toFixed(1)}%
       </span>
     </div>
@@ -70,24 +70,24 @@ export function SectorExposurePanel() {
   const maxWeight = data?.sector_breakdown[0]?.weight ?? 1;
 
   return (
-    <section className="rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-zinc-900 overflow-hidden">
-      <div className="px-5 pt-5 pb-4 border-b border-slate-100 dark:border-slate-800">
+    <section className="rounded-2xl border border-neutral-100 dark:border-neutral-800 bg-white dark:bg-zinc-900 overflow-hidden">
+      <div className="px-5 pt-5 pb-4 border-b border-neutral-100 dark:border-neutral-800">
         <div className="flex items-center gap-2">
           <span className="w-1 h-4 rounded-full bg-cyan-500 inline-block" />
-          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">组合行业敞口</h3>
+          <h3 className="text-sm font-bold text-neutral-800 dark:text-neutral-100">组合行业敞口</h3>
           {risk && (
             <span className={clsx("ml-2 text-[10px] font-semibold px-2 py-0.5 rounded-full", risk.cls)}>
               {risk.text}
             </span>
           )}
-          <span className="ml-auto text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider">Sector Exposure</span>
+          <span className="ml-auto text-[10px] text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Sector Exposure</span>
         </div>
       </div>
 
       {loading ? (
-        <div className="px-5 py-8 text-center text-sm text-slate-400 animate-pulse">加载中…</div>
+        <div className="px-5 py-8 text-center text-sm text-neutral-400 animate-pulse">加载中…</div>
       ) : error || !data || data.sector_breakdown.length === 0 ? (
-        <div className="px-5 py-8 text-center text-sm text-slate-400">{error || "暂无行业分布数据"}</div>
+        <div className="px-5 py-8 text-center text-sm text-neutral-400">{error || "暂无行业分布数据"}</div>
       ) : (
         <div className="p-5 space-y-5">
           {/* 行业分布条形图 */}
@@ -104,23 +104,23 @@ export function SectorExposurePanel() {
 
           {/* 集中度指标提示 */}
           <div className="flex gap-3">
-            <div className="flex-1 rounded-xl bg-slate-50 dark:bg-zinc-800 px-3 py-2.5 text-center">
-              <p className="text-sm font-black tabular-nums text-slate-700 dark:text-slate-200">
+            <div className="flex-1 rounded-xl bg-neutral-50 dark:bg-zinc-800 px-3 py-2.5 text-center">
+              <p className="text-sm font-black tabular-nums text-neutral-700 dark:text-neutral-200">
                 {(data.concentration_ratio * 100).toFixed(0)}%
               </p>
-              <p className="text-[10px] text-slate-400 mt-0.5">前3行业占比</p>
+              <p className="text-[10px] text-neutral-400 mt-0.5">前3行业占比</p>
             </div>
-            <div className="flex-1 rounded-xl bg-slate-50 dark:bg-zinc-800 px-3 py-2.5 text-center">
-              <p className="text-sm font-black tabular-nums text-slate-700 dark:text-slate-200">
+            <div className="flex-1 rounded-xl bg-neutral-50 dark:bg-zinc-800 px-3 py-2.5 text-center">
+              <p className="text-sm font-black tabular-nums text-neutral-700 dark:text-neutral-200">
                 {data.herfindahl_index.toFixed(3)}
               </p>
-              <p className="text-[10px] text-slate-400 mt-0.5">赫芬达尔指数</p>
+              <p className="text-[10px] text-neutral-400 mt-0.5">赫芬达尔指数</p>
             </div>
-            <div className="flex-1 rounded-xl bg-slate-50 dark:bg-zinc-800 px-3 py-2.5 text-center">
-              <p className="text-sm font-black tabular-nums text-slate-700 dark:text-slate-200">
+            <div className="flex-1 rounded-xl bg-neutral-50 dark:bg-zinc-800 px-3 py-2.5 text-center">
+              <p className="text-sm font-black tabular-nums text-neutral-700 dark:text-neutral-200">
                 {data.sector_breakdown.length}
               </p>
-              <p className="text-[10px] text-slate-400 mt-0.5">行业数量</p>
+              <p className="text-[10px] text-neutral-400 mt-0.5">行业数量</p>
             </div>
           </div>
 

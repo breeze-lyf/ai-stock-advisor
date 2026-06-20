@@ -85,36 +85,37 @@
 }
 
 .dark {
-  --background: oklch(0.18 0.015 250); /* 深海板岩：微弱蓝色相消除纯黑死板感 */
-  --foreground: oklch(0.85 0.01 250);  /* 雾银色：降低正文对比度，长效用眼不疲劳 */
-  --card: oklch(0.22 0.015 250);       /* 卡片浮现层：略高于背景，形成立体感 */
-  --card-foreground: oklch(0.85 0.01 250);
-  --popover: oklch(0.22 0.015 250);
-  --popover-foreground: oklch(0.85 0.01 250);
-  --primary: oklch(0.5 0.08 250);      /* 主色调：克制的情绪蓝 */
-  --primary-foreground: oklch(0.98 0.01 250);
-  --secondary: oklch(0.28 0.02 250);
-  --secondary-foreground: oklch(0.8 0.01 250);
-  --muted: oklch(0.28 0.02 250);
-  --muted-foreground: oklch(0.55 0.01 250);
-  --accent: oklch(0.32 0.03 250);      /* 悬停强调态 */
-  --accent-foreground: oklch(0.9 0.01 250);
-  --destructive: oklch(0.5 0.1 25); 
-  --border: oklch(0.28 0.02 250);      /* 物理分割：利用微弱色偏界定区域 */
-  --input: oklch(0.28 0.02 250);
+  /* 中性灰深色：所有表层(背景/卡片/边框/文字)去色相，纯灰；强调色保留 */
+  --background: oklch(0.18 0 0);       /* 纯中性深灰 */
+  --foreground: oklch(0.85 0 0);       /* 浅灰正文 */
+  --card: oklch(0.22 0 0);             /* 卡片层略高于背景 */
+  --card-foreground: oklch(0.85 0 0);
+  --popover: oklch(0.22 0 0);
+  --popover-foreground: oklch(0.85 0 0);
+  --primary: oklch(0.5 0.08 250);      /* 主色调：保留为强调蓝 */
+  --primary-foreground: oklch(0.98 0 0);
+  --secondary: oklch(0.28 0 0);
+  --secondary-foreground: oklch(0.8 0 0);
+  --muted: oklch(0.28 0 0);
+  --muted-foreground: oklch(0.55 0 0);
+  --accent: oklch(0.32 0 0);           /* 悬停强调态：中性 */
+  --accent-foreground: oklch(0.9 0 0);
+  --destructive: oklch(0.5 0.1 25);
+  --border: oklch(0.28 0 0);           /* 物理分割：中性灰 */
+  --input: oklch(0.28 0 0);
   --ring: oklch(0.4 0.05 250);
-  --chart-1: oklch(0.6 0.1 250); 
-  --chart-2: oklch(0.6 0.1 160); 
+  --chart-1: oklch(0.6 0.1 250);
+  --chart-2: oklch(0.6 0.1 160);
   --chart-3: oklch(0.65 0.1 70);
   --chart-4: oklch(0.55 0.1 300);
   --chart-5: oklch(0.55 0.1 20);
-  --sidebar: oklch(0.16 0.02 250);     /* 侧边栏：极致深邃 */
-  --sidebar-foreground: oklch(0.75 0.01 250);
+  --sidebar: oklch(0.16 0 0);          /* 侧边栏：更深的中性灰 */
+  --sidebar-foreground: oklch(0.75 0 0);
   --sidebar-primary: oklch(0.5 0.08 250);
-  --sidebar-primary-foreground: oklch(0.98 0.01 250);
-  --sidebar-accent: oklch(0.24 0.02 250);
-  --sidebar-accent-foreground: oklch(0.85 0.01 250);
-  --sidebar-border: oklch(0.26 0.02 250);
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.24 0 0);
+  --sidebar-accent-foreground: oklch(0.85 0 0);
+  --sidebar-border: oklch(0.26 0 0);
   --sidebar-ring: oklch(0.35 0.05 250);
 }
 

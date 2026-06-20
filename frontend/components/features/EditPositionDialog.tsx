@@ -197,7 +197,7 @@ export function EditPositionDialog({
 
     return (
         <Dialog open={isOpen} onOpenChange={setOpen}>
-            <DialogContent className="sm:max-w-md bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl">
+            <DialogContent className="sm:max-w-md bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-2xl">
                 <DialogHeader>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -205,10 +205,10 @@ export function EditPositionDialog({
                                 <Pencil className="h-4 w-4 text-white" />
                             </div>
                             <div>
-                                <DialogTitle className="font-black text-base text-slate-900 dark:text-white">
+                                <DialogTitle className="font-black text-base text-neutral-900 dark:text-white">
                                     编辑持仓
                                 </DialogTitle>
-                                <DialogDescription className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                                <DialogDescription className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">
                                     {ticker}
                                 </DialogDescription>
                             </div>
@@ -227,9 +227,9 @@ export function EditPositionDialog({
 
                     {/* 持仓数量输入 */}
                     <div className="space-y-2">
-                        <Label htmlFor="quantity" className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                        <Label htmlFor="quantity" className="text-xs font-bold text-neutral-600 dark:text-neutral-400 flex items-center gap-2">
                             <span>持仓数量</span>
-                            <span className="text-[10px] font-normal text-slate-400">(Shares)</span>
+                            <span className="text-[10px] font-normal text-neutral-400">(Shares)</span>
                         </Label>
                         <div className="relative">
                             <Input
@@ -238,10 +238,10 @@ export function EditPositionDialog({
                                 step="0.01"
                                 value={editedQuantity}
                                 onChange={(e) => setEditedQuantity(e.target.value)}
-                                className="h-11 font-mono tabular-nums pr-12 border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500"
+                                className="h-11 font-mono tabular-nums pr-12 border-neutral-200 dark:border-neutral-700 focus:border-blue-500 focus:ring-blue-500"
                                 placeholder="0"
                             />
-                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                            <span className="absolute right-3 top-1/2 -tranneutral-y-1/2 text-xs font-bold text-neutral-400">
                                 股
                             </span>
                         </div>
@@ -249,9 +249,9 @@ export function EditPositionDialog({
 
                     {/* 持仓均价输入 */}
                     <div className="space-y-2">
-                        <Label htmlFor="avgCost" className="text-xs font-bold text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                        <Label htmlFor="avgCost" className="text-xs font-bold text-neutral-600 dark:text-neutral-400 flex items-center gap-2">
                             <span>持仓均价</span>
-                            <span className="text-[10px] font-normal text-slate-400">(Cost Basis)</span>
+                            <span className="text-[10px] font-normal text-neutral-400">(Cost Basis)</span>
                         </Label>
                         <div className="relative">
                             <Input
@@ -260,27 +260,27 @@ export function EditPositionDialog({
                                 step="0.01"
                                 value={editedAvgCost}
                                 onChange={(e) => setEditedAvgCost(e.target.value)}
-                                className="h-11 font-mono tabular-nums pr-12 border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500"
+                                className="h-11 font-mono tabular-nums pr-12 border-neutral-200 dark:border-neutral-700 focus:border-blue-500 focus:ring-blue-500"
                                 placeholder="0.00"
                             />
-                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                            <span className="absolute right-3 top-1/2 -tranneutral-y-1/2 text-xs font-bold text-neutral-400">
                                 $
                             </span>
                         </div>
                     </div>
 
                     {/* 总成本预览 */}
-                    <div className="p-4 bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-800/30 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <div className="p-4 bg-linear-to-br from-neutral-50 to-neutral-100 dark:from-neutral-800/50 dark:to-neutral-800/30 rounded-xl border border-neutral-200 dark:border-neutral-700">
                         <div className="flex justify-between items-center">
-                            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">总成本</span>
-                            <span className="text-lg font-black text-slate-900 dark:text-white tabular-nums">
+                            <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">总成本</span>
+                            <span className="text-lg font-black text-neutral-900 dark:text-white tabular-nums">
                                 ${calculateMarketValue().toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </span>
                         </div>
                     </div>
 
                     {/* 分割线 */}
-                    <div className="h-px bg-slate-100 dark:bg-slate-800" />
+                    <div className="h-px bg-neutral-100 dark:bg-neutral-800" />
 
                     {/* 不再持有按钮 */}
                     {!showDeleteConfirm ? (
@@ -324,7 +324,7 @@ export function EditPositionDialog({
                     )}
                 </div>
 
-                <DialogFooter className="gap-2 sm:gap-0 border-t border-slate-100 dark:border-slate-800 pt-4">
+                <DialogFooter className="gap-2 sm:gap-0 border-t border-neutral-100 dark:border-neutral-800 pt-4">
                     {/* 取消按钮 */}
                     <Button
                         variant="outline"
@@ -332,7 +332,7 @@ export function EditPositionDialog({
                             setShowDeleteConfirm(false);
                             setOpen(false);
                         }}
-                        className="h-10 font-bold border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        className="h-10 font-bold border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800"
                         disabled={loading || deleting}
                     >
                         <X className="h-4 w-4 mr-1.5" />
@@ -402,7 +402,7 @@ export function EditPositionButton({
                 <button
                     type="button"
                     onClick={() => setOpen(true)}
-                    className="p-1 -my-1 rounded-md text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                    className="p-1 -my-1 rounded-md text-neutral-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                     title="编辑持仓"
                 >
                     <Pencil className="h-3.5 w-3.5" />

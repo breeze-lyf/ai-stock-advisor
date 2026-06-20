@@ -23,7 +23,7 @@ interface StockNewsListProps {
 export function StockNewsList({ news }: StockNewsListProps) {
     if (!news || news.length === 0) {
         return (
-            <div className="py-12 flex flex-col items-center justify-center text-slate-400 bg-slate-50/50 dark:bg-zinc-900/50 rounded-2xl border border-dashed border-slate-200 dark:border-zinc-800">
+            <div className="py-12 flex flex-col items-center justify-center text-neutral-400 bg-neutral-50/50 dark:bg-zinc-900/50 rounded-2xl border border-dashed border-neutral-200 dark:border-zinc-800">
                 <Newspaper className="h-10 w-10 mb-3 opacity-20" />
                 <p className="text-sm font-medium">暂无相关新闻动态</p>
             </div>
@@ -45,12 +45,12 @@ export function StockNewsList({ news }: StockNewsListProps) {
                             "group relative pl-6 border-l-2 transition-all duration-300",
                             isTavily 
                                 ? "border-blue-600 bg-blue-600/5 py-4 -ml-2 pl-[calc(1.5rem-8px)] rounded-r-2xl" 
-                                : "border-slate-100 dark:border-zinc-800 hover:border-blue-600"
+                                : "border-neutral-100 dark:border-zinc-800 hover:border-blue-600"
                         )}
                     >
                         <div className={clsx(
                             "absolute -left-[5px] top-1 h-2 w-2 rounded-full transition-colors",
-                            isTavily ? "bg-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.5)]" : "bg-slate-200 dark:bg-slate-700 group-hover:bg-blue-600"
+                            isTavily ? "bg-blue-600 shadow-[0_0_8px_rgba(37,99,235,0.5)]" : "bg-neutral-200 dark:bg-neutral-700 group-hover:bg-blue-600"
                         )} />
 
                         <div className="flex flex-col gap-2">
@@ -60,26 +60,26 @@ export function StockNewsList({ news }: StockNewsListProps) {
                                         <Zap className="h-2 w-2 fill-current" /> AI INSIGHT
                                     </span>
                                 )}
-                                <span className="flex items-center gap-1 text-slate-400">
+                                <span className="flex items-center gap-1 text-neutral-400">
                                     <Clock className="h-3 w-3" />
                                     {formatDistanceToNow(new Date(item.publish_time + (item.publish_time.includes('Z') ? '' : 'Z')), { addSuffix: true, locale: zhCN })}
                                 </span>
-                                <span className="h-1 w-1 rounded-full bg-slate-300" />
-                                <span className="text-slate-500 dark:text-slate-400">{item.publisher}</span>
+                                <span className="h-1 w-1 rounded-full bg-neutral-300" />
+                                <span className="text-neutral-500 dark:text-neutral-400">{item.publisher}</span>
                             </div>
 
                             <a
                                 href={item.link}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-lg font-black text-slate-900 dark:text-zinc-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors leading-tight flex items-start gap-2"
+                                className="text-lg font-black text-neutral-900 dark:text-zinc-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors leading-tight flex items-start gap-2"
                             >
                                 {item.title}
                                 <ExternalLink className="h-4 w-4 mt-1 opacity-0 group-hover:opacity-100 transition-opacity" />
                             </a>
 
                             {item.summary && (
-                                <div className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed font-medium line-clamp-3">
+                                <div className="text-sm text-neutral-600 dark:text-zinc-400 leading-relaxed font-medium line-clamp-3">
                                     <ReactMarkdown>{item.summary}</ReactMarkdown>
                                 </div>
                             )}

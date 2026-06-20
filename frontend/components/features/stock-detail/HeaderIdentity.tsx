@@ -151,7 +151,7 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                             onClick={onBack}
                             title="返回"
                             aria-label="返回"
-                            className="lg:hidden mt-1 p-1 -ml-1 rounded-full text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                            className="lg:hidden mt-1 p-1 -ml-1 rounded-full text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
                         >
                             <ChevronLeft className="h-7 w-7" />
                         </button>
@@ -160,14 +160,14 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                     {/* 股票名称和代码 */}
                     <div className="flex flex-col">
                         <div className="flex items-center gap-3">
-                            <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-slate-900 dark:text-white leading-none">
+                            <h1 className="text-3xl md:text-4xl font-black tracking-tighter text-neutral-900 dark:text-white leading-none">
                                 {selectedItem.name || selectedItem.ticker}
                             </h1>
                             {/* 刷新按钮 */}
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-600/10 transition-all duration-300"
+                                className="h-8 w-8 rounded-full text-neutral-400 hover:text-blue-600 hover:bg-blue-600/10 transition-all duration-300"
                                 onClick={onRefresh}
                                 disabled={refreshing}
                                 title="刷新行情"
@@ -176,7 +176,7 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                             </Button>
                         </div>
                         {/* 股票代码（当有名称时显示） */}
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mt-2">
+                        <p className="text-xs font-bold text-neutral-400 uppercase tracking-[0.2em] mt-2">
                             {selectedItem.name ? selectedItem.ticker : "全维度财务声誉分析"}
                         </p>
                     </div>
@@ -187,7 +187,7 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                     {/* 最新涨跌（桌面端显示） */}
                     <div className="hidden sm:flex flex-col items-end gap-2">
                         <div className="flex flex-col items-end">
-                            <span className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">最新涨跌</span>
+                            <span className="text-[10px] font-black uppercase text-neutral-400 tracking-tighter">最新涨跌</span>
                             <span className={clsx(
                                 "text-lg font-black tabular-nums",
                                 (selectedItem.change_percent || 0) >= 0 ? "text-emerald-600" : "text-rose-600"
@@ -199,7 +199,7 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
 
                     {/* 实时价格 */}
                     <div className="flex flex-col items-end gap-1">
-                        <span className="text-3xl font-black text-slate-800 dark:text-slate-100 tabular-nums leading-none">
+                        <span className="text-3xl font-black text-neutral-800 dark:text-neutral-100 tabular-nums leading-none">
                             ${selectedItem.current_price.toFixed(2)}
                         </span>
                     </div>
@@ -218,7 +218,7 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                                     <span className="w-full text-xs text-rose-600 font-medium -mb-1">{editError}</span>
                                 )}
                                 <div className="flex items-center gap-1.5">
-                                    <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider whitespace-nowrap">持有仓位</span>
+                                    <span className="text-[9px] font-black uppercase text-neutral-400 tracking-wider whitespace-nowrap">持有仓位</span>
                                     <input
                                         type="number"
                                         step="0.01"
@@ -227,13 +227,13 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                                         placeholder="0"
                                         value={editedQuantity}
                                         onChange={(e) => setEditedQuantity(e.target.value)}
-                                        className="w-20 h-7 px-2 text-sm font-mono tabular-nums border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-md focus:outline-none focus:border-blue-500 text-slate-800 dark:text-slate-100"
+                                        className="w-20 h-7 px-2 text-sm font-mono tabular-nums border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded-md focus:outline-none focus:border-blue-500 text-neutral-800 dark:text-neutral-100"
                                     />
-                                    <span className="text-[10px] text-slate-400 font-bold">股</span>
+                                    <span className="text-[10px] text-neutral-400 font-bold">股</span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
-                                    <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider whitespace-nowrap">持仓均价</span>
-                                    <span className="text-[10px] text-slate-400 font-bold">$</span>
+                                    <span className="text-[9px] font-black uppercase text-neutral-400 tracking-wider whitespace-nowrap">持仓均价</span>
+                                    <span className="text-[10px] text-neutral-400 font-bold">$</span>
                                     <input
                                         type="number"
                                         step="0.01"
@@ -242,7 +242,7 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                                         placeholder="0.00"
                                         value={editedAvgCost}
                                         onChange={(e) => setEditedAvgCost(e.target.value)}
-                                        className="w-24 h-7 px-2 text-sm font-mono tabular-nums border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-md focus:outline-none focus:border-blue-500 text-slate-800 dark:text-slate-100"
+                                        className="w-24 h-7 px-2 text-sm font-mono tabular-nums border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded-md focus:outline-none focus:border-blue-500 text-neutral-800 dark:text-neutral-100"
                                     />
                                 </div>
                                 <div className="flex items-center gap-1.5">
@@ -259,7 +259,7 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                                         type="button"
                                         onClick={handleCancelEdit}
                                         disabled={editLoading || editDeleting}
-                                        className="h-7 px-2 rounded-md border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-1 transition-colors disabled:opacity-50"
+                                        className="h-7 px-2 rounded-md border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-xs font-bold flex items-center gap-1 transition-colors disabled:opacity-50"
                                     >
                                         <X className="h-3 w-3" />
                                         取消
@@ -278,30 +278,30 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                         ) : (
                             /* 展示模式 */
                             <>
-                                <div className="flex items-center gap-2 rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-900/80 px-3 py-2 shadow-sm">
+                                <div className="flex items-center gap-2 rounded-2xl border border-neutral-100 dark:border-zinc-800 bg-neutral-50/70 dark:bg-zinc-900/80 px-3 py-2 shadow-sm">
                                     <div className="flex flex-col">
-                                        <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">持有仓位</span>
-                                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300 tabular-nums">
+                                        <span className="text-[9px] font-black uppercase text-neutral-400 tracking-wider">持有仓位</span>
+                                        <span className="text-sm font-bold text-neutral-700 dark:text-neutral-300 tabular-nums">
                                             {selectedItem.quantity} Shares
                                         </span>
                                     </div>
                                     <button
                                         type="button"
                                         onClick={handleStartEdit}
-                                        className="p-1 -mt-0.5 rounded-md text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                                        className="p-1 -mt-0.5 rounded-md text-neutral-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                                         title="编辑持仓"
                                     >
                                         <Pencil className="h-3.5 w-3.5" />
                                     </button>
                                 </div>
-                                <div className="flex flex-col rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-900/80 px-3 py-2 shadow-sm">
-                                    <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">持仓均价</span>
-                                    <span className="text-sm font-bold text-slate-700 dark:text-slate-300 tabular-nums">
+                                <div className="flex flex-col rounded-2xl border border-neutral-100 dark:border-zinc-800 bg-neutral-50/70 dark:bg-zinc-900/80 px-3 py-2 shadow-sm">
+                                    <span className="text-[9px] font-black uppercase text-neutral-400 tracking-wider">持仓均价</span>
+                                    <span className="text-sm font-bold text-neutral-700 dark:text-neutral-300 tabular-nums">
                                         ${selectedItem.avg_cost.toFixed(2)}
                                     </span>
                                 </div>
-                                <div className="flex flex-col rounded-2xl border border-slate-100 dark:border-zinc-800 bg-slate-50/70 dark:bg-zinc-900/80 px-3 py-2 shadow-sm">
-                                    <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">账面盈亏</span>
+                                <div className="flex flex-col rounded-2xl border border-neutral-100 dark:border-zinc-800 bg-neutral-50/70 dark:bg-zinc-900/80 px-3 py-2 shadow-sm">
+                                    <span className="text-[9px] font-black uppercase text-neutral-400 tracking-wider">账面盈亏</span>
                                     <div className="flex items-center gap-1.5">
                                         <span className={clsx(
                                             "text-sm font-bold tabular-nums",
@@ -328,7 +328,7 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                                 <span className="w-full text-xs text-rose-600 font-medium -mb-1">{editError}</span>
                             )}
                             <div className="flex items-center gap-1.5">
-                                <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider whitespace-nowrap">持有仓位</span>
+                                <span className="text-[9px] font-black uppercase text-neutral-400 tracking-wider whitespace-nowrap">持有仓位</span>
                                 <input
                                     type="number"
                                     step="0.01"
@@ -337,13 +337,13 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                                     placeholder="0"
                                     value={editedQuantity}
                                     onChange={(e) => setEditedQuantity(e.target.value)}
-                                    className="w-20 h-7 px-2 text-sm font-mono tabular-nums border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-md focus:outline-none focus:border-blue-500 text-slate-800 dark:text-slate-100"
+                                    className="w-20 h-7 px-2 text-sm font-mono tabular-nums border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded-md focus:outline-none focus:border-blue-500 text-neutral-800 dark:text-neutral-100"
                                 />
-                                <span className="text-[10px] text-slate-400 font-bold">股</span>
+                                <span className="text-[10px] text-neutral-400 font-bold">股</span>
                             </div>
                             <div className="flex items-center gap-1.5">
-                                <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider whitespace-nowrap">持仓均价</span>
-                                <span className="text-[10px] text-slate-400 font-bold">$</span>
+                                <span className="text-[9px] font-black uppercase text-neutral-400 tracking-wider whitespace-nowrap">持仓均价</span>
+                                <span className="text-[10px] text-neutral-400 font-bold">$</span>
                                 <input
                                     type="number"
                                     step="0.01"
@@ -352,7 +352,7 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                                     placeholder="0.00"
                                     value={editedAvgCost}
                                     onChange={(e) => setEditedAvgCost(e.target.value)}
-                                    className="w-24 h-7 px-2 text-sm font-mono tabular-nums border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-md focus:outline-none focus:border-blue-500 text-slate-800 dark:text-slate-100"
+                                    className="w-24 h-7 px-2 text-sm font-mono tabular-nums border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 rounded-md focus:outline-none focus:border-blue-500 text-neutral-800 dark:text-neutral-100"
                                 />
                             </div>
                             <div className="flex items-center gap-1.5">
@@ -369,7 +369,7 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                                     type="button"
                                     onClick={handleCancelEdit}
                                     disabled={editLoading}
-                                    className="h-7 px-2 rounded-md border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 text-xs font-bold flex items-center gap-1 transition-colors disabled:opacity-50"
+                                    className="h-7 px-2 rounded-md border border-neutral-200 dark:border-neutral-700 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-xs font-bold flex items-center gap-1 transition-colors disabled:opacity-50"
                                 >
                                     <X className="h-3 w-3" />
                                     取消
@@ -377,16 +377,16 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                             </div>
                         </>
                     ) : (
-                        <div className="flex items-center gap-3 rounded-2xl border border-slate-200 dark:border-zinc-800 bg-gradient-to-r from-slate-50 to-white dark:from-zinc-900 dark:to-zinc-950 px-3.5 py-2.5 shadow-sm">
+                        <div className="flex items-center gap-3 rounded-2xl border border-neutral-200 dark:border-zinc-800 bg-gradient-to-r from-neutral-50 to-white dark:from-zinc-900 dark:to-zinc-950 px-3.5 py-2.5 shadow-sm">
                             <div className="flex flex-col min-w-0">
-                                <span className="text-[9px] font-black uppercase text-slate-400 tracking-wider">当前状态</span>
-                                <span className="text-sm font-bold text-slate-700 dark:text-slate-200">未建立持仓</span>
-                                <span className="text-[10px] text-slate-400 truncate">录入数量与均价后启用仓位视角</span>
+                                <span className="text-[9px] font-black uppercase text-neutral-400 tracking-wider">当前状态</span>
+                                <span className="text-sm font-bold text-neutral-700 dark:text-neutral-200">未建立持仓</span>
+                                <span className="text-[10px] text-neutral-400 truncate">录入数量与均价后启用仓位视角</span>
                             </div>
                             <button
                                 type="button"
                                 onClick={handleStartEdit}
-                                className="flex items-center gap-1.5 h-8 px-3.5 rounded-xl bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 hover:scale-[1.02] active:scale-[0.98] text-xs font-bold transition-transform shadow-sm"
+                                className="flex items-center gap-1.5 h-8 px-3.5 rounded-xl bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 hover:scale-[1.02] active:scale-[0.98] text-xs font-bold transition-transform shadow-sm"
                             >
                                 <Pencil className="h-3 w-3" />
                                 设置持仓
@@ -398,7 +398,7 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                 {/* Tab 标签导航 — 靠右，与持仓信息同行 */}
                 {onTabChange && (
                     <div className="ml-auto flex items-center">
-                        <div className="flex items-center bg-slate-100 dark:bg-zinc-800 rounded-xl p-1 gap-1 shadow-sm">
+                        <div className="flex items-center bg-neutral-100 dark:bg-zinc-800 rounded-xl p-1 gap-1 shadow-sm">
                             {tabs.map(({ key, label }) => (
                                 <button
                                     key={key}
@@ -407,8 +407,8 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                                     className={clsx(
                                         "px-3 py-1.5 text-[11px] font-semibold rounded-lg transition-all duration-150",
                                         activeTab === key
-                                            ? "bg-white dark:bg-zinc-900 text-slate-900 dark:text-white shadow-sm"
-                                            : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+                                            ? "bg-white dark:bg-zinc-900 text-neutral-900 dark:text-white shadow-sm"
+                                            : "text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300"
                                     )}
                                 >
                                     {label}

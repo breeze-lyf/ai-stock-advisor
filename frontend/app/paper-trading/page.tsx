@@ -21,7 +21,7 @@ export default function PaperTradingPage() {
 
     if (authLoading) {
         return (
-            <div className="h-screen w-full flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+            <div className="h-screen w-full flex items-center justify-center bg-neutral-50 dark:bg-neutral-950">
                 <RefreshCw className="h-8 w-8 text-blue-600 animate-spin" />
             </div>
         );
@@ -30,15 +30,15 @@ export default function PaperTradingPage() {
     if (!isAuthenticated) return null;
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col overflow-hidden">
+        <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex flex-col overflow-hidden">
             {/* Header */}
-            <header className="flex h-16 items-center px-6 border-b bg-white dark:bg-slate-900 shrink-0 gap-4 z-50">
-                <Link href="/" className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
-                    <ArrowLeft className="h-5 w-5 text-slate-500" />
+            <header className="flex h-16 items-center px-6 border-b bg-white dark:bg-neutral-900 shrink-0 gap-4 z-50">
+                <Link href="/" className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors">
+                    <ArrowLeft className="h-5 w-5 text-neutral-500" />
                 </Link>
                 <div className="flex flex-col">
                     <h1 className="font-black text-lg tracking-tight uppercase">远航模拟测试舱</h1>
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Paper Trading Dashboard</span>
+                    <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Paper Trading Dashboard</span>
                 </div>
             </header>
 

@@ -51,7 +51,7 @@ export default function QuantPage() {
     };
 
     return (
-        <div className="h-screen bg-slate-50 dark:bg-slate-950 flex flex-col overflow-hidden">
+        <div className="h-screen bg-neutral-50 dark:bg-neutral-950 flex flex-col overflow-hidden">
             <DashboardHeader user={userProfile} activeTab={activeHeaderTab} setActiveTab={setActiveHeaderTab} />
             <SearchDialog
                 isOpen={isSearchOpen}
@@ -69,8 +69,8 @@ export default function QuantPage() {
                             <BrainCircuit className="w-5 h-5 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-xl font-bold text-slate-900 dark:text-white">量化因子</h1>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">因子分析 · IC 检验 · 分层回测</p>
+                            <h1 className="text-xl font-bold text-neutral-900 dark:text-white">量化因子</h1>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400">因子分析 · IC 检验 · 分层回测</p>
                         </div>
                     </div>
                     <button
@@ -113,8 +113,8 @@ export default function QuantPage() {
                                 type="button"
                                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                                     !selectedFactor
-                                        ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
-                                        : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-blue-300"
+                                        ? "bg-neutral-900 text-white dark:bg-white dark:text-neutral-900"
+                                        : "bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-700 hover:border-blue-300"
                                 }`}
                             >
                                 全部
@@ -127,7 +127,7 @@ export default function QuantPage() {
                                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                                         cat === selectedFactor
                                             ? "bg-blue-600 text-white"
-                                            : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-blue-300"
+                                            : "bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-700 hover:border-blue-300"
                                     }`}
                                 >
                                     {cat}
@@ -139,7 +139,7 @@ export default function QuantPage() {
                         {loading && (
                             <div className="flex items-center justify-center py-12">
                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                                <span className="ml-3 text-slate-500">加载中...</span>
+                                <span className="ml-3 text-neutral-500">加载中...</span>
                             </div>
                         )}
 
@@ -150,41 +150,41 @@ export default function QuantPage() {
                         )}
 
                         {!loading && !error && factors && factors.length > 0 && (
-                            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                                <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">因子库</span>
-                                    <span className="text-xs text-slate-500">{factors.length} 个因子</span>
+                            <div className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden">
+                                <div className="px-4 py-3 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center">
+                                    <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">因子库</span>
+                                    <span className="text-xs text-neutral-500">{factors.length} 个因子</span>
                                 </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full">
-                                        <thead className="bg-slate-50 dark:bg-slate-900">
+                                        <thead className="bg-neutral-50 dark:bg-neutral-900">
                                             <tr>
-                                                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">因子代码</th>
-                                                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">因子名称</th>
-                                                <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">类别</th>
-                                                <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">IC</th>
-                                                <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">IR</th>
-                                                <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">多空收益</th>
+                                                <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">因子代码</th>
+                                                <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">因子名称</th>
+                                                <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">类别</th>
+                                                <th className="px-4 py-3 text-right text-xs font-medium text-neutral-500 uppercase">IC</th>
+                                                <th className="px-4 py-3 text-right text-xs font-medium text-neutral-500 uppercase">IR</th>
+                                                <th className="px-4 py-3 text-right text-xs font-medium text-neutral-500 uppercase">多空收益</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                                        <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
                                             {factors
                                                 .filter((f) => !selectedFactor || f.category === selectedFactor)
                                                 .map((factor) => (
                                                     <tr
                                                         key={factor.id}
                                                         onClick={() => handleFactorSelect(factor.id)}
-                                                        className="hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors cursor-pointer"
+                                                        className="hover:bg-blue-50 dark:hover:bg-neutral-700 transition-colors cursor-pointer"
                                                     >
-                                                        <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-white">{factor.id}</td>
-                                                        <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{factor.name}</td>
-                                                        <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">
-                                                            <span className="px-2 py-1 rounded-md bg-slate-100 dark:bg-slate-700 text-xs font-bold">{factor.category}</span>
+                                                        <td className="px-4 py-3 text-sm font-medium text-neutral-900 dark:text-white">{factor.id}</td>
+                                                        <td className="px-4 py-3 text-sm text-neutral-600 dark:text-neutral-300">{factor.name}</td>
+                                                        <td className="px-4 py-3 text-sm text-neutral-600 dark:text-neutral-300">
+                                                            <span className="px-2 py-1 rounded-md bg-neutral-100 dark:bg-neutral-700 text-xs font-bold">{factor.category}</span>
                                                         </td>
-                                                        <td className={`px-4 py-3 text-sm text-right font-bold ${factor.ic_mean && factor.ic_mean >= 0.05 ? "text-emerald-600" : "text-slate-600 dark:text-slate-300"}`}>
+                                                        <td className={`px-4 py-3 text-sm text-right font-bold ${factor.ic_mean && factor.ic_mean >= 0.05 ? "text-emerald-600" : "text-neutral-600 dark:text-neutral-300"}`}>
                                                             {factor.ic_mean?.toFixed(3) || "--"}
                                                         </td>
-                                                        <td className={`px-4 py-3 text-sm text-right font-bold ${factor.ic_ir && factor.ic_ir >= 0.5 ? "text-emerald-600" : "text-slate-600 dark:text-slate-300"}`}>
+                                                        <td className={`px-4 py-3 text-sm text-right font-bold ${factor.ic_ir && factor.ic_ir >= 0.5 ? "text-emerald-600" : "text-neutral-600 dark:text-neutral-300"}`}>
                                                             {factor.ic_ir?.toFixed(2) || "--"}
                                                         </td>
                                                         <td className={`px-4 py-3 text-sm text-right font-bold ${factor.annual_return && factor.annual_return >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
@@ -199,7 +199,7 @@ export default function QuantPage() {
                             )}
 
                             {!loading && !error && (!factors || factors.length === 0) && (
-                                <div className="text-center py-12 text-slate-400">
+                                <div className="text-center py-12 text-neutral-400">
                                     <BrainCircuit className="h-12 w-12 mx-auto mb-3 opacity-20" />
                                     <p className="text-sm">暂无因子数据</p>
                                 </div>
@@ -212,7 +212,7 @@ export default function QuantPage() {
                         <div className="space-y-4">
                             <div className="flex items-center gap-4">
                                 <div className="flex-1">
-                                    <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                                    <h3 className="text-sm font-bold text-neutral-700 dark:text-neutral-300">
                                         因子：{selectedFactor}
                                     </h3>
                                 </div>
@@ -221,14 +221,14 @@ export default function QuantPage() {
                             {icLoading && (
                                 <div className="flex items-center justify-center py-12">
                                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                                    <span className="ml-3 text-slate-500">分析中...</span>
+                                    <span className="ml-3 text-neutral-500">分析中...</span>
                                 </div>
                             )}
 
                             {!icLoading && icData && (
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                    <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
-                                        <h4 className="text-xs font-bold text-slate-500 mb-3 flex items-center gap-2">
+                                    <div className="bg-white dark:bg-neutral-800 rounded-xl p-4 border border-neutral-200 dark:border-neutral-700">
+                                        <h4 className="text-xs font-bold text-neutral-500 mb-3 flex items-center gap-2">
                                             <TrendingUp className="w-4 h-4" /> IC 序列
                                         </h4>
                                         <LineChart
@@ -239,25 +239,25 @@ export default function QuantPage() {
                                             height={200}
                                         />
                                     </div>
-                                    <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
-                                        <h4 className="text-xs font-bold text-slate-500 mb-3 flex items-center gap-2">
+                                    <div className="bg-white dark:bg-neutral-800 rounded-xl p-4 border border-neutral-200 dark:border-neutral-700">
+                                        <h4 className="text-xs font-bold text-neutral-500 mb-3 flex items-center gap-2">
                                             <BarChart3 className="w-4 h-4" /> IC 统计
                                         </h4>
                                         <div className="space-y-2">
-                                            <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700">
-                                                <span className="text-xs text-slate-500">Mean IC</span>
+                                            <div className="flex justify-between items-center py-2 border-b border-neutral-100 dark:border-neutral-700">
+                                                <span className="text-xs text-neutral-500">Mean IC</span>
                                                 <span className="text-sm font-bold">{icData.ic_mean?.toFixed(4) || "--"}</span>
                                             </div>
-                                            <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700">
-                                                <span className="text-xs text-slate-500">IC IR</span>
+                                            <div className="flex justify-between items-center py-2 border-b border-neutral-100 dark:border-neutral-700">
+                                                <span className="text-xs text-neutral-500">IC IR</span>
                                                 <span className="text-sm font-bold">{icData.ic_ir?.toFixed(2) || "--"}</span>
                                             </div>
-                                            <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-700">
-                                                <span className="text-xs text-slate-500">T-Stat</span>
+                                            <div className="flex justify-between items-center py-2 border-b border-neutral-100 dark:border-neutral-700">
+                                                <span className="text-xs text-neutral-500">T-Stat</span>
                                                 <span className="text-sm font-bold">{icData.t_stat?.toFixed(2) || "--"}</span>
                                             </div>
                                             <div className="flex justify-between items-center py-2">
-                                                <span className="text-xs text-slate-500">样本数</span>
+                                                <span className="text-xs text-neutral-500">样本数</span>
                                                 <span className="text-sm font-bold">{icData.sample_size || "--"}</span>
                                             </div>
                                         </div>
@@ -273,13 +273,13 @@ export default function QuantPage() {
                             {backtestLoading && (
                                 <div className="flex items-center justify-center py-12">
                                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                                    <span className="ml-3 text-slate-500">回测中...</span>
+                                    <span className="ml-3 text-neutral-500">回测中...</span>
                                 </div>
                             )}
 
                             {!backtestLoading && backtestData && (
-                                <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
-                                    <h4 className="text-xs font-bold text-slate-500 mb-3">分层累计收益</h4>
+                                <div className="bg-white dark:bg-neutral-800 rounded-xl p-4 border border-neutral-200 dark:border-neutral-700">
+                                    <h4 className="text-xs font-bold text-neutral-500 mb-3">分层累计收益</h4>
                                     <LineChart
                                         data={backtestData.equity_curves?.["1"]?.map((d) => ({
                                             x: d.date,
@@ -306,7 +306,7 @@ function TabButton({ active, onClick, label, disabled }: { active: boolean; onCl
             className={`px-4 py-2 rounded-lg text-sm font-bold transition-all ${
                 active
                     ? "bg-blue-600 text-white shadow-sm"
-                    : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    : "bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-700 hover:border-blue-300 disabled:opacity-50 disabled:cursor-not-allowed"
             }`}
         >
             {label}

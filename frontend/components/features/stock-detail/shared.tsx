@@ -80,9 +80,9 @@ export const MarkdownWithRefs = ({ content }: { content: string }) => {
      */
     let h3Counter = 0;
     const h3Styles = [
-        { text: 'text-slate-900 dark:text-white', border: 'border-emerald-600' },        // 1. 操作建议 (绿条)
-        { text: 'text-slate-900 dark:text-white', border: 'border-blue-600' },         // 2. 结构化操作计划 (蓝条)
-        { text: 'text-slate-900 dark:text-white', border: 'border-slate-800 dark:border-slate-500' }, // 3. 多维逻辑支撑 (黑条)
+        { text: 'text-neutral-900 dark:text-white', border: 'border-emerald-600' },        // 1. 操作建议 (绿条)
+        { text: 'text-neutral-900 dark:text-white', border: 'border-blue-600' },         // 2. 结构化操作计划 (蓝条)
+        { text: 'text-neutral-900 dark:text-white', border: 'border-neutral-800 dark:border-neutral-500' }, // 3. 多维逻辑支撑 (黑条)
     ];
 
     return (
@@ -101,7 +101,7 @@ export const MarkdownWithRefs = ({ content }: { content: string }) => {
                     );
                 },
                 strong: ({ ...props }) => (
-                    <strong className="font-bold text-slate-900 dark:text-white px-1 py-0.5 rounded bg-blue-50 dark:bg-blue-600/10" {...props} />
+                    <strong className="font-bold text-neutral-900 dark:text-white px-1 py-0.5 rounded bg-blue-50 dark:bg-blue-600/10" {...props} />
                 ),
                 ul: ({ ...props }) => (
                     <ul className="space-y-1 mt-2 list-none p-0" {...props} />
@@ -123,24 +123,24 @@ export const MarkdownWithRefs = ({ content }: { content: string }) => {
                             return part;
                         });
                     });
-                    return <p className="mt-1.5 text-slate-500 dark:text-slate-400">{processed}</p>;
+                    return <p className="mt-1.5 text-neutral-500 dark:text-neutral-400">{processed}</p>;
                 },
                 table: ({ ...props }) => (
-                    <div className="my-4 overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
+                    <div className="my-4 overflow-x-auto rounded-lg border border-neutral-200 dark:border-neutral-700">
                         <table className="w-full border-collapse text-xs" {...props} />
                     </div>
                 ),
                 thead: ({ ...props }) => (
-                    <thead className="bg-slate-50 dark:bg-slate-800/50" {...props} />
+                    <thead className="bg-neutral-50 dark:bg-neutral-800/50" {...props} />
                 ),
                 th: ({ ...props }) => (
-                    <th className="border-b border-slate-200 dark:border-slate-700 px-3 py-2 text-left font-bold text-slate-900 dark:text-slate-100" {...props} />
+                    <th className="border-b border-neutral-200 dark:border-neutral-700 px-3 py-2 text-left font-bold text-neutral-900 dark:text-neutral-100" {...props} />
                 ),
                 td: ({ ...props }) => (
-                    <td className="border-b border-slate-200 dark:border-slate-700 px-3 py-2 text-slate-600 dark:text-slate-400" {...props} />
+                    <td className="border-b border-neutral-200 dark:border-neutral-700 px-3 py-2 text-neutral-600 dark:text-neutral-400" {...props} />
                 ),
                 tr: ({ ...props }) => (
-                    <tr className="last:border-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 transition-colors" {...props} />
+                    <tr className="last:border-0 hover:bg-neutral-50/50 dark:hover:bg-neutral-800/20 transition-colors" {...props} />
                 )
             }}
         >

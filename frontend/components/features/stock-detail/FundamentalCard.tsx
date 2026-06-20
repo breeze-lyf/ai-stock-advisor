@@ -22,7 +22,7 @@ export const FundamentalCard = React.memo(function FundamentalCard({
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="h-8 w-1.5 bg-amber-500 rounded-full shadow-[0_0_12px_rgba(245,158,11,0.5)]" />
-                    <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-slate-100 uppercase">基本面资料卡</h2>
+                    <h2 className="text-xl font-black tracking-tight text-neutral-900 dark:text-neutral-100 uppercase">基本面资料卡</h2>
                 </div>
                 {onRefreshCapsule && (
                     <button
@@ -38,7 +38,7 @@ export const FundamentalCard = React.memo(function FundamentalCard({
             {/* 内容区：缩进 */}
             <div className="px-4 md:px-10">
                 {/* 8 项基本面数据网格 */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6 border-b border-slate-50 dark:border-slate-800 pb-10">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-6 border-b border-neutral-50 dark:border-neutral-800 pb-10">
                     {[
                         { label: "市值", value: selectedItem?.market_cap ? (selectedItem.market_cap / 1e9).toFixed(1) + "B" : "-", sub: "Market Cap" },
                         { label: "市盈率", value: selectedItem?.pe_ratio?.toFixed(2) || "-", sub: "Trailing PE" },
@@ -50,9 +50,9 @@ export const FundamentalCard = React.memo(function FundamentalCard({
                         { label: "细分行业", value: selectedItem?.industry || "-", sub: "Industry" },
                     ].map(item => (
                         <div key={item.sub} className="flex flex-col gap-1">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{item.label}</span>
-                            <span className="text-md font-black text-slate-800 dark:text-slate-100 truncate">{item.value}</span>
-                            <span className="text-[8px] font-bold text-slate-300 uppercase italic leading-none">{item.sub}</span>
+                            <span className="text-[10px] font-black text-neutral-400 uppercase tracking-tighter">{item.label}</span>
+                            <span className="text-md font-black text-neutral-800 dark:text-neutral-100 truncate">{item.value}</span>
+                            <span className="text-[8px] font-bold text-neutral-300 uppercase italic leading-none">{item.sub}</span>
                         </div>
                     ))}
                 </div>
@@ -66,11 +66,11 @@ export const FundamentalCard = React.memo(function FundamentalCard({
                                 <h3 className="text-[10px] font-black uppercase text-amber-600 dark:text-amber-400 tracking-[0.2em] whitespace-nowrap">AI 基本面摘要</h3>
                             </div>
                             <div className="flex-1 min-w-0 md:border-l border-amber-200/40 dark:border-amber-800/30 md:pl-5">
-                                <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-[12px] leading-snug text-slate-600 dark:text-zinc-400">
+                                <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-[12px] leading-snug text-neutral-600 dark:text-zinc-400">
                                     <ReactMarkdown>{fundamentalCapsule}</ReactMarkdown>
                                 </div>
                                 {fundamentalCapsuleUpdatedAt && (
-                                    <p className="mt-3 text-[10px] text-slate-400 dark:text-zinc-500">
+                                    <p className="mt-3 text-[10px] text-neutral-400 dark:text-zinc-500">
                                         摘要更新: {new Date(fundamentalCapsuleUpdatedAt).toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
                                     </p>
                                 )}

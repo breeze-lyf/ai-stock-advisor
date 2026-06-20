@@ -146,11 +146,11 @@ export default function CalendarPage() {
     const getImportanceLabel = (level: number) => {
         if (level === 3) return { label: "高", className: "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300" };
         if (level === 2) return { label: "中", className: "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-300" };
-        return { label: "低", className: "bg-slate-100 text-slate-700 dark:bg-slate-900/20 dark:text-slate-300" };
+        return { label: "低", className: "bg-neutral-100 text-neutral-700 dark:bg-neutral-900/20 dark:text-neutral-300" };
     };
 
     return (
-        <div className="h-screen bg-slate-50 dark:bg-slate-950 flex flex-col overflow-hidden">
+        <div className="h-screen bg-neutral-50 dark:bg-neutral-950 flex flex-col overflow-hidden">
             <DashboardHeader user={userProfile} activeTab={"analysis"} setActiveTab={(tab: DashboardTab) => router.push(`/?tab=${tab}`)} />
             <SearchDialog
                 isOpen={isSearchOpen}
@@ -167,8 +167,8 @@ export default function CalendarPage() {
                         <CalendarIcon className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                        <h1 className="text-xl font-bold text-slate-900 dark:text-white">财经日历</h1>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">宏观事件 · 财报发布</p>
+                        <h1 className="text-xl font-bold text-neutral-900 dark:text-white">财经日历</h1>
+                        <p className="text-xs text-neutral-500 dark:text-neutral-400">宏观事件 · 财报发布</p>
                     </div>
                 </div>
 
@@ -181,31 +181,31 @@ export default function CalendarPage() {
                 </div>
 
                 {/* Filters */}
-                <div className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+                <div className="bg-white dark:bg-neutral-800 rounded-xl p-4 border border-neutral-200 dark:border-neutral-700">
                     <div className="flex items-center gap-4 flex-wrap">
                         <div className="flex items-center gap-2">
-                            <Filter className="h-4 w-4 text-slate-400" />
-                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">筛选条件:</span>
+                            <Filter className="h-4 w-4 text-neutral-400" />
+                            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">筛选条件:</span>
                         </div>
                         <input
                             type="date"
                             value={dateFilter.start}
                             onChange={(e) => setDateFilter({ ...dateFilter, start: e.target.value })}
-                            className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm"
+                            className="px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-sm"
                             aria-label="开始日期"
                         />
-                        <span className="text-slate-400">至</span>
+                        <span className="text-neutral-400">至</span>
                         <input
                             type="date"
                             value={dateFilter.end}
                             onChange={(e) => setDateFilter({ ...dateFilter, end: e.target.value })}
-                            className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm"
+                            className="px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-sm"
                             aria-label="结束日期"
                         />
                         <select
                             value={countryFilter}
                             onChange={(e) => setCountryFilter(e.target.value)}
-                            className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm"
+                            className="px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-sm"
                             aria-label="选择国家"
                             title="选择国家"
                         >
@@ -219,7 +219,7 @@ export default function CalendarPage() {
                         <select
                             value={importanceFilter}
                             onChange={(e) => setImportanceFilter(e.target.value ? Number(e.target.value) : "")}
-                            className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm"
+                            className="px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-sm"
                             aria-label="选择重要性"
                             title="选择重要性"
                         >
@@ -268,7 +268,7 @@ export default function CalendarPage() {
                 {loading && (
                     <div className="flex items-center justify-center py-12">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                        <span className="ml-3 text-slate-500">加载中...</span>
+                        <span className="ml-3 text-neutral-500">加载中...</span>
                     </div>
                 )}
 
@@ -284,7 +284,7 @@ export default function CalendarPage() {
 
                 {/* Empty State */}
                 {!loading && !error && economicEvents.length === 0 && calendarTab === "economic" && (
-                    <div className="text-center py-12 text-slate-400">
+                    <div className="text-center py-12 text-neutral-400">
                         <Globe className="h-12 w-12 mx-auto mb-3 opacity-20" />
                         <p className="text-sm">暂无宏观事件数据</p>
                         <button onClick={handleLoadEconomic} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium" type="button">
@@ -294,7 +294,7 @@ export default function CalendarPage() {
                 )}
 
                 {!loading && !error && earningsEvents.length === 0 && (calendarTab === "earnings" || calendarTab === "mega-cap" || calendarTab === "portfolio") && (
-                    <div className="text-center py-12 text-slate-400">
+                    <div className="text-center py-12 text-neutral-400">
                         <Briefcase className="h-12 w-12 mx-auto mb-3 opacity-20" />
                         <p className="text-sm">暂无财报数据</p>
                         <button
@@ -317,7 +317,7 @@ function TabButton({ active, onClick, icon, label }: { active: boolean; onClick:
         <button onClick={onClick} type="button" className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
             active
                 ? "bg-blue-600 text-white shadow-sm"
-                : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-blue-300"
+                : "bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border border-neutral-200 dark:border-neutral-700 hover:border-blue-300"
         }`}>
             {icon}
             {label}
@@ -329,44 +329,44 @@ function EventTable({ events, getImportanceLabel, count }: { events: EconomicEve
     if (events.length === 0) return null;
 
     return (
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">宏观事件</span>
-                <span className="text-xs text-slate-500">{count} 个事件</span>
+        <div className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden">
+            <div className="px-4 py-3 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center">
+                <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">宏观事件</span>
+                <span className="text-xs text-neutral-500">{count} 个事件</span>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full">
-                    <thead className="bg-slate-50 dark:bg-slate-900">
+                    <thead className="bg-neutral-50 dark:bg-neutral-900">
                         <tr>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">日期</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">事件</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">国家</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">重要性</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">类型</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">前值</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">预测</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">日期</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">事件</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">国家</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">重要性</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">类型</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">前值</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">预测</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                    <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
                         {events.map((event) => (
-                            <tr key={event.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                <td className="px-4 py-3 text-sm text-slate-900 dark:text-white">
+                            <tr key={event.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors">
+                                <td className="px-4 py-3 text-sm text-neutral-900 dark:text-white">
                                     <div>{event.event_date}</div>
-                                    {event.event_time && <div className="text-xs text-slate-500">{event.event_time}</div>}
+                                    {event.event_time && <div className="text-xs text-neutral-500">{event.event_time}</div>}
                                 </td>
                                 <td className="px-4 py-3">
-                                    <div className="font-medium text-slate-900 dark:text-white">{event.event_name}</div>
-                                    {event.impact && <div className="text-xs text-slate-500">{event.impact}</div>}
+                                    <div className="font-medium text-neutral-900 dark:text-white">{event.event_name}</div>
+                                    {event.impact && <div className="text-xs text-neutral-500">{event.impact}</div>}
                                 </td>
-                                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{event.country}</td>
+                                <td className="px-4 py-3 text-neutral-600 dark:text-neutral-300">{event.country}</td>
                                 <td className="px-4 py-3">
                                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${getImportanceLabel(event.importance).className}`}>
                                         {getImportanceLabel(event.importance).label}
                                     </span>
                                 </td>
-                                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{event.event_type}</td>
-                                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{event.previous || "-"}</td>
-                                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{event.forecast || "-"}</td>
+                                <td className="px-4 py-3 text-neutral-600 dark:text-neutral-300">{event.event_type}</td>
+                                <td className="px-4 py-3 text-neutral-600 dark:text-neutral-300">{event.previous || "-"}</td>
+                                <td className="px-4 py-3 text-neutral-600 dark:text-neutral-300">{event.forecast || "-"}</td>
                             </tr>
                         ))}
                     </tbody>
@@ -380,47 +380,47 @@ function EarningsTable({ events, count }: { events: EarningsEvent[]; count: numb
     if (events.length === 0) return null;
 
     return (
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">财报发布</span>
-                <span className="text-xs text-slate-500">{count} 家公司</span>
+        <div className="bg-white dark:bg-neutral-800 rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden">
+            <div className="px-4 py-3 border-b border-neutral-200 dark:border-neutral-700 flex justify-between items-center">
+                <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">财报发布</span>
+                <span className="text-xs text-neutral-500">{count} 家公司</span>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full">
-                    <thead className="bg-slate-50 dark:bg-slate-900">
+                    <thead className="bg-neutral-50 dark:bg-neutral-900">
                         <tr>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">日期</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">代码</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">公司</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">财报季</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">EPS 预估</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">EPS 实际</th>
-                            <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">营收预估</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">日期</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">代码</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">公司</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">财报季</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">EPS 预估</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">EPS 实际</th>
+                            <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">营收预估</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                    <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
                         {events.map((event) => (
-                            <tr key={event.id} className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-                                <td className="px-4 py-3 text-sm text-slate-900 dark:text-white">
+                            <tr key={event.id} className="hover:bg-neutral-50 dark:hover:bg-neutral-700 transition-colors">
+                                <td className="px-4 py-3 text-sm text-neutral-900 dark:text-white">
                                     <div>{event.report_date}</div>
-                                    {event.report_time && <div className="text-xs text-slate-500">{event.report_time}</div>}
+                                    {event.report_time && <div className="text-xs text-neutral-500">{event.report_time}</div>}
                                 </td>
-                                <td className="px-4 py-3 font-medium text-slate-900 dark:text-white">{event.ticker}</td>
-                                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{event.company_name}</td>
-                                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                                <td className="px-4 py-3 font-medium text-neutral-900 dark:text-white">{event.ticker}</td>
+                                <td className="px-4 py-3 text-neutral-600 dark:text-neutral-300">{event.company_name}</td>
+                                <td className="px-4 py-3 text-neutral-600 dark:text-neutral-300">
                                     {event.quarter && event.fiscal_year ? `Q${event.quarter} FY${event.fiscal_year}` : "-"}
                                 </td>
-                                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                                <td className="px-4 py-3 text-neutral-600 dark:text-neutral-300">
                                     {event.eps_estimate ? `$${event.eps_estimate.toFixed(2)}` : "-"}
                                 </td>
-                                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                                <td className="px-4 py-3 text-neutral-600 dark:text-neutral-300">
                                     {event.eps_actual !== undefined ? (
                                         <span className={event.eps_actual > (event.eps_estimate || 0) ? "text-green-600 font-bold" : "text-red-600 font-bold"}>
                                             ${event.eps_actual.toFixed(2)}
                                         </span>
                                     ) : "-"}
                                 </td>
-                                <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                                <td className="px-4 py-3 text-neutral-600 dark:text-neutral-300">
                                     {event.revenue_estimate ? `$${(event.revenue_estimate / 1e9).toFixed(1)}B` : "-"}
                                 </td>
                             </tr>

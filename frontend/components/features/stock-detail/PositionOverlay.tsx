@@ -72,13 +72,13 @@ export const PositionOverlay = React.memo(function PositionOverlay({
     }
 
     return (
-        <section className="rounded-[28px] border border-slate-200 bg-white px-5 py-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 md:px-7">
+        <section className="rounded-[28px] border border-neutral-200 bg-white px-5 py-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 md:px-7">
             <div className="space-y-3.5">
                 <div className="flex items-center gap-3">
                     <div className="h-8 w-1.5 bg-emerald-600 rounded-full shadow-[0_0_12px_rgba(5,150,105,0.45)]" />
                     <div>
-                        <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-slate-100 uppercase">我的持仓建议</h2>
-                        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">基于你的实际成本与仓位，对公共分析结果做个性化管理补充。</p>
+                        <h2 className="text-xl font-black tracking-tight text-neutral-900 dark:text-neutral-100 uppercase">我的持仓建议</h2>
+                        <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">基于你的实际成本与仓位，对公共分析结果做个性化管理补充。</p>
                     </div>
                 </div>
 
@@ -96,12 +96,12 @@ export const PositionOverlay = React.memo(function PositionOverlay({
                     ].map((item) => {
                         const Icon = item.icon;
                         return (
-                            <div key={item.label} className="rounded-[22px] border border-slate-200 bg-slate-50/80 px-4 py-4 dark:border-zinc-800 dark:bg-zinc-950/60">
-                                <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500">
+                            <div key={item.label} className="rounded-[22px] border border-neutral-200 bg-neutral-50/80 px-4 py-4 dark:border-zinc-800 dark:bg-zinc-950/60">
+                                <div className="flex items-center gap-2 text-neutral-400 dark:text-neutral-500">
                                     <Icon className="h-4 w-4" />
                                     <span className="text-[10px] font-black uppercase tracking-[0.18em]">{item.label}</span>
                                 </div>
-                                <div className="mt-2 text-lg font-black text-slate-900 dark:text-white">{item.value}</div>
+                                <div className="mt-2 text-lg font-black text-neutral-900 dark:text-white">{item.value}</div>
                             </div>
                         );
                     })}
@@ -110,14 +110,14 @@ export const PositionOverlay = React.memo(function PositionOverlay({
                 <div className="grid gap-3 md:grid-cols-2 md:gap-4">
                     <div className="rounded-[22px] border border-emerald-200 bg-emerald-50/70 px-5 py-4 dark:border-emerald-900/50 dark:bg-emerald-950/20">
                         <p className="text-[11px] font-black uppercase tracking-[0.18em] text-emerald-600 dark:text-emerald-400">仓位动作建议</p>
-                        <p className="mt-2 text-sm leading-7 text-slate-700 dark:text-slate-200">{positionAdvice}</p>
+                        <p className="mt-2 text-sm leading-7 text-neutral-700 dark:text-neutral-200">{positionAdvice}</p>
                     </div>
                     <div className="rounded-[22px] border border-blue-200 bg-blue-50/70 px-5 py-4 dark:border-blue-900/50 dark:bg-blue-950/20">
                         <p className="text-[11px] font-black uppercase tracking-[0.18em] text-blue-600 dark:text-blue-400">仓位约束</p>
-                        <p className="mt-2 text-sm leading-7 text-slate-700 dark:text-slate-200">{weightAdvice}</p>
+                        <p className="mt-2 text-sm leading-7 text-neutral-700 dark:text-neutral-200">{weightAdvice}</p>
                         {addOnTrigger && (
-                            <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
-                                <span className="font-bold text-slate-900 dark:text-white">加仓触发：</span>
+                            <p className="mt-3 text-sm leading-7 text-neutral-600 dark:text-neutral-300">
+                                <span className="font-bold text-neutral-900 dark:text-white">加仓触发：</span>
                                 {addOnTrigger}
                             </p>
                         )}

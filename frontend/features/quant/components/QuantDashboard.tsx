@@ -92,14 +92,14 @@ export default function QuantDashboard({ standalone = false }: { standalone?: bo
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
       {/* Header — only shown when NOT wrapped by standalone page layout */}
       {!standalone && (
-      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4">
+      <div className="bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">量化因子研究</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">因子分析、组合优化、策略回测、风险管理</p>
+            <h1 className="text-2xl font-bold text-neutral-900 dark:text-white">量化因子研究</h1>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">因子分析、组合优化、策略回测、风险管理</p>
           </div>
         </div>
 
@@ -116,10 +116,10 @@ export default function QuantDashboard({ standalone = false }: { standalone?: bo
 
       {/* Standalone tab bar — shown below DashboardHeader when used on the /quant route */}
       {standalone && (
-        <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-3">
+        <div className="bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 px-6 py-3">
           <div className="mb-1">
-            <h2 className="text-base font-bold text-slate-900 dark:text-white">量化因子研究</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">因子分析、组合优化、策略回测、风险管理</p>
+            <h2 className="text-base font-bold text-neutral-900 dark:text-white">量化因子研究</h2>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400">因子分析、组合优化、策略回测、风险管理</p>
           </div>
           <div className="flex gap-2 mt-3">
             <TabButton active={mainTab === "factors"} onClick={() => setMainTab("factors")} icon={<TrendingUp />} label="因子研究" />
@@ -147,26 +147,26 @@ export default function QuantDashboard({ standalone = false }: { standalone?: bo
 
             {/* 因子列表 */}
             {factorSubTab === "list" && (
-              <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
-                <div className="p-4 border-b border-slate-200 dark:border-slate-700 flex gap-4">
+              <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700">
+                <div className="p-4 border-b border-neutral-200 dark:border-neutral-700 flex gap-4">
                   <input
                     type="text"
                     placeholder="因子名称"
                     value={newFactor.name}
                     onChange={(e) => setNewFactor({ ...newFactor, name: e.target.value })}
-                    className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm"
+                    className="px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-sm"
                   />
                   <input
                     type="text"
                     placeholder="代码名称"
                     value={newFactor.code_name}
                     onChange={(e) => setNewFactor({ ...newFactor, code_name: e.target.value })}
-                    className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm"
+                    className="px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-sm"
                   />
                   <select
                     value={newFactor.category}
                     onChange={(e) => setNewFactor({ ...newFactor, category: e.target.value })}
-                    className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-sm"
+                    className="px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700 text-sm"
                   >
                     <option value="MOMENTUM">动量</option>
                     <option value="VALUE">价值</option>
@@ -182,34 +182,34 @@ export default function QuantDashboard({ standalone = false }: { standalone?: bo
                   </button>
                 </div>
                 <table className="w-full">
-                  <thead className="bg-slate-50 dark:bg-slate-900">
+                  <thead className="bg-neutral-50 dark:bg-neutral-900">
                     <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">名称</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">类别</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">IC 均值</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">ICIR</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">年化收益</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">夏普</th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">操作</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">名称</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">类别</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">IC 均值</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">ICIR</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">年化收益</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">夏普</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-neutral-500 uppercase">操作</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                  <tbody className="divide-y divide-neutral-200 dark:divide-neutral-700">
                     {factorsLoading ? (
-                      <tr><td colSpan={7} className="px-4 py-8 text-center text-slate-500">加载中...</td></tr>
+                      <tr><td colSpan={7} className="px-4 py-8 text-center text-neutral-500">加载中...</td></tr>
                     ) : factors.length === 0 ? (
-                      <tr><td colSpan={7} className="px-4 py-8 text-center text-slate-500">暂无因子</td></tr>
+                      <tr><td colSpan={7} className="px-4 py-8 text-center text-neutral-500">暂无因子</td></tr>
                     ) : (
                       factors.map((f) => (
-                        <tr key={f.id} className={`hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer ${selectedFactor === f.id ? "bg-blue-50 dark:bg-blue-900/20" : ""}`} onClick={() => setSelectedFactor(f.id)}>
+                        <tr key={f.id} className={`hover:bg-neutral-50 dark:hover:bg-neutral-700 cursor-pointer ${selectedFactor === f.id ? "bg-blue-50 dark:bg-blue-900/20" : ""}`} onClick={() => setSelectedFactor(f.id)}>
                           <td className="px-4 py-3">
-                            <div className="font-medium text-slate-900 dark:text-white">{f.name}</div>
-                            <div className="text-xs text-slate-500">{f.code_name}</div>
+                            <div className="font-medium text-neutral-900 dark:text-white">{f.name}</div>
+                            <div className="text-xs text-neutral-500">{f.code_name}</div>
                           </td>
                           <td className="px-4 py-3"><span className="px-2 py-1 text-xs rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">{f.category}</span></td>
-                          <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{f.ic_mean ? (f.ic_mean * 100).toFixed(2) + "%" : "-"}</td>
-                          <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{f.ic_ir ? f.ic_ir.toFixed(2) : "-"}</td>
-                          <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{f.annual_return ? (f.annual_return * 100).toFixed(2) + "%" : "-"}</td>
-                          <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{f.sharpe_ratio ? f.sharpe_ratio.toFixed(2) : "-"}</td>
+                          <td className="px-4 py-3 text-neutral-600 dark:text-neutral-300">{f.ic_mean ? (f.ic_mean * 100).toFixed(2) + "%" : "-"}</td>
+                          <td className="px-4 py-3 text-neutral-600 dark:text-neutral-300">{f.ic_ir ? f.ic_ir.toFixed(2) : "-"}</td>
+                          <td className="px-4 py-3 text-neutral-600 dark:text-neutral-300">{f.annual_return ? (f.annual_return * 100).toFixed(2) + "%" : "-"}</td>
+                          <td className="px-4 py-3 text-neutral-600 dark:text-neutral-300">{f.sharpe_ratio ? f.sharpe_ratio.toFixed(2) : "-"}</td>
                           <td className="px-4 py-3">
                             <button onClick={(e) => { e.stopPropagation(); handleDeleteFactor(f.id); }} className="text-red-600 hover:text-red-700 p-1">
                               <Trash2 size={16} />
@@ -227,7 +227,7 @@ export default function QuantDashboard({ standalone = false }: { standalone?: bo
             {factorSubTab === "ic" && selectedFactor && (
               <div className="space-y-6">
                 <button onClick={() => fetchICAnalysis()} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">运行 IC 分析</button>
-                {analysisLoading === "ic" && <div className="text-slate-500">加载中...</div>}
+                {analysisLoading === "ic" && <div className="text-neutral-500">加载中...</div>}
                 {icData && (
                   <>
                     <div className="grid grid-cols-4 gap-4">
@@ -237,7 +237,7 @@ export default function QuantDashboard({ standalone = false }: { standalone?: bo
                       <StatCard label="样本数" value={icData.sample_size.toString()} />
                     </div>
                     {icData.ic_series.length > 0 && (
-                      <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+                      <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700">
                         <h3 className="text-lg font-semibold mb-4">IC 时序</h3>
                         <LineChart data={icData.ic_series.map(d => ({ x: d.trade_date, y: d.ic }))} xAxisLabel="日期" yAxisLabel="IC" width={800} height={300} />
                       </div>
@@ -251,7 +251,7 @@ export default function QuantDashboard({ standalone = false }: { standalone?: bo
             {factorSubTab === "turnover" && selectedFactor && (
               <div className="space-y-6">
                 <button onClick={() => fetchTurnover()} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">运行换手率分析</button>
-                {analysisLoading === "turnover" && <div className="text-slate-500">加载中...</div>}
+                {analysisLoading === "turnover" && <div className="text-neutral-500">加载中...</div>}
                 {turnoverData && (
                   <div className="grid grid-cols-2 gap-4">
                     <StatCard label="平均换手率" value={(turnoverData.avg_turnover * 100).toFixed(2) + "%"} />
@@ -265,7 +265,7 @@ export default function QuantDashboard({ standalone = false }: { standalone?: bo
             {factorSubTab === "decay" && selectedFactor && (
               <div className="space-y-6">
                 <button onClick={() => fetchDecay(20)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">运行衰减分析</button>
-                {analysisLoading === "decay" && <div className="text-slate-500">加载中...</div>}
+                {analysisLoading === "decay" && <div className="text-neutral-500">加载中...</div>}
                 {decayData && (
                   <div className="grid grid-cols-2 gap-4">
                     <StatCard label="初始 IC" value={(decayData.ic_decay[0]?.ic_mean * 100).toFixed(2) + "%"} />
@@ -285,12 +285,12 @@ export default function QuantDashboard({ standalone = false }: { standalone?: bo
                       <StatCard label="多空收益" value={(backtestData.long_short_return * 100).toFixed(2) + "%"} positive={backtestData.long_short_return > 0} />
                       <StatCard label="分层数" value={backtestData.layers.toString()} />
                     </div>
-                    <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+                    <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700">
                       <h3 className="text-lg font-semibold mb-4">各层收益</h3>
                       <div className="grid grid-cols-5 gap-2">
                         {Object.entries(backtestData.final_equity).map(([layer, equity]) => (
-                          <div key={layer} className="text-center p-3 bg-slate-50 dark:bg-slate-700 rounded-lg">
-                            <div className="text-xs text-slate-500">{layer}</div>
+                          <div key={layer} className="text-center p-3 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                            <div className="text-xs text-neutral-500">{layer}</div>
                             <div className={`text-lg font-bold ${Number(equity) > 1 ? "text-green-600" : "text-red-600"}`}>{((Number(equity) - 1) * 100).toFixed(2)}%</div>
                           </div>
                         ))}
@@ -305,14 +305,14 @@ export default function QuantDashboard({ standalone = false }: { standalone?: bo
 
         {/* 组合优化 */}
         {mainTab === "optimizer" && (
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+          <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700">
             <h2 className="text-lg font-semibold mb-4">组合优化器</h2>
             <div className="grid grid-cols-3 gap-4 mb-6">
               {OPTIMIZER_TYPES.map((opt) => (
                 <button
                   key={opt.value}
                   onClick={() => setSelectedOptimizer(opt.value)}
-                  className={`p-3 rounded-lg border text-sm ${selectedOptimizer === opt.value ? "border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-600" : "border-slate-200 dark:border-slate-700"}`}
+                  className={`p-3 rounded-lg border text-sm ${selectedOptimizer === opt.value ? "border-blue-600 bg-blue-50 dark:bg-blue-900/20 text-blue-600" : "border-neutral-200 dark:border-neutral-700"}`}
                 >
                   {opt.label}
                 </button>
@@ -331,14 +331,14 @@ export default function QuantDashboard({ standalone = false }: { standalone?: bo
 
         {/* 策略管理 */}
         {mainTab === "strategies" && (
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+          <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700">
             <h2 className="text-lg font-semibold mb-4">策略管理</h2>
             <div className="space-y-4">
               {strategies.map((s) => (
-                <div key={s.id} className="p-4 border border-slate-200 dark:border-slate-700 rounded-lg flex justify-between items-center">
+                <div key={s.id} className="p-4 border border-neutral-200 dark:border-neutral-700 rounded-lg flex justify-between items-center">
                   <div>
-                    <div className="font-medium text-slate-900 dark:text-white">{s.name}</div>
-                    <div className="text-sm text-slate-500">{s.strategy_type} | 调仓：{s.rebalance_frequency}</div>
+                    <div className="font-medium text-neutral-900 dark:text-white">{s.name}</div>
+                    <div className="text-sm text-neutral-500">{s.strategy_type} | 调仓：{s.rebalance_frequency}</div>
                   </div>
                   <button onClick={() => handleGenerateSignals(s.id)} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">生成信号</button>
                 </div>
@@ -350,16 +350,16 @@ export default function QuantDashboard({ standalone = false }: { standalone?: bo
         {/* 量化回测 */}
         {mainTab === "backtest" && (
           <div className="space-y-6">
-            <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+            <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700">
               <h2 className="text-lg font-semibold mb-4">量化回测</h2>
               <div className="grid grid-cols-2 gap-4 mb-4">
-                <input type="date" value={dateRange.start} onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })} className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700" />
-                <input type="date" value={dateRange.end} onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })} className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700" />
+                <input type="date" value={dateRange.start} onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })} className="px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700" />
+                <input type="date" value={dateRange.end} onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })} className="px-3 py-2 border border-neutral-300 dark:border-neutral-600 rounded-lg bg-white dark:bg-neutral-700" />
               </div>
               <button onClick={handleRunBacktest} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">运行回测</button>
             </div>
             {backtestResult && (
-              <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+              <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700">
                 <h3 className="text-lg font-semibold mb-4">回测结果</h3>
                 <div className="grid grid-cols-4 gap-4">
                   <StatCard label="总收益" value={(backtestResult.total_return).toFixed(2) + "%"} positive={backtestResult.total_return > 0} />
@@ -377,9 +377,9 @@ export default function QuantDashboard({ standalone = false }: { standalone?: bo
 
         {/* 风险管理 */}
         {mainTab === "risk" && (
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+          <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700">
             <h2 className="text-lg font-semibold mb-4">风险管理</h2>
-            <p className="text-slate-500">风险管理功能需要接入真实持仓数据，当前为演示版本。</p>
+            <p className="text-neutral-500">风险管理功能需要接入真实持仓数据，当前为演示版本。</p>
             <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
               <div className="text-sm text-green-800 dark:text-green-200">当前风险等级：低</div>
             </div>
@@ -392,7 +392,7 @@ export default function QuantDashboard({ standalone = false }: { standalone?: bo
 
 function TabButton({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
   return (
-    <button onClick={onClick} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium ${active ? "bg-blue-600 text-white" : "bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300"}`}>
+    <button onClick={onClick} className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium ${active ? "bg-blue-600 text-white" : "bg-white dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300"}`}>
       {icon}
       {label}
     </button>
@@ -401,7 +401,7 @@ function TabButton({ active, onClick, icon, label }: { active: boolean; onClick:
 
 function SubTabButton({ active, onClick, label, disabled }: { active: boolean; onClick: () => void; label: string; disabled?: boolean }) {
   return (
-    <button onClick={onClick} disabled={disabled} className={`px-4 py-2 rounded-lg text-sm font-medium ${active ? "bg-blue-600 text-white" : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300"} ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}>
+    <button onClick={onClick} disabled={disabled} className={`px-4 py-2 rounded-lg text-sm font-medium ${active ? "bg-blue-600 text-white" : "bg-white dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300"} ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}>
       {label}
     </button>
   );
@@ -409,9 +409,9 @@ function SubTabButton({ active, onClick, label, disabled }: { active: boolean; o
 
 function StatCard({ label, value, positive }: { label: string; value: string; positive?: boolean }) {
   return (
-    <div className="text-center p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-      <div className="text-sm text-slate-500 mb-1">{label}</div>
-      <div className={`text-2xl font-bold ${positive === true ? "text-green-600" : positive === false ? "text-red-600" : "text-slate-900 dark:text-white"}`}>{value}</div>
+    <div className="text-center p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+      <div className="text-sm text-neutral-500 mb-1">{label}</div>
+      <div className={`text-2xl font-bold ${positive === true ? "text-green-600" : positive === false ? "text-red-600" : "text-neutral-900 dark:text-white"}`}>{value}</div>
     </div>
   );
 }

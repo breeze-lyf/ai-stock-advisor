@@ -60,19 +60,19 @@ export function SignalPerformancePanel({ ticker }: SignalPerformanceProps) {
   }, [ticker]);
 
   return (
-    <section className="rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-zinc-900 overflow-hidden">
-      <div className="px-5 pt-5 pb-4 border-b border-slate-100 dark:border-slate-800">
+    <section className="rounded-2xl border border-neutral-100 dark:border-neutral-800 bg-white dark:bg-zinc-900 overflow-hidden">
+      <div className="px-5 pt-5 pb-4 border-b border-neutral-100 dark:border-neutral-800">
         <div className="flex items-center gap-2">
           <span className="w-1 h-4 rounded-full bg-violet-500 inline-block" />
-          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">历史信号命中率</h3>
-          <span className="ml-auto text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider">Signal Performance</span>
+          <h3 className="text-sm font-bold text-neutral-800 dark:text-neutral-100">历史信号命中率</h3>
+          <span className="ml-auto text-[10px] text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Signal Performance</span>
         </div>
       </div>
 
       {loading ? (
-        <div className="px-5 py-8 text-center text-sm text-slate-400 animate-pulse">加载中…</div>
+        <div className="px-5 py-8 text-center text-sm text-neutral-400 animate-pulse">加载中…</div>
       ) : error ? (
-        <div className="px-5 py-8 text-center text-sm text-slate-400">{error}</div>
+        <div className="px-5 py-8 text-center text-sm text-neutral-400">{error}</div>
       ) : (
         <div className="p-5 space-y-5">
           {/* 统计指标行 */}
@@ -99,11 +99,11 @@ export function SignalPerformancePanel({ ticker }: SignalPerformanceProps) {
           {/* 胜率可视化 */}
           {performance && performance.closed_signals > 0 && (
             <div className="space-y-1.5">
-              <div className="flex justify-between text-[10px] text-slate-400">
+              <div className="flex justify-between text-[10px] text-neutral-400">
                 <span>盈利 {performance.winning_signals} 笔</span>
                 <span>亏损 {performance.losing_signals} 笔</span>
               </div>
-              <div className="h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden flex">
+              <div className="h-2 w-full rounded-full bg-neutral-100 dark:bg-neutral-800 overflow-hidden flex">
                 <div
                   className="h-full bg-emerald-500 rounded-l-full transition-all"
                   style={{ width: `${performance.win_rate}%` }}
@@ -119,8 +119,8 @@ export function SignalPerformancePanel({ ticker }: SignalPerformanceProps) {
           {/* 该股票最近信号列表 */}
           {signals.length > 0 ? (
             <div className="space-y-1">
-              <p className="text-[10px] uppercase tracking-wider text-slate-400 mb-2">{ticker} 近期信号</p>
-              <div className="divide-y divide-slate-50 dark:divide-slate-800">
+              <p className="text-[10px] uppercase tracking-wider text-neutral-400 mb-2">{ticker} 近期信号</p>
+              <div className="divide-y divide-neutral-50 dark:divide-neutral-800">
                 {signals.map((sig) => (
                   <div key={sig.id} className="flex items-center gap-3 py-2">
                     {/* 信号类型标签 */}
@@ -128,13 +128,13 @@ export function SignalPerformancePanel({ ticker }: SignalPerformanceProps) {
                       "text-[10px] font-bold px-1.5 py-0.5 rounded",
                       sig.signal_type === "BUY" ? "bg-emerald-50 dark:bg-emerald-950 text-emerald-600" :
                       sig.signal_type === "SELL" ? "bg-rose-50 dark:bg-rose-950 text-rose-600" :
-                      "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                      "bg-neutral-100 dark:bg-neutral-800 text-neutral-500"
                     )}>
                       {SIGNAL_TYPE_LABEL[sig.signal_type] || sig.signal_type}
                     </span>
 
                     {/* 入场价 */}
-                    <span className="text-xs text-slate-600 dark:text-slate-300 tabular-nums">
+                    <span className="text-xs text-neutral-600 dark:text-neutral-300 tabular-nums">
                       @{Number(sig.entry_price).toFixed(2)}
                     </span>
 
@@ -144,7 +144,7 @@ export function SignalPerformancePanel({ ticker }: SignalPerformanceProps) {
                       sig.signal_status === "ACTIVE" ? "text-blue-500" :
                       sig.pnl_percent != null && sig.pnl_percent > 0 ? "text-emerald-500" :
                       sig.pnl_percent != null && sig.pnl_percent < 0 ? "text-rose-500" :
-                      "text-slate-400"
+                      "text-neutral-400"
                     )}>
                       {sig.signal_status === "ACTIVE"
                         ? SIGNAL_STATUS_LABEL.ACTIVE
@@ -154,13 +154,13 @@ export function SignalPerformancePanel({ ticker }: SignalPerformanceProps) {
                     </span>
 
                     {/* 日期 */}
-                    <span className="text-[10px] text-slate-400 tabular-nums">{formatDate(sig.created_at)}</span>
+                    <span className="text-[10px] text-neutral-400 tabular-nums">{formatDate(sig.created_at)}</span>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <p className="text-xs text-slate-400 text-center py-2">该股票暂无信号记录</p>
+            <p className="text-xs text-neutral-400 text-center py-2">该股票暂无信号记录</p>
           )}
         </div>
       )}
@@ -178,16 +178,16 @@ function StatCell({
   color: "emerald" | "rose" | "slate";
 }) {
   return (
-    <div className="rounded-xl bg-slate-50 dark:bg-zinc-800 px-3 py-3 text-center">
+    <div className="rounded-xl bg-neutral-50 dark:bg-zinc-800 px-3 py-3 text-center">
       <p className={clsx(
         "text-lg font-black tabular-nums",
         color === "emerald" ? "text-emerald-600" :
         color === "rose" ? "text-rose-500" :
-        "text-slate-700 dark:text-slate-200"
+        "text-neutral-700 dark:text-neutral-200"
       )}>
         {value}
       </p>
-      <p className="text-[10px] text-slate-400 mt-0.5">{label}</p>
+      <p className="text-[10px] text-neutral-400 mt-0.5">{label}</p>
     </div>
   );
 }

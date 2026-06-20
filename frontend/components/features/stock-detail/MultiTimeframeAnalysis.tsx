@@ -35,14 +35,14 @@ export function MultiTimeframeAnalysis({
         return (
             <div className="flex items-center justify-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
-                <span className="ml-3 text-slate-500">生成多时间框架分析中...</span>
+                <span className="ml-3 text-neutral-500">生成多时间框架分析中...</span>
             </div>
         );
     }
 
     if (!analysis || "error" in analysis) {
         return (
-            <div className="py-8 text-center text-slate-400">
+            <div className="py-8 text-center text-neutral-400">
                 <Clock className="h-12 w-12 mx-auto mb-3 opacity-20" />
                 <p className="text-sm">暂无多时间框架分析数据</p>
             </div>
@@ -68,8 +68,8 @@ export function MultiTimeframeAnalysis({
             default:
                 return {
                     icon: Minus,
-                    color: "text-slate-600 dark:text-slate-400",
-                    bgColor: "bg-slate-100 dark:bg-slate-800",
+                    color: "text-neutral-600 dark:text-neutral-400",
+                    bgColor: "bg-neutral-100 dark:bg-neutral-800",
                     label: "中性",
                 };
         }
@@ -99,8 +99,8 @@ export function MultiTimeframeAnalysis({
     return (
         <div className="space-y-4">
             <div className="flex items-center gap-2 mb-4">
-                <Clock className="h-5 w-5 text-slate-400" />
-                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                <Clock className="h-5 w-5 text-neutral-400" />
+                <h3 className="text-lg font-bold text-neutral-900 dark:text-neutral-100">
                     多时间框架分析
                 </h3>
             </div>
@@ -114,7 +114,7 @@ export function MultiTimeframeAnalysis({
                     return (
                         <div
                             key={tf.title}
-                            className="rounded-xl p-4 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+                            className="rounded-xl p-4 border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800"
                         >
                             <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-3">
@@ -123,28 +123,28 @@ export function MultiTimeframeAnalysis({
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            <h4 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+                                            <h4 className="font-bold text-sm text-neutral-900 dark:text-neutral-100">
                                                 {tf.title}
                                             </h4>
                                             <span className={`text-xs font-bold px-2 py-0.5 rounded ${trendBgColor} ${trendColor}`}>
                                                 {getTrendConfig(tf.data.trend).label}
                                             </span>
                                         </div>
-                                        <p className="text-[10px] text-slate-500">
+                                        <p className="text-[10px] text-neutral-500">
                                             {tf.subtitle} · {tf.period}
                                         </p>
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="text-xs text-slate-500 mb-1">置信度</div>
+                                    <div className="text-xs text-neutral-500 mb-1">置信度</div>
                                     <div className="flex items-center gap-2">
-                                        <div className="w-20 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                        <div className="w-20 h-2 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
                                             <div
                                                 className={`h-full ${trendColor.replace("text-", "bg-")}`}
                                                 style={{ width: `${tf.data.confidence * 100}%` }}
                                             />
                                         </div>
-                                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                                        <span className="text-xs font-bold text-neutral-700 dark:text-neutral-300">
                                             {(tf.data.confidence * 100).toFixed(0)}%
                                         </span>
                                     </div>
@@ -155,16 +155,16 @@ export function MultiTimeframeAnalysis({
                                 {/* 关键价位 */}
                                 <div className="md:col-span-1">
                                     <div className="flex items-center gap-1.5 mb-2">
-                                        <Target className="h-3 w-3 text-slate-400" />
-                                        <span className="text-[10px] text-slate-500 uppercase">关键价位</span>
+                                        <Target className="h-3 w-3 text-neutral-400" />
+                                        <span className="text-[10px] text-neutral-500 uppercase">关键价位</span>
                                     </div>
                                     <div className="space-y-1">
                                         {tf.data.key_levels.map((level: number, i: number) => (
                                             <div key={i} className="flex items-center justify-between text-xs">
-                                                <span className="text-slate-500">
+                                                <span className="text-neutral-500">
                                                     {i === 0 ? "支撑" : i === 1 ? "当前" : "阻力"}
                                                 </span>
-                                                <span className="font-bold text-slate-700 dark:text-slate-300">
+                                                <span className="font-bold text-neutral-700 dark:text-neutral-300">
                                                     ${level.toFixed(2)}
                                                 </span>
                                             </div>
@@ -176,10 +176,10 @@ export function MultiTimeframeAnalysis({
                                 {tf.data.reference_ma && (
                                     <div className="md:col-span-1">
                                         <div className="flex items-center gap-1.5 mb-2">
-                                            <Activity className="h-3 w-3 text-slate-400" />
-                                            <span className="text-[10px] text-slate-500 uppercase">参考均线</span>
+                                            <Activity className="h-3 w-3 text-neutral-400" />
+                                            <span className="text-[10px] text-neutral-500 uppercase">参考均线</span>
                                         </div>
-                                        <p className="text-xs text-slate-600 dark:text-slate-400">
+                                        <p className="text-xs text-neutral-600 dark:text-neutral-400">
                                             {tf.data.reference_ma}
                                         </p>
                                     </div>
@@ -188,10 +188,10 @@ export function MultiTimeframeAnalysis({
                                 {/* 策略建议 */}
                                 <div className="md:col-span-1">
                                     <div className="flex items-center gap-1.5 mb-2">
-                                        <TrendIcon className="h-3 w-3 text-slate-400" />
-                                        <span className="text-[10px] text-slate-500 uppercase">策略建议</span>
+                                        <TrendIcon className="h-3 w-3 text-neutral-400" />
+                                        <span className="text-[10px] text-neutral-500 uppercase">策略建议</span>
                                     </div>
-                                    <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                                    <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
                                         {tf.data.strategy}
                                     </p>
                                 </div>
@@ -203,9 +203,9 @@ export function MultiTimeframeAnalysis({
 
             {/* 当前股价参考 */}
             {currentPrice && (
-                <div className="mt-4 p-3 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center justify-between">
-                    <span className="text-xs text-slate-500">当前股价</span>
-                    <span className="text-lg font-black text-slate-900 dark:text-slate-100">
+                <div className="mt-4 p-3 rounded-lg bg-neutral-50 dark:bg-neutral-800 flex items-center justify-between">
+                    <span className="text-xs text-neutral-500">当前股价</span>
+                    <span className="text-lg font-black text-neutral-900 dark:text-neutral-100">
                         ${currentPrice.toFixed(2)}
                     </span>
                 </div>

@@ -41,13 +41,13 @@ export const AIVerdict = React.memo(function AIVerdict({
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="h-8 w-1.5 bg-blue-600 rounded-full shadow-[0_0_12px_rgba(37,99,235,0.5)]" />
-                    <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-slate-100 uppercase">AI 智能判研指标</h2>
+                    <h2 className="text-xl font-black tracking-tight text-neutral-900 dark:text-neutral-100 uppercase">AI 智能判研指标</h2>
                 </div>
                 <div className="flex flex-col items-center">
                     <Button
                         onClick={() => onAnalyze(true)}
                         disabled={analyzing}
-                        className="bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-black px-6 h-10 rounded-xl hover:scale-105 transition-transform active:scale-95 mr-4 md:mr-10"
+                        className="bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900 font-black px-6 h-10 rounded-xl hover:scale-105 transition-transform active:scale-95 mr-4 md:mr-10"
                     >
                         {analyzing ? "诊断中..." : "开启深度诊断"}
                     </Button>
@@ -70,7 +70,7 @@ export const AIVerdict = React.memo(function AIVerdict({
                         sanitizePrice={sanitizePrice}
                     />
                 ) : (
-                    <div className="py-12 flex flex-col items-center justify-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-[2rem] text-slate-400 gap-4">
+                    <div className="py-12 flex flex-col items-center justify-center border-2 border-dashed border-neutral-100 dark:border-neutral-800 rounded-[2rem] text-neutral-400 gap-4">
                         <BarChart3 className="h-10 w-10 opacity-10" />
                         <p className="text-[10px] font-bold uppercase tracking-[0.3em]">等待诊断报告生成...</p>
                     </div>
@@ -253,7 +253,7 @@ function AIVerdictContent({
     const zones = [
         { name: (selectedItem?.quantity || 0) > 0 ? "止损" : "预设止损", start: axisMin, end: stop, color: "bg-rose-600", darkColor: "bg-rose-600/80", textColor: "text-rose-600 dark:text-rose-400", bgColor: "bg-rose-50 dark:bg-rose-600/10", borderColor: "border-rose-200 dark:border-rose-600/20" },
         { name: "建仓", start: stop, end: entryHigh, color: "bg-emerald-600", darkColor: "bg-emerald-600/80", textColor: "text-emerald-600 dark:text-emerald-400", bgColor: "bg-emerald-50 dark:bg-emerald-600/10", borderColor: "border-emerald-200 dark:border-emerald-600/20" },
-        { name: "观望/持有", start: entryHigh, end: target, color: "bg-[#E8EAED] dark:bg-slate-600", darkColor: "bg-slate-600", textColor: "text-slate-500 dark:text-slate-400", bgColor: "bg-slate-50 dark:bg-slate-800/50", borderColor: "border-slate-200 dark:border-slate-700" },
+        { name: "观望/持有", start: entryHigh, end: target, color: "bg-[#E8EAED] dark:bg-neutral-600", darkColor: "bg-neutral-600", textColor: "text-neutral-500 dark:text-neutral-400", bgColor: "bg-neutral-50 dark:bg-neutral-800/50", borderColor: "border-neutral-200 dark:border-neutral-700" },
         { name: "止盈", start: target, end: axisMax, color: "bg-blue-600", darkColor: "bg-blue-600/80", textColor: "text-blue-600 dark:text-blue-400", bgColor: "bg-blue-50 dark:bg-blue-600/10", borderColor: "border-blue-200 dark:border-blue-600/20" }
     ];
 
@@ -286,18 +286,18 @@ function AIVerdictContent({
     const compactHeroTitle = buildHeroHeadline(heroTitle, aiData.trigger_condition);
 
     return (
-        <div className="space-y-0 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none animate-in fade-in slide-in-from-bottom-2 duration-700">
+        <div className="space-y-0 bg-white dark:bg-zinc-900 border border-neutral-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-xl shadow-neutral-200/50 dark:shadow-none animate-in fade-in slide-in-from-bottom-2 duration-700">
 
             {/* 1. Header & Sentiment Grid */}
-            <div className="py-4 px-6 md:py-6 md:px-8 bg-slate-50/50 dark:bg-white/5 border-b border-slate-100 dark:border-white/5">
+            <div className="py-4 px-6 md:py-6 md:px-8 bg-neutral-50/50 dark:bg-white/5 border-b border-neutral-100 dark:border-white/5">
                 <div className="space-y-4">
                     <div className="space-y-3 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                             <h3 className={clsx(
                                 "min-w-0 text-[34px] leading-[0.94] md:text-[38px] md:leading-[0.92] font-black tracking-tight break-words",
-                                aiData.immediate_action?.includes("买") || aiData.immediate_action?.includes("多") ? "text-slate-900 dark:text-white" :
+                                aiData.immediate_action?.includes("买") || aiData.immediate_action?.includes("多") ? "text-neutral-900 dark:text-white" :
                                     aiData.immediate_action?.includes("卖") || aiData.immediate_action?.includes("减") ? "text-rose-600 dark:text-rose-400" :
-                                        "text-slate-900 dark:text-white"
+                                        "text-neutral-900 dark:text-white"
                             )}>
                                 {compactHeroTitle}
                             </h3>
@@ -340,7 +340,7 @@ function AIVerdictContent({
                                 </div>
                             )}
                             {selectedItem.market_status === "AFTER_HOURS" && (
-                                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-slate-200 bg-slate-50 text-slate-500 dark:bg-slate-500/10 dark:text-slate-400 dark:border-slate-500/20">
+                                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-neutral-200 bg-neutral-50 text-neutral-500 dark:bg-neutral-500/10 dark:text-neutral-400 dark:border-neutral-500/20">
                                     <span className="text-[8px] font-bold uppercase tracking-tighter opacity-70 italic">盘后 POST</span>
                                 </div>
                             )}
@@ -352,7 +352,7 @@ function AIVerdictContent({
                                     <div className="text-[10px] font-black text-blue-700 uppercase tracking-wider mb-0.5">
                                         等待触发
                                     </div>
-                                    <p className="text-[15px] font-bold text-slate-900 dark:text-slate-100 leading-snug">
+                                    <p className="text-[15px] font-bold text-neutral-900 dark:text-neutral-100 leading-snug">
                                         {heroSubtitle || aiData.summary_status}
                                     </p>
                                 </div>
@@ -365,21 +365,21 @@ function AIVerdictContent({
                         )}
 
                         {shouldShowActionReason && (
-                            <div className="rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 px-3 py-2">
-                                <p className="text-[11px] font-medium leading-relaxed text-slate-600 dark:text-slate-300">
+                            <div className="rounded-xl bg-neutral-50 dark:bg-neutral-950 border border-neutral-100 dark:border-neutral-800 px-3 py-2">
+                                <p className="text-[11px] font-medium leading-relaxed text-neutral-600 dark:text-neutral-300">
                                     {actionReason}
                                 </p>
                             </div>
                         )}
 
-                        <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 font-medium pt-1">
-                            <span className="flex items-center gap-1"><span className="text-slate-400">期限</span><span className="text-slate-700 dark:text-slate-200 font-semibold">{aiData.investment_horizon || "1-2 周"}</span></span>
-                            <span className="text-slate-200 dark:text-slate-700">·</span>
-                            <span className="flex items-center gap-1"><span className="text-slate-400">风险</span><span className="text-amber-600 dark:text-amber-400 font-semibold">{aiData.risk_level || "中"}</span></span>
-                            <span className="text-slate-200 dark:text-slate-700">·</span>
-                            <span className="flex items-center gap-1"><span className="text-slate-400">下次复核</span><span className="text-slate-700 dark:text-slate-200 font-semibold">{reviewPoint}</span></span>
+                        <div className="flex flex-wrap items-center gap-4 text-xs text-neutral-500 font-medium pt-1">
+                            <span className="flex items-center gap-1"><span className="text-neutral-400">期限</span><span className="text-neutral-700 dark:text-neutral-200 font-semibold">{aiData.investment_horizon || "1-2 周"}</span></span>
+                            <span className="text-neutral-200 dark:text-neutral-700">·</span>
+                            <span className="flex items-center gap-1"><span className="text-neutral-400">风险</span><span className="text-amber-600 dark:text-amber-400 font-semibold">{aiData.risk_level || "中"}</span></span>
+                            <span className="text-neutral-200 dark:text-neutral-700">·</span>
+                            <span className="flex items-center gap-1"><span className="text-neutral-400">下次复核</span><span className="text-neutral-700 dark:text-neutral-200 font-semibold">{reviewPoint}</span></span>
                             {createdLabel && (
-                                <span className="ml-auto text-[10px] text-slate-400">已分析 {createdLabel}</span>
+                                <span className="ml-auto text-[10px] text-neutral-400">已分析 {createdLabel}</span>
                             )}
                         </div>
 
@@ -433,7 +433,7 @@ function AIVerdictContent({
                                 <Target className="h-4 w-4 text-blue-600" />
                                 <span>交易执行区间</span>
                             </div>
-                            <p className="text-[10px] font-medium text-slate-400 italic opacity-80 ml-6">* 基于当前价的深度研判</p>
+                            <p className="text-[10px] font-medium text-neutral-400 italic opacity-80 ml-6">* 基于当前价的深度研判</p>
                         </div>
                         <div className="flex gap-3">
                             <div className="flex flex-col items-end gap-0.5 bg-rose-50/80 dark:bg-rose-600/5 border border-rose-100 dark:border-rose-600/10 rounded-xl px-3 py-1.5">
@@ -489,7 +489,7 @@ function AIVerdictContent({
                             <LayoutDashboard className="h-3.5 w-3.5" />
                             <span>核心研判摘要</span>
                         </div>
-                        <p className="text-[13px] font-medium leading-relaxed text-slate-700 dark:text-slate-300">
+                        <p className="text-[13px] font-medium leading-relaxed text-neutral-700 dark:text-neutral-300">
                             {aiData.core_logic_summary}
                         </p>
                     </div>
@@ -526,10 +526,10 @@ function AIVerdictContent({
                         />
                     </div>
                     {aiData.max_position_pct != null && (
-                        <div className="mt-3 flex items-center gap-2 text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+                        <div className="mt-3 flex items-center gap-2 text-[11px] font-bold text-neutral-500 uppercase tracking-widest">
                             <ShieldCheck className="h-3.5 w-3.5 text-blue-600" />
                             <span>最大仓位建议</span>
-                            <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 tabular-nums">
+                            <span className="px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 tabular-nums">
                                 {aiData.max_position_pct.toFixed(0)}%
                             </span>
                         </div>
@@ -552,21 +552,21 @@ function AIVerdictContent({
             <div className="px-6 pb-6">
                 <button 
                     onClick={() => setIsExpanded(!isExpanded)}
-                    className="w-full rounded-[22px] border border-slate-200 bg-slate-50/80 px-5 py-4 flex items-center justify-between group hover:bg-slate-100/80 dark:border-zinc-800 dark:bg-zinc-950/70 dark:hover:bg-zinc-900 transition-colors"
+                    className="w-full rounded-[22px] border border-neutral-200 bg-neutral-50/80 px-5 py-4 flex items-center justify-between group hover:bg-neutral-100/80 dark:border-zinc-800 dark:bg-zinc-950/70 dark:hover:bg-zinc-900 transition-colors"
                 >
                     <div className="text-sm font-black uppercase text-blue-600 dark:text-blue-600 tracking-widest flex items-center gap-2">
                         <Activity className="h-4 w-4 text-blue-600" />
                         <span>详细诊断研判逻辑</span>
                     </div>
-                    <div className="flex items-center gap-2 text-[10px] font-bold text-slate-400 group-hover:text-blue-500 transition-colors uppercase tracking-widest">
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-neutral-400 group-hover:text-blue-500 transition-colors uppercase tracking-widest">
                         {isExpanded ? "收起详情" : "查看完整分析"}
                         {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </div>
                 </button>
                 
                 {isExpanded && (
-                    <div className="mt-3 rounded-[22px] border border-slate-200 bg-white px-5 py-5 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300 dark:border-zinc-800 dark:bg-zinc-950">
-                        <div className="prose dark:prose-invert max-w-none text-[13px] font-normal leading-relaxed text-slate-500 dark:text-slate-400 [&>p]:m-0">
+                    <div className="mt-3 rounded-[22px] border border-neutral-200 bg-white px-5 py-5 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300 dark:border-zinc-800 dark:bg-zinc-950">
+                        <div className="prose dark:prose-invert max-w-none text-[13px] font-normal leading-relaxed text-neutral-500 dark:text-neutral-400 [&>p]:m-0">
                             <MarkdownWithRefs content={aiData.action_advice || ""} />
                         </div>
                     </div>
@@ -614,16 +614,16 @@ function InlineConfidenceBreakdown({
     return (
         <div className="space-y-3">
             <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">信心构成分解</span>
+                <span className="text-[10px] font-black text-neutral-400 uppercase tracking-wider">信心构成分解</span>
                 <span className="text-[9px] font-black px-1.5 py-0.5 rounded border bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-600/10 dark:text-blue-400 dark:border-blue-600/20">
                     NEW
                 </span>
                 {confidenceLevel != null && (
-                    <div className="text-[10px] text-slate-400 ml-auto">
+                    <div className="text-[10px] text-neutral-400 ml-auto">
                         总信心{" "}
                         <span className={clsx(
                             "font-bold",
-                            confidenceLevel >= 70 ? "text-slate-700 dark:text-slate-200" : confidenceLevel >= 45 ? "text-amber-600 dark:text-amber-400" : "text-rose-600 dark:text-rose-400"
+                            confidenceLevel >= 70 ? "text-neutral-700 dark:text-neutral-200" : confidenceLevel >= 45 ? "text-amber-600 dark:text-amber-400" : "text-rose-600 dark:text-rose-400"
                         )}>
                             {confidenceLevel}%
                         </span>
@@ -672,13 +672,13 @@ function InlineSentimentBar({ sentimentScore }: { sentimentScore: number }) {
 
     return (
         <div className="space-y-3">
-            <div className="flex justify-between items-center text-[11px] font-black uppercase text-slate-400 tracking-[0.3em]">
+            <div className="flex justify-between items-center text-[11px] font-black uppercase text-neutral-400 tracking-[0.3em]">
                 <div className="flex items-center gap-3">
                     <Activity className="h-4 w-4 text-blue-600" />
                     <span>AI 情绪偏差</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <span className="text-slate-900 dark:text-white font-black italic">{sentimentScore}%</span>
+                    <span className="text-neutral-900 dark:text-white font-black italic">{sentimentScore}%</span>
                     <span className={clsx(
                         "px-2 py-0.5 rounded-md border text-[9px] font-black uppercase",
                         sentimentScore > 60 ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
@@ -689,13 +689,13 @@ function InlineSentimentBar({ sentimentScore }: { sentimentScore: number }) {
                     </span>
                 </div>
             </div>
-            <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+            <div className="h-2 w-full bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
                 <div
                     className="h-full rounded-full bg-blue-600"
                     style={{ width: `${sentimentScore}%` }}
                 />
             </div>
-            <div className="flex justify-between text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+            <div className="flex justify-between text-[8px] font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">
                 <span>0: 极度看空</span>
                 <span>50: 中性</span>
                 <span>100: 极度看多</span>
@@ -723,7 +723,7 @@ function DecisionBriefCard({
         blue: "border-blue-100 bg-blue-50/40 text-blue-600 dark:border-blue-900/20 dark:bg-blue-900/10 dark:text-blue-400",
         rose: "border-rose-100 bg-rose-50/40 text-rose-600 dark:border-rose-900/20 dark:bg-rose-900/10 dark:text-rose-400",
         emerald: "border-emerald-100 bg-emerald-50/40 text-emerald-600 dark:border-emerald-900/20 dark:bg-emerald-900/10 dark:text-emerald-400",
-        slate: "border-slate-100 bg-slate-50/60 text-slate-600 dark:border-slate-800 dark:bg-slate-900/40 dark:text-slate-300",
+        slate: "border-neutral-100 bg-neutral-50/60 text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-300",
     }[tone];
 
     return (
@@ -732,7 +732,7 @@ function DecisionBriefCard({
                 {icon}
                 <span>{title}</span>
             </div>
-            <p className="text-[13px] leading-relaxed font-medium text-slate-700 dark:text-slate-200">
+            <p className="text-[13px] leading-relaxed font-medium text-neutral-700 dark:text-neutral-200">
                 {compactSentence(value, 44)}
             </p>
         </div>
@@ -774,26 +774,26 @@ function ScenarioCard({
             <div className="space-y-2">
                 {trigger && (
                     <div className="space-y-1">
-                        <div className="text-[9px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">
+                        <div className="text-[9px] font-black uppercase tracking-[0.16em] text-neutral-400 dark:text-neutral-500">
                             触发条件
                         </div>
-                        <p className="text-[13px] leading-relaxed font-medium text-slate-700 dark:text-slate-200">
+                        <p className="text-[13px] leading-relaxed font-medium text-neutral-700 dark:text-neutral-200">
                             {compactSentence(trigger, 52)}
                         </p>
                     </div>
                 )}
                 {action && (
                     <div className="space-y-1">
-                        <div className="text-[9px] font-black uppercase tracking-[0.16em] text-slate-400 dark:text-slate-500">
+                        <div className="text-[9px] font-black uppercase tracking-[0.16em] text-neutral-400 dark:text-neutral-500">
                             对应动作
                         </div>
-                        <p className="text-[13px] leading-relaxed font-medium text-slate-700 dark:text-slate-200">
+                        <p className="text-[13px] leading-relaxed font-medium text-neutral-700 dark:text-neutral-200">
                             {compactSentence(action, 52)}
                         </p>
                     </div>
                 )}
                 {!trigger && !action && (
-                    <p className="text-[13px] leading-relaxed font-medium text-slate-700 dark:text-slate-200">
+                    <p className="text-[13px] leading-relaxed font-medium text-neutral-700 dark:text-neutral-200">
                         {compactSentence(value, 64)}
                     </p>
                 )}
@@ -866,10 +866,10 @@ function TradeAxisVisual({
                 {visibleZones.map((zone, idx) => (
                     <div
                         key={`label-${idx}`}
-                        className="absolute -translate-x-1/2 text-center"
+                        className="absolute -tranneutral-x-1/2 text-center"
                         style={{ left: `${getPos((zone.start + zone.end) / 2)}%` }}
                     >
-                        <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        <span className="text-[9px] font-black text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
                             {zone.name}
                         </span>
                     </div>
@@ -881,10 +881,10 @@ function TradeAxisVisual({
                     className="absolute z-20 flex flex-col items-center transition-all duration-500"
                     style={{ left: `${getPos(current)}%`, transform: "translateX(-50%)", top: "-32px" }}
                 >
-                    <div className="bg-slate-900 dark:bg-black text-white text-[11px] font-black px-3 py-1.5 rounded-lg shadow-2xl border border-white/10 whitespace-nowrap">
+                    <div className="bg-neutral-900 dark:bg-black text-white text-[11px] font-black px-3 py-1.5 rounded-lg shadow-2xl border border-white/10 whitespace-nowrap">
                         当前 <span className="tabular-nums">${sanitizePrice(current)}</span>
                     </div>
-                    <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[6px] border-l-transparent border-r-transparent border-t-slate-900 dark:border-t-black" />
+                    <div className="w-0 h-0 border-l-[5px] border-r-[5px] border-t-[6px] border-l-transparent border-r-transparent border-t-neutral-900 dark:border-t-black" />
                 </div>
 
                 <div
@@ -894,7 +894,7 @@ function TradeAxisVisual({
                     <div className="w-6 h-6 bg-blue-600 rounded-full border-[3px] border-white dark:border-zinc-950 shadow-lg ring-4 ring-blue-600/15" />
                 </div>
 
-                <div className="relative h-4 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex shadow-inner">
+                <div className="relative h-4 w-full bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden flex shadow-inner">
                     {visibleZones.map((zone, idx) => {
                         const width = `${((zone.end - zone.start) / totalRange) * 100}%`;
                         return (
@@ -912,7 +912,7 @@ function TradeAxisVisual({
                 {keyPrices.map((tick, i) => (
                     <div
                         key={i}
-                        className="absolute flex flex-col items-center -translate-x-1/2"
+                        className="absolute flex flex-col items-center -tranneutral-x-1/2"
                         style={{ left: `${getPos(tick.val)}%` }}
                     >
                         <div className={clsx("w-px h-2 mb-1", tick.color.split(" ")[0])} />
@@ -1020,12 +1020,12 @@ function TradeExecutionDetails({
                     <p className="text-[9px] text-amber-700 dark:text-amber-400/80 mt-0.5">盈 / 亏</p>
                 </div>
 
-                <div className="bg-slate-50 dark:bg-zinc-800/50 border border-slate-100 dark:border-zinc-800 rounded-xl p-3">
-                    <div className="text-[9px] font-black text-slate-600 dark:text-slate-400 uppercase mb-1">仓位 Size</div>
-                    <div className="text-lg font-black text-slate-700 dark:text-slate-200 mono tabular-nums">
+                <div className="bg-neutral-50 dark:bg-zinc-800/50 border border-neutral-100 dark:border-zinc-800 rounded-xl p-3">
+                    <div className="text-[9px] font-black text-neutral-600 dark:text-neutral-400 uppercase mb-1">仓位 Size</div>
+                    <div className="text-lg font-black text-neutral-700 dark:text-neutral-200 mono tabular-nums">
                         {maxPct != null ? `${(maxPct * 0.7).toFixed(1)}→${maxPct.toFixed(1)}%` : "--"}
                     </div>
-                    <p className="text-[9px] text-slate-500 dark:text-slate-500 mt-0.5">{horizonLabel} · 分 2 笔</p>
+                    <p className="text-[9px] text-neutral-500 dark:text-neutral-500 mt-0.5">{horizonLabel} · 分 2 笔</p>
                 </div>
             </div>
 
@@ -1036,7 +1036,7 @@ function TradeExecutionDetails({
                             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <div>
-                            <p className="text-[10px] text-slate-700 dark:text-slate-300 font-bold leading-relaxed">
+                            <p className="text-[10px] text-neutral-700 dark:text-neutral-300 font-bold leading-relaxed">
                                 <span className="font-black text-emerald-700 dark:text-emerald-400">执行策略：</span>
                                 {compactSentence(aiData.action_advice, 100)}
                             </p>
@@ -1060,10 +1060,10 @@ function TruthTracker({
     selectedItem: AIVerdictProps["selectedItem"];
 }) {
     return (
-        <div className="rounded-[28px] border border-slate-200 bg-white px-5 py-4.5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 md:px-7">
+        <div className="rounded-[28px] border border-neutral-200 bg-white px-5 py-4.5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 md:px-7">
             <div className="mb-4 flex items-center gap-3">
                 <Clock className="h-5 w-5 text-blue-600" />
-                <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider">AI 信号追踪与复盘 (The Truth Tracker)</h3>
+                <h3 className="text-sm font-black text-neutral-900 dark:text-white uppercase tracking-wider">AI 信号追踪与复盘 (The Truth Tracker)</h3>
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -1075,7 +1075,7 @@ function TruthTracker({
                         report.immediate_action?.includes("卖") ? (pl !== null && pl < 0) : null;
 
                     return (
-                        <div key={idx} className="group relative overflow-hidden rounded-[22px] border border-slate-200 bg-slate-50/60 p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950/60">
+                        <div key={idx} className="group relative overflow-hidden rounded-[22px] border border-neutral-200 bg-neutral-50/60 p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950/60">
                             {isWin !== null && (
                                 <div className={clsx(
                                     "absolute top-0 right-0 px-3 py-1 text-[8px] font-black uppercase rounded-bl-xl",
@@ -1087,28 +1087,28 @@ function TruthTracker({
 
                             <div className="mb-2.5 flex items-start justify-between">
                                 <div className="flex flex-col">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter" suppressHydrationWarning>
+                                    <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-tighter" suppressHydrationWarning>
                                         {report.created_at ? format(new Date(report.created_at + (report.created_at.includes('Z') ? '' : 'Z')), "MMM dd, yyyy", { locale: zhCN }) : "--"}
                                     </span>
                                     <span className={clsx(
                                         "mt-1 line-clamp-2 text-[11px] font-black uppercase leading-4",
                                         report.immediate_action?.includes("买") ? "text-emerald-600" :
-                                            report.immediate_action?.includes("卖") ? "text-rose-600" : "text-slate-500"
+                                            report.immediate_action?.includes("卖") ? "text-rose-600" : "text-neutral-500"
                                     )}>
                                         {report.immediate_action || "--"}
                                     </span>
                                 </div>
                                 <div className="flex flex-col items-end">
-                                    <span className="text-[8px] font-bold text-slate-400 uppercase">建仓时价</span>
-                                    <span className="text-[11px] font-black tabular-nums text-slate-700 dark:text-slate-300">
+                                    <span className="text-[8px] font-bold text-neutral-400 uppercase">建仓时价</span>
+                                    <span className="text-[11px] font-black tabular-nums text-neutral-700 dark:text-neutral-300">
                                         ${hPrice?.toFixed(2) || "--"}
                                     </span>
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between border-t border-slate-100 pt-2.5 dark:border-zinc-800">
+                            <div className="flex items-center justify-between border-t border-neutral-100 pt-2.5 dark:border-zinc-800">
                                 <div className="flex flex-col">
-                                    <span className="text-[8px] font-bold text-slate-400 uppercase">预期盈亏</span>
+                                    <span className="text-[8px] font-bold text-neutral-400 uppercase">预期盈亏</span>
                                     <span className={clsx(
                                         "text-[13px] font-black tabular-nums",
                                         pl && pl >= 0 ? "text-emerald-600" : "text-rose-600"
@@ -1117,10 +1117,10 @@ function TruthTracker({
                                     </span>
                                 </div>
                                 <div className="flex gap-1.5 overflow-hidden">
-                                    <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[8px] font-bold uppercase text-slate-400 dark:bg-slate-800">
+                                    <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[8px] font-bold uppercase text-neutral-400 dark:bg-neutral-800">
                                         {String(report.risk_level || "中")}险
                                     </span>
-                                    <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[8px] font-bold uppercase text-slate-400 dark:bg-slate-800">
+                                    <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[8px] font-bold uppercase text-neutral-400 dark:bg-neutral-800">
                                         {String(report.confidence_level || "70")}%信心
                                     </span>
                                 </div>

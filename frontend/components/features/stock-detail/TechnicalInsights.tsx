@@ -35,7 +35,7 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="h-8 w-1.5 bg-emerald-600 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.5)]" />
-                    <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-zinc-100 uppercase">技术面深度透视</h2>
+                    <h2 className="text-xl font-black tracking-tight text-neutral-900 dark:text-zinc-100 uppercase">技术面深度透视</h2>
                 </div>
                 {onRefreshCapsule && (
                     <button
@@ -49,7 +49,7 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
             </div>
 
             {/* Dashboard Background & Grid Overlay */}
-            <div className="absolute inset-0 -z-10 bg-slate-100/40 dark:bg-zinc-900/40 rounded-[40px] pointer-events-none overflow-hidden border border-slate-200 dark:border-zinc-800/50">
+            <div className="absolute inset-0 -z-10 bg-neutral-100/40 dark:bg-zinc-900/40 rounded-[40px] pointer-events-none overflow-hidden border border-neutral-200 dark:border-zinc-800/50">
                 <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" 
                      style={{ backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
                 <div className="absolute top-0 left-1/4 w-1/2 h-1/2 bg-blue-600/5 dark:bg-blue-400/5 blur-[120px] rounded-full" />
@@ -61,9 +61,9 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                 {/* Row 1: Core Foundations (均线、MACD、RSI/KDJ) */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* 均线系统卡片 */}
-                    <div id="REF_T1" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-slate-200 dark:border-zinc-800/50 p-4 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-emerald-600/20 hover:shadow-lg transition-all shadow-md flex flex-col scroll-mt-24">
+                    <div id="REF_T1" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-neutral-200 dark:border-zinc-800/50 p-4 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-emerald-600/20 hover:shadow-lg transition-all shadow-md flex flex-col scroll-mt-24">
                         <div className="flex justify-between items-center h-8 mb-2 relative z-10">
-                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <span className="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-[0.2em] flex items-center gap-2">
                                 <LineChart className="h-4 w-4 text-emerald-400" /> 均线系统
                             </span>
                         </div>
@@ -71,21 +71,21 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                             <div className="flex items-center gap-3">
                                 <div className="h-6 w-1 bg-blue-600 rounded-full" />
                                 <div className="flex-1">
-                                    <div className="text-[8px] font-bold text-slate-400 uppercase">MA 20 (Short)</div>
+                                    <div className="text-[8px] font-bold text-neutral-400 uppercase">MA 20 (Short)</div>
                                     <div className="text-xs font-black dark:text-zinc-100 tabular-nums">${selectedItem?.ma_20?.toFixed(2)}</div>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3 opacity-70">
                                 <div className="h-6 w-1 bg-amber-500 rounded-full" />
                                 <div className="flex-1">
-                                    <div className="text-[8px] font-bold text-slate-400 uppercase">MA 50 (Med)</div>
+                                    <div className="text-[8px] font-bold text-neutral-400 uppercase">MA 50 (Med)</div>
                                     <div className="text-xs font-black dark:text-zinc-100 tabular-nums">${selectedItem?.ma_50?.toFixed(2)}</div>
                                 </div>
                             </div>
                             <div className="flex items-center gap-3 opacity-40">
-                                <div className="h-6 w-1 bg-slate-500 rounded-full" />
+                                <div className="h-6 w-1 bg-neutral-500 rounded-full" />
                                 <div className="flex-1">
-                                    <div className="text-[8px] font-bold text-slate-400 uppercase">MA 200 (Long)</div>
+                                    <div className="text-[8px] font-bold text-neutral-400 uppercase">MA 200 (Long)</div>
                                     <div className="text-xs font-black dark:text-zinc-100 tabular-nums">${selectedItem?.ma_200?.toFixed(2)}</div>
                                 </div>
                             </div>
@@ -93,9 +93,9 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                     </div>
 
                     {/* MACD 趋势动量卡片 */}
-                    <div id="REF_T2" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-slate-200 dark:border-zinc-800/50 p-4 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-indigo-500/30 hover:shadow-lg transition-all shadow-md flex flex-col overflow-hidden relative group scroll-mt-24">
+                    <div id="REF_T2" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-neutral-200 dark:border-zinc-800/50 p-4 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-indigo-500/30 hover:shadow-lg transition-all shadow-md flex flex-col overflow-hidden relative group scroll-mt-24">
                         <div className="flex justify-between items-center h-8 mb-2 relative z-10">
-                            <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 tracking-[0.2em] flex items-center gap-2">
+                            <span className="text-[10px] font-bold uppercase text-neutral-500 dark:text-neutral-400 tracking-[0.2em] flex items-center gap-2">
                                 <Activity className="h-4 w-4 text-indigo-500" /> MACD 趋势动量
                             </span>
                             <span className={clsx(
@@ -108,14 +108,14 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                         
                         <div className="grid grid-cols-2 gap-x-6 gap-y-3 relative z-10">
                             <div className="space-y-1">
-                                <div className="text-[7px] font-bold text-slate-400 uppercase">DIF / DEA</div>
+                                <div className="text-[7px] font-bold text-neutral-400 uppercase">DIF / DEA</div>
                                 <div className="flex items-baseline gap-2">
                                     <span className="text-xs font-black tabular-nums">{selectedItem?.macd_val?.toFixed(2)}</span>
-                                    <span className="text-[10px] text-slate-400 tabular-nums">{selectedItem?.macd_signal?.toFixed(2)}</span>
+                                    <span className="text-[10px] text-neutral-400 tabular-nums">{selectedItem?.macd_signal?.toFixed(2)}</span>
                                 </div>
                             </div>
                             <div className="space-y-1">
-                                <div className="text-[7px] font-bold text-slate-400 uppercase">柱状值 / 斜率</div>
+                                <div className="text-[7px] font-bold text-neutral-400 uppercase">柱状值 / 斜率</div>
                                 <div className="flex items-baseline gap-2">
                                     <span className={clsx("text-xs font-black tabular-nums", (selectedItem?.macd_hist || 0) >= 0 ? "text-emerald-600" : "text-rose-600")}>
                                         {selectedItem?.macd_hist?.toFixed(2)}
@@ -143,30 +143,30 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                     </div>
 
                     {/* RSI & KDJ 卡片 */}
-                    <div id="REF_T3" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-slate-200 dark:border-zinc-800/50 p-4 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-blue-600/30 hover:shadow-lg transition-all group shadow-md flex flex-col justify-between scroll-mt-24">
+                    <div id="REF_T3" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-neutral-200 dark:border-zinc-800/50 p-4 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-blue-600/30 hover:shadow-lg transition-all group shadow-md flex flex-col justify-between scroll-mt-24">
                         <div className="flex justify-between items-center h-8 mb-2 relative z-10">
-                            <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 tracking-[0.2em] flex items-center gap-2">
+                            <span className="text-[10px] font-bold uppercase text-neutral-500 dark:text-neutral-400 tracking-[0.2em] flex items-center gap-2">
                                 <TrendingUp className="h-4 w-4 text-blue-600" /> 强弱指标 (RSI/KDJ)
                             </span>
                             <span className="text-xl font-black tabular-nums text-blue-600">{selectedItem?.rsi_14?.toFixed(2)}</span>
                         </div>
                         
                         <div className="space-y-3">
-                            <div className="relative h-1.5 w-full bg-slate-100 dark:bg-zinc-800/80 rounded-full overflow-hidden">
-                                <div className="absolute left-[20%] top-0 h-full w-px bg-slate-200 dark:bg-zinc-700 z-10" />
-                                <div className="absolute left-[80%] top-0 h-full w-px bg-slate-200 dark:bg-zinc-700 z-10" />
+                            <div className="relative h-1.5 w-full bg-neutral-100 dark:bg-zinc-800/80 rounded-full overflow-hidden">
+                                <div className="absolute left-[20%] top-0 h-full w-px bg-neutral-200 dark:bg-zinc-700 z-10" />
+                                <div className="absolute left-[80%] top-0 h-full w-px bg-neutral-200 dark:bg-zinc-700 z-10" />
                                 <div
                                     className={clsx("h-full rounded-full transition-all duration-1000", getRSIColor(selectedItem?.rsi_14 || 50))}
                                     style={{ width: `${selectedItem?.rsi_14 || 0}%` }}
                                 />
                             </div>
-                            <div className="flex justify-between text-[7px] font-bold text-slate-400 uppercase tracking-widest px-1">
+                            <div className="flex justify-between text-[7px] font-bold text-neutral-400 uppercase tracking-widest px-1">
                                 <span>Oversold</span>
                                 <span>Overbought</span>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-2 pt-2 border-t border-slate-50 dark:border-zinc-800/50">
+                        <div className="flex items-center gap-2 pt-2 border-t border-neutral-50 dark:border-zinc-800/50">
                             <div className="flex items-center gap-3">
                                 <span className="text-[9px] font-bold text-blue-400">K {selectedItem?.k_line?.toFixed(0)}</span>
                                 <span className="text-[9px] font-bold text-amber-400">D {selectedItem?.d_line?.toFixed(0)}</span>
@@ -181,9 +181,9 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                 {/* Row 2: Execution & Auxiliary (关键执行位、布林带、估值资金流) */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* 关键执行位卡片 */}
-                    <div id="REF_T4" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-slate-200 dark:border-zinc-800/50 p-4 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-blue-600/20 hover:shadow-lg transition-all shadow-md flex flex-col justify-between scroll-mt-24">
+                    <div id="REF_T4" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-neutral-200 dark:border-zinc-800/50 p-4 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-blue-600/20 hover:shadow-lg transition-all shadow-md flex flex-col justify-between scroll-mt-24">
                          <div className="flex justify-between items-center h-8 mb-2 relative z-10">
-                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <span className="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-[0.2em] flex items-center gap-2">
                                 <Target className="h-4 w-4 text-blue-400" /> 关键执行位
                             </span>
                         </div>
@@ -207,16 +207,16 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                     </div>
 
                     {/* 布林带轨道卡片 */}
-                    <div id="REF_T5" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-slate-200 dark:border-zinc-800/50 p-4 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-rose-600/20 hover:shadow-lg transition-all flex flex-col shadow-md space-y-3 scroll-mt-24">
+                    <div id="REF_T5" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-neutral-200 dark:border-zinc-800/50 p-4 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-rose-600/20 hover:shadow-lg transition-all flex flex-col shadow-md space-y-3 scroll-mt-24">
                         <div className="flex justify-between items-center h-8 mb-2 relative z-10">
-                            <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <span className="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-[0.2em] flex items-center gap-2">
                                 <Zap className="h-4 w-4 text-rose-400" /> 布林带轨道
                             </span>
                         </div>
                         
                         <div className="flex-1 flex gap-4 items-center">
-                            <div className="relative h-20 w-1 bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden shrink-0">
-                                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-blue-600/30 -translate-y-1/2" />
+                            <div className="relative h-20 w-1 bg-neutral-100 dark:bg-zinc-800 rounded-full overflow-hidden shrink-0">
+                                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-blue-600/30 -tranneutral-y-1/2" />
                                 {(() => {
                                     const upper = selectedItem?.bb_upper || 0;
                                     const lower = selectedItem?.bb_lower || 0;
@@ -228,7 +228,7 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                                     return (
                                         <div 
                                             className={clsx(
-                                                "absolute left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-zinc-900 shadow-sm z-10 transition-all duration-500",
+                                                "absolute left-1/2 -tranneutral-x-1/2 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-zinc-900 shadow-sm z-10 transition-all duration-500",
                                                 pos > 90 ? "bg-rose-600" : 
                                                 pos < 10 ? "bg-emerald-600" : "bg-blue-600"
                                             )}
@@ -241,15 +241,15 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
 
                             <div className="flex-1 space-y-1.5">
                                 <div className="flex justify-between items-center group">
-                                    <span className="text-[9px] font-medium text-slate-400 uppercase">Upper</span>
+                                    <span className="text-[9px] font-medium text-neutral-400 uppercase">Upper</span>
                                     <span className="text-[10px] font-black dark:text-zinc-200 tabular-nums">${selectedItem?.bb_upper?.toFixed(2) || "0.00"}</span>
                                 </div>
-                                <div className="flex justify-between items-center py-1 border-y border-slate-50 dark:border-zinc-800/50 px-1 rounded transition-colors group">
+                                <div className="flex justify-between items-center py-1 border-y border-neutral-50 dark:border-zinc-800/50 px-1 rounded transition-colors group">
                                     <span className="text-[9px] font-bold text-blue-600 uppercase">Mid</span>
                                     <span className="text-[10px] font-black text-blue-600 tabular-nums">${selectedItem?.bb_middle?.toFixed(2) || "0.00"}</span>
                                 </div>
                                 <div className="flex justify-between items-center group">
-                                    <span className="text-[9px] font-medium text-slate-400 uppercase">Lower</span>
+                                    <span className="text-[9px] font-medium text-neutral-400 uppercase">Lower</span>
                                     <span className="text-[10px] font-black dark:text-zinc-200 tabular-nums">${selectedItem?.bb_lower?.toFixed(2) || "0.00"}</span>
                                 </div>
                             </div>
@@ -257,9 +257,9 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                     </div>
 
                     {/* 估值与资金流卡片 */}
-                    <div id="REF_V1" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-slate-200 dark:border-zinc-800/50 p-4 rounded-3xl space-y-4 hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-emerald-600/30 hover:shadow-lg transition-all group shadow-md flex flex-col justify-between relative overflow-hidden scroll-mt-24">
+                    <div id="REF_V1" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-neutral-200 dark:border-zinc-800/50 p-4 rounded-3xl space-y-4 hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-emerald-600/30 hover:shadow-lg transition-all group shadow-md flex flex-col justify-between relative overflow-hidden scroll-mt-24">
                         <div className="flex justify-between items-center h-8 mb-2 relative z-10">
-                            <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 tracking-[0.2em] flex items-center gap-2">
+                            <span className="text-[10px] font-bold uppercase text-neutral-500 dark:text-neutral-400 tracking-[0.2em] flex items-center gap-2">
                                 <PieChart className="h-4 w-4 text-emerald-600" /> 估值与资金流
                             </span>
                             <div className="px-2 py-0.5 rounded bg-emerald-600/10 text-[9px] font-black text-emerald-600 tabular-nums">
@@ -269,24 +269,24 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                         
                         <div className="grid grid-cols-2 gap-4 relative z-10">
                             <div className="space-y-2">
-                                <div className="flex justify-between text-[8px] font-black text-slate-500">
+                                <div className="flex justify-between text-[8px] font-black text-neutral-500">
                                     <span>市盈率 PE</span>
-                                    <span className="text-slate-700 dark:text-zinc-200">{selectedItem?.pe_ratio != null ? selectedItem.pe_ratio.toFixed(1) + "x" : "--"}</span>
+                                    <span className="text-neutral-700 dark:text-zinc-200">{selectedItem?.pe_ratio != null ? selectedItem.pe_ratio.toFixed(1) + "x" : "--"}</span>
                                 </div>
-                                <div className="relative h-1.5 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                <div className="relative h-1.5 w-full bg-neutral-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                                     <div className="h-full bg-emerald-600/60 transition-all duration-700" style={{ width: `${selectedItem?.pe_percentile || 0}%` }} />
                                 </div>
-                                <p className="text-[6px] text-slate-400 uppercase">历史百分位 {selectedItem?.pe_percentile != null ? selectedItem.pe_percentile.toFixed(0) + "%" : "--"}</p>
+                                <p className="text-[6px] text-neutral-400 uppercase">历史百分位 {selectedItem?.pe_percentile != null ? selectedItem.pe_percentile.toFixed(0) + "%" : "--"}</p>
                             </div>
                             <div className="space-y-2">
-                                <div className="flex justify-between text-[8px] font-black text-slate-500">
+                                <div className="flex justify-between text-[8px] font-black text-neutral-500">
                                     <span>市净率 PB</span>
-                                    <span className="text-slate-700 dark:text-zinc-200">{selectedItem?.pb_percentile != null ? selectedItem.pb_percentile.toFixed(0) + "%" : "--"}</span>
+                                    <span className="text-neutral-700 dark:text-zinc-200">{selectedItem?.pb_percentile != null ? selectedItem.pb_percentile.toFixed(0) + "%" : "--"}</span>
                                 </div>
-                                <div className="relative h-1.5 w-full bg-slate-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                                <div className="relative h-1.5 w-full bg-neutral-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                                     <div className="h-full bg-blue-600/60 transition-all duration-700" style={{ width: `${selectedItem?.pb_percentile || 0}%` }} />
                                 </div>
-                                <p className="text-[6px] text-slate-400 uppercase">历史百分位</p>
+                                <p className="text-[6px] text-neutral-400 uppercase">历史百分位</p>
                             </div>
                         </div>
 
@@ -304,11 +304,11 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                             <h3 className="text-[10px] font-black uppercase text-emerald-700 dark:text-emerald-400 tracking-[0.2em] whitespace-nowrap">AI 技术摘要</h3>
                         </div>
                         <div className="flex-1 min-w-0 md:border-l border-emerald-200/40 dark:border-emerald-800/30 md:pl-5">
-                            <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-[12px] leading-snug text-slate-600 dark:text-zinc-400">
+                            <div className="prose prose-sm prose-slate dark:prose-invert max-w-none text-[12px] leading-snug text-neutral-600 dark:text-zinc-400">
                                 <ReactMarkdown>{technicalCapsule}</ReactMarkdown>
                             </div>
                             {technicalCapsuleUpdatedAt && (
-                                <p className="mt-3 text-[10px] text-slate-400 dark:text-zinc-500">
+                                <p className="mt-3 text-[10px] text-neutral-400 dark:text-zinc-500">
                                     摘要更新: {new Date(technicalCapsuleUpdatedAt).toLocaleString("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
                                 </p>
                             )}

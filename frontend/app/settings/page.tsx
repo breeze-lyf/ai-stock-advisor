@@ -847,7 +847,7 @@ export default function SettingsPage() {
   if (!authLoading && !token && !isAuthenticated) {
     return (
       <div className="p-8">
-        <p className="text-sm text-slate-500">未登录，正在跳转到登录页...</p>
+        <p className="text-sm text-neutral-500">未登录，正在跳转到登录页...</p>
       </div>
     );
   }
@@ -872,8 +872,8 @@ export default function SettingsPage() {
                 disabled={saving}
                 className={`rounded-2xl border p-4 text-left transition ${
                   active
-                    ? "border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-950"
-                    : "border-slate-200 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-950 dark:hover:border-slate-700"
+                    ? "border-neutral-900 bg-neutral-900 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-950"
+                    : "border-neutral-200 bg-white hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-700"
                 }`}
               >
                 <Icon className="mb-4 h-5 w-5" />
@@ -884,12 +884,12 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="border-t border-slate-200 pt-6 dark:border-slate-800">
+      <div className="border-t border-neutral-200 pt-6 dark:border-neutral-800">
         <div className="space-y-2">
           <Label htmlFor="timezone-select" className="text-sm font-semibold">时区</Label>
           <select
             id="timezone-select"
-            className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+            className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 outline-none dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-100"
             value={profile?.timezone || authUser?.timezone || "Asia/Shanghai"}
             onChange={(e) => handleTimezoneUpdate(e.target.value)}
             disabled={saving}
@@ -911,8 +911,8 @@ export default function SettingsPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">我的模型</h3>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{availableModels.length} 个已配置的模型</p>
+          <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">我的模型</h3>
+          <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{availableModels.length} 个已配置的模型</p>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -966,10 +966,10 @@ export default function SettingsPage() {
                 <Label htmlFor="provider-note">提供商备注</Label>
                 <Input id="provider-note" placeholder="例如：OpenRouter / DeepSeek / 自建中转" value={customModel.provider_note} onChange={(e) => setCustomModel((prev) => ({ ...prev, provider_note: e.target.value }))} />
               </div>
-              <div className="flex items-center justify-between rounded-lg border border-slate-200 p-3 dark:border-slate-800">
+              <div className="flex items-center justify-between rounded-lg border border-neutral-200 p-3 dark:border-neutral-800">
                 <div className="space-y-0.5">
                   <Label htmlFor="is-default" className="text-sm font-medium">设为默认模型</Label>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400">
                     添加后自动将其设置为全站默认使用的 AI 模型
                   </p>
                 </div>
@@ -1003,7 +1003,7 @@ export default function SettingsPage() {
 
       <div className="mt-4">
         {availableModels.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-slate-300 px-4 py-6 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+          <div className="rounded-xl border border-dashed border-neutral-300 px-4 py-6 text-sm text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
             还没有配置任何大模型。点击右上角“添加模型”开始。
           </div>
         ) : (
@@ -1011,34 +1011,34 @@ export default function SettingsPage() {
             {availableModels.map((model) => {
               const isDefault = profile?.preferred_ai_model === model.key;
               return (
-                <div key={model.key} className="rounded-2xl border border-slate-200 px-5 py-5 dark:border-slate-800">
+                <div key={model.key} className="rounded-2xl border border-neutral-200 px-5 py-5 dark:border-neutral-800">
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <h4 className="text-base font-semibold text-slate-900 dark:text-slate-100">{model.display_name}</h4>
+                        <h4 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">{model.display_name}</h4>
                         {isDefault && <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">默认</span>}
                         {model.is_builtin && <span className="rounded-full border border-sky-500/20 bg-sky-500/10 px-2.5 py-1 text-[11px] font-semibold text-sky-600 dark:text-sky-400">系统内置</span>}
-                        <span className="rounded-full border border-slate-200 px-2.5 py-1 text-[11px] font-medium text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                        <span className="rounded-full border border-neutral-200 px-2.5 py-1 text-[11px] font-medium text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
                           {model.is_active ? "已启用" : "已停用"}
                         </span>
                       </div>
-                      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                      <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
                         {(model.provider_note || "未填写提供商备注")} · {model.model_id}
                       </p>
                     </div>
                     <Switch checked={Boolean(model.is_active)} disabled />
                   </div>
 
-                  <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-slate-600 dark:text-slate-300">
+                  <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-neutral-600 dark:text-neutral-300">
                     <div className="min-w-0">
-                      <span className="mr-2 text-slate-500 dark:text-slate-400">API 密钥:</span>
-                      <span className="font-mono font-medium text-slate-900 dark:text-slate-100">
+                      <span className="mr-2 text-neutral-500 dark:text-neutral-400">API 密钥:</span>
+                      <span className="font-mono font-medium text-neutral-900 dark:text-neutral-100">
                         {model.masked_api_key || (model.has_api_key ? "已保存" : "未保存")}
                       </span>
                     </div>
                     <div className="min-w-0">
-                      <span className="mr-2 text-slate-500 dark:text-slate-400">API 地址:</span>
-                      <span className="font-mono font-medium text-slate-900 dark:text-slate-100">
+                      <span className="mr-2 text-neutral-500 dark:text-neutral-400">API 地址:</span>
+                      <span className="font-mono font-medium text-neutral-900 dark:text-neutral-100">
                         {maskText(normalizeBaseUrl(model.base_url), 56)}
                       </span>
                     </div>
@@ -1084,7 +1084,7 @@ export default function SettingsPage() {
             <Input id="confirm-password" type="password" value={passwordForm.confirm_password} onChange={(e) => setPasswordForm((prev) => ({ ...prev, confirm_password: e.target.value }))} />
           </div>
         </div>
-        <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
+        <div className="border-t border-neutral-200 pt-4 dark:border-neutral-800">
           {passwordMessage && (
             <div
               className={`mb-4 rounded-xl border px-4 py-3 text-sm ${
@@ -1112,16 +1112,16 @@ export default function SettingsPage() {
     return (
       <div className="space-y-6">
         {/* 分市场数据源配置 - 第 1 个 */}
-        <div className="rounded-2xl border border-slate-200 px-5 py-5 dark:border-slate-800">
+        <div className="rounded-2xl border border-neutral-200 px-5 py-5 dark:border-neutral-800">
           <div className="mb-4 flex items-start justify-between">
             <div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">分市场数据源配置</h3>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">分市场数据源配置</h3>
+              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
                 为不同市场选择独立的数据源。默认均使用 YFinance，支持自动故障转移。
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Label htmlFor="worker-proxy" className="text-xs text-slate-500 dark:text-slate-400">使用 Cloudflare 代理</Label>
+              <Label htmlFor="worker-proxy" className="text-xs text-neutral-500 dark:text-neutral-400">使用 Cloudflare 代理</Label>
               <Switch
                 id="worker-proxy"
                 checked={useWorkerProxy}
@@ -1146,11 +1146,11 @@ export default function SettingsPage() {
             {marketOptions.map((option) => (
               <div
                 key={option.key}
-                className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-950"
+                className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-neutral-200 bg-white px-4 py-3 dark:border-neutral-800 dark:bg-neutral-950"
               >
                 <div className="flex-1">
-                  <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{option.label}</div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">当前数据源：{option.value}</p>
+                  <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{option.label}</div>
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400">当前数据源：{option.value}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Select
@@ -1185,18 +1185,18 @@ export default function SettingsPage() {
           </div>
 
           {dataSourceLoading && (
-            <div className="mt-4 flex items-center justify-center py-4 text-sm text-slate-500 dark:text-slate-400">
+            <div className="mt-4 flex items-center justify-center py-4 text-sm text-neutral-500 dark:text-neutral-400">
               加载中...
             </div>
           )}
         </div>
 
         {/* Tavily 搜索 API - 第 2 个 */}
-        <div className="rounded-2xl border border-slate-200 px-5 py-5 dark:border-slate-800">
+        <div className="rounded-2xl border border-neutral-200 px-5 py-5 dark:border-neutral-800">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Tavily 搜索 API</h3>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Tavily 搜索 API</h3>
+              <p className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
                 用于全球宏观与新闻检索。支持独立开关、连接测试与密钥更新。
               </p>
             </div>
@@ -1205,13 +1205,13 @@ export default function SettingsPage() {
                 className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
                   hasSavedTavilyKey
                     ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                    : "border-slate-200 text-slate-500 dark:border-slate-700 dark:text-slate-400"
+                    : "border-neutral-200 text-neutral-500 dark:border-neutral-700 dark:text-neutral-400"
                 }`}
               >
                 {hasSavedTavilyKey ? "已保存密钥" : "未保存密钥"}
               </span>
               <div className="flex items-center gap-2">
-                <Label htmlFor="tavily-enabled" className="text-xs text-slate-500 dark:text-slate-400">启用</Label>
+                <Label htmlFor="tavily-enabled" className="text-xs text-neutral-500 dark:text-neutral-400">启用</Label>
                 <Switch
                   id="tavily-enabled"
                   checked={tavilyEnabled}
@@ -1275,7 +1275,7 @@ export default function SettingsPage() {
   const activeSectionConfig = SECTION_ITEMS.find((item) => item.id === activeSection)!;
 
   return (
-    <div className="min-h-screen bg-slate-50 px-3 py-4 dark:bg-slate-950 sm:px-4 md:px-6 md:py-6 lg:px-8">
+    <div className="min-h-screen bg-neutral-50 px-3 py-4 dark:bg-neutral-950 sm:px-4 md:px-6 md:py-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-6 flex items-center gap-3">
           <Link href="/">
@@ -1284,8 +1284,8 @@ export default function SettingsPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">设置</h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">设置</h1>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400">
               {profileLoading ? "正在同步最新设置..." : "沿用当前主题体系，重组为更清晰的工作区式设置中心。"}
             </p>
           </div>
@@ -1301,12 +1301,12 @@ export default function SettingsPage() {
           </div>
         )}
 
-        <div className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div className="overflow-hidden rounded-[28px] border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
           <div className="grid min-h-[760px] lg:grid-cols-[280px_1fr]">
-            <aside className="border-b border-slate-200 bg-slate-50/80 p-4 dark:border-slate-800 dark:bg-slate-950/80 sm:p-5 lg:border-b-0 lg:border-r">
+            <aside className="border-b border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-950/80 sm:p-5 lg:border-b-0 lg:border-r">
               <div className="mb-4 lg:mb-6">
-                <h2 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">设置</h2>
-                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">管理您的账户、AI 模型与自动化偏好。</p>
+                <h2 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">设置</h2>
+                <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">管理您的账户、AI 模型与自动化偏好。</p>
               </div>
 
               <nav className="grid gap-2 sm:grid-cols-2 lg:block lg:space-y-2">
@@ -1319,14 +1319,14 @@ export default function SettingsPage() {
                       type="button"
                       onClick={() => setActiveSection(item.id)}
                       className={`flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left transition ${
-                        active ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-950" : "hover:bg-slate-100 dark:hover:bg-slate-900"
+                        active ? "bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-950" : "hover:bg-neutral-100 dark:hover:bg-neutral-900"
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <Icon className={`h-4 w-4 ${active ? "" : "text-slate-500"}`} />
+                        <Icon className={`h-4 w-4 ${active ? "" : "text-neutral-500"}`} />
                         <div>
                           <div className="text-sm font-semibold">{item.label}</div>
-                          <div className={`text-xs ${active ? "text-slate-300 dark:text-slate-600" : "text-slate-500 dark:text-slate-400"}`}>{item.description}</div>
+                          <div className={`text-xs ${active ? "text-neutral-300 dark:text-neutral-600" : "text-neutral-500 dark:text-neutral-400"}`}>{item.description}</div>
                         </div>
                       </div>
                       <ChevronRight className={`h-4 w-4 ${active ? "opacity-100" : "opacity-40"}`} />
@@ -1338,18 +1338,18 @@ export default function SettingsPage() {
 
             <main className="p-4 sm:p-6 lg:p-8">
               <div className="mb-8">
-                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-neutral-500">
                   <activeSectionConfig.icon className="h-4 w-4" />
                   {activeSectionConfig.label}
                 </div>
-                <h3 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+                <h3 className="mt-2 text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
                   {activeSection === "general" && "通用设置"}
                   {activeSection === "ai" && "AI 配置"}
                   {activeSection === "notifications" && "通知设置"}
                   {activeSection === "security" && "安全设置"}
                   {activeSection === "data" && "数据管理"}
                 </h3>
-                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{activeSectionConfig.description}</p>
+                <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">{activeSectionConfig.description}</p>
               </div>
 
               {activeSection === "general" && renderGeneralSection()}

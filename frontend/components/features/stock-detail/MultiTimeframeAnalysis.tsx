@@ -97,8 +97,9 @@ export function MultiTimeframeAnalysis({
     ];
 
     return (
-        <div className="space-y-4">
-            <div className="flex items-center gap-2 mb-4">
+        <div className="bg-white dark:bg-zinc-900 rounded-[2rem] px-4 md:px-10 py-6 border border-neutral-100 dark:border-zinc-800">
+            <div className="space-y-4">
+                <div className="flex items-center gap-2 mb-4">
                 <Clock className="h-5 w-5 text-neutral-400" />
                 <h3 className="text-lg font-bold text-neutral-900 dark:text-neutral-100">
                     多时间框架分析
@@ -210,6 +211,7 @@ export function MultiTimeframeAnalysis({
                     </span>
                 </div>
             )}
+            </div>
         </div>
     );
 }

@@ -85,7 +85,7 @@ export function RiskAnalysis({ ticker, riskAnalysis, loading = false }: RiskAnal
     ];
 
     return (
-        <div className="bg-white dark:bg-neutral-800 rounded-xl p-6 border border-neutral-200 dark:border-neutral-700">
+        <div className="bg-white dark:bg-zinc-900 rounded-[2rem] px-4 md:px-10 py-6 border border-neutral-100 dark:border-zinc-800">
             <div className="flex items-center gap-3 mb-6">
                 <Shield className="h-5 w-5 text-amber-500" />
                 <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">风险分析</h3>

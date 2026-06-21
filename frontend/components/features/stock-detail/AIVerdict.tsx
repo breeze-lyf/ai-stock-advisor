@@ -1073,75 +1073,72 @@ function TruthTracker({
     selectedItem: AIVerdictProps["selectedItem"];
 }) {
     return (
-        <div className="rounded-[28px] border border-neutral-200 bg-white px-5 py-4.5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 md:px-7">
+        <div className="rounded-[28px] border border-neutral-100 bg-white px-5 py-4.5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 md:px-7">
             <div className="mb-4 flex items-center gap-3">
                 <Clock className="h-5 w-5 text-blue-600" />
                 <h3 className="text-sm font-black text-neutral-900 dark:text-white uppercase tracking-wider">AI 信号追踪与复盘 (The Truth Tracker)</h3>
+                <span className="ml-auto text-[10px] font-bold text-neutral-400">{analysisHistory.length} 条信号</span>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {analysisHistory.slice(0, 3).map((report, idx) => {
-                    const hPrice = report.history_price;
-                    const cPrice = selectedItem.current_price;
-                    const pl = hPrice ? ((cPrice - hPrice) / hPrice) * 100 : null;
-                    const isWin = report.immediate_action?.includes("买") ? (pl !== null && pl > 0) :
-                        report.immediate_action?.includes("卖") ? (pl !== null && pl < 0) : null;
-
-                    return (
-                        <div key={idx} className="group relative overflow-hidden rounded-[22px] border border-neutral-200 bg-neutral-50/60 p-3.5 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950/60">
-                            {isWin !== null && (
-                                <div className={clsx(
-                                    "absolute top-0 right-0 px-3 py-1 text-[8px] font-black uppercase rounded-bl-xl",
-                                    isWin ? "bg-emerald-600 text-white" : "bg-rose-600 text-white"
+            {analysisHistory.length === 0 ? (
+                <div className="py-8 text-center text-[11px] text-neutral-400">暂无历史信号，运行 AI 分析后将在此累积</div>
+            ) : (
+                <div className="max-h-[420px] overflow-y-auto custom-scrollbar -mx-1 px-1">
+                    {/* 表头 */}
+                    <div className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-3 border-b border-neutral-100 pb-2 dark:border-zinc-800 text-[8px] font-bold uppercase tracking-wider text-neutral-400">
+                        <span>日期</span>
+                        <span>动作</span>
+                        <span className="text-right">当时价</span>
+                        <span className="text-right">至今表现</span>
+                        <span className="text-right pr-1">结果</span>
+                    </div>
+                    {analysisHistory.map((report, idx) => {
+                        const hPrice = report.history_price;
+                        const cPrice = selectedItem.current_price;
+                        const pl = hPrice ? ((cPrice - hPrice) / hPrice) * 100 : null;
+                        const outcome = getSignalOutcome(report.immediate_action, pl);
+                        const action = report.immediate_action || "--";
+                        return (
+                            <div
+                                key={idx}
+                                className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-3 border-b border-neutral-50 py-2.5 last:border-0 dark:border-zinc-800/50"
+                            >
+                                <span className="text-[10px] font-bold tabular-nums text-neutral-400 whitespace-nowrap" suppressHydrationWarning>
+                                    {report.created_at ? format(new Date(report.created_at + (report.created_at.includes('Z') ? '' : 'Z')), "yy/MM/dd", { locale: zhCN }) : "--"}
+                                </span>
+                                <span className={clsx(
+                                    "truncate text-[11px] font-black",
+                                    action.includes("买") || action.includes("持有") ? "text-emerald-600" :
+                                        action.includes("卖") || action.includes("减") ? "text-rose-600" : "text-neutral-500"
                                 )}>
-                                    {isWin ? "命中" : "回撤"}
-                                </div>
-                            )}
-
-                            <div className="mb-2.5 flex items-start justify-between">
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-tighter" suppressHydrationWarning>
-                                        {report.created_at ? format(new Date(report.created_at + (report.created_at.includes('Z') ? '' : 'Z')), "MMM dd, yyyy", { locale: zhCN }) : "--"}
-                                    </span>
-                                    <span className={clsx(
-                                        "mt-1 line-clamp-2 text-[11px] font-black uppercase leading-4",
-                                        report.immediate_action?.includes("买") ? "text-emerald-600" :
-                                            report.immediate_action?.includes("卖") ? "text-rose-600" : "text-neutral-500"
-                                    )}>
-                                        {report.immediate_action || "--"}
-                                    </span>
-                                </div>
-                                <div className="flex flex-col items-end">
-                                    <span className="text-[8px] font-bold text-neutral-400 uppercase">建仓时价</span>
-                                    <span className="text-[11px] font-black tabular-nums text-neutral-700 dark:text-neutral-300">
-                                        ${hPrice?.toFixed(2) || "--"}
-                                    </span>
-                                </div>
+                                    {action}
+                                </span>
+                                <span className="text-right text-[11px] font-black tabular-nums text-neutral-600 dark:text-neutral-300 whitespace-nowrap">
+                                    {hPrice ? `$${hPrice.toFixed(2)}` : "--"}
+                                </span>
+                                <span className={clsx(
+                                    "text-right text-[11px] font-black tabular-nums whitespace-nowrap",
+                                    pl === null ? "text-neutral-400" : pl >= 0 ? "text-emerald-600" : "text-rose-600"
+                                )}>
+                                    {pl !== null ? `${pl >= 0 ? "+" : ""}${pl.toFixed(2)}%` : "--"}
+                                </span>
+                                <span className="text-right pr-1">
+                                    {outcome === null ? (
+                                        <span className="text-[9px] font-bold text-neutral-300 dark:text-neutral-600">--</span>
+                                    ) : (
+                                        <span className={clsx(
+                                            "rounded px-1.5 py-0.5 text-[8px] font-black uppercase",
+                                            outcome === "win" ? "bg-emerald-600 text-white" : "bg-rose-600 text-white"
+                                        )}>
+                                            {outcome === "win" ? "命中" : "回撤"}
+                                        </span>
+                                    )}
+                                </span>
                             </div>
-
-                            <div className="flex items-center justify-between border-t border-neutral-100 pt-2.5 dark:border-zinc-800">
-                                <div className="flex flex-col">
-                                    <span className="text-[8px] font-bold text-neutral-400 uppercase">预期盈亏</span>
-                                    <span className={clsx(
-                                        "text-[13px] font-black tabular-nums",
-                                        pl && pl >= 0 ? "text-emerald-600" : "text-rose-600"
-                                    )}>
-                                        {pl !== null ? `${pl >= 0 ? "+" : ""}${pl.toFixed(2)}%` : "--"}
-                                    </span>
-                                </div>
-                                <div className="flex gap-1.5 overflow-hidden">
-                                    <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[8px] font-bold uppercase text-neutral-400 dark:bg-neutral-800">
-                                        {String(report.risk_level || "中")}险
-                                    </span>
-                                    <span className="rounded bg-neutral-100 px-1.5 py-0.5 text-[8px] font-bold uppercase text-neutral-400 dark:bg-neutral-800">
-                                        {String(report.confidence_level || "70")}%信心
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
+                        );
+                    })}
+                </div>
+            )}
         </div>
     );
 }

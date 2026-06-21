@@ -72,3 +72,16 @@ def test_loss_and_profit_factor():
     assert r.trade_count == 4
     assert r.win_rate == 0.5
     assert r.profit_factor is not None and r.profit_factor > 1.0
+
+
+def test_signal_on_non_trading_day_appears_in_equity_curve():
+    # 信号日 2026-01-01 不在 sorted_dates 中，成交应填充到最近交易日 2026-01-02
+    dates = _dates("2026-01-02", "2026-01-03")
+    prices = {"2026-01-02": 10.0, "2026-01-03": 12.0}
+    signals = [{"date": "2026-01-01", "action": "买入"}]
+    r = simulate_ai_signal_backtest("MU", signals, prices, dates)
+    assert r.trade_count == 1
+    assert r.trades[0]["date"] == "2026-01-02"  # 实际成交日，不是信号日
+    assert len(r.equity_curve) > 0
+    assert r.equity_curve[-1]["equity"] >= 120000.0  # 持仓至 01-03，市值 ≈ 120000
+    assert round(r.total_return_pct, 1) == 20.0

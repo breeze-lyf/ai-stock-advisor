@@ -29,12 +29,12 @@ def _is_sell(action: str) -> bool:
     return ("卖" in action) or ("清仓" in action) or ("减" in action)
 
 
-def _price_on_or_after(date_str: str, price_map: dict[str, float], sorted_dates: list[str]) -> float | None:
+def _price_on_or_after(date_str: str, price_map: dict[str, float], sorted_dates: list[str]) -> tuple[str, float] | None:
     if date_str in price_map:
-        return price_map[date_str]
+        return date_str, price_map[date_str]
     for d in sorted_dates:
         if d >= date_str and d in price_map:
-            return price_map[d]
+            return d, price_map[d]
     return None
 
 
@@ -54,20 +54,23 @@ def simulate_ai_signal_backtest(
     # 按信号日期映射成交价并执行
     for sig in signals:
         action = sig.get("action") or ""
-        price = _price_on_or_after(sig["date"], price_map, sorted_dates)
-        if price is None or price <= 0:
+        result = _price_on_or_after(sig["date"], price_map, sorted_dates)
+        if result is None:
+            continue
+        fill_date, price = result
+        if price <= 0:
             continue
         if _is_buy(action) and shares == 0.0:
             shares = cash / price
             entry_price = price
             cash = 0.0
-            trades.append({"date": sig["date"], "action": "买入", "price": price, "shares": round(shares, 4)})
+            trades.append({"date": fill_date, "action": "买入", "price": price, "shares": round(shares, 4)})
         elif _is_sell(action) and shares > 0.0:
             proceeds = shares * price
             if entry_price is not None:
                 closed_pnls.append((price - entry_price) * shares)
             cash = proceeds
-            trades.append({"date": sig["date"], "action": "卖出", "price": price, "shares": round(shares, 4)})
+            trades.append({"date": fill_date, "action": "卖出", "price": price, "shares": round(shares, 4)})
             shares = 0.0
             entry_price = None
 

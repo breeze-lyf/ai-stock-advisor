@@ -80,7 +80,7 @@ export function DashboardHeader({ user, activeTab, setActiveTab }: DashboardHead
       </div>
 
       {/* Center Navigation */}
-      <nav className="absolute left-1/2 -tranneutral-x-1/2 hidden xl:flex items-center gap-1">
+      <nav className="absolute left-1/2 -translate-x-1/2 hidden xl:flex items-center gap-1">
         <NavItem
           active={activeTab === "analysis" && !isCalendarActive && !isQuantActive && !isScreenerActive}
           onClick={() => setActiveTab("analysis")}

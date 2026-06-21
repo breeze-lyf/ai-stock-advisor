@@ -30,7 +30,7 @@ export const StickyBar = React.memo(function StickyBar({
         <div className="sticky top-0 z-50 h-0 overflow-visible">
             <div className={clsx(
                 "-mx-2 md:-mx-4 px-2 md:px-4 pt-2 transition-all duration-300",
-                isScrolled ? "opacity-100 tranneutral-y-0 pointer-events-auto" : "opacity-0 -tranneutral-y-5 pointer-events-none"
+                isScrolled ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 -translate-y-5 pointer-events-none"
             )}>
                 <div className="flex md:items-center justify-between gap-4 min-h-14 rounded-[1.35rem] border border-neutral-200/80 dark:border-zinc-800 bg-white/92 dark:bg-zinc-950/92 backdrop-blur-2xl shadow-[0_20px_60px_rgba(15,23,42,0.10)] px-4 md:px-5 py-2.5">
                     <div className="flex items-center gap-2 md:gap-4 min-w-0">

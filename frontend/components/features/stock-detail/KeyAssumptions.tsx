@@ -56,7 +56,7 @@ export function KeyAssumptions({ assumptions }: KeyAssumptionsProps) {
     if (!assumptions || assumptions.length === 0) return null;
 
     return (
-        <div className="bg-white dark:bg-zinc-900 border border-neutral-100 dark:border-zinc-800 rounded-2xl overflow-hidden">
+        <div className="bg-white dark:bg-zinc-900 border border-neutral-100 dark:border-zinc-800 rounded-[2rem] px-4 md:px-10 py-6 overflow-hidden">
             {/* Header */}
             <div className="px-6 py-3 border-b border-neutral-100 dark:border-zinc-800 flex items-center gap-2">
                 <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />

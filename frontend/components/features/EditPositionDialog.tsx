@@ -241,7 +241,7 @@ export function EditPositionDialog({
                                 className="h-11 font-mono tabular-nums pr-12 border-neutral-200 dark:border-neutral-700 focus:border-blue-500 focus:ring-blue-500"
                                 placeholder="0"
                             />
-                            <span className="absolute right-3 top-1/2 -tranneutral-y-1/2 text-xs font-bold text-neutral-400">
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-neutral-400">
                                 股
                             </span>
                         </div>
@@ -263,7 +263,7 @@ export function EditPositionDialog({
                                 className="h-11 font-mono tabular-nums pr-12 border-neutral-200 dark:border-neutral-700 focus:border-blue-500 focus:ring-blue-500"
                                 placeholder="0.00"
                             />
-                            <span className="absolute right-3 top-1/2 -tranneutral-y-1/2 text-xs font-bold text-neutral-400">
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-neutral-400">
                                 $
                             </span>
                         </div>

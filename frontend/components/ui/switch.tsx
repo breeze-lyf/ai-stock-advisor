@@ -34,7 +34,7 @@ export function Switch({ checked = false, disabled = false, onCheckedChange, cla
       <span
         className={cn(
           "block h-5 w-5 rounded-full bg-white shadow transition-transform",
-          checked ? "tranneutral-x-6" : "tranneutral-x-1",
+          checked ? "translate-x-6" : "translate-x-1",
         )}
       />
     </button>

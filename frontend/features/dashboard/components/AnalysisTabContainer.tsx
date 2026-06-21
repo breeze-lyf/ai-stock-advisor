@@ -79,7 +79,7 @@ export function AnalysisTabContainer({
       <div
         className={clsx(
           "w-full lg:w-80 shrink-0 border-r dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-all duration-300 absolute inset-y-0 left-0 lg:static z-20",
-          selectedTicker ? "-tranneutral-x-full lg:tranneutral-x-0 lg:block" : "tranneutral-x-0"
+          selectedTicker ? "-translate-x-full lg:translate-x-0 lg:block" : "translate-x-0"
         )}
       >
         <PortfolioList
@@ -95,7 +95,7 @@ export function AnalysisTabContainer({
         <div
           className={clsx(
           "flex-1 min-w-0 bg-neutral-50 dark:bg-neutral-950 transition-all duration-300 h-full absolute lg:static w-full inset-y-0 right-0 z-10",
-          selectedTicker ? "tranneutral-x-0" : "tranneutral-x-full lg:tranneutral-x-0"
+          selectedTicker ? "translate-x-0" : "translate-x-full lg:translate-x-0"
         )}
       >
         {!mounted ? (

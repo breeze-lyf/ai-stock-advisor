@@ -216,7 +216,7 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                         
                         <div className="flex-1 flex gap-4 items-center">
                             <div className="relative h-20 w-1 bg-neutral-100 dark:bg-zinc-800 rounded-full overflow-hidden shrink-0">
-                                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-blue-600/30 -tranneutral-y-1/2" />
+                                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-blue-600/30 -translate-y-1/2" />
                                 {(() => {
                                     const upper = selectedItem?.bb_upper || 0;
                                     const lower = selectedItem?.bb_lower || 0;
@@ -228,7 +228,7 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                                     return (
                                         <div 
                                             className={clsx(
-                                                "absolute left-1/2 -tranneutral-x-1/2 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-zinc-900 shadow-sm z-10 transition-all duration-500",
+                                                "absolute left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-zinc-900 shadow-sm z-10 transition-all duration-500",
                                                 pos > 90 ? "bg-rose-600" : 
                                                 pos < 10 ? "bg-emerald-600" : "bg-blue-600"
                                             )}

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Clock, TrendingUp, TrendingDown, Minus, Activity, Target } from "lucide-react";
+import { Clock, TrendingUp, TrendingDown, Minus, Activity } from "lucide-react";
 
 interface TimeframeData {
     timeframe: string;
@@ -136,43 +136,9 @@ export function MultiTimeframeAnalysis({
                                         </p>
                                     </div>
                                 </div>
-                                <div className="text-right">
-                                    <div className="text-xs text-neutral-500 mb-1">置信度</div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-20 h-2 bg-neutral-200 dark:bg-neutral-700 rounded-full overflow-hidden">
-                                            <div
-                                                className={`h-full ${trendColor.replace("text-", "bg-")}`}
-                                                style={{ width: `${tf.data.confidence * 100}%` }}
-                                            />
-                                        </div>
-                                        <span className="text-xs font-bold text-neutral-700 dark:text-neutral-300">
-                                            {(tf.data.confidence * 100).toFixed(0)}%
-                                        </span>
-                                    </div>
-                                </div>
                             </div>
 
-                            <div className="grid md:grid-cols-3 gap-4">
-                                {/* 关键价位 */}
-                                <div className="md:col-span-1">
-                                    <div className="flex items-center gap-1.5 mb-2">
-                                        <Target className="h-3 w-3 text-neutral-400" />
-                                        <span className="text-[10px] text-neutral-500 uppercase">关键价位</span>
-                                    </div>
-                                    <div className="space-y-1">
-                                        {tf.data.key_levels.map((level: number, i: number) => (
-                                            <div key={i} className="flex items-center justify-between text-xs">
-                                                <span className="text-neutral-500">
-                                                    {i === 0 ? "支撑" : i === 1 ? "当前" : "阻力"}
-                                                </span>
-                                                <span className="font-bold text-neutral-700 dark:text-neutral-300">
-                                                    ${level.toFixed(2)}
-                                                </span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
+                            <div className="grid md:grid-cols-2 gap-4">
                                 {/* 参考均线 */}
                                 {tf.data.reference_ma && (
                                     <div className="md:col-span-1">

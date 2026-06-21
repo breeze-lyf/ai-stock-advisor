@@ -31,7 +31,6 @@ import { PositionOverlay } from "./stock-detail/PositionOverlay";
 import { TechnicalInsights } from "./stock-detail/TechnicalInsights";
 import { FundamentalCard } from "./stock-detail/FundamentalCard";
 import { NewsFeed } from "./stock-detail/NewsFeed";
-import { ScenarioAnalysis } from "./stock-detail/ScenarioAnalysis";
 import { RiskAnalysis } from "./stock-detail/RiskAnalysis";
 import { MultiTimeframeAnalysis } from "./stock-detail/MultiTimeframeAnalysis";
 import { KeyAssumptions } from "./stock-detail/KeyAssumptions";
@@ -419,58 +418,43 @@ export function StockDetail({
             {/* === AI 分析 Tab === */}
             {resolvedActiveTab === "analysis" && (
               <>
-            {/* 板块 2: AI 智能判研指标 */}
-            <AIVerdict
-                selectedItem={selectedItem}
-                aiData={aiData}
-                analysisHistory={analysisHistory as AnalysisHistoryItem[]}
-                analyzing={analyzing}
-                onAnalyze={onAnalyze}
-                currency={currency}
-                sanitizePrice={sanitizePrice}
-            />
+                <AIVerdict
+                    selectedItem={selectedItem}
+                    aiData={aiData}
+                    analysisHistory={analysisHistory as AnalysisHistoryItem[]}
+                    analyzing={analyzing}
+                    onAnalyze={onAnalyze}
+                    currency={currency}
+                    sanitizePrice={sanitizePrice}
+                />
 
-            <PositionOverlay
-                selectedItem={selectedItem}
-                aiData={aiData}
-                currency={currency}
-                sanitizePrice={sanitizePrice}
-                positionImpact={positionImpact}
-            />
+                <PositionOverlay
+                    selectedItem={selectedItem}
+                    aiData={aiData}
+                    currency={currency}
+                    sanitizePrice={sanitizePrice}
+                    positionImpact={positionImpact}
+                />
 
-            {/* 关键假设断点 */}
-            <KeyAssumptions assumptions={aiData?.key_assumptions} />
+                {enhancedAnalysis.data?.multi_timeframe && (
+                    <MultiTimeframeAnalysis
+                        ticker={selectedItem?.ticker || ""}
+                        analysis={enhancedAnalysis.data.multi_timeframe}
+                        loading={enhancedAnalysis.loading === "timeframe" || enhancedAnalysis.loading === "all"}
+                    />
+                )}
 
-            {/* 催化剂时间轴 */}
-            <CatalystTimeline catalysts={aiData?.catalysts} />
+                <KeyAssumptions assumptions={aiData?.key_assumptions} />
 
-            {/* 增强分析模块 */}
-            {enhancedAnalysis.data && (
-                <>
-                    {enhancedAnalysis.data.scenario_analysis && (
-                        <ScenarioAnalysis
-                            ticker={selectedItem?.ticker || ""}
-                            scenarioAnalysis={enhancedAnalysis.data.scenario_analysis}
-                            loading={enhancedAnalysis.loading === "scenario" || enhancedAnalysis.loading === "all"}
-                        />
-                    )}
-                    {enhancedAnalysis.data.risk_analysis && (
-                        <RiskAnalysis
-                            ticker={selectedItem?.ticker || ""}
-                            riskAnalysis={enhancedAnalysis.data.risk_analysis}
-                            loading={enhancedAnalysis.loading === "risk" || enhancedAnalysis.loading === "all"}
-                        />
-                    )}
-                    {enhancedAnalysis.data.multi_timeframe && (
-                        <MultiTimeframeAnalysis
-                            ticker={selectedItem?.ticker || ""}
-                            analysis={enhancedAnalysis.data.multi_timeframe}
-                            loading={enhancedAnalysis.loading === "timeframe" || enhancedAnalysis.loading === "all"}
-                        />
-                    )}
-                </>
-            )}
+                <CatalystTimeline catalysts={aiData?.catalysts} />
 
+                {enhancedAnalysis.data?.risk_analysis && (
+                    <RiskAnalysis
+                        ticker={selectedItem?.ticker || ""}
+                        riskAnalysis={enhancedAnalysis.data.risk_analysis}
+                        loading={enhancedAnalysis.loading === "risk" || enhancedAnalysis.loading === "all"}
+                    />
+                )}
               </>
             )}
 

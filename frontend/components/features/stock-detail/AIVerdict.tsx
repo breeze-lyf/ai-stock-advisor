@@ -408,8 +408,8 @@ function AIVerdictContent({
                         )}
                     </div>
 
-                    <div className="pt-4">
-                        {aiData.confidence_breakdown && Object.values(aiData.confidence_breakdown).some(v => v != null) ? (
+                    {aiData.confidence_breakdown && Object.values(aiData.confidence_breakdown).some(v => v != null) && (
+                        <div className="pt-4">
                             <InlineConfidenceBreakdown
                                 confidenceLevel={aiData.confidence_level}
                                 breakdown={aiData.confidence_breakdown}
@@ -417,10 +417,8 @@ function AIVerdictContent({
                                 fundamentalRationale={aiData.fundamental_analysis}
                                 macroRationale={aiData.macro_risk_note}
                             />
-                        ) : (
-                            <InlineSentimentBar sentimentScore={aiData.sentiment_score || 58} />
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -662,43 +660,6 @@ function InlineConfidenceBreakdown({
                         </div>
                     );
                 })}
-            </div>
-        </div>
-    );
-}
-
-function InlineSentimentBar({ sentimentScore }: { sentimentScore: number }) {
-    const sentimentLabel = sentimentScore > 60 ? "Bullish" : sentimentScore < 40 ? "Bearish" : "Neutral";
-
-    return (
-        <div className="space-y-3">
-            <div className="flex justify-between items-center text-[11px] font-black uppercase text-neutral-400 tracking-[0.3em]">
-                <div className="flex items-center gap-3">
-                    <Activity className="h-4 w-4 text-blue-600" />
-                    <span>AI 情绪偏差</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <span className="text-neutral-900 dark:text-white font-black italic">{sentimentScore}%</span>
-                    <span className={clsx(
-                        "px-2 py-0.5 rounded-md border text-[9px] font-black uppercase",
-                        sentimentScore > 60 ? "bg-emerald-50 text-emerald-600 border-emerald-200" :
-                            sentimentScore < 40 ? "bg-rose-50 text-rose-600 border-rose-200" :
-                                "bg-blue-50 text-blue-600 border-blue-200"
-                    )}>
-                        {sentimentLabel}
-                    </span>
-                </div>
-            </div>
-            <div className="h-2 w-full bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
-                <div
-                    className="h-full rounded-full bg-blue-600"
-                    style={{ width: `${sentimentScore}%` }}
-                />
-            </div>
-            <div className="flex justify-between text-[8px] font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">
-                <span>0: 极度看空</span>
-                <span>50: 中性</span>
-                <span>100: 极度看多</span>
             </div>
         </div>
     );

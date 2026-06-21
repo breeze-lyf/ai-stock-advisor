@@ -947,7 +947,7 @@ function TradeExecutionDetails({
                     )}
                 </div>
 
-<div className="bg-neutral-50 dark:bg-zinc-800/50 border border-neutral-100 dark:border-zinc-800 rounded-xl p-3">
+                <div className="bg-neutral-50 dark:bg-zinc-800/50 border border-neutral-100 dark:border-zinc-800 rounded-xl p-3">
                     <div className="text-[9px] font-black text-neutral-600 dark:text-neutral-400 uppercase mb-1">仓位 Size</div>
                     <div className="text-lg font-black text-neutral-700 dark:text-neutral-200 mono tabular-nums">
                         {maxPct != null ? `${(maxPct * 0.7).toFixed(1)}→${maxPct.toFixed(1)}%` : "--"}

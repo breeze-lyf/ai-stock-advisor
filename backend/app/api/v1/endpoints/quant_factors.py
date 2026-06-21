@@ -3,6 +3,7 @@
 提供因子管理、分析、回测等功能
 """
 import logging
+from dataclasses import asdict
 from typing import List, Dict, Any, Optional
 from datetime import datetime, date, timedelta
 from fastapi import APIRouter, Depends, HTTPException, Query, Body
@@ -22,6 +23,7 @@ from app.services.domain.quant.factor_research import factor_research_service
 from app.services.domain.portfolio.portfolio_optimizer import portfolio_optimizer
 from app.services.domain.quant.quant_backtest import quant_backtest_engine, BacktestConfig
 from app.services.domain.quant.quant_signal import signal_generator, risk_manager
+from app.services.domain.quant.ai_signal_backtest import run_ai_signal_backtest
 
 logger = logging.getLogger(__name__)
 
@@ -483,3 +485,16 @@ async def get_risk_report(
         "risk_metrics": {},
         "recommendations": [],
     }
+
+
+# ==================== AI 信号回测 ====================
+
+@router.get("/backtest/{ticker}")
+async def ai_signal_backtest(
+    ticker: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """单股 AI 信号回测：按历史 immediate_action 全仓买入/清仓卖出，返回绩效。"""
+    result = await run_ai_signal_backtest(db, ticker)
+    return asdict(result)

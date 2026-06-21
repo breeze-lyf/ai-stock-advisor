@@ -997,10 +997,9 @@ function TruthTracker({
             ) : (
                 <div className="max-h-[420px] overflow-y-auto custom-scrollbar -mx-1 px-1">
                     {/* 表头 */}
-                    <div className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-3 border-b border-neutral-100 pb-2 dark:border-zinc-800 text-[8px] font-bold uppercase tracking-wider text-neutral-400">
+                    <div className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-3 border-b border-neutral-100 pb-2 dark:border-zinc-800 text-[8px] font-bold uppercase tracking-wider text-neutral-400">
                         <span>日期</span>
                         <span>动作</span>
-                        <span className="text-right">当时价</span>
                         <span className="text-right">至今表现</span>
                         <span className="text-right pr-1">结果</span>
                     </div>
@@ -1013,7 +1012,7 @@ function TruthTracker({
                         return (
                             <div
                                 key={idx}
-                                className="grid grid-cols-[auto_1fr_auto_auto_auto] items-center gap-3 border-b border-neutral-50 py-2.5 last:border-0 dark:border-zinc-800/50"
+                                className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-3 border-b border-neutral-50 py-2.5 last:border-0 dark:border-zinc-800/50"
                             >
                                 <span className="text-[10px] font-bold tabular-nums text-neutral-400 whitespace-nowrap" suppressHydrationWarning>
                                     {report.created_at ? format(new Date(report.created_at + (report.created_at.includes('Z') ? '' : 'Z')), "yy/MM/dd", { locale: zhCN }) : "--"}
@@ -1024,9 +1023,6 @@ function TruthTracker({
                                         action.includes("卖") || action.includes("减") ? "text-rose-600" : "text-neutral-500"
                                 )}>
                                     {action}
-                                </span>
-                                <span className="text-right text-[11px] font-black tabular-nums text-neutral-600 dark:text-neutral-300 whitespace-nowrap">
-                                    {hPrice ? `$${hPrice.toFixed(2)}` : "--"}
                                 </span>
                                 <span className={clsx(
                                     "text-right text-[11px] font-black tabular-nums whitespace-nowrap",

@@ -100,11 +100,6 @@ export function KeyAssumptions({ assumptions }: KeyAssumptionsProps) {
                                 <p className="text-[11px] text-neutral-500 dark:text-neutral-400 leading-relaxed">
                                     {item.breakpoint}
                                 </p>
-                                {isOpen && (
-                                    <div className="mt-2 text-[10px] text-neutral-400 dark:text-neutral-500">
-                                        点击卡片可切换查看状态，建议持续关注这一假设是否被市场数据证伪。
-                                    </div>
-                                )}
                             </div>
 
                             {/* Right metric column */}

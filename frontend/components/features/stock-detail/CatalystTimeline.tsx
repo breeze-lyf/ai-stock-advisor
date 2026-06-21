@@ -103,7 +103,7 @@ export function CatalystTimeline({ catalysts }: CatalystTimelineProps) {
     const highlightedIndex = focusIndex >= 0 ? focusIndex : 0;
 
     return (
-        <div className="bg-white dark:bg-zinc-900 border border-neutral-200 dark:border-zinc-800 rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-white dark:bg-zinc-900 border border-neutral-100 dark:border-zinc-800 rounded-[2rem] px-4 md:px-10 py-6 shadow-sm overflow-hidden">
             <div className="px-6 py-3 border-b border-neutral-100 dark:border-zinc-800 flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-amber-600" strokeWidth={2} />
                 <span className="text-[11px] font-black text-neutral-700 dark:text-neutral-300 uppercase tracking-wider">

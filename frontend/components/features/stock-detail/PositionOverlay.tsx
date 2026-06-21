@@ -72,7 +72,7 @@ export const PositionOverlay = React.memo(function PositionOverlay({
     }
 
     return (
-        <section className="rounded-[28px] border border-neutral-200 bg-white px-5 py-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 md:px-7">
+        <section className="rounded-[2rem] border border-neutral-100 bg-white px-4 py-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 md:px-10">
             <div className="space-y-3.5">
                 <div className="flex items-center gap-3">
                     <div className="h-8 w-1.5 bg-emerald-600 rounded-full shadow-[0_0_12px_rgba(5,150,105,0.45)]" />

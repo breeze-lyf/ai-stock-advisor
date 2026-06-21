@@ -286,7 +286,10 @@ function AIVerdictContent({
     const compactHeroTitle = buildHeroHeadline(heroTitle, aiData.trigger_condition);
 
     return (
-        <div className="space-y-0 bg-white dark:bg-zinc-900 border border-neutral-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-xl shadow-neutral-200/50 dark:shadow-none animate-in fade-in slide-in-from-bottom-2 duration-700">
+        <div className="space-y-8">
+
+            {/* 模块1：AI 判研与交易计划 */}
+            <div className="bg-white dark:bg-zinc-900 border border-neutral-100 dark:border-zinc-800 rounded-[2rem] overflow-hidden">
 
             {/* 1. Header & Sentiment Grid */}
             <div className="py-4 px-6 md:py-6 md:px-8 bg-neutral-50/50 dark:bg-white/5 border-b border-neutral-100 dark:border-white/5">
@@ -509,6 +512,11 @@ function AIVerdictContent({
                 </div>
             )}
 
+            </div>{/* end 模块1 */}
+
+            {/* 模块2：深度论据（含块5 情景、块6 详细诊断）*/}
+            <div className="bg-white dark:bg-zinc-900 border border-neutral-100 dark:border-zinc-800 rounded-[2rem] overflow-hidden">
+
             {/* 5. Scenario Panel */}
             {(aiData.bull_case || aiData.base_case || aiData.bear_case) && (
                 <div className="px-6 py-2">
@@ -544,6 +552,8 @@ function AIVerdictContent({
                     </div>
                 )}
             </div>
+
+            </div>{/* end 模块2 */}
 
         </div>
     );

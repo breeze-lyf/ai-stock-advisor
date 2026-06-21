@@ -31,7 +31,6 @@ import { PositionOverlay } from "./stock-detail/PositionOverlay";
 import { TechnicalInsights } from "./stock-detail/TechnicalInsights";
 import { FundamentalCard } from "./stock-detail/FundamentalCard";
 import { NewsFeed } from "./stock-detail/NewsFeed";
-import { RiskAnalysis } from "./stock-detail/RiskAnalysis";
 import { MultiTimeframeAnalysis } from "./stock-detail/MultiTimeframeAnalysis";
 import { KeyAssumptions } from "./stock-detail/KeyAssumptions";
 import { CatalystTimeline } from "./stock-detail/CatalystTimeline";
@@ -447,14 +446,6 @@ export function StockDetail({
                 <KeyAssumptions assumptions={aiData?.key_assumptions} />
 
                 <CatalystTimeline catalysts={aiData?.catalysts} />
-
-                {enhancedAnalysis.data?.risk_analysis && (
-                    <RiskAnalysis
-                        ticker={selectedItem?.ticker || ""}
-                        riskAnalysis={enhancedAnalysis.data.risk_analysis}
-                        loading={enhancedAnalysis.loading === "risk" || enhancedAnalysis.loading === "all"}
-                    />
-                )}
               </>
             )}
 

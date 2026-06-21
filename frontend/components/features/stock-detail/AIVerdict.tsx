@@ -433,32 +433,6 @@ function AIVerdictContent({
                             </div>
                             <p className="text-[10px] font-medium text-neutral-400 italic opacity-80 ml-6">* 基于当前价的深度研判</p>
                         </div>
-                        <div className="flex gap-3">
-                            <div className="flex flex-col items-end gap-0.5 bg-rose-50/80 dark:bg-rose-600/5 border border-rose-100 dark:border-rose-600/10 rounded-xl px-3 py-1.5">
-                                <span className="text-[9px] font-black text-rose-400 dark:text-rose-600/80 uppercase tracking-tighter">
-                                    {(selectedItem?.quantity || 0) > 0 ? "止损" : "预设止损"}
-                                </span>
-                                <span className={clsx(
-                                    "text-md font-black tabular-nums",
-                                    (selectedItem?.quantity || 0) > 0 ? "text-rose-600 dark:text-rose-400" : "text-rose-400 dark:text-rose-600/80"
-                                )}>
-                                    ${aiData.stop_loss_price?.toFixed(2) || "--"}
-                                </span>
-                            </div>
-                            <div className="flex flex-col items-end gap-0.5 bg-emerald-50/80 dark:bg-emerald-600/5 border border-emerald-100 dark:border-emerald-600/10 rounded-xl px-3 py-1.5">
-                                <span className="text-[9px] font-black text-emerald-400 dark:text-emerald-600/80 uppercase tracking-tighter">建仓区间</span>
-                                <span className="text-md font-black text-emerald-600 dark:text-emerald-400 tabular-nums">
-                                    {aiData.entry_price_low != null && aiData.entry_price_high != null
-                                        ? `$${aiData.entry_price_low.toFixed(2)} - $${aiData.entry_price_high.toFixed(2)}`
-                                        : (aiData.entry_zone || "--")
-                                    }
-                                </span>
-                            </div>
-                            <div className="flex flex-col items-end gap-0.5 bg-blue-50/80 dark:bg-blue-600/5 border border-blue-100 dark:border-blue-600/10 rounded-xl px-3 py-1.5">
-                                <span className="text-[9px] font-black text-blue-400 dark:text-blue-600/80 uppercase tracking-tighter">目标止盈</span>
-                                <span className="text-md font-black text-blue-600 dark:text-blue-400 tabular-nums">${aiData.target_price?.toFixed(2) || "--"}</span>
-                            </div>
-                        </div>
                     </div>
 
                     {/* Visual Axis Line */}
@@ -973,15 +947,7 @@ function TradeExecutionDetails({
                     )}
                 </div>
 
-                <div className="bg-amber-50 dark:bg-amber-600/5 border border-amber-100 dark:border-amber-600/10 rounded-xl p-3">
-                    <div className="text-[9px] font-black text-amber-700 dark:text-amber-400 uppercase mb-1">风险回报</div>
-                    <div className="text-lg font-black text-amber-600 dark:text-amber-400 mono tabular-nums">
-                        {rr ? `1:${rr}` : "--"}
-                    </div>
-                    <p className="text-[9px] text-amber-700 dark:text-amber-400/80 mt-0.5">盈 / 亏</p>
-                </div>
-
-                <div className="bg-neutral-50 dark:bg-zinc-800/50 border border-neutral-100 dark:border-zinc-800 rounded-xl p-3">
+<div className="bg-neutral-50 dark:bg-zinc-800/50 border border-neutral-100 dark:border-zinc-800 rounded-xl p-3">
                     <div className="text-[9px] font-black text-neutral-600 dark:text-neutral-400 uppercase mb-1">仓位 Size</div>
                     <div className="text-lg font-black text-neutral-700 dark:text-neutral-200 mono tabular-nums">
                         {maxPct != null ? `${(maxPct * 0.7).toFixed(1)}→${maxPct.toFixed(1)}%` : "--"}
@@ -990,21 +956,6 @@ function TradeExecutionDetails({
                 </div>
             </div>
 
-            {aiData.action_advice && (
-                <div className="bg-linear-to-r from-emerald-50 to-blue-50 dark:from-emerald-600/5 dark:to-blue-600/5 border border-emerald-100 dark:border-emerald-600/10 rounded-xl p-3">
-                    <div className="flex items-start gap-2">
-                        <svg className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <div>
-                            <p className="text-[10px] text-neutral-700 dark:text-neutral-300 font-bold leading-relaxed">
-                                <span className="font-black text-emerald-700 dark:text-emerald-400">执行策略：</span>
-                                {compactSentence(aiData.action_advice, 100)}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

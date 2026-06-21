@@ -1052,6 +1052,19 @@ function TradeExecutionDetails({
 // 信号追踪与复盘 (Truth Tracker)
 // ========================================
 
+// 信号胜负判定：覆盖买/卖/持有/观望四种动作。
+// pl 为 null（无 history_price）时不判定；观望/未知动作不判定。
+function getSignalOutcome(
+    immediateAction: string | null | undefined,
+    pl: number | null,
+): "win" | "loss" | null {
+    if (pl === null) return null;
+    const a = immediateAction || "";
+    if (a.includes("买") || a.includes("持有")) return pl > 0 ? "win" : "loss";
+    if (a.includes("卖") || a.includes("减")) return pl < 0 ? "win" : "loss";
+    return null; // 观望及其他：无建议动作，不计胜负
+}
+
 function TruthTracker({
     analysisHistory,
     selectedItem

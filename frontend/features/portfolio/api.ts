@@ -42,6 +42,6 @@ export async function fetchStockNews(ticker: string) {
 }
 
 export async function reorderPortfolio(orders: { ticker: string; sort_order: number }[]): Promise<{ message: string }> {
-  const response = await api.patch("/api/v1/portfolio/reorder", orders);
+  const response = await api.patch("/api/v1/portfolio/reorder", { orders });
   return response.data;
 }

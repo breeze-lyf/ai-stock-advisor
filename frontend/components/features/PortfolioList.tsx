@@ -4,6 +4,22 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import clsx from "clsx";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 function formatCompactAge(dateStr: string): string {
     const diff = Date.now() - new Date(dateStr + "Z").getTime();
     const mins = Math.floor(diff / 60_000);
@@ -23,6 +39,21 @@ import {
 } from "@/features/portfolio/api";
 import { refreshAllStocks } from "@/features/market/api";
 import { ArrowUpToLine, Plus, Pencil, Trash2, Filter, X, RefreshCw } from "lucide-react";
+
+function SortableRow({ id, disabled, children }: { id: string; disabled: boolean; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id, disabled });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    cursor: disabled ? undefined : "grab",
+  };
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      {children}
+    </div>
+  );
+}
 
 interface PortfolioListProps {
     portfolio: PortfolioItem[];
@@ -48,6 +79,29 @@ export function PortfolioList({
     const [editForm, setEditForm] = useState({ quantity: "", cost: "" });
     const [sortBy, setSortBy] = useState<"ticker" | "price" | "change" | "manual" | "risk_reward_ratio">("manual");
     const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+
+    const sensors = useSensors(
+      useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+      useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 8 } })
+    );
+    const dragEnabled = sortBy === "manual" && !onlyHoldings;
+
+    const handleDragEnd = async (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+      const oldIndex = sortedPortfolio.findIndex(p => p.ticker === active.id);
+      const newIndex = sortedPortfolio.findIndex(p => p.ticker === over.id);
+      if (oldIndex < 0 || newIndex < 0) return;
+      const reordered = arrayMove(sortedPortfolio, oldIndex, newIndex);
+      const orders = reordered.map((p, idx) => ({ ticker: p.ticker, sort_order: idx }));
+      try {
+        await reorderPortfolio(orders);
+        onRefresh();
+      } catch {
+        alert("排序更新失败");
+        onRefresh();
+      }
+    };
 
     const [refreshingTicker, setRefreshingTicker] = useState<string | null>(null);
     const [deletingTicker, setDeletingTicker] = useState<string | null>(null);
@@ -241,9 +295,11 @@ export function PortfolioList({
             </div>
 
             <div className="flex-1 overflow-y-auto custom-scrollbar">
+                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                  <SortableContext items={sortedPortfolio.map(p => p.ticker)} strategy={verticalListSortingStrategy}>
                 {sortedPortfolio.map((item) => (
+                    <SortableRow key={item.ticker} id={item.ticker} disabled={!dragEnabled}>
                     <div
-                        key={item.ticker}
                         className={clsx(
                             "border-b border-neutral-100 dark:border-zinc-800/80 transition-all duration-200",
                             selectedTicker === item.ticker
@@ -471,7 +527,10 @@ export function PortfolioList({
                             </div>
                         )}
                     </div>
+                    </SortableRow>
                 ))}
+                  </SortableContext>
+                </DndContext>
                 {sortedPortfolio.length === 0 && (
                     <div className="p-12 text-center text-neutral-400 text-sm italic">列表为空</div>
                 )}

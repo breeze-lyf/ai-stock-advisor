@@ -156,6 +156,23 @@ class PortfolioUpdate(BaseModel):
     avg_cost: Optional[float] = None
 
 
+class ReorderRequest(BaseModel):
+    orders: List[dict]
+
+
+# 必须定义在 /{ticker} 之前：否则 "reorder" 会被 /{ticker} 当作 ticker 匹配，
+# 进入 update/delete 逻辑导致 404 Item not found，reorder 端点永远不可达。
+@router.patch("/reorder")
+async def reorder_portfolio(
+    payload: ReorderRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """重排序用户的持仓列表。入参 {orders: [{ticker, sort_order}, ...]}"""
+    use_case = ReorderPortfolioUseCase(db, current_user, portfolio_repo=PortfolioRepository(db))
+    return await use_case.execute(payload.orders)
+
+
 @router.patch("/{ticker}")
 async def update_portfolio_item(
     ticker: str,
@@ -281,24 +298,3 @@ async def get_stock_news(
     ]
 
 
-@router.patch("/reorder")
-async def reorder_portfolio(
-    orders: List[dict],
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """
-    重排序用户的持仓列表
-
-    功能：
-    - 批量更新持仓的排序顺序
-    - 用于用户自定义持仓显示顺序
-
-    参数：
-    - orders: 排序列表，格式为 [{ticker: "AAPL", sort_order: 1}, ...]
-
-    返回：
-    - 重排序成功消息
-    """
-    use_case = ReorderPortfolioUseCase(db, current_user, portfolio_repo=PortfolioRepository(db))
-    return await use_case.execute(orders)

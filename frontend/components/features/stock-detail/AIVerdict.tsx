@@ -515,7 +515,7 @@ function AIVerdictContent({
             </div>{/* end 模块1 */}
 
             {/* 模块2：深度论据（含块5 情景、块6 详细诊断）*/}
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-3">
                 <div className="h-8 w-1.5 bg-violet-600 rounded-full shadow-[0_0_12px_rgba(124,58,237,0.5)]" />
                 <h2 className="text-xl font-black tracking-tight text-neutral-900 dark:text-neutral-100 uppercase">深度论据</h2>
             </div>

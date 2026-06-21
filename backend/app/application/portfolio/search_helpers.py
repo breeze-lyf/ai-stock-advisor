@@ -119,23 +119,10 @@ def build_search_candidates(query: str) -> list[str]:
             # 已经是完整的股票代码格式
             return candidates
 
-    # 对于没有后缀的代码，尝试添加常见的市场后缀
-    # 这有助于搜索欧洲、亚洲等国际市场的股票
-    if not any(normalized.endswith(s) for s in MARKET_SUFFIX_MAP.keys()):
-        # 纯字母代码可能是美股或其他国际市场
-        if re.fullmatch(r"[A-Z]+", normalized):
-            # 对于 3 个字母以上的代码，除了作为美股（无后缀）外
-            # 还尝试添加主要的欧洲市场后缀，以便搜索到国际市场的股票
-            if len(normalized) >= 4:
-                # 为较长的字母代码添加欧洲市场后缀候选
-                # 这些市场可能使用相同的代码但后缀不同
-                for suffix in [".ST", ".CO", ".PA", ".MI", ".MC", ".DE", ".L", ".AX", ".TO"]:
-                    add(f"{normalized}{suffix}")
-        elif len(normalized) >= 3:
-            # 对于字母 + 数字组合或其他格式的代码
-            # 添加主要的欧洲市场后缀
-            for suffix in [".ST", ".CO", ".PA", ".MI", ".MC", ".DE", ".L"]:
-                add(f"{normalized}{suffix}")
+    # 无后缀代码（美股或国际市场）：只保留代码本身作为候选。
+    # 国际市场（欧洲/亚洲）的匹配交给 provider 的 search_instruments 模糊搜索，
+    # 不再穷举 7-9 个市场后缀逐个 get_quote——那会对慢数据源串行打一堆无用
+    # 请求导致整体超时（实测 search_instruments 对 MRVL 等可直接命中正确标的）。
 
     return candidates
 

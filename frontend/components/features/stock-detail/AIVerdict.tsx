@@ -41,7 +41,7 @@ export const AIVerdict = React.memo(function AIVerdict({
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="h-8 w-1.5 bg-blue-600 rounded-full shadow-[0_0_12px_rgba(37,99,235,0.5)]" />
-                    <h2 className="text-xl font-black tracking-tight text-neutral-900 dark:text-neutral-100 uppercase">AI 智能判研指标</h2>
+                    <h2 className="text-xl font-black tracking-tight text-neutral-900 dark:text-neutral-100 uppercase">AI 判研与交易计划</h2>
                 </div>
                 <div className="flex flex-col items-center">
                     <Button
@@ -59,8 +59,8 @@ export const AIVerdict = React.memo(function AIVerdict({
                 </div>
             </div>
 
-            {/* 内容区：缩进 */}
-            <div className="px-4 md:px-10">
+            {/* 内容区 */}
+            <div>
                 {aiData ? (
                     <AIVerdictContent
                         selectedItem={selectedItem}
@@ -286,7 +286,10 @@ function AIVerdictContent({
     const compactHeroTitle = buildHeroHeadline(heroTitle, aiData.trigger_condition);
 
     return (
-        <div className="space-y-0 bg-white dark:bg-zinc-900 border border-neutral-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-xl shadow-neutral-200/50 dark:shadow-none animate-in fade-in slide-in-from-bottom-2 duration-700">
+        <div className="space-y-8">
+
+            {/* 模块1：AI 判研与交易计划 */}
+            <div className="bg-white dark:bg-zinc-900 border border-neutral-100 dark:border-zinc-800 rounded-[2rem] overflow-hidden">
 
             {/* 1. Header & Sentiment Grid */}
             <div className="py-4 px-6 md:py-6 md:px-8 bg-neutral-50/50 dark:bg-white/5 border-b border-neutral-100 dark:border-white/5">
@@ -509,6 +512,15 @@ function AIVerdictContent({
                 </div>
             )}
 
+            </div>{/* end 模块1 */}
+
+            {/* 模块2：深度论据（含块5 情景、块6 详细诊断）*/}
+            <div className="flex items-center gap-3">
+                <div className="h-8 w-1.5 bg-violet-600 rounded-full shadow-[0_0_12px_rgba(124,58,237,0.5)]" />
+                <h2 className="text-xl font-black tracking-tight text-neutral-900 dark:text-neutral-100 uppercase">深度论据</h2>
+            </div>
+            <div className="bg-white dark:bg-zinc-900 border border-neutral-100 dark:border-zinc-800 rounded-[2rem] overflow-hidden">
+
             {/* 5. Scenario Panel */}
             {(aiData.bull_case || aiData.base_case || aiData.bear_case) && (
                 <div className="px-6 py-2">
@@ -537,13 +549,15 @@ function AIVerdictContent({
                 </button>
                 
                 {isExpanded && (
-                    <div className="mt-3 rounded-[22px] border border-neutral-200 bg-white px-5 py-5 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300 dark:border-zinc-800 dark:bg-zinc-950">
+                    <div className="mt-3 px-1 py-2 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
                         <div className="prose dark:prose-invert max-w-none text-[13px] font-normal leading-relaxed text-neutral-500 dark:text-neutral-400 [&>p]:m-0">
                             <MarkdownWithRefs content={aiData.action_advice || ""} />
                         </div>
                     </div>
                 )}
             </div>
+
+            </div>{/* end 模块2 */}
 
         </div>
     );

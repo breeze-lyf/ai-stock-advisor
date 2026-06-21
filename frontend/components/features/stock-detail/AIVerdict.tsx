@@ -41,7 +41,7 @@ export const AIVerdict = React.memo(function AIVerdict({
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <div className="h-8 w-1.5 bg-blue-600 rounded-full shadow-[0_0_12px_rgba(37,99,235,0.5)]" />
-                    <h2 className="text-xl font-black tracking-tight text-neutral-900 dark:text-neutral-100 uppercase">AI 智能判研指标</h2>
+                    <h2 className="text-xl font-black tracking-tight text-neutral-900 dark:text-neutral-100 uppercase">AI 判研与交易计划</h2>
                 </div>
                 <div className="flex flex-col items-center">
                     <Button
@@ -59,8 +59,8 @@ export const AIVerdict = React.memo(function AIVerdict({
                 </div>
             </div>
 
-            {/* 内容区：缩进 */}
-            <div className="px-4 md:px-10">
+            {/* 内容区 */}
+            <div>
                 {aiData ? (
                     <AIVerdictContent
                         selectedItem={selectedItem}
@@ -515,6 +515,10 @@ function AIVerdictContent({
             </div>{/* end 模块1 */}
 
             {/* 模块2：深度论据（含块5 情景、块6 详细诊断）*/}
+            <div className="flex items-center gap-3 mb-4">
+                <div className="h-8 w-1.5 bg-violet-600 rounded-full shadow-[0_0_12px_rgba(124,58,237,0.5)]" />
+                <h2 className="text-xl font-black tracking-tight text-neutral-900 dark:text-neutral-100 uppercase">深度论据</h2>
+            </div>
             <div className="bg-white dark:bg-zinc-900 border border-neutral-100 dark:border-zinc-800 rounded-[2rem] overflow-hidden">
 
             {/* 5. Scenario Panel */}

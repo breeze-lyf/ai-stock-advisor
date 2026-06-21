@@ -482,7 +482,7 @@ export function PortfolioList({
                                 <div className="flex items-center gap-2 pt-3 border-t border-neutral-100 dark:border-neutral-800">
                                     <div className="flex items-center gap-1.5 flex-1">
                                         <div className="relative flex-1">
-                                            <span className="absolute left-2 top-1/2 -tranneutral-y-1/2 text-[10px] text-neutral-400 font-bold">
+                                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-neutral-400 font-bold">
                                                 持
                                             </span>
                                             <Input
@@ -495,7 +495,7 @@ export function PortfolioList({
                                             />
                                         </div>
                                         <div className="relative flex-1">
-                                            <span className="absolute left-2 top-1/2 -tranneutral-y-1/2 text-[10px] text-neutral-400 font-bold">
+                                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-neutral-400 font-bold">
                                                 均
                                             </span>
                                             <Input

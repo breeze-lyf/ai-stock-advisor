@@ -118,7 +118,7 @@ export function CatalystTimeline({ catalysts }: CatalystTimelineProps) {
                         {[0, 7, 14, 21, 30].map((day) => (
                             <div
                                 key={day}
-                                className="absolute -tranneutral-x-1/2"
+                                className="absolute -translate-x-1/2"
                                 style={{ left: `${(day / 30) * 100}%` }}
                             >
                                 <span className="text-[9px] font-medium text-neutral-400 mono">
@@ -129,11 +129,11 @@ export function CatalystTimeline({ catalysts }: CatalystTimelineProps) {
                     </div>
 
                     <div className="relative h-16">
-                        <div className="absolute left-0 right-0 top-1/2 -tranneutral-y-1/2 h-px bg-neutral-200 dark:bg-zinc-700" />
+                        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-px bg-neutral-200 dark:bg-zinc-700" />
                         {[0, 7, 14, 21, 30].map((day) => (
                             <div
                                 key={day}
-                                className="absolute top-1/2 -tranneutral-y-1/2 w-px h-1.5 bg-neutral-300 dark:bg-zinc-600"
+                                className="absolute top-1/2 -translate-y-1/2 w-px h-1.5 bg-neutral-300 dark:bg-zinc-600"
                                 style={{ left: `${(day / 30) * 100}%` }}
                             />
                         ))}
@@ -154,7 +154,7 @@ export function CatalystTimeline({ catalysts }: CatalystTimelineProps) {
                             return (
                                 <div
                                     key={`${catalyst.event}-${idx}`}
-                                    className="absolute top-1/2 -tranneutral-y-1/2 -tranneutral-x-1/2 z-10"
+                                    className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-10"
                                     style={{ left: `${clampPosition(daysAway)}%` }}
                                 >
                                     <div className="flex flex-col items-center">

@@ -866,7 +866,7 @@ function TradeAxisVisual({
                 {visibleZones.map((zone, idx) => (
                     <div
                         key={`label-${idx}`}
-                        className="absolute -tranneutral-x-1/2 text-center"
+                        className="absolute -translate-x-1/2 text-center"
                         style={{ left: `${getPos((zone.start + zone.end) / 2)}%` }}
                     >
                         <span className="text-[9px] font-black text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
@@ -912,7 +912,7 @@ function TradeAxisVisual({
                 {keyPrices.map((tick, i) => (
                     <div
                         key={i}
-                        className="absolute flex flex-col items-center -tranneutral-x-1/2"
+                        className="absolute flex flex-col items-center -translate-x-1/2"
                         style={{ left: `${getPos(tick.val)}%` }}
                     >
                         <div className={clsx("w-px h-2 mb-1", tick.color.split(" ")[0])} />

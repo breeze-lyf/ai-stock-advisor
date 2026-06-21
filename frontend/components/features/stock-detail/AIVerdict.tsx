@@ -537,7 +537,7 @@ function AIVerdictContent({
                 </button>
                 
                 {isExpanded && (
-                    <div className="mt-3 rounded-[22px] border border-neutral-200 bg-white px-5 py-5 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300 dark:border-zinc-800 dark:bg-zinc-950">
+                    <div className="mt-3 px-1 py-2 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
                         <div className="prose dark:prose-invert max-w-none text-[13px] font-normal leading-relaxed text-neutral-500 dark:text-neutral-400 [&>p]:m-0">
                             <MarkdownWithRefs content={aiData.action_advice || ""} />
                         </div>

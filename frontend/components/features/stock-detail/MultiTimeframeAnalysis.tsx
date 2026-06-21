@@ -97,15 +97,12 @@ export function MultiTimeframeAnalysis({
     ];
 
     return (
-        <div className="bg-white dark:bg-zinc-900 rounded-[2rem] px-4 md:px-10 py-6 border border-neutral-100 dark:border-zinc-800">
-            <div className="space-y-4">
-                <div className="flex items-center gap-3 mb-4">
+        <div className="space-y-3">
+            <div className="flex items-center gap-3">
                 <div className="h-8 w-1.5 bg-blue-600 rounded-full shadow-[0_0_12px_rgba(37,99,235,0.5)]" />
-                <h2 className="text-xl font-black tracking-tight text-neutral-900 dark:text-neutral-100 uppercase">
-                    多时间框架分析
-                </h2>
+                <h2 className="text-xl font-black tracking-tight text-neutral-900 dark:text-neutral-100 uppercase">多时间框架分析</h2>
             </div>
-
+            <div className="bg-white dark:bg-zinc-900 rounded-[2rem] px-4 md:px-10 py-6 border border-neutral-100 dark:border-zinc-800">
             <div className="grid gap-4">
                 {timeframes.map((tf) => {
                     const TrendIcon = getTrendConfig(tf.data.trend).icon;

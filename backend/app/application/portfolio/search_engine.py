@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import logging
+
 from app.application.portfolio.search_helpers import build_provider_order, build_search_candidates
 from app.infrastructure.db.repositories.stock_repository import StockRepository
 from app.schemas.portfolio import SearchResult
 from app.services.integrations.market.market_providers import ProviderFactory
+
+logger = logging.getLogger(__name__)
 
 
 class PortfolioSearchEngine:

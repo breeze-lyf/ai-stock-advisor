@@ -16,7 +16,6 @@ from app.services.domain.analysis.enhanced_ai_analysis import EnhancedAIAnalysis
 from app.services.domain.market.market_data import MarketDataService
 from app.services.domain.macro.macro_service import MacroService
 from app.infrastructure.db.repositories.stock_repository import StockRepository
-from app.infrastructure.db.repositories.market_data_repository import MarketDataRepository
 from app.infrastructure.db.repositories.analysis_repository import AnalysisRepository
 from app.services.ai_service import AIService
 from app.application.analysis.analyze_stock import AnalyzeStockUseCase
@@ -70,8 +69,7 @@ async def _gather_analysis_context(ticker: str, db: AsyncSession, user_id: str) 
     stock = await stock_repo.get_stock(ticker)
     fundamental_data = _build_fundamental_data(stock)
 
-    news_repo = MarketDataRepository(db)
-    news_articles = await news_repo.get_latest_stock_news(ticker, limit=5)
+    news_articles = await stock_repo.get_latest_news(ticker, limit=5)
     news_data = [
         {"title": n.title, "publisher": n.publisher, "time": n.publish_time.isoformat()}
         for n in news_articles

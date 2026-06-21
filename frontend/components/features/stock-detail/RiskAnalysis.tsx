@@ -153,8 +153,9 @@ export function RiskAnalysis({ ticker, riskAnalysis, loading = false }: RiskAnal
                 })}
             </div>
 
-            {/* 技术指标 */}
-            <div className="grid grid-cols-3 gap-4 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-700">
+            {/* 技术指标：三项全空时不渲染整个框，避免空白边框 */}
+            {(riskAnalysis.beta || riskAnalysis.rsi || riskAnalysis.volatility) && (
+            <div className="grid grid-cols-3 gap-4 p-4 rounded-2xl bg-neutral-50 dark:bg-zinc-950/50 border border-neutral-100 dark:border-zinc-800">
                 {riskAnalysis.beta && (
                     <div className="text-center">
                         <div className="text-xs text-neutral-500 mb-1">β系数</div>
@@ -182,6 +183,7 @@ export function RiskAnalysis({ ticker, riskAnalysis, loading = false }: RiskAnal
                     </div>
                 )}
             </div>
+            )}
         </div>
     );
 }

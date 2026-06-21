@@ -141,3 +141,42 @@ def simulate_ai_signal_backtest(
         trades=trades,
         insufficient_sample=sample_count < 10,
     )
+
+
+from app.infrastructure.db.repositories.analysis_repository import AnalysisRepository
+from app.services.integrations.market.market_providers import ProviderFactory
+
+
+def _ohlcv_field(item, name):
+    return item.get(name) if isinstance(item, dict) else getattr(item, name, None)
+
+
+async def run_ai_signal_backtest(db, ticker: str) -> AISignalBacktestResult:
+    ticker = ticker.upper().strip()
+    repo = AnalysisRepository(db)
+    reports = await repo.get_report_history_for_ticker(ticker, limit=500)
+    # 过滤失败、升序
+    valid = [
+        r for r in reports
+        if (getattr(r, "summary_status", None) != "调用失败")
+        and getattr(r, "immediate_action", None)
+        and getattr(r, "created_at", None)
+    ]
+    valid.sort(key=lambda r: r.created_at)
+    signals = [
+        {"date": r.created_at.strftime("%Y-%m-%d"), "action": r.immediate_action or ""}
+        for r in valid
+    ]
+
+    # K 线
+    provider = ProviderFactory.get_provider(ticker, "AUTO")
+    ohlcv = await provider.get_ohlcv(ticker, interval="1d", period="2y")
+    price_map: dict[str, float] = {}
+    for item in (ohlcv or []):
+        t = _ohlcv_field(item, "time")
+        c = _ohlcv_field(item, "close")
+        if t and c:
+            price_map[str(t)[:10]] = float(c)
+    sorted_dates = sorted(price_map.keys())
+
+    return simulate_ai_signal_backtest(ticker, signals, price_map, sorted_dates)

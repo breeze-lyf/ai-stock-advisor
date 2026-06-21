@@ -87,8 +87,8 @@ export function RiskAnalysis({ ticker, riskAnalysis, loading = false }: RiskAnal
     return (
         <div className="bg-white dark:bg-zinc-900 rounded-[2rem] px-4 md:px-10 py-6 border border-neutral-100 dark:border-zinc-800">
             <div className="flex items-center gap-3 mb-6">
-                <Shield className="h-5 w-5 text-amber-500" />
-                <h3 className="text-lg font-semibold text-neutral-900 dark:text-white">风险分析</h3>
+                <div className="h-8 w-1.5 bg-amber-500 rounded-full shadow-[0_0_12px_rgba(245,158,11,0.5)]" />
+                <h2 className="text-xl font-black tracking-tight text-neutral-900 dark:text-neutral-100 uppercase">风险分析</h2>
                 <div className="ml-auto flex items-center gap-2">
                     <span className="text-xs text-neutral-500">综合评分</span>
                     <div className="flex items-center gap-1">
@@ -113,7 +113,7 @@ export function RiskAnalysis({ ticker, riskAnalysis, loading = false }: RiskAnal
                     return (
                         <div
                             key={risk.title}
-                            className="rounded-xl p-4 border border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900/50"
+                            className="rounded-2xl p-4 border border-neutral-100 dark:border-zinc-800 bg-neutral-50 dark:bg-zinc-950/50"
                         >
                             <div className="flex items-center justify-between mb-3">
                                 <div>

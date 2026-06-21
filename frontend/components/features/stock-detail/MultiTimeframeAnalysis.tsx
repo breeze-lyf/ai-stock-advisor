@@ -99,11 +99,11 @@ export function MultiTimeframeAnalysis({
     return (
         <div className="bg-white dark:bg-zinc-900 rounded-[2rem] px-4 md:px-10 py-6 border border-neutral-100 dark:border-zinc-800">
             <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-4">
-                <Clock className="h-5 w-5 text-neutral-400" />
-                <h3 className="text-lg font-bold text-neutral-900 dark:text-neutral-100">
+                <div className="flex items-center gap-3 mb-4">
+                <div className="h-8 w-1.5 bg-blue-600 rounded-full shadow-[0_0_12px_rgba(37,99,235,0.5)]" />
+                <h2 className="text-xl font-black tracking-tight text-neutral-900 dark:text-neutral-100 uppercase">
                     多时间框架分析
-                </h3>
+                </h2>
             </div>
 
             <div className="grid gap-4">
@@ -115,7 +115,7 @@ export function MultiTimeframeAnalysis({
                     return (
                         <div
                             key={tf.title}
-                            className="rounded-xl p-4 border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800"
+                            className="rounded-2xl p-4 border border-neutral-100 dark:border-zinc-800 bg-neutral-50 dark:bg-zinc-950/50"
                         >
                             <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-3">

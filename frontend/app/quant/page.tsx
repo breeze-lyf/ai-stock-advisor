@@ -17,7 +17,7 @@ export default function Page() {
       <DashboardHeader
         user={userProfile}
         activeTab={"quant"}
-        setActiveTab={(tab: DashboardTab) => router.push(`/?tab=${tab}`)}
+        setActiveTab={(tab: DashboardTab) => router.push(`/dashboard?tab=${tab}`)}
       />
       <main className="flex-1 min-h-0 overflow-y-auto">
         <QuantDashboard standalone />

@@ -106,18 +106,18 @@ const deferredSectionStyle = {
 
 const copy: Record<Language, Copy> = {
   en: {
-    brand: "AI Smart Investment Advisor",
-    nav: ["Features", "Pricing", "Docs", "Blog"],
+    brand: "Personal Investment Agent",
+    nav: ["Features", "Try it", "Docs", "GitHub"],
     loginLabel: "Sign In",
     getStartedLabel: "Get Started",
-    launchBadge: "Now in Public Beta",
-    heroTitleLine1: "Research faster.",
-    heroTitleLine2: "Invest smarter.",
+    launchBadge: "Open source · MCP ready",
+    heroTitleLine1: "Your personal",
+    heroTitleLine2: "investment agent.",
     heroDescription:
-      "The modern intelligence platform for investors who move fast. Built to scan markets, explain signals, and turn analysis into portfolio decisions.",
+      "An AI agent that remembers your holdings and style, writes you a daily brief, and keeps score of every call it makes. Plug it into Claude, Cursor or DingTalk via MCP.",
     heroPrimaryCta: "Start Exploring",
-    heroSecondaryCta: "View Demo",
-    heroTrust: "Trusted by 2,000+ research-heavy investor workflows",
+    heroSecondaryCta: "Try without sign-up",
+    heroTrust: "Self-hostable · A-shares, HK & US · Not investment advice",
     trustedByTitle: "Trusted by modern research stacks",
     trustedBy: ["Notion", "Figma", "Slack", "Discord", "GitHub"],
     featuresHeading: "Everything you need to move with the market",
@@ -222,18 +222,18 @@ const copy: Record<Language, Copy> = {
     illustrativeNote: "Illustrative marketing numbers",
   },
   zh: {
-    brand: "AI 智能投顾助手",
-    nav: ["功能", "价格", "文档", "博客"],
+    brand: "个人投资智能体",
+    nav: ["功能", "试用", "文档", "GitHub"],
     loginLabel: "登录",
     getStartedLabel: "立即开始",
-    launchBadge: "公开测试中",
-    heroTitleLine1: "研究更快。",
-    heroTitleLine2: "投资更聪明。",
+    launchBadge: "开源 · 支持 MCP",
+    heroTitleLine1: "你的个人",
+    heroTitleLine2: "投资智能体。",
     heroDescription:
-      "面向高频研究型投资者的现代智能平台。帮助你扫描市场、解释信号，并把分析快速转成投资组合决策。",
+      "记得你的持仓与投资风格，每天主动写简报，每条买卖建议都自动复盘、用战绩说话。还能通过 MCP 接入 Claude、Cursor 与钉钉。",
     heroPrimaryCta: "开始探索",
-    heroSecondaryCta: "查看演示",
-    heroTrust: "已支持 2,000+ 重研究流程的投资工作流",
+    heroSecondaryCta: "免登录试用",
+    heroTrust: "可自托管 · 覆盖 A 股 / 港股 / 美股 · 不构成投资建议",
     trustedByTitle: "受到现代研究型团队青睐",
     trustedBy: ["Notion", "Figma", "Slack", "Discord", "GitHub"],
     featuresHeading: "你需要的一切，都在同一个市场工作台里",
@@ -435,12 +435,12 @@ export function AuthSplitLayout({
                   {t.heroPrimaryCta}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
-                <button
-                  type="button"
+                <Link
+                  href="/try"
                   className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.03] px-6 py-3.5 text-sm font-medium text-white/80 transition hover:bg-white/[0.06]"
                 >
                   {t.heroSecondaryCta}
-                </button>
+                </Link>
               </div>
 
               <div className="mt-12">

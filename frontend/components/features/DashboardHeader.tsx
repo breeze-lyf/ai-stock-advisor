@@ -1,6 +1,7 @@
 "use client";
 
-import { TrendingUp, PieChart, Globe, Target, BarChart3, Search, Calendar, Bell, Settings, LogOut, Bot } from "lucide-react";
+import { TrendingUp, PieChart, Globe, Target, BarChart3, Search, Calendar, Bell, Settings, LogOut, Bot, Newspaper, Trophy } from "lucide-react";
+import { BRAND, FEATURES } from "@/shared/config/features";
 import { MarketStatusIndicator } from "@/components/features/MarketStatusIndicator";
 import { UserProfile } from "@/types";
 import type { DashboardTab } from "@/features/dashboard/hooks/useDashboardRouteState";
@@ -58,10 +59,21 @@ export function DashboardHeader({ user, activeTab, setActiveTab }: DashboardHead
   const pathname = usePathname();
   // Remove trailing slashes for consistent comparison
   const cleanPathname = pathname?.endsWith('/') ? pathname.slice(0, -1) : pathname;
-  const isCalendarActive = cleanPathname === "/calendar";
-  const isQuantActive = cleanPathname === "/quant";
-  const isScreenerActive = cleanPathname === "/screener";
-  const isAgentActive = cleanPathname === "/agent";
+  const onDashboard = cleanPathname === "/dashboard";
+  const items: Array<{ key: string; label: string; icon: React.ReactNode; href?: string; tab?: DashboardTab; active: boolean }> = [
+    { key: "agent", label: "智能体", icon: <Bot className="w-4 h-4" />, href: "/", active: cleanPathname === "" || cleanPathname === "/agent" },
+    { key: "briefs", label: "简报", icon: <Newspaper className="w-4 h-4" />, href: "/briefs", active: cleanPathname === "/briefs" },
+    { key: "portfolio", label: "持仓与自选", icon: <PieChart className="w-4 h-4" />, tab: "portfolio", active: onDashboard && activeTab === "portfolio" },
+    { key: "analysis", label: "个股诊断", icon: <TrendingUp className="w-4 h-4" />, tab: "analysis", active: onDashboard && activeTab === "analysis" },
+    { key: "review", label: "复盘战绩", icon: <Trophy className="w-4 h-4" />, href: "/review", active: cleanPathname === "/review" },
+    // Hidden by default (see shared/config/features.ts) — not part of the personal-agent core flow.
+    ...(FEATURES.radar ? [{ key: "radar", label: "热点", icon: <Globe className="w-4 h-4" />, tab: "radar" as DashboardTab, active: onDashboard && activeTab === "radar" }] : []),
+    ...(FEATURES.paperTrading ? [{ key: "papertrading", label: "模拟", icon: <Target className="w-4 h-4" />, tab: "papertrading" as DashboardTab, active: onDashboard && activeTab === "papertrading" }] : []),
+    ...(FEATURES.calendar ? [{ key: "calendar", label: "日历", icon: <Calendar className="w-4 h-4" />, href: "/calendar", active: cleanPathname === "/calendar" }] : []),
+    ...(FEATURES.quant ? [{ key: "quant", label: "量化", icon: <BarChart3 className="w-4 h-4" />, href: "/quant", active: cleanPathname === "/quant" }] : []),
+    { key: "settings", label: "设置", icon: <Settings className="w-4 h-4" />, href: "/settings", active: cleanPathname === "/settings" },
+  ];
+
 
   return (
     <header className="flex h-16 items-center px-4 border-b border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl shrink-0 z-50 relative">
@@ -69,11 +81,11 @@ export function DashboardHeader({ user, activeTab, setActiveTab }: DashboardHead
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 bg-linear-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-            <span className="text-white font-black text-lg">A</span>
+            <Bot className="w-5 h-5 text-white" />
           </div>
           <div className="hidden sm:block">
-            <h1 className="font-bold text-base text-neutral-900 dark:text-white">AI Stock Advisor</h1>
-            <p className="text-[10px] text-neutral-500 dark:text-neutral-400 -mt-0.5">智能投资助手</p>
+            <h1 className="font-bold text-base text-neutral-900 dark:text-white">{BRAND.name}</h1>
+            <p className="text-[10px] text-neutral-500 dark:text-neutral-400 -mt-0.5">Personal Investment Agent</p>
           </div>
         </div>
 
@@ -82,98 +94,20 @@ export function DashboardHeader({ user, activeTab, setActiveTab }: DashboardHead
 
       {/* Center Navigation */}
       <nav className="absolute left-1/2 -translate-x-1/2 hidden xl:flex items-center gap-1">
-        <NavItem
-          active={activeTab === "analysis" && !isCalendarActive && !isQuantActive && !isScreenerActive}
-          onClick={() => setActiveTab("analysis")}
-          label="个股"
-          icon={<TrendingUp className="w-4 h-4" />}
-        />
-        <NavItem
-          active={activeTab === "portfolio"}
-          onClick={() => setActiveTab("portfolio")}
-          label="持仓"
-          icon={<PieChart className="w-4 h-4" />}
-        />
-        <NavItem
-          active={activeTab === "radar"}
-          onClick={() => setActiveTab("radar")}
-          label="热点"
-          icon={<Globe className="w-4 h-4" />}
-        />
-        <NavItem
-          active={activeTab === "papertrading"}
-          onClick={() => setActiveTab("papertrading")}
-          label="模拟"
-          icon={<Target className="w-4 h-4" />}
-        />
-
-        {/* Divider */}
-        <div className="w-px h-6 bg-neutral-200 dark:bg-neutral-700 mx-1" />
-
-        {/* Tool Links */}
-        <NavItem
-          href="/calendar"
-          label="日历"
-          icon={<Calendar className="w-4 h-4" />}
-          active={isCalendarActive}
-        />
-        <NavItem
-          href="/quant"
-          label="量化"
-          icon={<BarChart3 className="w-4 h-4" />}
-          active={isQuantActive}
-        />
-        <NavItem
-          href="/agent"
-          label="智能体"
-          icon={<Bot className="w-4 h-4" />}
-          active={isAgentActive}
-        />
+        {items.map((it) => (
+          <NavItem key={it.key} href={it.href} onClick={it.tab ? () => setActiveTab(it.tab!) : undefined} label={it.label} icon={it.icon} active={it.active} />
+        ))}
       </nav>
 
       {/* Mobile Nav */}
       <nav className="xl:hidden flex items-center gap-1 ml-auto overflow-x-auto min-w-0 px-2" suppressHydrationWarning>
-        <button onClick={() => setActiveTab("analysis")} type="button" className={clsx("p-2 rounded-lg shrink-0 transition-colors", activeTab === "analysis" && !isCalendarActive && !isQuantActive && !isScreenerActive ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-neutral-500")} title="个股"><TrendingUp className="w-4 h-4" /></button>
-        <button onClick={() => setActiveTab("portfolio")} type="button" className={clsx("p-2 rounded-lg shrink-0 transition-colors", activeTab === "portfolio" ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-neutral-500")} title="持仓"><PieChart className="w-4 h-4" /></button>
-        <button onClick={() => setActiveTab("radar")} type="button" className={clsx("p-2 rounded-lg shrink-0 transition-colors", activeTab === "radar" ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-neutral-500")} title="热点"><Globe className="w-4 h-4" /></button>
-        <button onClick={() => setActiveTab("papertrading")} type="button" className={clsx("p-2 rounded-lg shrink-0 transition-colors", activeTab === "papertrading" ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-neutral-500")} title="模拟"><Target className="w-4 h-4" /></button>
-        <div className="w-px h-5 bg-neutral-200 dark:bg-neutral-700 mx-1 shrink-0" />
-        <Link
-          href="/calendar"
-          className={clsx(
-            "p-2 rounded-lg shrink-0",
-            isCalendarActive ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-neutral-500 hover:text-neutral-700",
-            "transition-colors"
-          )}
-          title="日历"
-          suppressHydrationWarning
-        >
-          <Calendar className="w-4 h-4" />
-        </Link>
-        <Link
-          href="/quant"
-          className={clsx(
-            "p-2 rounded-lg shrink-0",
-            isQuantActive ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-neutral-500 hover:text-neutral-700",
-            "transition-colors"
-          )}
-          title="量化"
-          suppressHydrationWarning
-        >
-          <BarChart3 className="w-4 h-4" />
-        </Link>
-        <Link
-          href="/agent"
-          className={clsx(
-            "p-2 rounded-lg shrink-0",
-            isAgentActive ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-neutral-500 hover:text-neutral-700",
-            "transition-colors"
-          )}
-          title="智能体"
-          suppressHydrationWarning
-        >
-          <Bot className="w-4 h-4" />
-        </Link>
+        {items.map((it) =>
+          it.href ? (
+            <Link key={it.key} href={it.href} title={it.label} suppressHydrationWarning className={clsx("p-2 rounded-lg shrink-0 transition-colors", it.active ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-neutral-500 hover:text-neutral-700")}>{it.icon}</Link>
+          ) : (
+            <button key={it.key} type="button" title={it.label} onClick={() => setActiveTab(it.tab!)} className={clsx("p-2 rounded-lg shrink-0 transition-colors", it.active ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-neutral-500")}>{it.icon}</button>
+          ),
+        )}
       </nav>
 
       {/* Right Section: User Menu */}
@@ -198,15 +132,15 @@ function UserMenuWithAlerts({ user }: UserMenuWithAlertsProps) {
 
   return (
     <div className="flex items-center gap-3">
-      {/* Membership Badge */}
-      <div className={clsx(
+      {/* Membership Badge (billing UI hidden unless NEXT_PUBLIC_FEATURE_BILLING=true) */}
+      {FEATURES.billing && <div className={clsx(
         "px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-widest uppercase transition-all duration-300 shadow-sm",
         isPro
           ? "bg-neutral-900 text-white border border-neutral-700 ring-1 ring-neutral-800"
           : "bg-neutral-100 text-neutral-500 border border-neutral-200"
       )}>
         {isPro ? "PRO" : "FREE"}
-      </div>
+      </div>}
 
       <div className="flex items-center gap-2">
         <DropdownMenu.Root>
@@ -238,12 +172,12 @@ function UserMenuWithAlerts({ user }: UserMenuWithAlertsProps) {
                 <p className="text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">{user.email}</p>
               </div>
 
-              <DropdownMenu.Item asChild>
+              {FEATURES.screener && <DropdownMenu.Item asChild>
                 <Link href="/screener" className="group flex h-9 items-center gap-2.5 rounded-lg px-2 text-sm font-medium text-neutral-700 outline-none transition-colors hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800">
                   <Search className="h-4 w-4 text-neutral-400 group-hover:text-blue-600 transition-colors" />
                   <span>选股器</span>
                 </Link>
-              </DropdownMenu.Item>
+              </DropdownMenu.Item>}
 
               <DropdownMenu.Item asChild>
                 <Link href="/settings" className="group flex h-9 items-center gap-2.5 rounded-lg px-2 text-sm font-medium text-neutral-700 outline-none transition-colors hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800">
@@ -253,7 +187,7 @@ function UserMenuWithAlerts({ user }: UserMenuWithAlertsProps) {
               </DropdownMenu.Item>
 
               <DropdownMenu.Item asChild>
-                <Link href="/alerts" className="group flex h-9 items-center gap-2.5 rounded-lg px-2 text-sm font-medium text-neutral-700 outline-none transition-colors hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800">
+                <Link href="/dashboard?tab=alerts" className="group flex h-9 items-center gap-2.5 rounded-lg px-2 text-sm font-medium text-neutral-700 outline-none transition-colors hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800">
                   <Bell className="h-4 w-4 text-neutral-400 group-hover:text-blue-600 transition-colors" />
                   <span>推送记录</span>
                 </Link>

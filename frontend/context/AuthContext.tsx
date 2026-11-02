@@ -18,6 +18,8 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const PUBLIC_ROUTES = ["/login", "/register", "/open-claw"];
+// Reachable both logged-in and logged-out (no redirect either way): landing/agent home and the free trial.
+const OPEN_ROUTES = ["/", "/try"];
 
 function getApiBaseURL(): string {
     // Browser: use relative URLs so Next.js rewrites proxy to the backend
@@ -90,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // see token=null and immediately redirect back to /login.
     useEffect(() => {
         if (loading) return;
+        if (OPEN_ROUTES.includes(pathname)) return;
 
         if (token && PUBLIC_ROUTES.includes(pathname)) {
             // Authenticated user landed on a public route (e.g. /login) → go to dashboard

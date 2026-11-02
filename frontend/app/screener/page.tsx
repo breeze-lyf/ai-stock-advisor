@@ -133,7 +133,7 @@ export default function ScreenerPage() {
 
     return (
         <div className="h-screen bg-neutral-50 dark:bg-neutral-950 flex flex-col overflow-hidden">
-            <DashboardHeader user={userProfile} activeTab={"analysis"} setActiveTab={(tab: DashboardTab) => router.push(`/?tab=${tab}`)} />
+            <DashboardHeader user={userProfile} activeTab={"analysis"} setActiveTab={(tab: DashboardTab) => router.push(`/dashboard?tab=${tab}`)} />
             <SearchDialog
                 isOpen={isSearchOpen}
                 onOpenChange={setIsSearchOpen}

@@ -8,6 +8,7 @@ import { Settings, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import clsx from "clsx";
+import { FEATURES } from "@/shared/config/features";
 
 interface UserMenuProps {
     user: UserProfile;
@@ -23,15 +24,15 @@ export function UserMenu({ user }: UserMenuProps) {
 
     return (
         <div className="flex items-center gap-3">
-            {/* Membership Badge */}
-            <div className={clsx(
+            {/* Membership Badge (hidden unless billing flag) */}
+            {FEATURES.billing && <div className={clsx(
                 "px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-widest uppercase transition-all duration-300 shadow-sm",
                 isPro 
                     ? "bg-neutral-900 text-white border border-neutral-700 ring-1 ring-neutral-800" 
                     : "bg-neutral-100 text-neutral-500 border border-neutral-200"
             )}>
                 {isPro ? "PRO" : "FREE"}
-            </div>
+            </div>}
 
             <div className="flex items-center gap-2">
                 <DropdownMenu.Root>

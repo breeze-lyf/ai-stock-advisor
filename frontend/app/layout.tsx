@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Smart Investment Advisor",
-  description: "Real-time stock analysis platform using LLMs.",
+  title: "你的个人投资智能体 · Personal Investment Agent",
+  description: "记得你的持仓与风格、每天主动简报、每条建议可复盘的开源 AI 投资智能体，支持 MCP 接入 Claude / Cursor / 钉钉。",
 };
 
 import { AuthProvider } from "@/context/AuthContext";

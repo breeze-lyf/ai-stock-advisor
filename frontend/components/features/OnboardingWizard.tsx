@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/shared/api/client";
+import { saveInvestmentProfile } from "@/features/agent/api";
+import { HORIZON_OPTS, STYLE_OPTS } from "@/features/agent/components/InvestmentProfileForm";
 
 export type InvestmentProfile = "CONSERVATIVE" | "BALANCED" | "AGGRESSIVE";
 export type MarketPreference = "A_SHARE" | "HK_SHARE" | "US_SHARE";
@@ -15,6 +17,8 @@ interface OnboardingData {
     riskToleranceScore: number;
     investmentExperienceYears: number;
     targetAnnualReturn: number;
+    horizon: string;
+    style: string;
 }
 
 interface OnboardingWizardProps {
@@ -34,6 +38,8 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
         riskToleranceScore: 5,
         investmentExperienceYears: 0,
         targetAnnualReturn: 10,
+        horizon: "MEDIUM",
+        style: "GROWTH",
     });
 
     const handleNext = () => setStep(s => s + 1);
@@ -52,6 +58,17 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                 investment_experience_years: data.investmentExperienceYears,
                 target_annual_return: data.targetAnnualReturn,
             });
+            // 同步写入智能体的「投资画像」（会注入到智能体提示词）
+            const marketMap: Record<MarketPreference, string> = { A_SHARE: "CN", HK_SHARE: "HK", US_SHARE: "US" };
+            const risk = data.investmentProfile === "BALANCED" ? "MODERATE" : data.investmentProfile;
+            await saveInvestmentProfile({
+                risk_tolerance: risk,
+                risk_tolerance_score: data.riskToleranceScore,
+                investment_experience: data.investmentExperienceYears >= 5 ? "ADVANCED" : data.investmentExperienceYears >= 1 ? "INTERMEDIATE" : "BEGINNER",
+                preferred_markets: data.preferredMarkets.map((m) => marketMap[m]),
+                investment_style: data.style,
+                investment_horizon: data.horizon,
+            }).catch(() => undefined);
             onComplete?.();
             router.push("/");
         } catch (err: any) {
@@ -65,10 +82,10 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
         <div className="space-y-6">
             <div className="text-center">
                 <h2 className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">
-                    选择您的投资偏好
+                    先让智能体认识你
                 </h2>
                 <p className="text-neutral-500 dark:text-neutral-400">
-                    这将帮助我们为您提供更合适的投资建议
+                    你的个人投资智能体会记住这些偏好，每次回答、每份简报都按你的风格来（随时可在 设置 → 投资画像 修改）
                 </p>
             </div>
 
@@ -165,6 +182,24 @@ export function OnboardingWizard({ onComplete }: OnboardingWizardProps) {
                 >
                     下一步
                 </button>
+            </div>
+            <div className="space-y-3 pt-2">
+                <div>
+                    <p className="mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">持有周期</p>
+                    <div className="flex flex-wrap gap-2">
+                        {HORIZON_OPTS.map((o) => (
+                            <button key={o.v} type="button" onClick={() => setData({ ...data, horizon: o.v })} className={`rounded-xl border px-3 py-1.5 text-sm ${data.horizon === o.v ? "border-blue-600 bg-blue-50 text-blue-700 dark:bg-blue-950" : "border-neutral-200 dark:border-neutral-700"}`}>{o.l}</button>
+                        ))}
+                    </div>
+                </div>
+                <div>
+                    <p className="mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">投资风格</p>
+                    <div className="flex flex-wrap gap-2">
+                        {STYLE_OPTS.map((o) => (
+                            <button key={o.v} type="button" onClick={() => setData({ ...data, style: o.v })} className={`rounded-xl border px-3 py-1.5 text-sm ${data.style === o.v ? "border-blue-600 bg-blue-50 text-blue-700 dark:bg-blue-950" : "border-neutral-200 dark:border-neutral-700"}`}>{o.l}</button>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
     );

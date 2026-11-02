@@ -27,6 +27,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { NotificationSettingsSection } from "@/features/user/components/NotificationSettingsSection";
+import { InvestmentProfileForm } from "@/features/agent/components/InvestmentProfileForm";
+import { NotifierSettings } from "@/features/agent/components/NotifierSettings";
+import { Send, UserRound } from "lucide-react";
 import {
   changePassword,
   createAIModel,
@@ -61,14 +64,17 @@ import {
 import type { UserProfile } from "@/types";
 import { getCurrentBrowserEndpoint, hasCurrentBrowserSubscription, subscribeCurrentBrowser, unsubscribeCurrentBrowser } from "@/lib/web-push";
 
-type SettingsSection = "general" | "ai" | "notifications" | "security" | "data";
+type SettingsSection = "profile" | "push" | "general" | "ai" | "notifications" | "security" | "data";
 
-const SECTION_ITEMS: Array<{ id: SettingsSection; label: string; description: string; icon: typeof Settings2 }> = [
+const SECTION_ITEMS: Array<{ id: SettingsSection; label: string; description: string; icon: typeof Settings2; advanced?: boolean }> = [
+  { id: "profile", label: "投资画像", description: "风险、周期、风格与市场，智能体会据此回答", icon: UserRound },
+  { id: "push", label: "推送渠道", description: "钉钉机器人 / Webhook / Telegram，接收每日简报", icon: Send },
   { id: "general", label: "通用设置", description: "主题与时区", icon: Settings2 },
-  { id: "ai", label: "AI 配置", description: "默认模型与我的模型", icon: Bot },
-  { id: "data", label: "数据管理", description: "配置状态与同步", icon: HardDrive },
   { id: "notifications", label: "通知", description: "飞书与推送偏好", icon: Bell },
   { id: "security", label: "安全", description: "密码管理", icon: Shield },
+  // 高级设置（默认折叠）：自带模型 Key（BYOK）、多供应商路由、数据源
+  { id: "ai", label: "AI 模型（BYOK）", description: "自带 API Key 与多供应商模型", icon: Bot, advanced: true },
+  { id: "data", label: "数据源", description: "行情源、Tavily 与同步", icon: HardDrive, advanced: true },
 ];
 
 function normalizeBaseUrl(rawBaseUrl?: string) {
@@ -87,7 +93,15 @@ export default function SettingsPage() {
   const { theme: currentTheme, setTheme } = useTheme();
 
   const [mounted, setMounted] = useState(false);
-  const [activeSection, setActiveSection] = useState<SettingsSection>("general");
+  const [activeSection, setActiveSection] = useState<SettingsSection>("profile");
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("section") as SettingsSection | null;
+    if (q && SECTION_ITEMS.some((i) => i.id === q)) {
+      setActiveSection(q);
+      if (SECTION_ITEMS.find((i) => i.id === q)?.advanced) setAdvancedOpen(true);
+    }
+  }, []);
   const [advancedNotificationsOpen, setAdvancedNotificationsOpen] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(authUser);
   const [profileLoading, setProfileLoading] = useState(false);
@@ -1306,11 +1320,19 @@ export default function SettingsPage() {
             <aside className="border-b border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-950/80 sm:p-5 lg:border-b-0 lg:border-r">
               <div className="mb-4 lg:mb-6">
                 <h2 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">设置</h2>
-                <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">管理您的账户、AI 模型与自动化偏好。</p>
+                <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">告诉智能体你是怎样的投资者，并选择简报推送到哪里。</p>
               </div>
 
               <nav className="grid gap-2 sm:grid-cols-2 lg:block lg:space-y-2">
-                {SECTION_ITEMS.map((item) => {
+                {[...SECTION_ITEMS.filter((i) => !i.advanced), null, ...(advancedOpen ? SECTION_ITEMS.filter((i) => i.advanced) : [])].map((item) => {
+                  if (!item) {
+                    return (
+                      <button key="__advanced" type="button" onClick={() => setAdvancedOpen((v) => !v)} className="flex w-full items-center justify-between rounded-2xl px-4 pt-4 pb-2 text-left text-xs font-semibold uppercase tracking-wider text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200">
+                        <span>高级设置</span>
+                        <ChevronRight className={`h-4 w-4 transition-transform ${advancedOpen ? "rotate-90" : ""}`} />
+                      </button>
+                    );
+                  }
                   const Icon = item.icon;
                   const active = activeSection === item.id;
                   return (
@@ -1343,6 +1365,8 @@ export default function SettingsPage() {
                   {activeSectionConfig.label}
                 </div>
                 <h3 className="mt-2 text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
+                  {activeSection === "profile" && "投资画像"}
+                  {activeSection === "push" && "推送渠道"}
                   {activeSection === "general" && "通用设置"}
                   {activeSection === "ai" && "AI 配置"}
                   {activeSection === "notifications" && "通知设置"}
@@ -1352,6 +1376,8 @@ export default function SettingsPage() {
                 <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">{activeSectionConfig.description}</p>
               </div>
 
+              {activeSection === "profile" && <InvestmentProfileForm />}
+              {activeSection === "push" && <NotifierSettings />}
               {activeSection === "general" && renderGeneralSection()}
               {activeSection === "ai" && renderAiSection()}
               {activeSection === "notifications" && (

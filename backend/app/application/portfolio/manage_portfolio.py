@@ -46,6 +46,11 @@ class AddPortfolioItemUseCase:
             existing.quantity = item.quantity
             existing.avg_cost = item.avg_cost
         else:
+            # Fresh DBs (e.g. quickstart) may not have the stock row yet; portfolios.ticker has an FK to stocks.
+            from app.models.stock import Stock
+            if await self.repo.db.get(Stock, ticker) is None:
+                self.repo.db.add(Stock(ticker=ticker, name=ticker))
+                await self.repo.db.flush()
             max_order = await self.repo.get_max_sort_order(self.current_user.id)
             await self.repo.add_portfolio_item(
                 Portfolio(

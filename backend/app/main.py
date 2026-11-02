@@ -64,6 +64,10 @@ app.include_router(api_router, prefix="/api/v1")
 from app.websocket.routes import router as websocket_router
 app.include_router(websocket_router)
 
+# MCP (Streamable HTTP) endpoint for external agent clients (DingTalk 数字员工 / Claude / Codex)
+from app.mcp.server import router as mcp_router  # noqa: E402
+app.include_router(mcp_router)
+
 # Prometheus 指标暴露
 if _prometheus_available:
     _Instrumentator(

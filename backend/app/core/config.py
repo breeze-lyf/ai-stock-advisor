@@ -44,6 +44,17 @@ class Settings(BaseSettings):
     DASHSCOPE_API_KEY: Optional[str] = None
     DASHSCOPE_BASE_URL: Optional[str] = None
     DEFAULT_AI_MODEL: str = "qwen3.5-plus"
+
+    # Agent (P1) — system-default OpenAI-compatible relay (e.g. 致拓 relay).
+    # Used when the user has no BYOK model/credential. Leave empty to fall back
+    # to the existing provider_configs routing.
+    LLM_BASE_URL: Optional[str] = None
+    LLM_MODEL: Optional[str] = None
+    LLM_API_KEY: Optional[str] = None
+    AGENT_MAX_STEPS: int = 8
+    AGENT_LLM_TIMEOUT_SECONDS: int = 90
+    AGENT_TOOL_TIMEOUT_SECONDS: int = 60
+    AGENT_TOOL_RESULT_MAX_CHARS: int = 6000
     # DEPRECATED: TAVILY_API_KEY is intentionally NOT used as a system-level fallback.
     # News search via Tavily is a user-optional feature only — the key must be configured
     # per-user in Settings → Provider Credentials. Setting this env var has no effect.

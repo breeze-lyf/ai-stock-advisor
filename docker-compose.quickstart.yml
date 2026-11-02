@@ -1,0 +1,71 @@
+# 一键体验：只需要一个 LLM Key（任意 OpenAI 兼容接口）。
+#
+#   cp .env.quickstart.example .env.quickstart   # 填 LLM_* 与两把密钥
+#   docker compose -f docker-compose.quickstart.yml --env-file .env.quickstart up -d --build
+#   打开 http://localhost:3000
+#
+# 自带 PostgreSQL + Redis，数据保存在本地 volume。仅用于本地/自托管体验，生产部署请用 docker-compose.prod.yml。
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ai_advisor
+    volumes:
+      - qs_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ai_advisor"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - qs_redis:/data
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/ai_advisor
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: ${SECRET_KEY:?请在 .env.quickstart 设置 SECRET_KEY}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?请在 .env.quickstart 设置 ENCRYPTION_KEY（Fernet）}
+      # 唯一必填的模型配置：任意 OpenAI 兼容接口（DeepSeek / 通义 / OpenAI / 自建中转…）
+      LLM_BASE_URL: ${LLM_BASE_URL:?请设置 LLM_BASE_URL，例如 https://api.deepseek.com/v1}
+      LLM_MODEL: ${LLM_MODEL:?请设置 LLM_MODEL，例如 deepseek-chat}
+      LLM_API_KEY: ${LLM_API_KEY:?请设置 LLM_API_KEY}
+      # 智能体功能开关
+      AGENT_BRIEF_ENABLED: ${AGENT_BRIEF_ENABLED:-false}
+      AGENT_BRIEF_HOUR: ${AGENT_BRIEF_HOUR:-8}
+      AGENT_TRIAL_ENABLED: ${AGENT_TRIAL_ENABLED:-true}
+      AGENT_TRIAL_DAILY_LIMIT: ${AGENT_TRIAL_DAILY_LIMIT:-5}
+      IS_SERVER_ENV: ${IS_SERVER_ENV:-false}
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # 前端服务端 /api 代理到容器内后端
+        - NEXT_PUBLIC_API_URL=http://backend:8000
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  qs_postgres:
+  qs_redis:

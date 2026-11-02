@@ -22,6 +22,8 @@ FROM node:20-slim
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
+# Next standalone binds to $HOSTNAME; Docker sets it to the container id, which breaks the 127.0.0.1 healthcheck
+ENV HOSTNAME=0.0.0.0
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/.next/standalone ./

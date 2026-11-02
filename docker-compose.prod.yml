@@ -9,7 +9,7 @@ services:
       - LOG_FORMAT=${LOG_FORMAT:-json}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - WEB_CONCURRENCY=${WEB_CONCURRENCY:-2}
-      - GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT:-120}
+      - GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT:-300}
     ports:
       - "8000:8000"
     extra_hosts:
@@ -31,6 +31,8 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    environment:
+      - HOSTNAME=0.0.0.0
     ports:
       - "3000:3000"
     mem_limit: 350m

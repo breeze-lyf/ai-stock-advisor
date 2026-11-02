@@ -106,3 +106,11 @@ mobile/.swc/
 
 # Skills lock
 skills-lock.json
+
+# Ops scripts with server addresses / credentials must stay local (removed in feat/agent-p1;
+# NOTE: older git history still contains them)
+update_server_password.py
+update_server_api_key.sh
+*.pem
+.env.*
+!.env.example

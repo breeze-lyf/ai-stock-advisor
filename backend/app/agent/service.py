@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import secrets
 from datetime import datetime
 from typing import Optional
@@ -11,9 +12,13 @@ from sqlalchemy import select
 
 from app.agent.llm import ChatClient, OpenAIChatClient, resolve_agent_llm
 from app.agent.loop import AgentResult, run_agent
+from app.agent.advice import from_diagnosis, parse_answer_tags, record_advice, strip_answer_tags, system_price
+from app.agent.profile import build_user_memory
 from app.agent.tools import ToolContext
 from app.core.config import settings
 from app.models.agent import AgentConversation, AgentMessage, UserApiToken
+
+logger = logging.getLogger(__name__)
 
 TOKEN_PREFIX = "asa_"
 
@@ -89,10 +94,17 @@ async def chat(db, user, message: str, conversation_id: Optional[str] = None, ch
         else:
             model_info = target.public()
             client = OpenAIChatClient(target)
+    ctx = ToolContext(db=db, user=user)
     if client is not None:
-        ctx = ToolContext(db=db, user=user)
-        result = await run_agent(client, ctx, message, history, max_steps=settings.AGENT_MAX_STEPS)
+        memory = await build_user_memory(db, user)
+        result = await run_agent(client, ctx, message, history, max_steps=settings.AGENT_MAX_STEPS,
+                                 extra_system=memory or None)
 
+    # P2: capture actionable advice for 复盘 (diagnosis results + explicit 【建议】 tags), then clean the answer.
+    advice_items = [a for a in (from_diagnosis(d) for d in ctx.diagnoses) if a]
+    seen = {a["ticker"] for a in advice_items}
+    advice_items += [a for a in parse_answer_tags(result.answer) if a["ticker"] not in seen]
+    result.answer = strip_answer_tags(result.answer)
     trace = {"steps": [s.as_dict() for s in result.steps], "sources": result.sources,
              "mode": result.mode, "stopped_reason": result.stopped_reason}
     db.add(AgentMessage(conversation_id=conv.id, role="user", content=message, created_at=started_at))
@@ -101,4 +113,15 @@ async def chat(db, user, message: str, conversation_id: Optional[str] = None, ch
                         model=(model_info or {}).get("model")))
     conv.updated_at = datetime.utcnow()
     await db.commit()
-    return {"conversation_id": conv.id, "model": model_info, **result.as_dict()}
+    conv_id, user_id = conv.id, user.id
+    recorded = []
+    if advice_items:
+        try:
+            recorded = await record_advice(db, user_id, advice_items, source="agent" if not ctx.diagnoses else "diagnosis",
+                                           conversation_id=conv_id, price_fn=lambda t: system_price(db, t))
+        except Exception as e:
+            logger.warning(f"advice record failed: {e}")
+            await db.rollback()
+
+    return {"conversation_id": conv_id, "model": model_info, **result.as_dict(),
+            "advice": [{"ticker": r.ticker, "direction": r.direction, "horizon_days": r.horizon_days} for r in recorded]}

@@ -75,3 +75,7 @@ api_router.include_router(quant_factors.router, prefix="/quant", tags=["quant"])
 
 # 智能体模块：工具调用型投研助理（对话 + 个人 API Token）
 api_router.include_router(agent.router, prefix="/agent", tags=["agent"])
+
+# 智能体 P2：今日简报 / 推送渠道 / 建议复盘 / 免登录试用
+from app.api.v1.endpoints import agent_p2  # noqa: E402
+api_router.include_router(agent_p2.router, prefix="/agent", tags=["agent"])

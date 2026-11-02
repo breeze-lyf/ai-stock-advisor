@@ -29,6 +29,10 @@ class ToolContext:
     db: Any
     user: Any
     sources: list[dict] = field(default_factory=list)
+    # P2: restrict tools (e.g. trial mode) and collect structured diagnosis results for advice records
+    allowed_tools: Optional[set[str]] = None
+    trial: bool = False
+    diagnoses: list[dict] = field(default_factory=list)
 
     def add_source(self, title: str, url: Optional[str] = None, kind: str = "data"):
         item = {"title": title, "url": url, "kind": kind}
@@ -116,7 +120,7 @@ async def _market_cache(ctx: ToolContext, ticker: str, price_only: bool):
         preferred_source=getattr(ctx.user, "preferred_data_source", None) or "AUTO",
         price_only=price_only,
         skip_news=True,
-        user_id=ctx.user.id,
+        user_id=getattr(ctx.user, "id", None),
     )
 
 
@@ -238,6 +242,7 @@ async def run_stock_diagnosis(ctx: ToolContext, args: dict):
         result = result.model_dump() if hasattr(result, "model_dump") else {"result": str(result)}
     ctx.add_source(f"{ticker} AI 深度诊断报告（系统单股诊断）", f"/?ticker={ticker}", kind="analysis")
     drop = {"raw_response", "prompt", "debug"}
+    ctx.diagnoses.append({"ticker": ticker, **result})
     return {k: v for k, v in result.items() if k not in drop}
 
 
@@ -288,6 +293,8 @@ TOOLS: list[Tool] = [
          {"type": "object", "properties": {}}, macro_snapshot),
 ]
 TOOL_MAP = {t.name: t for t in TOOLS}
+# Tools usable without login (/try): public market data only — no portfolio, no costly diagnosis.
+TRIAL_TOOL_NAMES = {"get_quote", "get_kline_and_technicals", "get_fundamentals", "search_news", "macro_snapshot"}
 
 
 async def execute_tool(name: str, args: Any, ctx: ToolContext) -> tuple[bool, str]:
@@ -295,7 +302,9 @@ async def execute_tool(name: str, args: Any, ctx: ToolContext) -> tuple[bool, st
     tool = TOOL_MAP.get(name)
     if tool is None:
         return False, json.dumps({"error": f"未知工具 {name}"}, ensure_ascii=False)
-    if ctx.user is None:
+    if ctx.allowed_tools is not None and name not in ctx.allowed_tools:
+        return False, json.dumps({"error": f"当前模式不可用工具 {name}"}, ensure_ascii=False)
+    if ctx.user is None and not ctx.trial:
         return False, json.dumps({"error": "未认证"}, ensure_ascii=False)
     if isinstance(args, str):
         try:

@@ -55,6 +55,15 @@ class Settings(BaseSettings):
     AGENT_LLM_TIMEOUT_SECONDS: int = 90
     AGENT_TOOL_TIMEOUT_SECONDS: int = 60
     AGENT_TOOL_RESULT_MAX_CHARS: int = 6000
+    # Agent P2
+    AGENT_BRIEF_ENABLED: bool = False        # 每日简报定时任务（默认关闭）
+    AGENT_BRIEF_HOUR: int = 8                # 北京时间几点生成（整点后 15 分钟窗口内）
+    AGENT_BRIEF_MAX_USERS: int = 200
+    AGENT_ADVICE_REVIEW_ENABLED: bool = True  # 建议到期复盘（每日一次，只读行情）
+    AGENT_TRIAL_ENABLED: bool = True         # 免登录试用 /try
+    AGENT_TRIAL_DAILY_LIMIT: int = 5         # 每 IP 每天提问次数
+    AGENT_TRIAL_MAX_STEPS: int = 4
+    FEATURE_BILLING_ENABLED: bool = False    # 订阅/计费相关 UI（前端另有 NEXT_PUBLIC_FEATURE_BILLING）
     # DEPRECATED: TAVILY_API_KEY is intentionally NOT used as a system-level fallback.
     # News search via Tavily is a user-optional feature only — the key must be configured
     # per-user in Settings → Provider Credentials. Setting this env var has no effect.

@@ -213,6 +213,30 @@ async def _run_capsule_refresh_bg_task(session_factory):
         logger.error(f"[CapsuleRefresh] 后台 capsule 刷新任务异常: {e}")
 
 
+async def _run_agent_brief_bg_task(session_factory):
+    try:
+        from app.agent.brief import run_daily_briefs_job, today_cn
+        from app.core.redis_client import acquire_lock
+        if not await acquire_lock(f"agent:brief:{today_cn()}", ttl=20 * 3600):
+            return  # another worker already ran today's briefs
+        count = await run_daily_briefs_job(session_factory)
+        logger.info(f"[Brief] 今日简报生成完成：{count} 位用户")
+    except Exception as e:
+        logger.error(f"[Brief] 今日简报任务异常: {e}")
+
+
+async def _run_advice_review_bg_task(session_factory):
+    try:
+        from app.agent.brief import run_advice_review_job, today_cn
+        from app.core.redis_client import acquire_lock
+        if not await acquire_lock(f"agent:advice_review:{today_cn()}", ttl=20 * 3600):
+            return
+        count = await run_advice_review_job(session_factory)
+        logger.info(f"[AdviceReview] 本轮复盘 {count} 条建议")
+    except Exception as e:
+        logger.error(f"[AdviceReview] 建议复盘任务异常: {e}")
+
+
 async def start_scheduler():
     """
     启动常驻后台循环。
@@ -226,6 +250,8 @@ async def start_scheduler():
     last_daily_report_day = ""
     last_auto_analysis_refresh = datetime.now(UTC) - timedelta(minutes=30)
     last_capsule_refresh = datetime.now(UTC) - timedelta(hours=23)
+    last_brief_day = ""
+    last_advice_review_day = ""
 
     while True:
         from app.core.redis_client import acquire_lock, release_lock
@@ -297,6 +323,14 @@ async def start_scheduler():
             if now_utc - last_capsule_refresh > timedelta(hours=24):
                 last_capsule_refresh = now_utc
                 asyncio.create_task(_run_capsule_refresh_bg_task(SessionLocal))
+
+            # 4.9 Agent P2：每日简报（默认关闭）与建议到期复盘
+            if settings.AGENT_BRIEF_ENABLED and today_str != last_brief_day and now_cn.hour == settings.AGENT_BRIEF_HOUR and now_cn.minute < 15:
+                last_brief_day = today_str
+                asyncio.create_task(_run_agent_brief_bg_task(SessionLocal))
+            if settings.AGENT_ADVICE_REVIEW_ENABLED and today_str != last_advice_review_day and now_cn.hour == 17:
+                last_advice_review_day = today_str
+                asyncio.create_task(_run_advice_review_bg_task(SessionLocal))
 
             # 5. 盘后 AI 深度复盘
             try:

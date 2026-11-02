@@ -15,13 +15,15 @@ logger = logging.getLogger(__name__)
 
 DISCLAIMER = "以上内容由 AI 基于公开数据生成，仅供研究参考，不构成投资建议。"
 
-SYSTEM_PROMPT = """你是「AI 智能投顾」的投研助理智能体，服务对象是本系统的注册用户。
+SYSTEM_PROMPT = """你是用户的「个人投资智能体」：记得 TA 的持仓、自选、风险偏好与投资风格，像私人投研助理一样主动、具体、可复盘。
 工作方式：
 - 先判断需要哪些数据，再调用工具获取真实数据；不要凭记忆编造价格、财务数据或新闻。
 - 涉及持仓的问题调用 get_portfolio（只能查看当前用户自己的持仓）。
 - run_stock_diagnosis 耗时较长，只在用户明确要深度分析/诊断时调用。
 - 工具报错或无数据时，如实说明缺失项，不要猜测。
 - 用简体中文回答，结论先行，给出关键数字、依据与风险；注明数据来源与时间。
+- 当你给出明确可执行的操作建议（买入/卖出/持有）时，在回答末尾单独一行输出机器可读标记，便于系统复盘：
+  【建议】代码|BUY或SELL或HOLD|持有周期天数|一句话理由   （每只股票一行，没有明确建议则不输出）
 - 你不做交易执行，不承诺收益。回答末尾附上：「""" + DISCLAIMER + "」"
 
 _TICKER_HINT = re.compile(r"\b(\d{6}(?:\.S[SZH])?|\d{4,5}\.HK|[A-Z]{1,5})\b")
@@ -83,7 +85,7 @@ async def _fallback_no_tools(client: ChatClient, messages: list[dict], ctx: Tool
             continue
         text = await _run_tool("get_quote", {"ticker": tk}, ctx, steps)
         context_parts.append(f"[get_quote {tk}] {text}")
-    if any(k in user_text for k in ("持仓", "组合", "portfolio")):
+    if any(k in user_text for k in ("持仓", "组合", "portfolio")) and (ctx.allowed_tools is None or "get_portfolio" in ctx.allowed_tools):
         context_parts.append(f"[get_portfolio] {await _run_tool('get_portfolio', {}, ctx, steps)}")
     msgs = list(messages)
     if context_parts:
@@ -98,13 +100,16 @@ async def run_agent(
     user_message: str,
     history: Optional[list[dict]] = None,
     max_steps: int = 8,
+    extra_system: Optional[str] = None,
 ) -> AgentResult:
     messages: list[dict] = [{"role": "system", "content": SYSTEM_PROMPT}]
+    if extra_system:
+        messages.append({"role": "system", "content": extra_system})
     for h in (history or [])[-12:]:
         if h.get("role") in ("user", "assistant") and h.get("content"):
             messages.append({"role": h["role"], "content": str(h["content"])[:4000]})
     messages.append({"role": "user", "content": user_message})
-    tool_schemas = [t.openai_schema() for t in TOOLS]
+    tool_schemas = [t.openai_schema() for t in TOOLS if ctx.allowed_tools is None or t.name in ctx.allowed_tools]
     steps: list[AgentStep] = []
 
     for _ in range(max_steps):

@@ -1,5 +1,6 @@
 "use client";
 
+import { PriceColorSetting } from "@/features/settings/components/PriceColorSetting";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
@@ -69,7 +70,7 @@ type SettingsSection = "profile" | "push" | "general" | "ai" | "notifications" |
 const SECTION_ITEMS: Array<{ id: SettingsSection; label: string; description: string; icon: typeof Settings2; advanced?: boolean }> = [
   { id: "profile", label: "投资画像", description: "风险、周期、风格与市场，智能体会据此回答", icon: UserRound },
   { id: "push", label: "推送渠道", description: "钉钉机器人 / Webhook / Telegram，接收每日简报", icon: Send },
-  { id: "general", label: "通用设置", description: "主题与时区", icon: Settings2 },
+  { id: "general", label: "外观与显示", description: "主题、涨跌配色与时区", icon: Settings2 },
   { id: "notifications", label: "通知", description: "飞书与推送偏好", icon: Bell },
   { id: "security", label: "安全", description: "密码管理", icon: Shield },
   // 高级设置（默认折叠）：自带模型 Key（BYOK）、多供应商路由、数据源
@@ -868,7 +869,8 @@ export default function SettingsPage() {
 
   const renderGeneralSection = () => (
     <div className="space-y-8">
-      <div className="space-y-3">
+      <PriceColorSetting />
+      <div className="space-y-3 border-t border-line pt-6">
         <Label className="text-sm font-semibold">主题模式</Label>
         <div className="grid grid-cols-3 gap-3">
           {[
@@ -886,8 +888,8 @@ export default function SettingsPage() {
                 disabled={saving}
                 className={`rounded-2xl border p-4 text-left transition ${
                   active
-                    ? "border-neutral-900 bg-neutral-900 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-950"
-                    : "border-neutral-200 bg-white hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-700"
+                    ? "border-ink bg-ink text-canvas"
+                    : "border-line bg-surface hover:border-line-strong"
                 }`}
               >
                 <Icon className="mb-4 h-5 w-5" />
@@ -1289,7 +1291,7 @@ export default function SettingsPage() {
   const activeSectionConfig = SECTION_ITEMS.find((item) => item.id === activeSection)!;
 
   return (
-    <div className="min-h-screen bg-neutral-50 px-3 py-4 dark:bg-neutral-950 sm:px-4 md:px-6 md:py-6 lg:px-8">
+    <div className="min-h-screen bg-canvas px-3 py-4 sm:px-4 md:px-6 md:py-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-6 flex items-center gap-3">
           <Link href="/">
@@ -1298,9 +1300,9 @@ export default function SettingsPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">设置</h1>
+            <h1 className="text-[22px] font-semibold tracking-tight text-ink">设置</h1>
             <p className="text-sm text-neutral-500 dark:text-neutral-400">
-              {profileLoading ? "正在同步最新设置..." : "沿用当前主题体系，重组为更清晰的工作区式设置中心。"}
+              {profileLoading ? "正在同步最新设置..." : "投资画像、推送渠道与外观偏好；模型与数据源在「高级设置」。"}
             </p>
           </div>
         </div>
@@ -1315,9 +1317,9 @@ export default function SettingsPage() {
           </div>
         )}
 
-        <div className="overflow-hidden rounded-[28px] border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+        <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
           <div className="grid min-h-[760px] lg:grid-cols-[280px_1fr]">
-            <aside className="border-b border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-neutral-950/80 sm:p-5 lg:border-b-0 lg:border-r">
+            <aside className="border-b border-line bg-canvas/60 p-4 sm:p-5 lg:border-b-0 lg:border-r">
               <div className="mb-4 lg:mb-6">
                 <h2 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">设置</h2>
                 <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">告诉智能体你是怎样的投资者，并选择简报推送到哪里。</p>
@@ -1340,8 +1342,8 @@ export default function SettingsPage() {
                       key={item.id}
                       type="button"
                       onClick={() => setActiveSection(item.id)}
-                      className={`flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left transition ${
-                        active ? "bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-950" : "hover:bg-neutral-100 dark:hover:bg-neutral-900"
+                      className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-left transition ${
+                        active ? "bg-ink text-canvas" : "hover:bg-elevated"
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -1364,10 +1366,10 @@ export default function SettingsPage() {
                   <activeSectionConfig.icon className="h-4 w-4" />
                   {activeSectionConfig.label}
                 </div>
-                <h3 className="mt-2 text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
+                <h3 className="mt-2 text-2xl font-semibold tracking-tight text-ink">
                   {activeSection === "profile" && "投资画像"}
                   {activeSection === "push" && "推送渠道"}
-                  {activeSection === "general" && "通用设置"}
+                  {activeSection === "general" && "外观与显示偏好"}
                   {activeSection === "ai" && "AI 配置"}
                   {activeSection === "notifications" && "通知设置"}
                   {activeSection === "security" && "安全设置"}

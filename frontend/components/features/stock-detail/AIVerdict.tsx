@@ -1040,7 +1040,7 @@ function TruthTracker({
                                 </span>
                                 <span className={clsx(
                                     "text-right text-[11px] font-black tabular-nums whitespace-nowrap",
-                                    pl === null ? "text-neutral-400" : pl >= 0 ? "text-emerald-600" : "text-rose-600"
+                                    pl === null ? "text-neutral-400" : pl >= 0 ? "text-up" : "text-down"
                                 )}>
                                     {pl !== null ? `${pl >= 0 ? "+" : ""}${pl.toFixed(2)}%` : "--"}
                                 </span>

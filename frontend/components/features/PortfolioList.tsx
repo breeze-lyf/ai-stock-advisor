@@ -363,7 +363,7 @@ export function PortfolioList({
                                     <div className="flex flex-col items-end">
                                         <span className={clsx(
                                             "text-sm font-bold tabular-nums",
-                                            (item.change_percent || 0) >= 0 ? "text-emerald-600" : "text-rose-600"
+                                            (item.change_percent || 0) >= 0 ? "text-up" : "text-down"
                                         )}>
                                             {(item.change_percent || 0) >= 0 ? "+" : ""}
                                             {(item.change_percent || 0).toFixed(2)}%

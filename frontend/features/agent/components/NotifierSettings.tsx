@@ -44,33 +44,33 @@ export function NotifierSettings() {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        {items.length === 0 && <p className="text-sm text-neutral-500">还没有推送渠道。添加后，每日简报会自动推送到这里。</p>}
+        {items.length === 0 && <p className="text-sm text-ink-3">还没有推送渠道。添加后，每日简报会自动推送到这里。</p>}
         {items.map((n) => (
-          <div key={n.id} className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-neutral-200 px-4 py-3 dark:border-neutral-800">
+          <div key={n.id} className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-line px-4 py-3">
             <div className="min-w-0">
               <p className="text-sm font-semibold">{KINDS[n.kind]?.l ?? n.kind} {n.has_secret && <span className="ml-1 text-[10px] text-emerald-600">已加签</span>}</p>
-              <p className="truncate text-xs text-neutral-500">{n.url}{n.last_status ? ` · 最近：${n.last_status}` : ""}</p>
+              <p className="truncate text-xs text-ink-3">{n.url}{n.last_status ? ` · 最近：${n.last_status}` : ""}</p>
             </div>
             <div className="flex gap-2">
-              <button type="button" disabled={!!busy} onClick={async () => { setBusy(n.id); try { const r = await testNotifier(n.id); setMsg(r.ok ? "测试消息已发送 ✓" : `发送失败：${r.message}`); load(); } catch (e) { setMsg(err(e, "发送失败")); } finally { setBusy(null); } }} className="flex items-center gap-1 rounded-lg border border-neutral-300 px-2.5 py-1 text-xs dark:border-neutral-700">{busy === n.id && <Loader2 className="h-3 w-3 animate-spin" />} 发送测试</button>
-              <button type="button" disabled={!!busy} onClick={async () => { await deleteNotifier(n.id).catch(() => undefined); load(); }} className="rounded-lg p-1.5 text-neutral-400 hover:text-rose-600" title="删除"><Trash2 className="h-4 w-4" /></button>
+              <button type="button" disabled={!!busy} onClick={async () => { setBusy(n.id); try { const r = await testNotifier(n.id); setMsg(r.ok ? "测试消息已发送 ✓" : `发送失败：${r.message}`); load(); } catch (e) { setMsg(err(e, "发送失败")); } finally { setBusy(null); } }} className="flex items-center gap-1 rounded-lg border border-line px-2.5 py-1 text-xs">{busy === n.id && <Loader2 className="h-3 w-3 animate-spin" />} 发送测试</button>
+              <button type="button" disabled={!!busy} onClick={async () => { await deleteNotifier(n.id).catch(() => undefined); load(); }} className="rounded-lg p-1.5 text-ink-3 hover:text-rose-600" title="删除"><Trash2 className="h-4 w-4" /></button>
             </div>
           </div>
         ))}
       </div>
-      <div className="space-y-3 rounded-2xl border border-dashed border-neutral-300 p-4 dark:border-neutral-700">
+      <div className="space-y-3 rounded-2xl border border-dashed border-line p-4">
         <p className="text-sm font-semibold">添加渠道</p>
         <div className="flex flex-wrap gap-2">
           {(Object.keys(KINDS) as Kind[]).map((k) => (
-            <button key={k} type="button" onClick={() => setKind(k)} className={`rounded-xl border px-3 py-1.5 text-sm ${kind === k ? "border-blue-600 bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300" : "border-neutral-200 dark:border-neutral-700"}`}>{KINDS[k].l}</button>
+            <button key={k} type="button" onClick={() => setKind(k)} className={`rounded-xl border px-3 py-1.5 text-sm ${kind === k ? "border-brand bg-brand-soft text-brand" : "border-line"}`}>{KINDS[k].l}</button>
           ))}
         </div>
-        <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder={KINDS[kind].url} className="w-full rounded-xl border border-neutral-300 bg-transparent px-3 py-2 text-sm dark:border-neutral-700" />
-        <input value={secret} onChange={(e) => setSecret(e.target.value)} placeholder={KINDS[kind].secret} type="password" autoComplete="off" className="w-full rounded-xl border border-neutral-300 bg-transparent px-3 py-2 text-sm dark:border-neutral-700" />
-        <button type="button" onClick={add} disabled={!url.trim() || busy === "add" || (kind === "telegram" && !secret.trim())} className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50">添加</button>
-        {kind === "dingtalk" && <p className="text-xs text-neutral-500">钉钉群 → 群设置 → 机器人 → 添加自定义机器人，安全设置选「加签」，把 Webhook 与 SEC 密钥填到上面。</p>}
+        <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder={KINDS[kind].url} className="w-full rounded-xl border border-line bg-transparent px-3 py-2 text-sm" />
+        <input value={secret} onChange={(e) => setSecret(e.target.value)} placeholder={KINDS[kind].secret} type="password" autoComplete="off" className="w-full rounded-xl border border-line bg-transparent px-3 py-2 text-sm" />
+        <button type="button" onClick={add} disabled={!url.trim() || busy === "add" || (kind === "telegram" && !secret.trim())} className="rounded-xl bg-ink px-4 py-2 text-sm font-medium text-canvas disabled:opacity-50">添加</button>
+        {kind === "dingtalk" && <p className="text-xs text-ink-3">钉钉群 → 群设置 → 机器人 → 添加自定义机器人，安全设置选「加签」，把 Webhook 与 SEC 密钥填到上面。</p>}
       </div>
-      {msg && <p className="text-sm text-neutral-600 dark:text-neutral-300">{msg}</p>}
+      {msg && <p className="text-sm text-ink-2">{msg}</p>}
     </div>
   );
 }

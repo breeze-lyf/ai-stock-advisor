@@ -108,13 +108,13 @@ function TickerChip({ ticker, reason, direction, onClick }: {
           : "border-rose-200/60 bg-rose-50/70 dark:border-rose-900/40 dark:bg-rose-950/20"
       )}
     >
-      <span className={clsx("font-bold", isBull ? "text-emerald-700 dark:text-emerald-400" : "text-rose-700 dark:text-rose-400")}>
+      <span className={clsx("font-bold", isBull ? "text-up" : "text-down")}>
         ${ticker}
       </span>
-      <span className={clsx("max-w-48 truncate text-[11px]", isBull ? "text-emerald-700/70 dark:text-emerald-500/80" : "text-rose-700/70 dark:text-rose-500/80")}>
+      <span className={clsx("max-w-48 truncate text-[11px]", isBull ? "text-up/70" : "text-down/70")}>
         {reason}
       </span>
-      <ArrowRight className={clsx("h-2.5 w-2.5 opacity-0 transition-opacity group-hover:opacity-60", isBull ? "text-emerald-600" : "text-rose-600")} />
+      <ArrowRight className={clsx("h-2.5 w-2.5 opacity-0 transition-opacity group-hover:opacity-60", isBull ? "text-up" : "text-down")} />
     </button>
   );
 }

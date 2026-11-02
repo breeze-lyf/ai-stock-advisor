@@ -46,7 +46,7 @@ export function PaperTradingDashboard({ loading, trades }: PaperTradingDashboard
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
          <div className="bg-white dark:bg-neutral-900 border dark:border-neutral-800 rounded-2xl p-6 shadow-sm flex flex-col justify-center">
             <p className="text-sm font-medium text-neutral-500 mb-1">累计基准盈亏 (Total PnL %)</p>
-             <div className={`text-3xl font-bold flex items-center gap-2 ${totalPnlPct >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
+             <div className={`text-3xl font-bold flex items-center gap-2 ${totalPnlPct >= 0 ? "text-up" : "text-down"}`}>
                {totalPnlPct >= 0 ? <TrendingUp className="w-6 h-6" /> : <TrendingDown className="w-6 h-6" />}
                {totalPnlPct > 0 ? "+" : ""}{totalPnlPct.toFixed(2)}%
             </div>
@@ -118,7 +118,7 @@ export function PaperTradingDashboard({ loading, trades }: PaperTradingDashboard
                       </td>
                       <td className="px-6 py-4 text-right">{trade.entry_price.toFixed(2)}</td>
                       <td className="px-6 py-4 text-right">{trade.current_price.toFixed(2)}</td>
-                       <td className={`px-6 py-4 text-right font-bold ${trade.unrealized_pnl_pct >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
+                       <td className={`px-6 py-4 text-right font-bold ${trade.unrealized_pnl_pct >= 0 ? "text-up" : "text-down"}`}>
                          {trade.unrealized_pnl_pct > 0 ? "+" : ""}{trade.unrealized_pnl_pct.toFixed(2)}%
                       </td>
                       <td className="px-6 py-4 text-neutral-500">
@@ -144,7 +144,7 @@ function TradeCard({ trade }: { trade: SimulatedTrade }) {
   return (
     <div className="bg-white dark:bg-neutral-900 border dark:border-neutral-800 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
       {/* Decorative colored strip on left */}
-      <div className={`absolute left-0 top-0 bottom-0 w-1 ${isProfit ? "bg-emerald-600" : "bg-rose-600"}`} />
+      <div className={`absolute left-0 top-0 bottom-0 w-1 ${isProfit ? "bg-up" : "bg-down"}`} />
       
       <div className="flex justify-between items-start mb-4">
         <div>
@@ -153,7 +153,7 @@ function TradeCard({ trade }: { trade: SimulatedTrade }) {
              买入于 {new Date(trade.entry_date).toLocaleDateString('zh-CN')}
           </p>
         </div>
-        <div className={`text-right ${isProfit ? "text-emerald-600 bg-emerald-50" : "text-rose-600 bg-rose-50"} dark:bg-opacity-10 px-3 py-1.5 rounded-lg flex items-center gap-1.5`}>
+        <div className={`text-right ${isProfit ? "text-up bg-up-soft" : "text-down bg-down-soft"} dark:bg-opacity-10 px-3 py-1.5 rounded-lg flex items-center gap-1.5`}>
           {isProfit ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
           <span className="font-bold text-lg">{isProfit ? "+" : ""}{trade.unrealized_pnl_pct.toFixed(2)}%</span>
         </div>

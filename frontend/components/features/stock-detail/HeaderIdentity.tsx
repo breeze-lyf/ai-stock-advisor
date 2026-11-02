@@ -190,7 +190,7 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                             <span className="text-[10px] font-black uppercase text-neutral-400 tracking-tighter">最新涨跌</span>
                             <span className={clsx(
                                 "text-lg font-black tabular-nums",
-                                (selectedItem.change_percent || 0) >= 0 ? "text-emerald-600" : "text-rose-600"
+                                (selectedItem.change_percent || 0) >= 0 ? "text-up" : "text-down"
                             )}>
                                 {(selectedItem.change_percent || 0) >= 0 ? "+" : ""}{selectedItem.change_percent?.toFixed(2)}%
                             </span>
@@ -305,7 +305,7 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                                     <div className="flex items-center gap-1.5">
                                         <span className={clsx(
                                             "text-sm font-bold tabular-nums",
-                                            selectedItem.unrealized_pl >= 0 ? "text-emerald-600" : "text-rose-600"
+                                            selectedItem.unrealized_pl >= 0 ? "text-up" : "text-down"
                                         )}>
                                             {selectedItem.unrealized_pl >= 0 ? "+" : ""}${selectedItem.unrealized_pl.toFixed(2)}
                                         </span>

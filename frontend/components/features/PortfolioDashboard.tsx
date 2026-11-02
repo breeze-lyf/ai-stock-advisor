@@ -93,14 +93,14 @@ export function PortfolioDashboard({
                                     <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">累计盈亏 (P/L)</span>
                                     <div className={clsx(
                                         "flex items-center gap-1.5 font-bold text-lg tabular-nums",
-                                        isProfit ? "text-emerald-600" : "text-rose-600"
+                                        isProfit ? "text-up" : "text-down"
                                     )}>
                                         {isProfit ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                                         {isProfit ? "+" : ""}{summary?.total_unrealized_pl.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </div>
                                     <div className={clsx(
                                         "text-[10px] font-bold px-2 py-0.5 rounded-full inline-block",
-                                        isProfit ? "bg-emerald-600/10 text-emerald-600" : "bg-rose-600/10 text-rose-600"
+                                        isProfit ? "bg-up/10 text-up" : "bg-down/10 text-down"
                                     )}>
                                         {summary?.total_pl_percent.toFixed(2)}%
                                     </div>
@@ -110,7 +110,7 @@ export function PortfolioDashboard({
                                     <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">今日变动 (Day Change)</span>
                                     <div className={clsx(
                                         "flex items-center gap-1.5 font-bold text-lg tabular-nums",
-                                        (summary?.day_change || 0) >= 0 ? "text-emerald-600" : "text-rose-600"
+                                        (summary?.day_change || 0) >= 0 ? "text-up" : "text-down"
                                     )}>
                                         {(summary?.day_change || 0) >= 0 ? "+" : ""}{summary?.day_change.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </div>
@@ -177,13 +177,13 @@ export function PortfolioDashboard({
                                                     <div className="flex flex-col items-end">
                                                         <span className={clsx(
                                                             "font-bold text-xs tabular-nums",
-                                                            item.unrealized_pl >= 0 ? "text-emerald-600" : "text-rose-600"
+                                                            item.unrealized_pl >= 0 ? "text-up" : "text-down"
                                                         )}>
                                                             {item.unrealized_pl >= 0 ? "+" : ""}{item.unrealized_pl.toFixed(2)}
                                                         </span>
                                                         <span className={clsx(
                                                             "text-[10px] font-bold",
-                                                            item.pl_percent >= 0 ? "text-emerald-600/70" : "text-rose-600/70"
+                                                            item.pl_percent >= 0 ? "text-up/70" : "text-down/70"
                                                         )}>
                                                             {item.pl_percent.toFixed(2)}%
                                                         </span>

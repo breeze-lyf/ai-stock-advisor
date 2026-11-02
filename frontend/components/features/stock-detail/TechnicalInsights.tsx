@@ -117,10 +117,10 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                             <div className="space-y-1">
                                 <div className="text-[7px] font-bold text-neutral-400 uppercase">柱状值 / 斜率</div>
                                 <div className="flex items-baseline gap-2">
-                                    <span className={clsx("text-xs font-black tabular-nums", (selectedItem?.macd_hist || 0) >= 0 ? "text-emerald-600" : "text-rose-600")}>
+                                    <span className={clsx("text-xs font-black tabular-nums", (selectedItem?.macd_hist || 0) >= 0 ? "text-up" : "text-down")}>
                                         {selectedItem?.macd_hist?.toFixed(2)}
                                     </span>
-                                    <span className={clsx("text-[9px] font-bold", (selectedItem?.macd_hist_slope || 0) >= 0 ? "text-emerald-400" : "text-rose-400")}>
+                                    <span className={clsx("text-[9px] font-bold", (selectedItem?.macd_hist_slope || 0) >= 0 ? "text-up" : "text-down")}>
                                         {(selectedItem?.macd_hist_slope || 0) > 0 ? "↑" : "↓"}
                                     </span>
                                 </div>
@@ -134,7 +134,7 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                                 return (
                                     <div 
                                         key={i} 
-                                        className={clsx("flex-1 rounded-t-sm", isPos ? "bg-emerald-400" : "bg-rose-400")} 
+                                        className={clsx("flex-1 rounded-t-sm", isPos ? "bg-up" : "bg-down")} 
                                         style={{ height: `${h}px` }}
                                     />
                                 );

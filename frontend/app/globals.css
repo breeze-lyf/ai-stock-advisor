@@ -7,8 +7,30 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Typography: Geist for Latin/numbers, native CJK faces for 中文 */
+  --font-sans: var(--font-geist-sans), "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Source Han Sans SC", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* ---- 个人投资智能体 design tokens ----
+   * brand: one restrained indigo accent. up/down are semantic: default 绿涨红跌 (green_up); html[data-updown=red_up] switches to 红涨绿跌.
+   * surface/elevated/line/ink are neutral layers that flip in .dark. */
+  --color-brand: var(--brand);
+  --color-brand-fg: var(--brand-fg);
+  --color-brand-soft: var(--brand-soft);
+  --color-up: var(--up);
+  --color-down: var(--down);
+  --color-up-soft: var(--up-soft);
+  --color-down-soft: var(--down-soft);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-elevated: var(--elevated);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.04), 0 1px 1px -0.5px rgb(0 0 0 / 0.03);
+  --shadow-float: 0 12px 32px -12px rgb(15 23 42 / 0.18), 0 2px 6px -2px rgb(15 23 42 / 0.06);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -51,6 +73,21 @@
 
 :root {
   --radius: 0.625rem;
+  --brand: oklch(0.52 0.19 268);
+  --brand-fg: oklch(0.99 0 0);
+  --brand-soft: oklch(0.96 0.025 268);
+  --red: oklch(0.58 0.2 25);
+  --green: oklch(0.56 0.13 158);
+  --red-soft: oklch(0.96 0.03 25);
+  --green-soft: oklch(0.96 0.03 158);
+  --canvas: oklch(0.985 0.002 270);
+  --surface: oklch(1 0 0);
+  --elevated: oklch(0.975 0.003 270);
+  --line: oklch(0.925 0.004 270);
+  --line-strong: oklch(0.87 0.006 270);
+  --ink: oklch(0.2 0.01 270);
+  --ink-2: oklch(0.44 0.012 270);
+  --ink-3: oklch(0.6 0.01 270);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -85,6 +122,21 @@
 }
 
 .dark {
+  --brand: oklch(0.68 0.16 268);
+  --brand-fg: oklch(0.16 0.02 268);
+  --brand-soft: oklch(0.28 0.05 268);
+  --red: oklch(0.7 0.18 25);
+  --green: oklch(0.72 0.14 158);
+  --red-soft: oklch(0.3 0.06 25);
+  --green-soft: oklch(0.3 0.05 158);
+  --canvas: oklch(0.155 0.006 270);
+  --surface: oklch(0.19 0.007 270);
+  --elevated: oklch(0.225 0.008 270);
+  --line: oklch(0.27 0.008 270);
+  --line-strong: oklch(0.34 0.01 270);
+  --ink: oklch(0.96 0.003 270);
+  --ink-2: oklch(0.76 0.008 270);
+  --ink-3: oklch(0.58 0.01 270);
   /* 中性灰深色：所有表层(背景/卡片/边框/文字)去色相，纯灰；强调色保留 */
   --background: oklch(0.18 0 0);       /* 纯中性深灰 */
   --foreground: oklch(0.85 0 0);       /* 浅灰正文 */
@@ -125,8 +177,89 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "cv11", "ss01";
+    text-rendering: optimizeLegibility;
   }
 }
+/* ---- reusable primitives built on the tokens ---- */
+@utility card {
+  border-radius: 1rem;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+@utility num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+@utility eyebrow {
+  font-size: 11px;
+  line-height: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+@utility skeleton {
+  border-radius: 0.375rem;
+  background: linear-gradient(90deg, var(--elevated) 0%, var(--line) 50%, var(--elevated) 100%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes skeleton-shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* Agent chat markdown: compact, table-friendly */
+.prose-agent {
+  @apply prose prose-sm max-w-none dark:prose-invert;
+  --tw-prose-body: var(--ink-2);
+  --tw-prose-headings: var(--ink);
+  --tw-prose-bold: var(--ink);
+  --tw-prose-bullets: var(--ink-3);
+  --tw-prose-links: var(--brand);
+  --tw-prose-invert-body: var(--ink-2);
+  --tw-prose-invert-headings: var(--ink);
+  --tw-prose-invert-bold: var(--ink);
+  --tw-prose-invert-links: var(--brand);
+  line-height: 1.75;
+}
+.prose-agent :where(h1, h2, h3, h4) { @apply mt-5 mb-2 font-semibold tracking-tight; }
+.prose-agent :where(h1) { @apply text-base; }
+.prose-agent :where(h2) { @apply text-[15px]; }
+.prose-agent :where(h3, h4) { @apply text-sm; }
+.prose-agent :where(p, ul, ol) { @apply my-2; }
+.prose-agent :where(li) { @apply my-0.5; }
+.prose-agent :where(table) {
+  @apply my-3 w-full overflow-hidden rounded-lg text-[12.5px];
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--line);
+  font-variant-numeric: tabular-nums;
+}
+.prose-agent :where(thead th) {
+  @apply px-3 py-2 text-left text-[11px] font-medium;
+  background: var(--elevated);
+  color: var(--ink-3);
+  border-bottom: 1px solid var(--line);
+}
+.prose-agent :where(tbody td) {
+  @apply px-3 py-2;
+  border-bottom: 1px solid var(--line);
+}
+.prose-agent :where(tbody tr:last-child td) { border-bottom: 0; }
+.prose-agent :where(code):not(:where(pre code)) {
+  @apply rounded px-1 py-0.5 text-[12px] font-normal;
+  background: var(--elevated);
+}
+.prose-agent :where(code)::before, .prose-agent :where(code)::after { content: none; }
+.prose-agent :where(blockquote) {
+  @apply not-italic font-normal;
+  border-left-color: var(--brand);
+  color: var(--ink-2);
+}
+
 @layer utilities {
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
@@ -193,4 +326,18 @@
   .prose-diagnostic h4 {
     @apply mt-6 mb-3 text-slate-700 dark:text-slate-300 font-bold;
   }
+}
+
+/* 涨跌配色：默认绿涨红跌；用户可在 设置 → 外观 切换为红涨绿跌 */
+:root, .dark {
+  --up: var(--green);
+  --down: var(--red);
+  --up-soft: var(--green-soft);
+  --down-soft: var(--red-soft);
+}
+[data-updown="red_up"], [data-updown="red_up"] .dark {
+  --up: var(--red);
+  --down: var(--green);
+  --up-soft: var(--red-soft);
+  --down-soft: var(--green-soft);
 }

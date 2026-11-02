@@ -18,8 +18,8 @@ export const FEATURES = {
   radar: on(process.env.NEXT_PUBLIC_FEATURE_RADAR, false),
   /** 选股器：预设策略筛选，非主流程。 */
   screener: on(process.env.NEXT_PUBLIC_FEATURE_SCREENER, false),
-  /** 免登录试用 /try */
-  trial: on(process.env.NEXT_PUBLIC_FEATURE_TRIAL, true),
+  /** 免登录试用 /try：默认不在界面露出入口（页面仍可按 URL 访问，后端另有 AGENT_TRIAL_ENABLED）。 */
+  trial: on(process.env.NEXT_PUBLIC_FEATURE_TRIAL, false),
 };
 
 export const BRAND = {

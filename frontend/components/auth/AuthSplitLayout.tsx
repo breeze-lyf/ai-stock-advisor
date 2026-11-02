@@ -107,7 +107,7 @@ const deferredSectionStyle = {
 const copy: Record<Language, Copy> = {
   en: {
     brand: "Personal Investment Agent",
-    nav: ["Features", "Try it", "Docs", "GitHub"],
+    nav: ["Features", "MCP", "Docs", "GitHub"],
     loginLabel: "Sign In",
     getStartedLabel: "Get Started",
     launchBadge: "Open source · MCP ready",
@@ -116,7 +116,7 @@ const copy: Record<Language, Copy> = {
     heroDescription:
       "An AI agent that remembers your holdings and style, writes you a daily brief, and keeps score of every call it makes. Plug it into Claude, Cursor or DingTalk via MCP.",
     heroPrimaryCta: "Start Exploring",
-    heroSecondaryCta: "Try without sign-up",
+    heroSecondaryCta: "View on GitHub",
     heroTrust: "Self-hostable · A-shares, HK & US · Not investment advice",
     trustedByTitle: "Trusted by modern research stacks",
     trustedBy: ["Notion", "Figma", "Slack", "Discord", "GitHub"],
@@ -223,7 +223,7 @@ const copy: Record<Language, Copy> = {
   },
   zh: {
     brand: "个人投资智能体",
-    nav: ["功能", "试用", "文档", "GitHub"],
+    nav: ["功能", "MCP", "文档", "GitHub"],
     loginLabel: "登录",
     getStartedLabel: "立即开始",
     launchBadge: "开源 · 支持 MCP",
@@ -232,7 +232,7 @@ const copy: Record<Language, Copy> = {
     heroDescription:
       "记得你的持仓与投资风格，每天主动写简报，每条买卖建议都自动复盘、用战绩说话。还能通过 MCP 接入 Claude、Cursor 与钉钉。",
     heroPrimaryCta: "开始探索",
-    heroSecondaryCta: "免登录试用",
+    heroSecondaryCta: "查看开源代码",
     heroTrust: "可自托管 · 覆盖 A 股 / 港股 / 美股 · 不构成投资建议",
     trustedByTitle: "受到现代研究型团队青睐",
     trustedBy: ["Notion", "Figma", "Slack", "Discord", "GitHub"],
@@ -333,11 +333,14 @@ const copy: Record<Language, Copy> = {
     fieldPlaceholders: { email: "name@company.com", password: "请输入密码" },
     switchPrompt: { login: "第一次使用？", register: "已经有账号？" },
     switchLabel: { login: "立即注册", register: "去登录" },
-    authFootnote: "本页中的示例指标和用户规模属于营销占位数据，后续应替换为真实可验证数据。",
+    authFootnote: "所有内容由 AI 基于公开数据生成，仅供参考，不构成投资建议。",
     languageLabel: "EN",
     illustrativeNote: "示例营销数据",
   },
 };
+
+/** 登录/注册页下方的旧营销区块（合作方、定价、营销占位数据）默认隐藏；公开介绍见首页 Landing。 */
+const SHOW_AUTH_MARKETING = false;
 
 function getStoredLanguage(): Language {
   if (typeof window === "undefined") return "zh";
@@ -435,26 +438,18 @@ export function AuthSplitLayout({
                   {t.heroPrimaryCta}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
-                <Link
-                  href="/try"
+                <a
+                  href="https://github.com/breeze-lyf/ai-stock-advisor"
+                  target="_blank"
+                  rel="noreferrer"
                   className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.03] px-6 py-3.5 text-sm font-medium text-white/80 transition hover:bg-white/[0.06]"
                 >
                   {t.heroSecondaryCta}
-                </Link>
+                </a>
               </div>
 
               <div className="mt-12">
-                <div className="flex -space-x-3">
-                  {[0, 1, 2, 3, 4].map((item) => (
-                    <div
-                      key={item}
-                      className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#050507] bg-gradient-to-br from-neutral-200 to-neutral-400 text-xs font-semibold text-black"
-                    >
-                      {String.fromCharCode(65 + item)}
-                    </div>
-                  ))}
-                </div>
-                <p className="mt-4 text-sm text-white/45">{t.heroTrust}</p>
+                <p className="text-sm text-white/45">{t.heroTrust}</p>
               </div>
             </div>
 
@@ -530,6 +525,7 @@ export function AuthSplitLayout({
             </div>
           </section>
 
+          {SHOW_AUTH_MARKETING && (<>
           <section className="border-t border-white/6 py-10" style={deferredSectionStyle}>
             <div className="text-center text-xs font-medium uppercase tracking-[0.28em] text-white/30">
               {t.trustedByTitle}
@@ -701,6 +697,8 @@ export function AuthSplitLayout({
               </button>
             </div>
           </section>
+
+          </>)}
 
           <footer className="border-t border-white/8 py-10" style={deferredSectionStyle}>
             <div className="grid gap-10 lg:grid-cols-[1.2fr_repeat(4,1fr)]">

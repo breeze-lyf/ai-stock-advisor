@@ -187,7 +187,7 @@ export default function QuantPage() {
                                                         <td className={`px-4 py-3 text-sm text-right font-bold ${factor.ic_ir && factor.ic_ir >= 0.5 ? "text-emerald-600" : "text-neutral-600 dark:text-neutral-300"}`}>
                                                             {factor.ic_ir?.toFixed(2) || "--"}
                                                         </td>
-                                                        <td className={`px-4 py-3 text-sm text-right font-bold ${factor.annual_return && factor.annual_return >= 0 ? "text-emerald-600" : "text-rose-600"}`}>
+                                                        <td className={`px-4 py-3 text-sm text-right font-bold ${factor.annual_return && factor.annual_return >= 0 ? "text-up" : "text-down"}`}>
                                                             {(factor.annual_return || 0) >= 0 ? "+" : ""}{(factor.annual_return || 0) * 100}%
                                                         </td>
                                                     </tr>

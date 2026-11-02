@@ -1,5 +1,5 @@
 import fastapi
-from app.api.v1.endpoints import auth, portfolio, analysis, user, stock, notifications, macro, paper_trading, user_preferences, enhanced_analysis, stock_lists, screener, portfolio_risk, calendar, notification_settings, signals, user_profile, academy, backtest, subscription, monitoring, quant_factors
+from app.api.v1.endpoints import auth, portfolio, analysis, user, stock, notifications, macro, paper_trading, user_preferences, enhanced_analysis, stock_lists, screener, portfolio_risk, calendar, notification_settings, signals, user_profile, academy, backtest, subscription, monitoring, quant_factors, agent
 
 # 创建 v1 版本的总路由对象
 api_router = fastapi.APIRouter()
@@ -72,3 +72,6 @@ api_router.include_router(paper_trading.router, prefix="/paper-trading", tags=["
 
 # 量化因子模块：提供因子管理、分析、回测和优化
 api_router.include_router(quant_factors.router, prefix="/quant", tags=["quant"])
+
+# 智能体模块：工具调用型投研助理（对话 + 个人 API Token）
+api_router.include_router(agent.router, prefix="/agent", tags=["agent"])

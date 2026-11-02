@@ -99,8 +99,8 @@ def setup_cors(app: FastAPI) -> None:
         "http://127.0.0.1:3000",
         "http://localhost:3001",
         "http://127.0.0.1:3001",
-        "http://47.100.109.73",
-        "http://47.100.109.73:3000",
+        "https://stock.yufeng.fun",
+        # Server IP origins removed from source; add them via ALLOWED_ORIGINS env if needed.
     ]
 
     env_origins = settings.ALLOWED_ORIGINS if hasattr(settings, "ALLOWED_ORIGINS") else []

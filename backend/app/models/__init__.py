@@ -20,3 +20,4 @@ from app.models.subscription import SubscriptionPlan, UserSubscription, UsageRec
 from app.models.user_preference import UserPreference
 from app.models.quant_factor import QuantFactor, QuantFactorValue, QuantStrategy, QuantSignal, QuantBacktestResult, FactorICHistory, QuantOptimizationConfig
 from app.models.stock_capsule import StockCapsule
+from app.models.agent import AgentConversation, AgentMessage, UserApiToken

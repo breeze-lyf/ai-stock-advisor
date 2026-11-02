@@ -43,6 +43,8 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile
           push: true
+          provenance: false
+          sbom: false
           tags: ${{ secrets.ACR_REGISTRY }}/ai-stock-advisor/stock-backend:${{ steps.meta.outputs.image_tag }},${{ secrets.ACR_REGISTRY }}/ai-stock-advisor/stock-backend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -53,6 +55,8 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
+          provenance: false
+          sbom: false
           build-args: |
             NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
           tags: ${{ secrets.ACR_REGISTRY }}/ai-stock-advisor/stock-frontend:${{ steps.meta.outputs.image_tag }},${{ secrets.ACR_REGISTRY }}/ai-stock-advisor/stock-frontend:latest

@@ -69,3 +69,12 @@
 ## 截图
 
 改版前：`docs/images/before/`；改版后：`docs/images/after/`。
+
+## 视觉改版与涨跌配色（Phase 3）
+
+- 设计令牌集中在 `frontend/app/globals.css`：单一靛蓝强调色 `brand`，`canvas/surface/elevated/line/ink` 分层，`card / num / eyebrow / skeleton` 工具类，深浅色均通过令牌切换。
+- **涨跌配色可配置**：价格涨跌一律使用语义色 `text-up / text-down / bg-up-soft / bg-down-soft`（K 线用 `priceHex()`），不再硬编码红绿。
+  - 默认 **绿涨红跌**（`green_up`），可在 设置 → 外观与显示 切换为 **红涨绿跌**（`red_up`），带实时预览。
+  - 存储：`users.price_color_mode`（迁移 `f1c2d3e4a5b6`），经 `PUT /api/v1/user/settings` 保存；同时缓存在 `localStorage.price_color_mode`，`<head>` 内联脚本在首屏前设置 `html[data-updown]`，未登录页面同样生效。
+- `/try` 入口默认隐藏：`NEXT_PUBLIC_FEATURE_TRIAL` 默认 `false`（页面与后端开关保留）。登录/注册页下方旧营销区块（合作方、定价、占位数据）以 `SHOW_AUTH_MARKETING=false` 隐藏。
+- 截图：`docs/images/after/`（桌面 1440/1280，浅色/深色，两种涨跌配色）与 `docs/images/after/mobile/`（390）。

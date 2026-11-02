@@ -29,7 +29,7 @@
 |---|---|
 | ![复盘战绩](docs/images/after/review.png) | ![今日简报](docs/images/after/briefs.png) |
 | **投资画像** | **免登录试用** |
-| ![投资画像](docs/images/after/settings-profile.png) | ![试用](docs/images/after/try.png) |
+| ![投资画像](docs/images/after/settings-profile.png) | ![外观与涨跌配色](docs/images/after/settings-appearance.png) |
 
 > 截图中的部分复盘记录为演示数据。
 

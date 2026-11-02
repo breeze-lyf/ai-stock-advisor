@@ -1,4 +1,5 @@
 "use client";
+import { applyPriceColorMode, normalizeMode } from "@/shared/theme/priceColor";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -52,6 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (response.ok) {
                 const data = await response.json();
                 setUser(data);
+                if (data?.price_color_mode) applyPriceColorMode(normalizeMode(data.price_color_mode));
                     } else if (response.status === 401 || response.status === 403) {
                 localStorage.removeItem("token");
                 localStorage.removeItem("refreshToken");

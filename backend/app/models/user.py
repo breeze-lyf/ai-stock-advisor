@@ -59,6 +59,8 @@ class User(Base):
     preferred_ai_model: Mapped[str] = mapped_column(String, default=settings.DEFAULT_AI_MODEL)
     timezone: Mapped[str] = mapped_column(String, default="Asia/Shanghai")
     theme: Mapped[str] = mapped_column(String, default="light")
+    # 涨跌配色：green_up = 绿涨红跌（默认），red_up = 红涨绿跌
+    price_color_mode: Mapped[str] = mapped_column(String, default="green_up", server_default="green_up")
     feishu_webhook_url: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     
     # --- 增强型 AI 配置 (BYOK & Dispatching) ---

@@ -132,7 +132,7 @@ export function BarChart({ data, xAxisLabel = "", yAxisLabel = "", width = 600, 
         width: barWidth,
         height: Math.abs(yScale(d.y) - yScale(0)),
         value: d.y,
-        color: d.y >= 0 ? "#22c55e" : "#ef4444",
+        color: d.y >= 0 ? "var(--up)" : "var(--down)",
       };
     });
 

@@ -90,6 +90,7 @@ class UserSettingsUpdate(BaseModel):
     preferred_ai_model: str | None = None
     timezone: str | None = None
     theme: str | None = None
+    price_color_mode: Literal["green_up", "red_up"] | None = None
     feishu_webhook_url: str | None = None
     notifications_enabled: bool | None = None
     enable_price_alerts: bool | None = None
@@ -115,6 +116,7 @@ class UserProfile(BaseModel):
     preferred_ai_model: str = settings.DEFAULT_AI_MODEL
     timezone: str = "Asia/Shanghai"
     theme: str = "dark"
+    price_color_mode: str = "green_up"
     feishu_webhook_url: str | None = None
     notifications_enabled: bool = True
     enable_price_alerts: bool = True

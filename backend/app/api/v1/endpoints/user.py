@@ -127,6 +127,7 @@ def serialize_user_profile(current_user: User, provider_credentials: dict[str, U
         preferred_ai_model=current_user.preferred_ai_model or core_settings.DEFAULT_AI_MODEL,
         timezone=current_user.timezone or "Asia/Shanghai",
         theme=current_user.theme or "light",
+        price_color_mode=current_user.price_color_mode or "green_up",
         feishu_webhook_url=current_user.feishu_webhook_url,
         notifications_enabled=current_user.notifications_enabled if current_user.notifications_enabled is not None else True,
         enable_price_alerts=current_user.enable_price_alerts if current_user.enable_price_alerts is not None else True,
@@ -232,6 +233,9 @@ async def update_user_settings(
 
     if settings.theme is not None:
         current_user.theme = settings.theme
+
+    if settings.price_color_mode is not None:
+        current_user.price_color_mode = settings.price_color_mode
 
     if settings.feishu_webhook_url is not None:
         current_user.feishu_webhook_url = settings.feishu_webhook_url

@@ -900,6 +900,7 @@ export interface components {
             timezone: string;
             /** Theme */
             theme: string;
+            price_color_mode?: "green_up" | "red_up";
             /** Feishu Webhook Url */
             feishu_webhook_url?: string | null;
             /** Enable Price Alerts */
@@ -931,6 +932,7 @@ export interface components {
             timezone?: string | null;
             /** Theme */
             theme?: string | null;
+            price_color_mode?: "green_up" | "red_up" | null;
             /** Feishu Webhook Url */
             feishu_webhook_url?: string | null;
             /** Enable Price Alerts */

@@ -1,3 +1,4 @@
+import { PRICE_COLOR_BOOT_SCRIPT } from "@/shared/theme/priceColorBoot";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -28,7 +29,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
+    <html lang="zh-CN" data-updown="green_up" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: PRICE_COLOR_BOOT_SCRIPT }} />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >

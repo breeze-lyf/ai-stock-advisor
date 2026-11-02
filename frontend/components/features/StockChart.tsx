@@ -6,6 +6,9 @@
 "use client";
 
 import React, { useEffect, useRef } from 'react';
+import { priceHex, usePriceColorMode } from '@/shared/theme/priceColor';
+
+const alpha = (hex: string, a: number) => `rgba(${parseInt(hex.slice(1, 3), 16)}, ${parseInt(hex.slice(3, 5), 16)}, ${parseInt(hex.slice(5, 7), 16)}, ${a})`;
 import { createChart, ColorType, IChartApi, ISeriesApi, CandlestickSeries, HistogramSeries, LineSeries } from 'lightweight-charts';
 
 export interface ChartDataPoint {
@@ -69,6 +72,9 @@ export const StockChart: React.FC<StockChartProps> = ({
     const latestDataRef = useRef(data);
     const onLoadMoreRef = useRef(onLoadMore);
     const isLoadingMoreRef = useRef(isLoadingMore);
+    const priceMode = usePriceColorMode();
+    const priceModeRef = useRef(priceMode);
+    useEffect(() => { priceModeRef.current = priceMode; }, [priceMode]);
 
     // 防止内存泄漏：卸载哨兵 (Unmount Sentinel)
     const isUnmounted = useRef(false);
@@ -124,11 +130,11 @@ export const StockChart: React.FC<StockChartProps> = ({
             },
         });
         const candlestickSeries = mainChart.addSeries(CandlestickSeries, {
-            upColor: '#10b981',
-            downColor: '#f43f5e',
+            upColor: priceHex(priceModeRef.current).up,
+            downColor: priceHex(priceModeRef.current).down,
             borderVisible: false,
-            wickUpColor: '#10b981',
-            wickDownColor: '#f43f5e',
+            wickUpColor: priceHex(priceModeRef.current).up,
+            wickDownColor: priceHex(priceModeRef.current).down,
         });
         const volumeSeries = mainChart.addSeries(HistogramSeries, {
             color: '#3b82f6',
@@ -376,7 +382,7 @@ export const StockChart: React.FC<StockChartProps> = ({
                 const volumeData = normalizedData.map(item => ({
                     time: item.time,
                     value: Number(item.volume) || 0,
-                    color: Number(item.close) >= Number(item.open) ? 'rgba(16, 185, 129, 0.3)' : 'rgba(244, 63, 94, 0.3)',
+                    color: Number(item.close) >= Number(item.open) ? alpha(priceHex(priceMode).up, 0.3) : alpha(priceHex(priceMode).down, 0.3),
                 }));
 
                 candlestickSeriesRef.current.setData(chartData);
@@ -418,7 +424,7 @@ export const StockChart: React.FC<StockChartProps> = ({
                     const macdHistData = normalizedData.map(item => ({
                         time: item.time,
                         value: item.macd_hist !== null ? item.macd_hist : undefined,
-                        color: (item.macd_hist ?? 0) >= 0 ? 'rgba(16, 185, 129, 0.5)' : 'rgba(244, 63, 94, 0.5)',
+                        color: (item.macd_hist ?? 0) >= 0 ? alpha(priceHex(priceMode).up, 0.5) : alpha(priceHex(priceMode).down, 0.5),
                     }));
                     
                     /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -440,7 +446,13 @@ export const StockChart: React.FC<StockChartProps> = ({
                 console.error("Failed to update chart data", e);
             }
         }
-    }, [data, showBb, showRsi, showMacd]);
+    }, [data, showBb, showRsi, showMacd, priceMode]);
+
+    // 涨跌配色切换时即时更新 K 线颜色
+    useEffect(() => {
+        const c = priceHex(priceMode);
+        try { candlestickSeriesRef.current?.applyOptions({ upColor: c.up, downColor: c.down, wickUpColor: c.up, wickDownColor: c.down }); } catch {/* ignore */}
+    }, [priceMode]);
 
     return (
         <div className="w-full relative bg-white dark:bg-neutral-900 rounded-[2.5rem] border border-neutral-100 dark:border-neutral-800 p-2 overflow-hidden shadow-sm flex flex-col gap-1" suppressHydrationWarning>

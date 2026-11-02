@@ -1,6 +1,6 @@
 "use client";
 
-import { TrendingUp, PieChart, Globe, Target, BarChart3, Search, Calendar, Bell, Settings, LogOut } from "lucide-react";
+import { TrendingUp, PieChart, Globe, Target, BarChart3, Search, Calendar, Bell, Settings, LogOut, Bot } from "lucide-react";
 import { MarketStatusIndicator } from "@/components/features/MarketStatusIndicator";
 import { UserProfile } from "@/types";
 import type { DashboardTab } from "@/features/dashboard/hooks/useDashboardRouteState";
@@ -61,6 +61,7 @@ export function DashboardHeader({ user, activeTab, setActiveTab }: DashboardHead
   const isCalendarActive = cleanPathname === "/calendar";
   const isQuantActive = cleanPathname === "/quant";
   const isScreenerActive = cleanPathname === "/screener";
+  const isAgentActive = cleanPathname === "/agent";
 
   return (
     <header className="flex h-16 items-center px-4 border-b border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl shrink-0 z-50 relative">
@@ -122,6 +123,12 @@ export function DashboardHeader({ user, activeTab, setActiveTab }: DashboardHead
           icon={<BarChart3 className="w-4 h-4" />}
           active={isQuantActive}
         />
+        <NavItem
+          href="/agent"
+          label="智能体"
+          icon={<Bot className="w-4 h-4" />}
+          active={isAgentActive}
+        />
       </nav>
 
       {/* Mobile Nav */}
@@ -154,6 +161,18 @@ export function DashboardHeader({ user, activeTab, setActiveTab }: DashboardHead
           suppressHydrationWarning
         >
           <BarChart3 className="w-4 h-4" />
+        </Link>
+        <Link
+          href="/agent"
+          className={clsx(
+            "p-2 rounded-lg shrink-0",
+            isAgentActive ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-neutral-500 hover:text-neutral-700",
+            "transition-colors"
+          )}
+          title="智能体"
+          suppressHydrationWarning
+        >
+          <Bot className="w-4 h-4" />
         </Link>
       </nav>
 

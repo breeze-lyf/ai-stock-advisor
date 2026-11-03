@@ -38,14 +38,14 @@ export function UserMenu({ user }: UserMenuProps) {
                 <DropdownMenu.Root>
                     <DropdownMenu.Trigger asChild>
                         <button className="flex items-center gap-1.5 focus:outline-none group">
-                            <div className="relative p-[2px] rounded-full bg-gradient-to-tr from-yellow-400 via-rose-600 to-blue-600 animate-gradient-slow shadow-lg group-hover:scale-105 transition-transform duration-300">
-                                <Avatar.Root className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-neutral-100 border-2 border-white dark:border-neutral-900 shadow-inner">
+                            <div className="relative rounded-full">
+                                <Avatar.Root className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-elevated border border-line">
                                     <Avatar.Image
                                         className="h-full w-full object-cover"
                                         src="/images/avatar.png"
                                         alt={user.email}
                                     />
-                                    <Avatar.Fallback className="flex h-full w-full items-center justify-center bg-neutral-100 text-sm font-bold text-neutral-500">
+                                    <Avatar.Fallback className="flex h-full w-full items-center justify-center bg-elevated text-[11px] font-semibold text-ink-2">
                                         {user.email.substring(0, 2).toUpperCase()}
                                     </Avatar.Fallback>
                                 </Avatar.Root>

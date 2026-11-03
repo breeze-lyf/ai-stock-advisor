@@ -33,7 +33,7 @@ function Chips<T extends string>({ opts, value, onChange }: { opts: readonly { v
   return (
     <div className="flex flex-wrap gap-2">
       {opts.map((o) => (
-        <button key={o.v} type="button" onClick={() => onChange(o.v)} className={clsx("rounded-xl border px-3 py-1.5 text-sm transition", value(o.v) ? "border-brand bg-brand-soft text-brand" : "border-line text-ink-2 hover:border-line")}>{o.l}</button>
+        <button key={o.v} type="button" onClick={() => onChange(o.v)} className={clsx("rounded-md border px-3 py-1.5 text-sm transition", value(o.v) ? "border-ink bg-elevated text-ink" : "border-line text-ink-2 hover:border-line")}>{o.l}</button>
       ))}
     </div>
   );

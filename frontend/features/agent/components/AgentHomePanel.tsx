@@ -2,14 +2,18 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import clsx from "clsx";
 import { ArrowUpRight, Loader2, Newspaper, PieChart, RefreshCw, Trophy } from "lucide-react";
 import type { PortfolioItem } from "@/types";
 import { generateBrief, listAdvice, listBriefs, type AdviceStats, type DailyBrief } from "@/features/agent/api";
 
 type Row = PortfolioItem & { change_percent?: number | null };
+
+function BriefExcerpt({ content }: { content: string }) {
+  const plain = content.replace(/[#*_`>\[\]()]/g, " ").replace(/\s+/g, " ").trim();
+  const short = plain.length > 160 ? `${plain.slice(0, 160)}…` : plain;
+  return <p className="text-[13px] leading-relaxed text-ink-2">{short}</p>;
+}
 
 export function ChangePill({ value, className }: { value: number | null | undefined; className?: string }) {
   if (value === null || value === undefined) return <span className={clsx("num text-[12px] text-ink-3", className)}>--</span>;
@@ -36,7 +40,6 @@ export function AgentHomePanel({ portfolio, onAsk, variant = "rail" }: { portfol
   const [generating, setGenerating] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [stats, setStats] = useState<AdviceStats | null | undefined>(undefined);
-  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     listBriefs(1).then((r) => setBrief(r.items[0] || null)).catch(() => undefined).finally(() => setLoadingBrief(false));
@@ -88,13 +91,8 @@ export function AgentHomePanel({ portfolio, onAsk, variant = "rail" }: { portfol
                 <span className="num rounded-md bg-elevated px-1.5 py-0.5 text-[11px] text-ink-3">{brief.date}</span>
                 {brief.pushed_channels && <span className="text-[11px] text-ink-3">已推送 · {brief.pushed_channels}</span>}
               </div>
-              <div className={clsx("relative", !expanded && "max-h-64 overflow-hidden")}>
-                <div className="prose-agent text-[13px] [&_h1]:text-[14px] [&_h2]:text-[13.5px] [&_h2]:mt-3 [&_h1]:mt-0 [&_h2:first-child]:mt-0">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{brief.content}</ReactMarkdown>
-                </div>
-                {!expanded && <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-surface to-transparent" />}
-              </div>
-              <button type="button" onClick={() => setExpanded((v) => !v)} className="mt-2 text-[12px] font-medium text-brand hover:underline">{expanded ? "收起" : "展开全文"}</button>
+              <BriefExcerpt content={brief.content} />
+              <Link href="/briefs" className="mt-2 inline-flex text-[12px] text-ink-3 underline-offset-2 hover:text-ink hover:underline">查看全文</Link>
             </>
           ) : (
             <div className="rounded-lg border border-dashed border-line-strong p-4 text-center">
@@ -113,7 +111,7 @@ export function AgentHomePanel({ portfolio, onAsk, variant = "rail" }: { portfol
         <div className="px-2 pb-3">
           {rows.length === 0 ? (
             <div className="mx-2 rounded-lg border border-dashed border-line-strong p-4 text-center text-[12px] text-ink-3">
-              还没有持仓或自选。<Link href="/dashboard?tab=portfolio" className="font-medium text-brand">去添加</Link>，智能体就能帮你盯盘。
+              还没有持仓或自选。<Link href="/dashboard?tab=portfolio" className="font-medium text-ink">去添加</Link>，智能体就能帮你盯盘。
             </div>
           ) : (
             [{ label: "持仓", list: holds }, { label: "自选", list: watch }].filter((g) => g.list.length).map((g) => (
@@ -157,7 +155,7 @@ export function AgentHomePanel({ portfolio, onAsk, variant = "rail" }: { portfol
               <span className="text-[12px] text-ink-3">命中率</span>
             </div>
             <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-elevated">
-              <div className="h-full rounded-full bg-brand" style={{ width: `${hitPct ?? 0}%` }} />
+              <div className="h-full rounded-full bg-ink" style={{ width: `${hitPct ?? 0}%` }} />
             </div>
             <p className="num mt-2 text-[12px] text-ink-3">累计 {stats.total} 条 · 已复盘 {stats.evaluated} · 待复盘 {stats.open}</p>
           </div>

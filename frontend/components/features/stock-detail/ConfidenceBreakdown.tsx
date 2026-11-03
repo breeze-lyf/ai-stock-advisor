@@ -16,7 +16,7 @@ const DIMENSIONS = [
     { key: "technical" as const, label: "技术面", color: "bg-blue-500" },
     { key: "fundamental" as const, label: "基本面", color: "bg-emerald-500" },
     { key: "macro" as const, label: "宏观面", color: "bg-amber-500" },
-    { key: "sentiment" as const, label: "情绪面", color: "bg-purple-500" },
+    { key: "sentiment" as const, label: "情绪面", color: "bg-ink-2" },
 ];
 
 function getConfidenceColor(score: number): string {

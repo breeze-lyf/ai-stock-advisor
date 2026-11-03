@@ -29,7 +29,7 @@ function Result({ r }: { r: AdviceRecord }) {
   if (r.status === "open") return <span className="inline-flex items-center gap-1 text-ink-3"><Clock3 className="h-3.5 w-3.5" />{r.due_at.slice(5, 10)} 到期</span>;
   if (r.status === "error") return <span className="inline-flex items-center gap-1 text-ink-3"><MinusCircle className="h-3.5 w-3.5" />无法复盘</span>;
   return r.hit
-    ? <span className="inline-flex items-center gap-1 font-medium text-brand"><CheckCircle2 className="h-3.5 w-3.5" />命中</span>
+    ? <span className="inline-flex items-center gap-1 font-medium text-ink"><CheckCircle2 className="h-3.5 w-3.5" />命中</span>
     : <span className="inline-flex items-center gap-1 text-ink-3"><XCircle className="h-3.5 w-3.5" />未中</span>;
 }
 
@@ -56,7 +56,7 @@ export default function ReviewPage() {
         </div>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <Stat label="命中率" loading={loading} value={hitRate == null ? "--" : `${hitRate.toFixed(0)}%`} sub={`${stats?.hits ?? 0} / ${stats?.evaluated ?? 0} 条已复盘`}>
-            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-elevated"><div className="h-full rounded-full bg-brand" style={{ width: `${hitRate ?? 0}%` }} /></div>
+            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-elevated"><div className="h-full rounded-full bg-ink" style={{ width: `${hitRate ?? 0}%` }} /></div>
           </Stat>
           <Stat label="方向收益均值" loading={loading} value={pct(stats?.avg_directional_return_pct)} sub="卖出建议按反向计" />
           <Stat label="累计建议" loading={loading} value={String(stats?.total ?? 0)} sub="对话 · 诊断 · 简报" />

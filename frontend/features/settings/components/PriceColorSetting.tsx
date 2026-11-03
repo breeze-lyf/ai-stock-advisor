@@ -63,7 +63,7 @@ export function PriceColorSetting() {
           const active = mode === o.key;
           return (
             <button key={o.key} type="button" onClick={() => pick(o.key)} aria-pressed={active}
-              className={clsx("rounded-2xl border p-4 text-left transition", active ? "border-ink bg-surface shadow-card ring-1 ring-ink" : "border-line bg-surface hover:border-line-strong")}>
+              className={clsx("rounded-lg border p-4 text-left transition", active ? "border-ink bg-surface shadow-card ring-1 ring-ink" : "border-line bg-surface hover:border-line-strong")}>
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-[14px] font-semibold text-ink">{o.label}</p>

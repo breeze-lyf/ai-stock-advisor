@@ -377,7 +377,7 @@ export const HeaderIdentity = React.memo(function HeaderIdentity({
                             </div>
                         </>
                     ) : (
-                        <div className="flex items-center gap-3 rounded-2xl border border-neutral-200 dark:border-zinc-800 bg-gradient-to-r from-neutral-50 to-white dark:from-zinc-900 dark:to-zinc-950 px-3.5 py-2.5 shadow-sm">
+                        <div className="flex items-center gap-3 rounded-lg border border-line bg-surface px-3.5 py-2.5">
                             <div className="flex flex-col min-w-0">
                                 <span className="text-[9px] font-black uppercase text-neutral-400 tracking-wider">当前状态</span>
                                 <span className="text-sm font-bold text-neutral-700 dark:text-neutral-200">未建立持仓</span>

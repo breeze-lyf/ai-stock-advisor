@@ -6,7 +6,7 @@ import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import clsx from "clsx";
-import { ArrowUp, Check, ChevronDown, Copy, Globe2, KeyRound, LineChart, MessageSquarePlus, PieChart, Plug, ShieldAlert, Sparkles, X } from "lucide-react";
+import { ArrowUp, Check, ChevronDown, Copy, KeyRound, MessageSquarePlus, Plug, ShieldAlert, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { DashboardHeader } from "@/components/features/DashboardHeader";
 import { useDashboardPortfolioData } from "@/features/dashboard/hooks/useDashboardPortfolioData";
@@ -25,10 +25,10 @@ import {
 
 const DISCLAIMER = "AI 基于公开数据生成，仅供研究参考，不构成投资建议。";
 const SUGGESTIONS = [
-  { icon: PieChart, tag: "持仓", q: "我的持仓今天表现怎么样？风险集中在哪？" },
-  { icon: LineChart, tag: "技术面", q: "帮我看下 NVDA 的技术面和最近新闻" },
-  { icon: Sparkles, tag: "估值", q: "600519 的估值贵不贵？" },
-  { icon: Globe2, tag: "宏观", q: "最近有哪些宏观热点值得关注？" },
+  "我的持仓今天表现怎么样？风险集中在哪？",
+  "帮我看下 NVDA 的技术面和最近新闻",
+  "600519 的估值贵不贵？",
+  "最近有哪些宏观热点值得关注？",
 ];
 
 interface ChatMessage {
@@ -80,7 +80,7 @@ export function ToolSteps({ steps }: { steps: AgentStep[] }) {
               open === i ? "border-line-strong bg-elevated text-ink" : "border-line bg-surface text-ink-2 hover:bg-elevated",
             )}
           >
-            {s.ok ? <Check className="h-3 w-3 text-emerald-500" /> : <X className="h-3 w-3 text-ink-3" />}
+            {s.ok ? <Check className="h-3 w-3 text-ink" /> : <X className="h-3 w-3 text-ink-3" />}
             {TOOL_LABELS[s.tool] || s.tool}
             {argSummary(s.arguments) && <span className="text-ink-3">· {argSummary(s.arguments)}</span>}
             <ChevronDown className={clsx("h-3 w-3 text-ink-3 transition-transform", open === i && "rotate-180")} />
@@ -127,8 +127,10 @@ export function Sources({ sources }: { sources: AgentSource[] }) {
 
 export function AssistantAvatar() {
   return (
-    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-brand text-brand-fg shadow-sm">
-      <Sparkles className="h-3.5 w-3.5" />
+    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-line bg-elevated text-ink-2" aria-hidden>
+      <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 16l5-5 4 3 7-8" />
+      </svg>
     </div>
   );
 }
@@ -242,20 +244,20 @@ export default function AgentWorkspace() {
             {conversations?.length === 0 && <p className="px-2 py-1 text-[12px] text-ink-3">还没有对话</p>}
             {conversations?.map((c) => (
               <button key={c.id} type="button" onClick={() => openConversation(c.id)} className={clsx("flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-[13px] transition-colors", c.id === conversationId ? "bg-elevated text-ink" : "text-ink-2 hover:bg-elevated/70")}>
-                {c.channel === "mcp" && <span className="rounded bg-brand-soft px-1 text-[9.5px] font-semibold text-brand">MCP</span>}
+                {c.channel === "mcp" && <span className="rounded border border-line px-1 text-[9.5px] text-ink-3">MCP</span>}
                 <span className="truncate">{c.title || "未命名对话"}</span>
               </button>
             ))}
           </div>
-          <div className="m-3 rounded-xl border border-line bg-elevated/50 p-3">
-            <p className="flex items-center gap-1.5 text-[12.5px] font-medium text-ink"><Plug className="h-3.5 w-3.5 text-brand" /> MCP 接入</p>
+          <div className="m-3 border-t border-line pt-3">
+            <p className="flex items-center gap-1.5 text-[12px] font-medium text-ink-2"><Plug className="h-3.5 w-3.5" /> MCP</p>
             <p className="mt-1 text-[11.5px] leading-relaxed text-ink-3">在 Claude、Cursor、钉钉等客户端添加 <code className="rounded bg-surface px-1">/mcp</code>，用个人 Token 鉴权。</p>
             {newToken ? (
               <div className="mt-2 space-y-1.5">
                 <p className="text-[11px] text-amber-600 dark:text-amber-400">仅显示一次，请立即保存</p>
                 <button type="button" onClick={() => { navigator.clipboard?.writeText(newToken); setCopied(true); }} className="flex w-full items-center gap-1.5 rounded-md border border-line bg-surface px-2 py-1.5 text-left font-mono text-[10.5px] text-ink-2">
                   <span className="truncate">{newToken}</span>
-                  {copied ? <Check className="h-3 w-3 shrink-0 text-emerald-500" /> : <Copy className="h-3 w-3 shrink-0" />}
+                  {copied ? <Check className="h-3 w-3 shrink-0 text-ink" /> : <Copy className="h-3 w-3 shrink-0" />}
                 </button>
               </div>
             ) : (
@@ -272,20 +274,18 @@ export default function AgentWorkspace() {
             <div className={clsx("mx-auto max-w-3xl px-4 sm:px-6", empty ? "pb-6 pt-10 sm:pt-16" : "space-y-8 py-8")}>
               {empty && (
                 <div>
-                  <p className="text-[13px] font-medium text-brand">{BRAND.name}</p>
-                  <h1 className="mt-2 text-[26px] font-semibold tracking-tight text-ink sm:text-[30px]">{greeting()}，今天想看点什么？</h1>
-                  <p className="mt-2 max-w-xl text-[14px] leading-relaxed text-ink-3">我记得你的持仓、自选和投资画像，会实时调用行情、技术面、基本面、新闻与宏观数据回答；每条建议都会进入「复盘战绩」接受检验。</p>
-                  <div className="mt-7 grid gap-2.5 sm:grid-cols-2">
-                    {SUGGESTIONS.map(({ icon: Icon, tag, q }) => (
-                      <button key={q} type="button" onClick={() => send(q)} className="card group flex items-start gap-3 p-3.5 text-left transition-all hover:-translate-y-px hover:border-line-strong hover:shadow-float">
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-elevated text-ink-2 transition-colors group-hover:bg-brand-soft group-hover:text-brand"><Icon className="h-4 w-4" /></span>
-                        <span>
-                          <span className="eyebrow">{tag}</span>
-                          <span className="mt-0.5 block text-[13.5px] leading-snug text-ink">{q}</span>
-                        </span>
-                      </button>
+                  <h1 className="text-[22px] font-semibold tracking-tight text-ink sm:text-[24px]">{greeting()}</h1>
+                  <p className="mt-2 max-w-lg text-[13.5px] leading-relaxed text-ink-3">基于你的持仓、自选与投资画像回答；建议会进入复盘。</p>
+                  <ul className="mt-6 divide-y divide-line border-y border-line">
+                    {SUGGESTIONS.map((q) => (
+                      <li key={q}>
+                        <button type="button" onClick={() => send(q)} className="flex w-full items-center justify-between gap-3 py-2.5 text-left text-[13.5px] text-ink-2 transition-colors hover:text-ink">
+                          <span className="truncate">{q}</span>
+                          <ArrowUp className="h-3.5 w-3.5 shrink-0 rotate-45 text-ink-3" />
+                        </button>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                   <div className="mt-8 xl:hidden">
                     <AgentHomePanel portfolio={portfolio} onAsk={(q) => send(q)} variant="inline" />
                   </div>
@@ -294,7 +294,7 @@ export default function AgentWorkspace() {
               {messages.map((m, i) =>
                 m.role === "user" ? (
                   <div key={i} className="flex justify-end">
-                    <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-ink px-4 py-2.5 text-[14px] leading-relaxed text-canvas">{m.content}</div>
+                    <div className="max-w-[85%] whitespace-pre-wrap rounded-md bg-ink px-3.5 py-2 text-[13.5px] leading-relaxed text-canvas">{m.content}</div>
                   </div>
                 ) : (
                   <div key={i} className="flex gap-3">
@@ -313,7 +313,7 @@ export default function AgentWorkspace() {
                               <span className="num text-ink-3">{a.horizon_days}天</span>
                             </span>
                           ))}
-                          <Link href="/review" className="ml-auto text-brand hover:underline">查看战绩 →</Link>
+                          <Link href="/review" className="ml-auto text-ink-2 underline underline-offset-2 hover:text-ink">查看战绩</Link>
                         </div>
                       )}
                       {m.sources && <Sources sources={m.sources} />}
@@ -329,7 +329,7 @@ export default function AgentWorkspace() {
 
           <div className="px-4 pb-4 pt-2 sm:px-6">
             <form className="mx-auto max-w-3xl" onSubmit={(e) => { e.preventDefault(); send(); }}>
-              <div className="card flex items-end gap-2 p-2 pl-4 shadow-float focus-within:border-line-strong">
+              <div className="card flex items-end gap-2 p-1.5 pl-3.5 focus-within:border-line-strong">
                 <textarea
                   ref={inputRef}
                   value={input}
@@ -341,7 +341,7 @@ export default function AgentWorkspace() {
                   placeholder="问问智能体，例如：0700.HK 最近走势和风险如何？"
                   className="max-h-44 min-h-[36px] flex-1 resize-none bg-transparent py-2 text-[14px] leading-relaxed text-ink outline-none placeholder:text-ink-3"
                 />
-                <button type="submit" aria-label="发送" disabled={loading || !input.trim()} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-ink text-canvas transition-opacity disabled:opacity-25">
+                <button type="submit" aria-label="发送" disabled={loading || !input.trim()} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-ink text-canvas transition-opacity disabled:opacity-25">
                   <ArrowUp className="h-4 w-4" />
                 </button>
               </div>

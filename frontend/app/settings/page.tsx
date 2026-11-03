@@ -16,7 +16,7 @@ import {
   Save,
   Settings2,
   Shield,
-  Sparkles,
+  Monitor,
   Sun,
 } from "lucide-react";
 
@@ -876,7 +876,7 @@ export default function SettingsPage() {
           {[
             { key: "light", label: "浅色", icon: Sun },
             { key: "dark", label: "深色", icon: Moon },
-            { key: "system", label: "跟随系统", icon: Sparkles },
+            { key: "system", label: "跟随系统", icon: Monitor },
           ].map((item) => {
             const Icon = item.icon;
             const active = mounted && currentTheme === item.key;
@@ -1317,14 +1317,9 @@ export default function SettingsPage() {
           </div>
         )}
 
-        <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-card">
+        <div className="overflow-hidden rounded-lg border border-line bg-surface">
           <div className="grid min-h-[760px] lg:grid-cols-[280px_1fr]">
             <aside className="border-b border-line bg-canvas/60 p-4 sm:p-5 lg:border-b-0 lg:border-r">
-              <div className="mb-4 lg:mb-6">
-                <h2 className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">设置</h2>
-                <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">告诉智能体你是怎样的投资者，并选择简报推送到哪里。</p>
-              </div>
-
               <nav className="grid gap-2 sm:grid-cols-2 lg:block lg:space-y-2">
                 {[...SECTION_ITEMS.filter((i) => !i.advanced), null, ...(advancedOpen ? SECTION_ITEMS.filter((i) => i.advanced) : [])].map((item) => {
                   if (!item) {
@@ -1366,7 +1361,7 @@ export default function SettingsPage() {
                   <activeSectionConfig.icon className="h-4 w-4" />
                   {activeSectionConfig.label}
                 </div>
-                <h3 className="mt-2 text-2xl font-semibold tracking-tight text-ink">
+                <h3 className="mt-1 text-[20px] font-semibold tracking-tight text-ink">
                   {activeSection === "profile" && "投资画像"}
                   {activeSection === "push" && "推送渠道"}
                   {activeSection === "general" && "外观与显示偏好"}

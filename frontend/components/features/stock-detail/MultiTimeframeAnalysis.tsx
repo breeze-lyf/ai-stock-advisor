@@ -34,7 +34,7 @@ export function MultiTimeframeAnalysis({
     if (loading) {
         return (
             <div className="flex items-center justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ink"></div>
                 <span className="ml-3 text-neutral-500">生成多时间框架分析中...</span>
             </div>
         );

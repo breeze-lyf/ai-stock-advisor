@@ -13,7 +13,6 @@ import {
   Command,
   Languages,
   ShieldCheck,
-  Sparkles,
   TrendingUp,
 } from "lucide-react";
 
@@ -225,13 +224,13 @@ const copy: Record<Language, Copy> = {
     brand: "个人投资智能体",
     nav: ["功能", "MCP", "文档", "GitHub"],
     loginLabel: "登录",
-    getStartedLabel: "立即开始",
+    getStartedLabel: "注册",
     launchBadge: "开源 · 支持 MCP",
     heroTitleLine1: "你的个人",
     heroTitleLine2: "投资智能体。",
     heroDescription:
       "记得你的持仓与投资风格，每天主动写简报，每条买卖建议都自动复盘、用战绩说话。还能通过 MCP 接入 Claude、Cursor 与钉钉。",
-    heroPrimaryCta: "开始探索",
+    heroPrimaryCta: "注册",
     heroSecondaryCta: "查看开源代码",
     heroTrust: "可自托管 · 覆盖 A 股 / 港股 / 美股 · 不构成投资建议",
     trustedByTitle: "受到现代研究型团队青睐",
@@ -277,7 +276,7 @@ const copy: Record<Language, Copy> = {
       },
     ],
     pricingHeading: "简单透明的价格",
-    pricingDescription: "先免费开始，随着你的研究和交易流程扩展再升级，没有复杂套餐。",
+    pricingDescription: "按研究与交易流程扩展，没有复杂套餐。",
     pricingToggle: { monthly: "月付", yearly: "年付", badge: "-20%" },
     plans: [
       {
@@ -286,7 +285,7 @@ const copy: Record<Language, Copy> = {
         suffix: "",
         description: "适合个人投资者和轻量研究场景。",
         features: ["3 个自选列表", "10 个持仓席位", "基础 AI 分析", "社区支持", "1 GB 存储"],
-        cta: "立即开始",
+        cta: "注册",
       },
       {
         name: "Pro",
@@ -294,7 +293,7 @@ const copy: Record<Language, Copy> = {
         suffix: "/月",
         description: "适合需要更高深度与速度的进阶用户。",
         features: ["无限自选列表", "无限项目", "高级分析", "优先支持", "10 GB 存储", "API 访问"],
-        cta: "开始免费试用",
+        cta: "注册",
         highlight: true,
         badge: "最受欢迎",
       },
@@ -309,8 +308,8 @@ const copy: Record<Language, Copy> = {
     ],
     finalHeading: "准备好用更多上下文做投资判断了吗？",
     finalDescription:
-      "加入已经用同一工作台完成扫描、分析和执行的团队与个人投资者。免费开始，无需信用卡。",
-    finalPrimaryCta: "免费开始",
+      "同一工作台完成扫描、分析与执行。开源可自托管。",
+    finalPrimaryCta: "注册",
     finalSecondaryCta: "联系销售",
     footerColumns: [
       { title: "产品", items: ["功能", "价格", "更新日志", "路线图", "API"] },
@@ -320,7 +319,7 @@ const copy: Record<Language, Copy> = {
     ],
     footerSummary: "为希望在一个地方完成信号获取、上下文理解和动作执行的投资者而设计。",
     footerTag: "AI 系统运行中",
-    authEyebrow: { login: "进入工作台", register: "免费开始" },
+    authEyebrow: { login: "进入工作台", register: "创建账户" },
     authTabs: { login: "登录", register: "注册" },
     authTitle: { login: "继续你的研究流程", register: "创建你的账号" },
     authDescription: {
@@ -368,14 +367,10 @@ export function AuthSplitLayout({
   return (
     <div className="min-h-screen bg-[#050507] text-white">
       <div className="relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.14),_rgba(255,255,255,0)_30%)]" />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-[44rem] bg-[linear-gradient(180deg,_rgba(255,255,255,0.06)_0%,_rgba(5,5,7,0)_65%)]" />
-        <div className="pointer-events-none absolute left-1/2 top-28 h-72 w-[34rem] -translate-x-1/2 rounded-full bg-white/4 blur-2xl" />
-
         <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <header className="fixed inset-x-0 top-4 z-50 mx-auto flex w-[min(100%-1.5rem,72rem)] items-center justify-between gap-4 rounded-full border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03))] px-3 py-3 shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_16px_40px_rgba(0,0,0,0.36)] backdrop-blur-md supports-[backdrop-filter]:bg-black/24 sm:w-[min(100%-3rem,72rem)]">
+          <header className="sticky top-0 z-50 mx-auto flex w-full max-w-6xl items-center justify-between gap-4 border-b border-white/10 bg-[#050507]/90 px-4 py-3 backdrop-blur-md sm:px-6">
             <div className="flex items-center gap-3 pl-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-black">
+              <span className="flex h-8 w-8 items-center justify-center rounded-md bg-white text-black">
                 <CandlestickChart className="h-4 w-4" />
               </span>
               <span className="text-sm font-medium text-white">{t.brand}</span>
@@ -393,7 +388,7 @@ export function AuthSplitLayout({
               <Button
                 type="button"
                 variant="ghost"
-                className="rounded-full px-4 text-white/75 hover:bg-white/8 hover:text-white"
+                className="rounded-md px-3 text-white/75 hover:bg-white/8 hover:text-white"
                 onClick={() => setLanguage((current) => (current === "zh" ? "en" : "zh"))}
               >
                 <Languages className="h-4 w-4" />
@@ -401,13 +396,13 @@ export function AuthSplitLayout({
               </Button>
               <Link
                 href={isLogin ? "/login" : "/login"}
-                className="hidden rounded-full px-4 py-2 text-sm text-white/75 transition hover:text-white md:inline-flex"
+                className="hidden rounded-md px-3 py-2 text-sm text-white/75 transition hover:text-white md:inline-flex"
               >
                 {t.loginLabel}
               </Link>
               <Link
                 href={isLogin ? "/register" : "/register"}
-                className="inline-flex rounded-full bg-white px-5 py-2.5 text-sm font-medium text-black transition hover:bg-white/90"
+                className="inline-flex rounded-md bg-white px-4 py-2 text-[13px] font-medium text-black transition hover:bg-white/90"
               >
                 {t.getStartedLabel}
               </Link>
@@ -416,12 +411,9 @@ export function AuthSplitLayout({
 
           <section className="grid gap-10 px-2 pb-18 pt-28 lg:grid-cols-[minmax(0,1fr)_26rem] lg:items-start lg:pt-36">
             <div className="pt-6 lg:pt-10">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/70">
-                <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,0.8)]" />
-                {t.launchBadge}
-              </div>
+              <p className="text-[12px] font-medium tracking-wide text-white/45">{t.launchBadge}</p>
 
-              <h1 className="mt-8 text-5xl font-semibold leading-none tracking-[-0.06em] text-white sm:text-6xl lg:text-[5.8rem]">
+              <h1 className="mt-6 text-[36px] font-semibold leading-[1.1] tracking-[-0.03em] text-white sm:text-[48px]">
                 <span className="block">{t.heroTitleLine1}</span>
                 <span className="block text-white/45">{t.heroTitleLine2}</span>
               </h1>
@@ -433,7 +425,7 @@ export function AuthSplitLayout({
               <div className="mt-10 flex flex-wrap gap-4">
                 <Link
                   href={isLogin ? "/register" : "/register"}
-                  className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-medium text-black transition hover:bg-white/92"
+                  className="inline-flex items-center gap-2 rounded-md bg-white px-5 py-2.5 text-[13.5px] font-medium text-black transition hover:bg-white/92"
                 >
                   {t.heroPrimaryCta}
                   <ArrowRight className="h-4 w-4" />
@@ -442,7 +434,7 @@ export function AuthSplitLayout({
                   href="https://github.com/breeze-lyf/ai-stock-advisor"
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.03] px-6 py-3.5 text-sm font-medium text-white/80 transition hover:bg-white/[0.06]"
+                  className="inline-flex items-center gap-2 rounded-md border border-white/12 bg-transparent px-5 py-2.5 text-[13.5px] font-medium text-white/70 transition hover:border-white/20 hover:text-white"
                 >
                   {t.heroSecondaryCta}
                 </a>
@@ -454,16 +446,14 @@ export function AuthSplitLayout({
             </div>
 
             <div className="lg:sticky lg:top-8">
-              <Card className="rounded-[2rem] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] py-0 text-white shadow-[0_20px_56px_rgba(0,0,0,0.38)] backdrop-blur-xl supports-[backdrop-filter]:bg-black/22">
+              <Card className="rounded-lg border border-white/10 bg-[#121214] py-0 text-white shadow-none">
                 <CardHeader className="border-b border-white/10 px-7 py-7">
-                  <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-200">
-                    {t.authEyebrow[mode]}
-                  </div>
+                  <p className="mb-3 text-[12px] text-white/45">{t.authEyebrow[mode]}</p>
 
-                  <div className="mb-5 grid grid-cols-2 gap-2 rounded-[20px] border border-white/8 bg-white/[0.04] p-1 backdrop-blur-sm">
+                  <div className="mb-5 grid grid-cols-2 gap-1 rounded-md border border-white/10 bg-white/[0.03] p-0.5">
                     <Link
                       href="/login"
-                      className={`rounded-[16px] px-4 py-3 text-center text-sm font-medium transition ${
+                      className={`rounded px-4 py-2.5 text-center text-[13px] font-medium transition ${
                         isLogin ? "bg-white text-black" : "text-white/55 hover:text-white"
                       }`}
                     >
@@ -471,7 +461,7 @@ export function AuthSplitLayout({
                     </Link>
                     <Link
                       href="/register"
-                      className={`rounded-[16px] px-4 py-3 text-center text-sm font-medium transition ${
+                      className={`rounded px-4 py-2.5 text-center text-[13px] font-medium transition ${
                         !isLogin ? "bg-white text-black" : "text-white/55 hover:text-white"
                       }`}
                     >
@@ -498,7 +488,7 @@ export function AuthSplitLayout({
                     {children(language, t.fieldLabels, t.fieldPlaceholders)}
 
                     <Button
-                      className="h-12 w-full rounded-full bg-white text-sm font-semibold text-black hover:bg-white/92"
+                      className="h-12 w-full rounded-md bg-white text-sm font-semibold text-black hover:bg-white/92"
                       type="submit"
                       disabled={loading}
                     >
@@ -513,10 +503,6 @@ export function AuthSplitLayout({
                       <Link href={isLogin ? "/register" : "/login"} className="font-medium text-white underline underline-offset-4">
                         {t.switchLabel[mode]}
                       </Link>
-                    </div>
-                    <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[11px] text-white/45 backdrop-blur-sm">
-                      <Sparkles className="h-3.5 w-3.5" />
-                      {t.illustrativeNote}
                     </div>
                     <p className="text-xs leading-5 text-white/35">{t.authFootnote}</p>
                   </CardFooter>
@@ -599,7 +585,7 @@ export function AuthSplitLayout({
                     </div>
                     <h3 className="mt-5 text-2xl font-semibold">{item.title}</h3>
                     <p className="mt-2 text-sm leading-7 text-white/55">{item.description}</p>
-                    {item.accent ? <div className="mt-6 text-sm font-medium text-emerald-300">{item.accent}</div> : null}
+                    {item.accent ? <div className="mt-6 text-sm font-medium text-white/70">{item.accent}</div> : null}
                     {item.tags ? (
                       <div className="mt-6 flex flex-wrap gap-2">
                         {item.tags.map((tag) => (
@@ -624,7 +610,7 @@ export function AuthSplitLayout({
               <div className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] p-1 text-sm text-white/70">
                 <span className="rounded-full bg-white/[0.07] px-4 py-2">{t.pricingToggle.monthly}</span>
                 <span className="px-3 py-2">{t.pricingToggle.yearly}</span>
-                <span className="rounded-full bg-emerald-400/15 px-3 py-2 text-emerald-300">{t.pricingToggle.badge}</span>
+                <span className="rounded-full bg-emerald-400/15 px-3 py-2 text-white/70">{t.pricingToggle.badge}</span>
               </div>
             </div>
 
@@ -652,7 +638,7 @@ export function AuthSplitLayout({
                   <div className="mt-8 space-y-3">
                     {plan.features.map((feature) => (
                       <div key={feature} className="flex items-center gap-3 text-sm text-white/70">
-                        <Check className="h-4 w-4 text-emerald-300" />
+                        <Check className="h-4 w-4 text-white/70" />
                         {feature}
                       </div>
                     ))}
@@ -684,14 +670,14 @@ export function AuthSplitLayout({
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
               <Link
                 href={isLogin ? "/register" : "/register"}
-                className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-medium text-black transition hover:bg-white/92"
+                className="inline-flex items-center gap-2 rounded-md bg-white px-5 py-2.5 text-[13.5px] font-medium text-black transition hover:bg-white/92"
               >
                 {t.finalPrimaryCta}
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <button
                 type="button"
-                className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.03] px-6 py-3.5 text-sm font-medium text-white/80 transition hover:bg-white/[0.06]"
+                className="inline-flex items-center gap-2 rounded-md border border-white/12 bg-transparent px-5 py-2.5 text-[13.5px] font-medium text-white/70 transition hover:border-white/20 hover:text-white"
               >
                 {t.finalSecondaryCta}
               </button>
@@ -704,14 +690,14 @@ export function AuthSplitLayout({
             <div className="grid gap-10 lg:grid-cols-[1.2fr_repeat(4,1fr)]">
               <div>
                 <div className="flex items-center gap-3">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-black">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-md bg-white text-black">
                     <CandlestickChart className="h-4 w-4" />
                   </span>
                   <span className="font-medium text-white">{t.brand}</span>
                 </div>
                 <p className="mt-4 max-w-xs text-sm leading-7 text-white/45">{t.footerSummary}</p>
                 <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white/55">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
+                  <span className="h-2 w-2 rounded-full bg-white/50" />
                   {t.footerTag}
                 </div>
               </div>

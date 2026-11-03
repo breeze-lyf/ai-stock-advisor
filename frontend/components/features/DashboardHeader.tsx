@@ -15,7 +15,7 @@ import * as Avatar from "@radix-ui/react-avatar";
 
 export function BrandMark({ className }: { className?: string }) {
   return (
-    <div className={clsx("relative flex h-8 w-8 items-center justify-center rounded-[10px] bg-ink text-canvas shadow-sm", className)}>
+    <div className={clsx("relative flex h-8 w-8 items-center justify-center rounded-md bg-ink text-canvas", className)}>
       <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
         <path d="M4 16l5-5 4 3 7-8" />
         <circle cx="20" cy="6" r="1.6" fill="currentColor" stroke="none" />
@@ -40,7 +40,7 @@ function NavItem({ item, onTab }: { item: NavEntry; onTab: (t: DashboardTab) => 
   );
   const inner = (
     <>
-      <span className={clsx("transition-colors", item.active ? "text-brand" : "")}>{item.icon}</span>
+      <span className={clsx("transition-colors", item.active ? "text-ink" : "")}>{item.icon}</span>
       {item.label}
     </>
   );
@@ -83,7 +83,7 @@ export function DashboardHeader({ user, activeTab, setActiveTab }: DashboardHead
           <BrandMark />
           <div className="hidden leading-tight sm:block">
             <p className="text-[14px] font-semibold tracking-tight text-ink">{BRAND.name}</p>
-            <p className="text-[10.5px] text-ink-3">{BRAND.en}</p>
+            
           </div>
         </Link>
 
@@ -119,7 +119,7 @@ function UserMenuWithAlerts({ user }: { user: UserProfile }) {
       )}
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
-          <button type="button" aria-label="账户菜单" className="rounded-full ring-offset-2 ring-offset-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand">
+          <button type="button" aria-label="账户菜单" className="rounded-full ring-offset-2 ring-offset-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink">
             <Avatar.Root className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-line bg-elevated">
               <Avatar.Fallback className="text-[11px] font-semibold text-ink-2">{user.email.substring(0, 2).toUpperCase()}</Avatar.Fallback>
             </Avatar.Root>

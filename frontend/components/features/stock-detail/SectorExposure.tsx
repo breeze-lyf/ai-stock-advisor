@@ -6,7 +6,7 @@ import clsx from "clsx";
 
 // A fixed palette — cycles if there are more than 8 sectors
 const SECTOR_COLORS = [
-  "#6366f1", // indigo
+  "#171717", // ink
   "#22d3ee", // cyan
   "#f59e0b", // amber
   "#34d399", // emerald

@@ -201,7 +201,7 @@ export function EditPositionDialog({
                 <DialogHeader>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                            <div className="w-9 h-9 rounded-lg bg-ink flex items-center justify-center">
                                 <Pencil className="h-4 w-4 text-white" />
                             </div>
                             <div>
@@ -270,7 +270,7 @@ export function EditPositionDialog({
                     </div>
 
                     {/* 总成本预览 */}
-                    <div className="p-4 bg-linear-to-br from-neutral-50 to-neutral-100 dark:from-neutral-800/50 dark:to-neutral-800/30 rounded-xl border border-neutral-200 dark:border-neutral-700">
+                    <div className="p-4 bg-elevated rounded-lg border border-line">
                         <div className="flex justify-between items-center">
                             <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">总成本</span>
                             <span className="text-lg font-black text-neutral-900 dark:text-white tabular-nums">
@@ -341,7 +341,7 @@ export function EditPositionDialog({
                     {/* 保存按钮 */}
                     <Button
                         onClick={handleSubmit}
-                        className="h-10 bg-linear-to-br from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold shadow-lg shadow-blue-500/25"
+                        className="h-10 bg-ink hover:opacity-90 text-canvas font-medium"
                         disabled={loading || deleting}
                     >
                         <Save className="h-4 w-4 mr-1.5" />

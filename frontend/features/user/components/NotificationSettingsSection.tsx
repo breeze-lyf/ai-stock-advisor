@@ -88,7 +88,7 @@ export function NotificationSettingsSection({
 }: NotificationSettingsSectionProps) {
   return (
     <div className="space-y-6">
-      <div className="rounded-[28px] border border-neutral-200 bg-gradient-to-br from-white via-neutral-50 to-emerald-50/70 p-5 shadow-sm dark:border-neutral-800 dark:from-neutral-950 dark:via-neutral-950 dark:to-emerald-950/20 md:p-6">
+      <div className="rounded-lg border border-line bg-surface p-5 md:p-6">
         <div className="flex flex-col gap-5 2xl:flex-row 2xl:items-end 2xl:justify-between">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:border-emerald-900/40 dark:bg-neutral-950/50 dark:text-emerald-300">
@@ -194,12 +194,12 @@ export function NotificationSettingsSection({
 
         <div className="grid gap-3 md:grid-cols-2">
           {[
-            { key: "enable_price_alerts" as const, title: "价格预警", description: "到达止盈止损位时第一时间提醒。", tone: "from-emerald-50 to-white dark:from-emerald-950/20 dark:to-neutral-900" },
-            { key: "enable_macro_alerts" as const, title: "全球宏观提醒", description: "推送影响全球市场的大事件与风险。", tone: "from-sky-50 to-white dark:from-sky-950/20 dark:to-neutral-900" },
-            { key: "enable_strategy_change_alerts" as const, title: "策略变更", description: "盘后复盘发现操作建议显著变化时提醒。", tone: "from-violet-50 to-white dark:from-violet-950/20 dark:to-neutral-900" },
-            { key: "enable_daily_report" as const, title: "每日复盘报告", description: "每天给你一份更完整的持仓体检。", tone: "from-neutral-50 to-white dark:from-neutral-950 dark:to-neutral-900" },
+            { key: "enable_price_alerts" as const, title: "价格预警", description: "到达止盈止损位时第一时间提醒。", tone: "bg-elevated" },
+            { key: "enable_macro_alerts" as const, title: "全球宏观提醒", description: "推送影响全球市场的大事件与风险。", tone: "bg-elevated" },
+            { key: "enable_strategy_change_alerts" as const, title: "策略变更", description: "盘后复盘发现操作建议显著变化时提醒。", tone: "bg-elevated" },
+            { key: "enable_daily_report" as const, title: "每日复盘报告", description: "每天给你一份更完整的持仓体检。", tone: "bg-elevated" },
           ].map((item) => (
-            <div key={item.key} className={`rounded-2xl border border-neutral-200 bg-gradient-to-br p-4 dark:border-neutral-800 ${item.tone}`}>
+            <div key={item.key} className={`rounded-lg border border-line p-4 ${item.tone}`}>
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{item.title}</div>

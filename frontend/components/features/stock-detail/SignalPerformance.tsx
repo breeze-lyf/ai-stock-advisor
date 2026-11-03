@@ -142,8 +142,8 @@ export function SignalPerformancePanel({ ticker }: SignalPerformanceProps) {
                     <span className={clsx(
                       "text-[10px] ml-auto",
                       sig.signal_status === "ACTIVE" ? "text-blue-500" :
-                      sig.pnl_percent != null && sig.pnl_percent > 0 ? "text-up" :
-                      sig.pnl_percent != null && sig.pnl_percent < 0 ? "text-down" :
+                      sig.pnl_percent != null && sig.pnl_percent > 0 ? "text-emerald-500" :
+                      sig.pnl_percent != null && sig.pnl_percent < 0 ? "text-rose-500" :
                       "text-neutral-400"
                     )}>
                       {sig.signal_status === "ACTIVE"
@@ -181,8 +181,8 @@ function StatCell({
     <div className="rounded-xl bg-neutral-50 dark:bg-zinc-800 px-3 py-3 text-center">
       <p className={clsx(
         "text-lg font-black tabular-nums",
-        color === "emerald" ? "text-up" :
-        color === "rose" ? "text-down" :
+        color === "emerald" ? "text-emerald-600" :
+        color === "rose" ? "text-rose-500" :
         "text-neutral-700 dark:text-neutral-200"
       )}>
         {value}

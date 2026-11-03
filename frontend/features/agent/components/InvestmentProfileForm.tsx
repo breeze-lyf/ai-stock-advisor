@@ -33,7 +33,7 @@ function Chips<T extends string>({ opts, value, onChange }: { opts: readonly { v
   return (
     <div className="flex flex-wrap gap-2">
       {opts.map((o) => (
-        <button key={o.v} type="button" onClick={() => onChange(o.v)} className={clsx("rounded-md border px-3 py-1.5 text-sm transition", value(o.v) ? "border-ink bg-elevated text-ink" : "border-line text-ink-2 hover:border-line")}>{o.l}</button>
+        <button key={o.v} type="button" onClick={() => onChange(o.v)} className={clsx("rounded-xl border px-3 py-1.5 text-sm transition", value(o.v) ? "border-blue-600 bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300" : "border-neutral-200 text-neutral-600 hover:border-neutral-300 dark:border-neutral-700 dark:text-neutral-300")}>{o.l}</button>
       ))}
     </div>
   );
@@ -63,13 +63,13 @@ export function InvestmentProfileForm() {
     }
   };
 
-  if (loading) return <p className="text-sm text-ink-3">加载中…</p>;
+  if (loading) return <p className="text-sm text-neutral-500">加载中…</p>;
   return (
     <div className="space-y-6">
       <div className="space-y-2">
         <p className="text-sm font-semibold">风险偏好</p>
         <Chips opts={RISK_OPTS} value={(v) => p.risk_tolerance === v} onChange={(v) => setP({ ...p, risk_tolerance: v, risk_tolerance_score: RISK_OPTS.find((o) => o.v === v)!.score })} />
-        <p className="text-xs text-ink-3">{RISK_OPTS.find((o) => o.v === p.risk_tolerance)?.d}</p>
+        <p className="text-xs text-neutral-500">{RISK_OPTS.find((o) => o.v === p.risk_tolerance)?.d}</p>
       </div>
       <div className="space-y-2">
         <p className="text-sm font-semibold">持有周期</p>
@@ -84,8 +84,8 @@ export function InvestmentProfileForm() {
         <Chips opts={MARKET_OPTS} value={(v) => p.preferred_markets.includes(v)} onChange={(v) => setP({ ...p, preferred_markets: p.preferred_markets.includes(v) ? p.preferred_markets.filter((x) => x !== v) : [...p.preferred_markets, v] })} />
       </div>
       <div className="flex items-center gap-3">
-        <button type="button" onClick={save} disabled={saving} className="flex items-center gap-1.5 rounded-xl bg-ink px-4 py-2 text-sm font-medium text-canvas disabled:opacity-50">{saving && <Loader2 className="h-4 w-4 animate-spin" />} 保存画像</button>
-        {msg && <span className="text-xs text-ink-3">{msg}</span>}
+        <button type="button" onClick={save} disabled={saving} className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50">{saving && <Loader2 className="h-4 w-4 animate-spin" />} 保存画像</button>
+        {msg && <span className="text-xs text-neutral-500">{msg}</span>}
       </div>
     </div>
   );

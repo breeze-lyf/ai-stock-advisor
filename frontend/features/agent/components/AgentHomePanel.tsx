@@ -2,48 +2,27 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import clsx from "clsx";
-import { ArrowUpRight, Loader2, Newspaper, PieChart, RefreshCw, Trophy } from "lucide-react";
+import { Loader2, Newspaper, PieChart, RefreshCw, Trophy } from "lucide-react";
 import type { PortfolioItem } from "@/types";
 import { generateBrief, listAdvice, listBriefs, type AdviceStats, type DailyBrief } from "@/features/agent/api";
 
 type Row = PortfolioItem & { change_percent?: number | null };
 
-function BriefExcerpt({ content }: { content: string }) {
-  const plain = content.replace(/[#*_`>\[\]()]/g, " ").replace(/\s+/g, " ").trim();
-  const short = plain.length > 160 ? `${plain.slice(0, 160)}…` : plain;
-  return <p className="text-[13px] leading-relaxed text-ink-2">{short}</p>;
-}
-
-export function ChangePill({ value, className }: { value: number | null | undefined; className?: string }) {
-  if (value === null || value === undefined) return <span className={clsx("num text-[12px] text-ink-3", className)}>--</span>;
-  return (
-    <span className={clsx("num inline-flex min-w-[62px] justify-end rounded-md px-1.5 py-0.5 text-[12px] font-medium", value > 0 ? "bg-up-soft text-up" : value < 0 ? "bg-down-soft text-down" : "bg-elevated text-ink-3", className)}>
-      {value > 0 ? "+" : ""}{value.toFixed(2)}%
-    </span>
-  );
-}
-
-function CardHead({ icon, title, action }: { icon: React.ReactNode; title: string; action?: React.ReactNode }) {
-  return (
-    <div className="flex items-center justify-between px-4 pb-2 pt-3.5">
-      <h2 className="flex items-center gap-2 text-[13px] font-semibold text-ink"><span className="text-ink-3">{icon}</span>{title}</h2>
-      <div className="flex items-center gap-3 text-[12px]">{action}</div>
-    </div>
-  );
-}
-
-/** 智能体首页：今日简报 + 持仓/自选异动 + 战绩概览。variant="rail" 为右栏（xl+），"inline" 用于窄屏时嵌在对话空状态下。 */
-export function AgentHomePanel({ portfolio, onAsk, variant = "rail" }: { portfolio: PortfolioItem[]; onAsk: (q: string) => void; variant?: "rail" | "inline" }) {
+/** 智能体首页右栏：今日简报 + 持仓/自选今日异动 + 战绩概览。 */
+export function AgentHomePanel({ portfolio, onAsk }: { portfolio: PortfolioItem[]; onAsk: (q: string) => void }) {
   const [brief, setBrief] = useState<DailyBrief | null>(null);
   const [loadingBrief, setLoadingBrief] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  const [stats, setStats] = useState<AdviceStats | null | undefined>(undefined);
+  const [stats, setStats] = useState<AdviceStats | null>(null);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     listBriefs(1).then((r) => setBrief(r.items[0] || null)).catch(() => undefined).finally(() => setLoadingBrief(false));
-    listAdvice().then((r) => setStats(r.stats)).catch(() => setStats(null));
+    listAdvice().then((r) => setStats(r.stats)).catch(() => undefined);
   }, []);
 
   const gen = async () => {
@@ -61,106 +40,73 @@ export function AgentHomePanel({ portfolio, onAsk, variant = "rail" }: { portfol
   const rows = [...(portfolio as Row[])].sort((a, b) => Math.abs(b.change_percent ?? 0) - Math.abs(a.change_percent ?? 0));
   const holds = rows.filter((r) => (r.quantity ?? 0) > 0);
   const watch = rows.filter((r) => !(r.quantity ?? 0));
-  const hitPct = stats?.hit_rate == null ? null : Math.round(stats.hit_rate * 100);
 
   return (
-    <aside className={clsx(variant === "rail" ? "hidden w-[360px] shrink-0 flex-col gap-3 overflow-y-auto border-l border-line bg-canvas p-3 xl:flex 2xl:w-[400px] [&>*]:shrink-0" : "grid gap-3 md:grid-cols-2")}>
-      {/* 今日简报 */}
-      <section className={clsx("card overflow-hidden", variant === "inline" && "md:col-span-2")}>
-        <CardHead
-          icon={<Newspaper className="h-4 w-4" />}
-          title="今日简报"
-          action={
-            <>
-              <button type="button" onClick={gen} disabled={generating} className="inline-flex items-center gap-1 text-ink-3 hover:text-ink disabled:opacity-50">
-                {generating ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}{brief ? "重新生成" : "生成"}
-              </button>
-              <Link href="/briefs" className="inline-flex items-center text-ink-3 hover:text-ink">全部<ArrowUpRight className="h-3 w-3" /></Link>
-            </>
-          }
-        />
-        <div className="px-4 pb-4">
-          {loadingBrief || generating ? (
-            <div className="space-y-2 pt-1">
-              {generating && <p className="text-[12px] text-ink-3">智能体正在梳理你的持仓与新闻，约需 30–60 秒…</p>}
-              <div className="skeleton h-3.5 w-2/3" /><div className="skeleton h-3 w-full" /><div className="skeleton h-3 w-11/12" /><div className="skeleton h-3 w-4/5" />
-            </div>
-          ) : brief ? (
-            <>
-              <div className="mb-2 flex items-center gap-2">
-                <span className="num rounded-md bg-elevated px-1.5 py-0.5 text-[11px] text-ink-3">{brief.date}</span>
-                {brief.pushed_channels && <span className="text-[11px] text-ink-3">已推送 · {brief.pushed_channels}</span>}
-              </div>
-              <BriefExcerpt content={brief.content} />
-              <Link href="/briefs" className="mt-2 inline-flex text-[12px] text-ink-3 underline-offset-2 hover:text-ink hover:underline">查看全文</Link>
-            </>
-          ) : (
-            <div className="rounded-lg border border-dashed border-line-strong p-4 text-center">
-              <p className="text-[13px] font-medium text-ink">还没有今天的简报</p>
-              <p className="mt-1 text-[12px] leading-relaxed text-ink-3">智能体会结合持仓、自选与投资画像写一份盘前简报，也可在设置里配置每日推送。</p>
-              <button type="button" onClick={gen} className="mt-3 inline-flex h-8 items-center rounded-lg bg-ink px-3 text-[12.5px] font-medium text-canvas">生成今日简报</button>
-            </div>
-          )}
-          {err && <p className="mt-2 text-[12px] text-down">{err}</p>}
+    <aside className="hidden xl:flex w-96 shrink-0 flex-col gap-4 overflow-y-auto border-l border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 p-4">
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="flex items-center gap-1.5 text-sm font-semibold text-neutral-900 dark:text-neutral-100"><Newspaper className="h-4 w-4 text-blue-600" /> 今日简报</h2>
+          <div className="flex items-center gap-2 text-xs">
+            <button type="button" onClick={gen} disabled={generating} className="flex items-center gap-1 text-blue-600 disabled:opacity-50">
+              {generating ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />} {brief ? "重新生成" : "生成"}
+            </button>
+            <Link href="/briefs" className="text-neutral-500 hover:text-neutral-800">全部</Link>
+          </div>
         </div>
-      </section>
-
-      {/* 持仓与自选异动 */}
-      <section className="card">
-        <CardHead icon={<PieChart className="h-4 w-4" />} title="持仓与自选异动" action={<Link href="/dashboard?tab=portfolio" className="inline-flex items-center text-ink-3 hover:text-ink">管理<ArrowUpRight className="h-3 w-3" /></Link>} />
-        <div className="px-2 pb-3">
-          {rows.length === 0 ? (
-            <div className="mx-2 rounded-lg border border-dashed border-line-strong p-4 text-center text-[12px] text-ink-3">
-              还没有持仓或自选。<Link href="/dashboard?tab=portfolio" className="font-medium text-ink">去添加</Link>，智能体就能帮你盯盘。
+        {loadingBrief ? (
+          <p className="text-xs text-neutral-400">加载中…</p>
+        ) : brief ? (
+          <div>
+            <p className="mb-1 text-xs text-neutral-400">{brief.date} · {brief.title}</p>
+            <div className={clsx("prose prose-xs dark:prose-invert max-w-none text-[13px] leading-relaxed text-neutral-700 dark:text-neutral-300", !expanded && "max-h-72 overflow-hidden")}>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{brief.content}</ReactMarkdown>
             </div>
-          ) : (
-            [{ label: "持仓", list: holds }, { label: "自选", list: watch }].filter((g) => g.list.length).map((g) => (
-              <div key={g.label} className="mb-1">
-                <p className="eyebrow px-2 pb-1 pt-1.5">{g.label} · {g.list.length}</p>
-                <ul>
-                  {g.list.slice(0, 6).map((r) => {
+            <button type="button" onClick={() => setExpanded((v) => !v)} className="mt-1 text-xs text-blue-600">{expanded ? "收起" : "展开全文"}</button>
+          </div>
+        ) : (
+          <p className="text-xs leading-relaxed text-neutral-500">还没有今天的简报。点击「生成」，智能体会结合你的持仓、自选与投资画像写一份盘前简报；也可以在 设置 → 推送渠道 里配置钉钉/Webhook，每天定时推送。</p>
+        )}
+        {err && <p className="mt-2 text-xs text-rose-600">{err}</p>}
+      </div>
+
+      <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4">
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="flex items-center gap-1.5 text-sm font-semibold text-neutral-900 dark:text-neutral-100"><PieChart className="h-4 w-4 text-blue-600" /> 持仓与自选异动</h2>
+          <Link href="/dashboard?tab=portfolio" className="text-xs text-neutral-500 hover:text-neutral-800">管理</Link>
+        </div>
+        {rows.length === 0 ? (
+          <p className="text-xs text-neutral-500">还没有持仓或自选。去 <Link href="/dashboard?tab=portfolio" className="text-blue-600">持仓与自选</Link> 添加几只股票，智能体就能主动盯盘。</p>
+        ) : (
+          <div className="space-y-3">
+            {[{ label: "持仓", list: holds }, { label: "自选", list: watch }].filter((g) => g.list.length).map((g) => (
+              <div key={g.label}>
+                <p className="mb-1 text-[11px] text-neutral-400">{g.label}</p>
+                <ul className="space-y-1">
+                  {g.list.slice(0, 8).map((r) => {
                     const c = r.change_percent ?? null;
                     return (
                       <li key={r.ticker}>
-                        <button type="button" title="让智能体解释今天的异动" onClick={() => onAsk(`${r.ticker} 今天为什么${c !== null && c < 0 ? "跌" : "涨"}？结合我的持仓给点建议`)} className="group flex w-full items-center gap-3 rounded-lg px-2 py-1.5 text-left hover:bg-elevated">
-                          <span className="min-w-0 flex-1">
-                            <span className="block text-[13px] font-medium text-ink">{r.ticker}</span>
-                            <span className="block truncate text-[11px] text-ink-3">{r.name && r.name !== r.ticker ? r.name : "—"}</span>
-                          </span>
-                          <span className="num text-right text-[12.5px] text-ink-2">{r.current_price ? r.current_price.toFixed(2) : "--"}</span>
-                          <ChangePill value={c} />
+                        <button type="button" onClick={() => onAsk(`${r.ticker} 今天为什么${c !== null && c < 0 ? "跌" : "涨"}？结合我的持仓给点建议`)} className="flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800">
+                          <span className="truncate text-neutral-800 dark:text-neutral-200"><span className="font-medium">{r.ticker}</span> <span className="text-xs text-neutral-400">{r.name && r.name !== r.ticker ? r.name : ""}</span></span>
+                          <span className={clsx("tabular-nums text-xs font-medium", c === null ? "text-neutral-400" : c >= 0 ? "text-emerald-600" : "text-rose-600")}>{c === null ? "--" : `${c >= 0 ? "+" : ""}${c.toFixed(2)}%`}</span>
                         </button>
                       </li>
                     );
                   })}
                 </ul>
               </div>
-            ))
-          )}
-        </div>
-      </section>
-
-      {/* 战绩 */}
-      <Link href="/review" className="card group block p-4 transition-colors hover:border-line-strong">
-        <div className="flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-[13px] font-semibold text-ink"><Trophy className="h-4 w-4 text-ink-3" />复盘战绩</h2>
-          <ArrowUpRight className="h-3.5 w-3.5 text-ink-3 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </div>
-        {stats === undefined ? (
-          <div className="mt-3 space-y-2"><div className="skeleton h-7 w-20" /><div className="skeleton h-3 w-40" /></div>
-        ) : stats && stats.total > 0 ? (
-          <div className="mt-3">
-            <div className="flex items-baseline gap-2">
-              <span className="num text-[28px] font-semibold leading-none tracking-tight text-ink">{hitPct === null ? "--" : `${hitPct}%`}</span>
-              <span className="text-[12px] text-ink-3">命中率</span>
-            </div>
-            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-elevated">
-              <div className="h-full rounded-full bg-ink" style={{ width: `${hitPct ?? 0}%` }} />
-            </div>
-            <p className="num mt-2 text-[12px] text-ink-3">累计 {stats.total} 条 · 已复盘 {stats.evaluated} · 待复盘 {stats.open}</p>
+            ))}
+            <p className="text-[11px] text-neutral-400">点击任一股票，让智能体解释异动。</p>
           </div>
+        )}
+      </div>
+
+      <Link href="/review" className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-4 hover:border-blue-300">
+        <h2 className="mb-1 flex items-center gap-1.5 text-sm font-semibold text-neutral-900 dark:text-neutral-100"><Trophy className="h-4 w-4 text-amber-500" /> 复盘战绩</h2>
+        {stats && stats.total > 0 ? (
+          <p className="text-xs text-neutral-500">累计 {stats.total} 条建议 · 已复盘 {stats.evaluated} 条 · 命中率 <span className="font-semibold text-neutral-900 dark:text-neutral-100">{stats.hit_rate === null ? "--" : `${(stats.hit_rate * 100).toFixed(0)}%`}</span></p>
         ) : (
-          <p className="mt-2 text-[12px] leading-relaxed text-ink-3">智能体给出的每条买入 / 卖出 / 持有建议都会被记录，到期按真实行情自动复盘。</p>
+          <p className="text-xs text-neutral-500">智能体给出的每条买/卖/持有建议都会被记录，到期自动复盘。</p>
         )}
       </Link>
     </aside>

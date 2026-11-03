@@ -86,7 +86,7 @@ export const MarketAnalysis = React.memo(function MarketAnalysis({
                             onClick={onToggleMacd}
                             className={clsx(
                                 "px-4 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all duration-200",
-                                showMacd ? "bg-ink text-canvas" : "text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
+                                showMacd ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/20" : "text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300"
                             )}
                         >
                             MACD

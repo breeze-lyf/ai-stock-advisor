@@ -61,7 +61,7 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                 {/* Row 1: Core Foundations (均线、MACD、RSI/KDJ) */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* 均线系统卡片 */}
-                    <div id="REF_T1" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-neutral-200 dark:border-zinc-800/50 p-4 rounded-lg hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-emerald-600/20 hover:shadow-lg transition-all flex flex-col scroll-mt-24">
+                    <div id="REF_T1" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-neutral-200 dark:border-zinc-800/50 p-4 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-emerald-600/20 hover:shadow-lg transition-all shadow-md flex flex-col scroll-mt-24">
                         <div className="flex justify-between items-center h-8 mb-2 relative z-10">
                             <span className="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-[0.2em] flex items-center gap-2">
                                 <LineChart className="h-4 w-4 text-emerald-400" /> 均线系统
@@ -93,10 +93,10 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                     </div>
 
                     {/* MACD 趋势动量卡片 */}
-                    <div id="REF_T2" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-neutral-200 dark:border-zinc-800/50 p-4 rounded-lg hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-line-strong transition-all flex flex-col overflow-hidden relative group scroll-mt-24">
+                    <div id="REF_T2" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-neutral-200 dark:border-zinc-800/50 p-4 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-indigo-500/30 hover:shadow-lg transition-all shadow-md flex flex-col overflow-hidden relative group scroll-mt-24">
                         <div className="flex justify-between items-center h-8 mb-2 relative z-10">
                             <span className="text-[10px] font-bold uppercase text-neutral-500 dark:text-neutral-400 tracking-[0.2em] flex items-center gap-2">
-                                <Activity className="h-4 w-4 text-ink" /> MACD 趋势动量
+                                <Activity className="h-4 w-4 text-indigo-500" /> MACD 趋势动量
                             </span>
                             <span className={clsx(
                                 "text-[9px] font-black px-2 py-0.5 rounded-full uppercase",
@@ -117,10 +117,10 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                             <div className="space-y-1">
                                 <div className="text-[7px] font-bold text-neutral-400 uppercase">柱状值 / 斜率</div>
                                 <div className="flex items-baseline gap-2">
-                                    <span className={clsx("text-xs font-black tabular-nums", (selectedItem?.macd_hist || 0) >= 0 ? "text-up" : "text-down")}>
+                                    <span className={clsx("text-xs font-black tabular-nums", (selectedItem?.macd_hist || 0) >= 0 ? "text-emerald-600" : "text-rose-600")}>
                                         {selectedItem?.macd_hist?.toFixed(2)}
                                     </span>
-                                    <span className={clsx("text-[9px] font-bold", (selectedItem?.macd_hist_slope || 0) >= 0 ? "text-up" : "text-down")}>
+                                    <span className={clsx("text-[9px] font-bold", (selectedItem?.macd_hist_slope || 0) >= 0 ? "text-emerald-400" : "text-rose-400")}>
                                         {(selectedItem?.macd_hist_slope || 0) > 0 ? "↑" : "↓"}
                                     </span>
                                 </div>
@@ -134,7 +134,7 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                                 return (
                                     <div 
                                         key={i} 
-                                        className={clsx("flex-1 rounded-t-sm", isPos ? "bg-up" : "bg-down")} 
+                                        className={clsx("flex-1 rounded-t-sm", isPos ? "bg-emerald-400" : "bg-rose-400")} 
                                         style={{ height: `${h}px` }}
                                     />
                                 );
@@ -143,7 +143,7 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                     </div>
 
                     {/* RSI & KDJ 卡片 */}
-                    <div id="REF_T3" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-neutral-200 dark:border-zinc-800/50 p-4 rounded-lg hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-blue-600/30 hover:shadow-lg transition-all group flex flex-col justify-between scroll-mt-24">
+                    <div id="REF_T3" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-neutral-200 dark:border-zinc-800/50 p-4 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-blue-600/30 hover:shadow-lg transition-all group shadow-md flex flex-col justify-between scroll-mt-24">
                         <div className="flex justify-between items-center h-8 mb-2 relative z-10">
                             <span className="text-[10px] font-bold uppercase text-neutral-500 dark:text-neutral-400 tracking-[0.2em] flex items-center gap-2">
                                 <TrendingUp className="h-4 w-4 text-blue-600" /> 强弱指标 (RSI/KDJ)
@@ -181,7 +181,7 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                 {/* Row 2: Execution & Auxiliary (关键执行位、布林带、估值资金流) */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* 关键执行位卡片 */}
-                    <div id="REF_T4" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-neutral-200 dark:border-zinc-800/50 p-4 rounded-lg hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-blue-600/20 hover:shadow-lg transition-all flex flex-col justify-between scroll-mt-24">
+                    <div id="REF_T4" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-neutral-200 dark:border-zinc-800/50 p-4 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-blue-600/20 hover:shadow-lg transition-all shadow-md flex flex-col justify-between scroll-mt-24">
                          <div className="flex justify-between items-center h-8 mb-2 relative z-10">
                             <span className="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-[0.2em] flex items-center gap-2">
                                 <Target className="h-4 w-4 text-blue-400" /> 关键执行位
@@ -207,7 +207,7 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                     </div>
 
                     {/* 布林带轨道卡片 */}
-                    <div id="REF_T5" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-neutral-200 dark:border-zinc-800/50 p-4 rounded-lg hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-rose-600/20 hover:shadow-lg transition-all flex flex-col space-y-3 scroll-mt-24">
+                    <div id="REF_T5" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-neutral-200 dark:border-zinc-800/50 p-4 rounded-3xl hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-rose-600/20 hover:shadow-lg transition-all flex flex-col shadow-md space-y-3 scroll-mt-24">
                         <div className="flex justify-between items-center h-8 mb-2 relative z-10">
                             <span className="text-[10px] font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-[0.2em] flex items-center gap-2">
                                 <Zap className="h-4 w-4 text-rose-400" /> 布林带轨道
@@ -257,7 +257,7 @@ export const TechnicalInsights = React.memo(function TechnicalInsights({
                     </div>
 
                     {/* 估值与资金流卡片 */}
-                    <div id="REF_V1" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-neutral-200 dark:border-zinc-800/50 p-4 rounded-lg space-y-4 hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-emerald-600/30 hover:shadow-lg transition-all group flex flex-col justify-between relative overflow-hidden scroll-mt-24">
+                    <div id="REF_V1" className="bg-white dark:bg-zinc-900/40 backdrop-blur-md border border-neutral-200 dark:border-zinc-800/50 p-4 rounded-3xl space-y-4 hover:bg-white/60 dark:hover:bg-zinc-800/40 hover:border-emerald-600/30 hover:shadow-lg transition-all group shadow-md flex flex-col justify-between relative overflow-hidden scroll-mt-24">
                         <div className="flex justify-between items-center h-8 mb-2 relative z-10">
                             <span className="text-[10px] font-bold uppercase text-neutral-500 dark:text-neutral-400 tracking-[0.2em] flex items-center gap-2">
                                 <PieChart className="h-4 w-4 text-emerald-600" /> 估值与资金流

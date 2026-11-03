@@ -11,6 +11,7 @@ import {
   Gauge,
   Globe2,
   Radar,
+  Sparkles,
   TrendingUp,
 } from "lucide-react";
 
@@ -75,7 +76,7 @@ function getAlertMeta(log: NotificationLog): AlertMeta {
       summary: "当判断方向有明显变化时，帮助你重新看一眼仓位",
       accent: "border-violet-200 bg-violet-50/80 text-violet-700 dark:border-violet-900/40 dark:bg-violet-950/20 dark:text-violet-300",
       badge: priority,
-      icon: <Bell className="h-4 w-4" />,
+      icon: <Sparkles className="h-4 w-4" />,
     };
   }
 
@@ -156,7 +157,7 @@ const AlertStream: React.FC<AlertStreamProps> = ({ loading, logs }) => {
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-6 md:px-6 md:py-8">
-      <section className="overflow-hidden rounded-lg border border-line bg-surface p-6">
+      <section className="overflow-hidden rounded-[28px] border border-neutral-200 bg-gradient-to-br from-white via-neutral-50 to-emerald-50/70 p-6 shadow-sm dark:border-neutral-800 dark:from-neutral-950 dark:via-neutral-950 dark:to-emerald-950/20">
         <div className="flex flex-col gap-5 2xl:flex-row 2xl:items-end 2xl:justify-between">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-700 dark:border-emerald-900/40 dark:bg-neutral-950/50 dark:text-emerald-300">

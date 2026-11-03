@@ -1,7 +1,7 @@
 "use client";
 
-import { TrendingUp, PieChart, Globe, Target, BarChart3, Search, Calendar, Bell, Settings, LogOut, Bot, Newspaper, Trophy, Moon, Sun } from "lucide-react";
-import { BRAND, FEATURES } from "@/shared/config/features";
+import { TrendingUp, PieChart, Globe, Target, BarChart3, Search, Calendar, Bell, Settings, LogOut, Bot, Newspaper, Trophy } from "lucide-react";
+import { FEATURES } from "@/shared/config/features";
 import { MarketStatusIndicator } from "@/components/features/MarketStatusIndicator";
 import { UserProfile } from "@/types";
 import type { DashboardTab } from "@/features/dashboard/hooks/useDashboardRouteState";
@@ -9,45 +9,43 @@ import clsx from "clsx";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { usePathname } from "next/navigation";
-import { useTheme } from "next-themes";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import * as Avatar from "@radix-ui/react-avatar";
 
-export function BrandMark({ className }: { className?: string }) {
-  return (
-    <div className={clsx("relative flex h-8 w-8 items-center justify-center rounded-md bg-ink text-canvas", className)}>
-      <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-        <path d="M4 16l5-5 4 3 7-8" />
-        <circle cx="20" cy="6" r="1.6" fill="currentColor" stroke="none" />
-      </svg>
-    </div>
-  );
-}
-
-interface NavEntry {
-  key: string;
+interface NavItemProps {
+  active?: boolean;
+  onClick?: () => void;
+  href?: string;
   label: string;
   icon: React.ReactNode;
-  href?: string;
-  tab?: DashboardTab;
-  active: boolean;
 }
 
-function NavItem({ item, onTab }: { item: NavEntry; onTab: (t: DashboardTab) => void }) {
-  const cls = clsx(
-    "relative flex h-8 items-center gap-1.5 rounded-lg px-3 text-[13px] font-medium whitespace-nowrap transition-colors",
-    item.active ? "bg-elevated text-ink" : "text-ink-3 hover:text-ink hover:bg-elevated/60",
-  );
-  const inner = (
+function NavItem({ active = false, onClick, href, label, icon }: NavItemProps) {
+  const baseClasses = "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap";
+  const activeClasses = "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 shadow-sm";
+  const inactiveClasses = "text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800";
+
+  const content = (
     <>
-      <span className={clsx("transition-colors", item.active ? "text-ink" : "")}>{item.icon}</span>
-      {item.label}
+      <div className={clsx("p-1.5 rounded-md transition-colors", active ? "bg-blue-100 dark:bg-blue-800/30" : "bg-transparent")}>
+        {icon}
+      </div>
+      <span className="hidden lg:block">{label}</span>
     </>
   );
-  return item.href ? (
-    <Link href={item.href} className={cls} aria-current={item.active ? "page" : undefined}>{inner}</Link>
-  ) : (
-    <button type="button" onClick={() => onTab(item.tab!)} className={cls} aria-current={item.active ? "page" : undefined}>{inner}</button>
+
+  if (href) {
+    return (
+      <Link href={href} className={clsx(baseClasses, active ? activeClasses : inactiveClasses)}>
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button onClick={onClick} className={clsx(baseClasses, active ? activeClasses : inactiveClasses)}>
+      {content}
+    </button>
   );
 }
 
@@ -59,100 +57,156 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ user, activeTab, setActiveTab }: DashboardHeaderProps) {
   const pathname = usePathname();
-  const cleanPathname = pathname?.endsWith("/") ? pathname.slice(0, -1) : pathname;
+  // Remove trailing slashes for consistent comparison
+  const cleanPathname = pathname?.endsWith('/') ? pathname.slice(0, -1) : pathname;
   const onDashboard = cleanPathname === "/dashboard";
-  const ic = "h-[15px] w-[15px]";
-  const items: NavEntry[] = [
-    { key: "agent", label: "智能体", icon: <Bot className={ic} />, href: "/", active: cleanPathname === "" || cleanPathname === "/agent" },
-    { key: "briefs", label: "简报", icon: <Newspaper className={ic} />, href: "/briefs", active: cleanPathname === "/briefs" },
-    { key: "portfolio", label: "持仓与自选", icon: <PieChart className={ic} />, tab: "portfolio", active: onDashboard && activeTab === "portfolio" },
-    { key: "analysis", label: "个股诊断", icon: <TrendingUp className={ic} />, tab: "analysis", active: onDashboard && activeTab === "analysis" },
-    { key: "review", label: "复盘战绩", icon: <Trophy className={ic} />, href: "/review", active: cleanPathname === "/review" },
+  const items: Array<{ key: string; label: string; icon: React.ReactNode; href?: string; tab?: DashboardTab; active: boolean }> = [
+    { key: "agent", label: "智能体", icon: <Bot className="w-4 h-4" />, href: "/", active: cleanPathname === "" || cleanPathname === "/agent" },
+    { key: "briefs", label: "简报", icon: <Newspaper className="w-4 h-4" />, href: "/briefs", active: cleanPathname === "/briefs" },
+    { key: "portfolio", label: "持仓与自选", icon: <PieChart className="w-4 h-4" />, tab: "portfolio", active: onDashboard && activeTab === "portfolio" },
+    { key: "analysis", label: "个股诊断", icon: <TrendingUp className="w-4 h-4" />, tab: "analysis", active: onDashboard && activeTab === "analysis" },
+    { key: "review", label: "复盘战绩", icon: <Trophy className="w-4 h-4" />, href: "/review", active: cleanPathname === "/review" },
     // Hidden by default (see shared/config/features.ts) — not part of the personal-agent core flow.
-    ...(FEATURES.radar ? [{ key: "radar", label: "热点", icon: <Globe className={ic} />, tab: "radar" as DashboardTab, active: onDashboard && activeTab === "radar" }] : []),
-    ...(FEATURES.paperTrading ? [{ key: "papertrading", label: "模拟", icon: <Target className={ic} />, tab: "papertrading" as DashboardTab, active: onDashboard && activeTab === "papertrading" }] : []),
-    ...(FEATURES.calendar ? [{ key: "calendar", label: "日历", icon: <Calendar className={ic} />, href: "/calendar", active: cleanPathname === "/calendar" }] : []),
-    ...(FEATURES.quant ? [{ key: "quant", label: "量化", icon: <BarChart3 className={ic} />, href: "/quant", active: cleanPathname === "/quant" }] : []),
-    { key: "settings", label: "设置", icon: <Settings className={ic} />, href: "/settings", active: cleanPathname === "/settings" },
+    ...(FEATURES.radar ? [{ key: "radar", label: "热点", icon: <Globe className="w-4 h-4" />, tab: "radar" as DashboardTab, active: onDashboard && activeTab === "radar" }] : []),
+    ...(FEATURES.paperTrading ? [{ key: "papertrading", label: "模拟", icon: <Target className="w-4 h-4" />, tab: "papertrading" as DashboardTab, active: onDashboard && activeTab === "papertrading" }] : []),
+    ...(FEATURES.calendar ? [{ key: "calendar", label: "日历", icon: <Calendar className="w-4 h-4" />, href: "/calendar", active: cleanPathname === "/calendar" }] : []),
+    ...(FEATURES.quant ? [{ key: "quant", label: "量化", icon: <BarChart3 className="w-4 h-4" />, href: "/quant", active: cleanPathname === "/quant" }] : []),
+    { key: "settings", label: "设置", icon: <Settings className="w-4 h-4" />, href: "/settings", active: cleanPathname === "/settings" },
   ];
 
+
   return (
-    <header className="relative z-50 shrink-0 border-b border-line bg-surface/85 backdrop-blur-xl">
-      <div className="flex h-14 items-center gap-4 px-4 lg:px-5">
-        <Link href="/" className="flex shrink-0 items-center gap-2.5">
-          <BrandMark />
-          <div className="hidden leading-tight sm:block">
-            <p className="text-[14px] font-semibold tracking-tight text-ink">{BRAND.name}</p>
-            
+    <header className="flex h-16 items-center px-4 border-b border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-xl shrink-0 z-50 relative">
+      {/* Left Section: Logo + Market Status */}
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2.5">
+          <div className="w-9 h-9 bg-linear-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <span className="text-white font-black text-lg">A</span>
           </div>
-        </Link>
-
-        <nav className="hidden flex-1 items-center justify-center gap-0.5 lg:flex" aria-label="主导航">
-          {items.map((it) => <NavItem key={it.key} item={it} onTab={setActiveTab} />)}
-        </nav>
-
-        <div className="ml-auto flex items-center gap-2 lg:ml-0">
-          <MarketStatusIndicator className="hidden xl:flex" />
-          {user && <UserMenuWithAlerts user={user} />}
+          <div className="hidden sm:block">
+            <h1 className="font-bold text-base text-neutral-900 dark:text-white">AI Stock Advisor</h1>
+            <p className="text-[10px] text-neutral-500 dark:text-neutral-400 -mt-0.5">智能投资助手</p>
+          </div>
         </div>
+
+        <MarketStatusIndicator className="hidden lg:flex" />
       </div>
 
-      {/* Mobile / tablet: scrollable text tabs */}
-      <nav className="flex gap-1 overflow-x-auto px-3 pb-2 lg:hidden [scrollbar-width:none]" aria-label="主导航">
-        {items.map((it) => <NavItem key={it.key} item={it} onTab={setActiveTab} />)}
+      {/* Center Navigation */}
+      <nav className="absolute left-1/2 -translate-x-1/2 hidden xl:flex items-center gap-1">
+        {items.map((it) => (
+          <NavItem key={it.key} href={it.href} onClick={it.tab ? () => setActiveTab(it.tab!) : undefined} label={it.label} icon={it.icon} active={it.active} />
+        ))}
       </nav>
+
+      {/* Mobile Nav */}
+      <nav className="xl:hidden flex items-center gap-1 ml-auto overflow-x-auto min-w-0 px-2" suppressHydrationWarning>
+        {items.map((it) =>
+          it.href ? (
+            <Link key={it.key} href={it.href} title={it.label} suppressHydrationWarning className={clsx("p-2 rounded-lg shrink-0 transition-colors", it.active ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-neutral-500 hover:text-neutral-700")}>{it.icon}</Link>
+          ) : (
+            <button key={it.key} type="button" title={it.label} onClick={() => setActiveTab(it.tab!)} className={clsx("p-2 rounded-lg shrink-0 transition-colors", it.active ? "text-blue-600 bg-blue-50 dark:bg-blue-900/20" : "text-neutral-500")}>{it.icon}</button>
+          ),
+        )}
+      </nav>
+
+      {/* Right Section: User Menu */}
+      <div className="ml-auto flex items-center gap-3">
+        {user && <UserMenuWithAlerts user={user} />}
+      </div>
     </header>
   );
 }
 
-function UserMenuWithAlerts({ user }: { user: UserProfile }) {
+interface UserMenuWithAlertsProps {
+  user: UserProfile;
+}
+
+function UserMenuWithAlerts({ user }: UserMenuWithAlertsProps) {
   const { logout } = useAuth();
-  const { resolvedTheme, setTheme } = useTheme();
   const isPro = user.membership_tier === "PRO";
-  const itemCls = "group flex h-9 cursor-pointer items-center gap-2.5 rounded-lg px-2.5 text-[13px] text-ink-2 outline-none transition-colors data-[highlighted]:bg-elevated data-[highlighted]:text-ink";
+
+  const handleLogout = () => {
+    logout();
+  };
 
   return (
-    <div className="flex items-center gap-2">
-      {/* Membership badge (billing UI hidden unless NEXT_PUBLIC_FEATURE_BILLING=true) */}
-      {FEATURES.billing && (
-        <span className="rounded-full border border-line px-2 py-0.5 text-[10px] font-semibold tracking-wider text-ink-3">{isPro ? "PRO" : "FREE"}</span>
-      )}
-      <DropdownMenu.Root>
-        <DropdownMenu.Trigger asChild>
-          <button type="button" aria-label="账户菜单" className="rounded-full ring-offset-2 ring-offset-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink">
-            <Avatar.Root className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-line bg-elevated">
-              <Avatar.Fallback className="text-[11px] font-semibold text-ink-2">{user.email.substring(0, 2).toUpperCase()}</Avatar.Fallback>
-            </Avatar.Root>
-          </button>
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Portal>
-          <DropdownMenu.Content sideOffset={8} align="end" className="z-100 min-w-56 rounded-xl border border-line bg-surface p-1.5 shadow-float animate-in fade-in zoom-in-95 duration-150">
-            <div className="mb-1 border-b border-line px-2.5 pb-2 pt-1.5">
-              <p className="eyebrow">当前账户</p>
-              <p className="mt-0.5 truncate text-[13px] font-medium text-ink">{user.email}</p>
-            </div>
-            {FEATURES.screener && (
+    <div className="flex items-center gap-3">
+      {/* Membership Badge (billing UI hidden unless NEXT_PUBLIC_FEATURE_BILLING=true) */}
+      {FEATURES.billing && <div className={clsx(
+        "px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-widest uppercase transition-all duration-300 shadow-sm",
+        isPro
+          ? "bg-neutral-900 text-white border border-neutral-700 ring-1 ring-neutral-800"
+          : "bg-neutral-100 text-neutral-500 border border-neutral-200"
+      )}>
+        {isPro ? "PRO" : "FREE"}
+      </div>}
+
+      <div className="flex items-center gap-2">
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger asChild>
+            <button type="button" className="flex items-center gap-1.5 focus:outline-none group">
+              <div className="relative p-0.5 rounded-full bg-linear-to-tr from-yellow-400 via-rose-600 to-blue-600 animate-gradient-slow shadow-lg group-hover:scale-105 transition-transform duration-300">
+                <Avatar.Root className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-neutral-100 border-2 border-white dark:border-neutral-900 shadow-inner">
+                  <Avatar.Image
+                    className="h-full w-full object-cover"
+                    src="/images/avatar.png"
+                    alt={user.email}
+                  />
+                  <Avatar.Fallback className="flex h-full w-full items-center justify-center bg-neutral-100 text-sm font-bold text-neutral-500">
+                    {user.email.substring(0, 2).toUpperCase()}
+                  </Avatar.Fallback>
+                </Avatar.Root>
+              </div>
+            </button>
+          </DropdownMenu.Trigger>
+
+          <DropdownMenu.Portal>
+            <DropdownMenu.Content
+              className="min-w-55 overflow-hidden rounded-xl bg-white dark:bg-neutral-900 p-1.5 shadow-2xl ring-1 ring-neutral-200 dark:ring-neutral-800 animate-in fade-in zoom-in-95 duration-200 z-100"
+              sideOffset={10}
+              align="end"
+            >
+              <div className="px-3 py-2.5 mb-1.5 border-b border-neutral-100 dark:border-neutral-800">
+                <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider mb-0.5">Current Account</p>
+                <p className="text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">{user.email}</p>
+              </div>
+
+              {FEATURES.screener && <DropdownMenu.Item asChild>
+                <Link href="/screener" className="group flex h-9 items-center gap-2.5 rounded-lg px-2 text-sm font-medium text-neutral-700 outline-none transition-colors hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800">
+                  <Search className="h-4 w-4 text-neutral-400 group-hover:text-blue-600 transition-colors" />
+                  <span>选股器</span>
+                </Link>
+              </DropdownMenu.Item>}
+
               <DropdownMenu.Item asChild>
-                <Link href="/screener" className={itemCls}><Search className="h-4 w-4 text-ink-3" />选股器</Link>
+                <Link href="/settings" className="group flex h-9 items-center gap-2.5 rounded-lg px-2 text-sm font-medium text-neutral-700 outline-none transition-colors hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800">
+                  <Settings className="h-4 w-4 text-neutral-400 group-hover:text-blue-600 transition-colors" />
+                  <span>设置</span>
+                </Link>
               </DropdownMenu.Item>
-            )}
-            <DropdownMenu.Item asChild>
-              <Link href="/settings" className={itemCls}><Settings className="h-4 w-4 text-ink-3" />设置</Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item asChild>
-              <Link href="/dashboard?tab=alerts" className={itemCls}><Bell className="h-4 w-4 text-ink-3" />推送记录</Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item onSelect={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")} className={itemCls}>
-              {resolvedTheme === "dark" ? <Sun className="h-4 w-4 text-ink-3" /> : <Moon className="h-4 w-4 text-ink-3" />}
-              {resolvedTheme === "dark" ? "浅色模式" : "深色模式"}
-            </DropdownMenu.Item>
-            <DropdownMenu.Separator className="my-1 h-px bg-line" />
-            <DropdownMenu.Item onSelect={() => logout()} className={clsx(itemCls, "data-[highlighted]:text-down")}>
-              <LogOut className="h-4 w-4 text-ink-3" />退出登录
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu.Portal>
-      </DropdownMenu.Root>
+
+              <DropdownMenu.Item asChild>
+                <Link href="/dashboard?tab=alerts" className="group flex h-9 items-center gap-2.5 rounded-lg px-2 text-sm font-medium text-neutral-700 outline-none transition-colors hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800">
+                  <Bell className="h-4 w-4 text-neutral-400 group-hover:text-blue-600 transition-colors" />
+                  <span>推送记录</span>
+                </Link>
+              </DropdownMenu.Item>
+
+            </DropdownMenu.Content>
+          </DropdownMenu.Portal>
+        </DropdownMenu.Root>
+
+        {/* Independent Logout Button */}
+        <button
+          onClick={handleLogout}
+          type="button"
+          className="flex h-9 w-9 items-center justify-center rounded-full text-neutral-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300"
+          title="退出登录"
+        >
+          <LogOut className="h-5 w-5" />
+        </button>
+      </div>
     </div>
   );
 }

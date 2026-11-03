@@ -70,7 +70,7 @@ export const StickyBar = React.memo(function StickyBar({
                         {selectedItem.quantity > 0 && (
                             <div className={clsx(
                                 "flex items-center gap-1 px-2.5 py-1 rounded-xl text-[10px] font-black border",
-                                (selectedItem.pl_percent || 0) >= 0 ? "bg-up-soft text-up" : "bg-down-soft text-down"
+                                (selectedItem.pl_percent || 0) >= 0 ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-600/10 dark:text-emerald-400" : "bg-rose-50 text-rose-600 dark:bg-rose-600/10 dark:text-rose-400"
                             )}>
                                 <TrendingUp className={clsx("h-3 w-3", (selectedItem.pl_percent || 0) < 0 && "rotate-180")} />
                                 {selectedItem.pl_percent >= 0 ? "+" : ""}{selectedItem.pl_percent.toFixed(2)}%
@@ -92,7 +92,7 @@ export const StickyBar = React.memo(function StickyBar({
                     <div className="flex items-center gap-3 shrink-0">
                         <div className="hidden lg:flex flex-col items-end rounded-xl border border-neutral-100 dark:border-zinc-800 bg-neutral-50/80 dark:bg-zinc-900 px-3 py-1.5 shadow-sm">
                             <span className="text-[10px] font-black uppercase text-neutral-400 tracking-tighter">最新增幅</span>
-                            <span className={clsx("text-sm font-black tabular-nums", (selectedItem.change_percent || 0) >= 0 ? "text-up" : "text-down")}>
+                            <span className={clsx("text-sm font-black tabular-nums", (selectedItem.change_percent || 0) >= 0 ? "text-emerald-600" : "text-rose-600")}>
                                 {(selectedItem.change_percent || 0) >= 0 ? "+" : ""}{(selectedItem.change_percent || 0).toFixed(2)}%
                             </span>
                         </div>

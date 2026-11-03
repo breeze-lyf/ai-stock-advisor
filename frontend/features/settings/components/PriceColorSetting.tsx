@@ -54,8 +54,8 @@ export function PriceColorSetting() {
   return (
     <div className="space-y-3">
       <div className="flex items-baseline justify-between">
-        <p className="text-sm font-semibold text-ink">涨跌配色</p>
-        <span className="text-[12px] text-ink-3">{state === "saving" ? "保存中…" : state === "saved" ? "已同步到账号" : state === "error" ? "保存失败，已恢复" : "全站立即生效：行情、K 线、持仓、简报、复盘"}</span>
+        <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">涨跌配色</p>
+        <span className="text-xs text-neutral-500 dark:text-neutral-400">{state === "saving" ? "保存中…" : state === "saved" ? "已同步到账号" : state === "error" ? "保存失败，已恢复" : "全站立即生效：行情、K 线、持仓、简报、复盘"}</span>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         {OPTIONS.map((o) => {
@@ -63,13 +63,13 @@ export function PriceColorSetting() {
           const active = mode === o.key;
           return (
             <button key={o.key} type="button" onClick={() => pick(o.key)} aria-pressed={active}
-              className={clsx("rounded-lg border p-4 text-left transition", active ? "border-ink bg-surface shadow-card ring-1 ring-ink" : "border-line bg-surface hover:border-line-strong")}>
+              className={clsx("rounded-2xl border p-4 text-left transition", active ? "border-neutral-900 bg-white ring-1 ring-neutral-900 dark:border-neutral-100 dark:bg-neutral-950 dark:ring-neutral-100" : "border-neutral-200 bg-white hover:border-neutral-300 dark:border-neutral-800 dark:bg-neutral-950 dark:hover:border-neutral-700")}>
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-[14px] font-semibold text-ink">{o.label}</p>
-                  <p className="mt-0.5 text-[12px] text-ink-3">{o.desc}</p>
+                  <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{o.label}</p>
+                  <p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">{o.desc}</p>
                 </div>
-                <span className={clsx("flex h-5 w-5 items-center justify-center rounded-full border", active ? "border-ink bg-ink text-canvas" : "border-line-strong")}>{active && <Check className="h-3 w-3" />}</span>
+                <span className={clsx("flex h-5 w-5 items-center justify-center rounded-full border", active ? "border-neutral-900 bg-neutral-900 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-950" : "border-neutral-300 dark:border-neutral-700")}>{active && <Check className="h-3 w-3" />}</span>
               </div>
               <div className="mt-3 flex items-center gap-3">
                 <span className="rounded-md px-2 py-0.5 text-[12px] font-medium" style={{ color: c.up, background: `${c.up}1a` }}>涨 +2.24%</span>
@@ -79,21 +79,21 @@ export function PriceColorSetting() {
           );
         })}
       </div>
-      <div className="card flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
-        <div className="shrink-0"><p className="eyebrow mb-1">实时预览</p><MiniCandles mode={mode} /></div>
-        <div className="min-w-0 flex-1 divide-y divide-line">
+      <div className="flex flex-col gap-4 rounded-2xl border border-neutral-200 bg-neutral-50 p-4 sm:flex-row sm:items-center dark:border-neutral-800 dark:bg-neutral-900/60">
+        <div className="shrink-0"><p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-neutral-400">实时预览</p><MiniCandles mode={mode} /></div>
+        <div className="min-w-0 flex-1 divide-y divide-neutral-200 dark:divide-neutral-800">
           {ROWS.map((r) => (
             <div key={r.t} className="flex items-center justify-between py-1.5 text-[13px]">
-              <span><span className="font-semibold text-ink">{r.t}</span> <span className="text-ink-3">{r.n}</span></span>
+              <span><span className="font-bold text-neutral-900 dark:text-neutral-100">{r.t}</span> <span className="text-xs text-neutral-500">{r.n}</span></span>
               <span className="flex items-center gap-3">
-                <span className={clsx("num", r.c >= 0 ? "text-up" : "text-down")}>{r.p}</span>
-                <span className={clsx("num w-16 rounded-md px-1.5 py-0.5 text-center text-[12px] font-medium", r.c >= 0 ? "bg-up-soft text-up" : "bg-down-soft text-down")}>{r.c >= 0 ? "+" : ""}{r.c.toFixed(2)}%</span>
+                <span className={clsx("tabular-nums", r.c >= 0 ? "text-emerald-600" : "text-rose-600")}>{r.p}</span>
+                <span className={clsx("tabular-nums w-16 rounded-md px-1.5 py-0.5 text-center text-xs font-bold", r.c >= 0 ? "bg-emerald-600/10 text-emerald-600" : "bg-rose-600/10 text-rose-600")}>{r.c >= 0 ? "+" : ""}{r.c.toFixed(2)}%</span>
               </span>
             </div>
           ))}
         </div>
       </div>
-      <p className="text-[11.5px] text-ink-3">示例数据，仅用于预览配色。</p>
+      <p className="text-[11px] text-neutral-400">示例数据，仅用于预览配色。</p>
     </div>
   );
 }

@@ -105,8 +105,8 @@ const deferredSectionStyle = {
 
 const copy: Record<Language, Copy> = {
   en: {
-    brand: "Personal Investment Agent",
-    nav: ["Features", "MCP", "Docs", "GitHub"],
+    brand: "AI Smart Investment Advisor",
+    nav: ["Features", "Docs", "GitHub"],
     loginLabel: "Sign In",
     getStartedLabel: "Get Started",
     launchBadge: "Open source · MCP ready",
@@ -115,7 +115,7 @@ const copy: Record<Language, Copy> = {
     heroDescription:
       "An AI agent that remembers your holdings and style, writes you a daily brief, and keeps score of every call it makes. Plug it into Claude, Cursor or DingTalk via MCP.",
     heroPrimaryCta: "Start Exploring",
-    heroSecondaryCta: "View on GitHub",
+    heroSecondaryCta: "View source",
     heroTrust: "Self-hostable · A-shares, HK & US · Not investment advice",
     trustedByTitle: "Trusted by modern research stacks",
     trustedBy: ["Notion", "Figma", "Slack", "Discord", "GitHub"],
@@ -128,11 +128,7 @@ const copy: Record<Language, Copy> = {
         description: "Track market health, portfolio drift, and alert streams in one live command surface.",
         icon: BellRing,
         stats: [
-          { value: "85%", label: "Signal coverage" },
-          { value: "92%", label: "Watchlist clarity" },
-          { value: "79%", label: "Macro visibility" },
-          { value: "81%", label: "Execution readiness" },
-        ],
+                                                ],
       },
       {
         title: "Command Palette",
@@ -144,13 +140,13 @@ const copy: Record<Language, Copy> = {
         title: "Deep Analytics",
         description: "Compress technical, news, and portfolio context into readable investment briefs.",
         icon: BarChart3,
-        accent: "+32% decision speed",
+        accent: "Every call is reviewed",
       },
       {
         title: "Blazing Fast",
         description: "Designed for rapid scan-review-act loops so market context stays warm while decisions are made.",
         icon: TrendingUp,
-        accent: "<30s avg review cycle",
+        accent: "Scheduled · multi-channel",
       },
       {
         title: "Enterprise Security",
@@ -221,16 +217,16 @@ const copy: Record<Language, Copy> = {
     illustrativeNote: "Illustrative marketing numbers",
   },
   zh: {
-    brand: "个人投资智能体",
-    nav: ["功能", "MCP", "文档", "GitHub"],
+    brand: "AI 智能投顾助手",
+    nav: ["功能", "文档", "GitHub"],
     loginLabel: "登录",
-    getStartedLabel: "注册",
+    getStartedLabel: "立即开始",
     launchBadge: "开源 · 支持 MCP",
     heroTitleLine1: "你的个人",
     heroTitleLine2: "投资智能体。",
     heroDescription:
       "记得你的持仓与投资风格，每天主动写简报，每条买卖建议都自动复盘、用战绩说话。还能通过 MCP 接入 Claude、Cursor 与钉钉。",
-    heroPrimaryCta: "注册",
+    heroPrimaryCta: "开始探索",
     heroSecondaryCta: "查看开源代码",
     heroTrust: "可自托管 · 覆盖 A 股 / 港股 / 美股 · 不构成投资建议",
     trustedByTitle: "受到现代研究型团队青睐",
@@ -240,43 +236,43 @@ const copy: Record<Language, Copy> = {
       "为主动型投资者设计。让监控、分析、理解和执行比人工切换页面更快、更连贯。",
     featureCards: [
       {
-        title: "实时监控",
-        description: "把市场健康度、持仓偏移和预警流整合到一个实时指挥面板里。",
+        title: "记得你的持仓",
+        description: "持仓、自选与投资画像统一管理，智能体回答时自动带上你的上下文。",
         icon: BellRing,
         stats: [
-          { value: "85%", label: "信号覆盖" },
-          { value: "92%", label: "自选股清晰度" },
-          { value: "79%", label: "宏观可见性" },
-          { value: "81%", label: "执行准备度" },
+          { value: "A 股", label: "沪深行情" },
+          { value: "港股", label: "港股通标的" },
+          { value: "美股", label: "主要交易所" },
+          { value: "MCP", label: "Claude / Cursor / 钉钉" },
         ],
       },
       {
-        title: "命令面板",
-        description: "通过工作流导向的控制层与键盘快捷操作，快速抵达任何功能。",
+        title: "MCP 接入",
+        description: "生成个人 Token，在 Claude、Cursor 或钉钉里直接调用你的投资智能体。",
         icon: Command,
-        tags: ["⌘ K", "AI 搜索", "快捷动作"],
+        tags: ["Claude", "Cursor", "钉钉"],
       },
       {
         title: "深度分析",
         description: "把技术面、新闻与持仓背景压缩成可阅读的投资摘要。",
         icon: BarChart3,
-        accent: "+32% 决策速度",
+        accent: "每条建议都自动复盘",
       },
       {
-        title: "极速工作流",
-        description: "围绕快速扫描、快速判断、快速执行设计，让上下文始终保持热状态。",
+        title: "今日简报",
+        description: "每天定时生成持仓与自选简报，可推送到钉钉、飞书、企业微信或邮件。",
         icon: TrendingUp,
-        accent: "<30 秒平均复盘周期",
+        accent: "定时生成 · 多渠道推送",
       },
       {
-        title: "企业级安全",
-        description: "借鉴企业级访问控制和加密方式，保护凭证、持仓和策略操作。",
+        title: "开源可自托管",
+        description: "代码开源，可部署在自己的服务器上，支持自带模型 Key。",
         icon: ShieldCheck,
-        tags: ["访问控制", "审计日志", "密钥加密"],
+        tags: ["开源", "自托管", "自带模型 Key"],
       },
     ],
     pricingHeading: "简单透明的价格",
-    pricingDescription: "按研究与交易流程扩展，没有复杂套餐。",
+    pricingDescription: "先免费开始，随着你的研究和交易流程扩展再升级，没有复杂套餐。",
     pricingToggle: { monthly: "月付", yearly: "年付", badge: "-20%" },
     plans: [
       {
@@ -285,7 +281,7 @@ const copy: Record<Language, Copy> = {
         suffix: "",
         description: "适合个人投资者和轻量研究场景。",
         features: ["3 个自选列表", "10 个持仓席位", "基础 AI 分析", "社区支持", "1 GB 存储"],
-        cta: "注册",
+        cta: "立即开始",
       },
       {
         name: "Pro",
@@ -293,7 +289,7 @@ const copy: Record<Language, Copy> = {
         suffix: "/月",
         description: "适合需要更高深度与速度的进阶用户。",
         features: ["无限自选列表", "无限项目", "高级分析", "优先支持", "10 GB 存储", "API 访问"],
-        cta: "注册",
+        cta: "开始免费试用",
         highlight: true,
         badge: "最受欢迎",
       },
@@ -308,9 +304,9 @@ const copy: Record<Language, Copy> = {
     ],
     finalHeading: "准备好用更多上下文做投资判断了吗？",
     finalDescription:
-      "同一工作台完成扫描、分析与执行。开源可自托管。",
-    finalPrimaryCta: "注册",
-    finalSecondaryCta: "联系销售",
+      "注册后添加持仓与自选，让智能体开始为你写简报、做复盘。内容仅供研究参考，不构成投资建议。",
+    finalPrimaryCta: "立即注册",
+    finalSecondaryCta: "查看开源代码",
     footerColumns: [
       { title: "产品", items: ["功能", "价格", "更新日志", "路线图", "API"] },
       { title: "资源", items: ["文档", "指南", "博客", "社区", "模板"] },
@@ -319,7 +315,7 @@ const copy: Record<Language, Copy> = {
     ],
     footerSummary: "为希望在一个地方完成信号获取、上下文理解和动作执行的投资者而设计。",
     footerTag: "AI 系统运行中",
-    authEyebrow: { login: "进入工作台", register: "创建账户" },
+    authEyebrow: { login: "进入工作台", register: "创建账号" },
     authTabs: { login: "登录", register: "注册" },
     authTitle: { login: "继续你的研究流程", register: "创建你的账号" },
     authDescription: {
@@ -332,14 +328,11 @@ const copy: Record<Language, Copy> = {
     fieldPlaceholders: { email: "name@company.com", password: "请输入密码" },
     switchPrompt: { login: "第一次使用？", register: "已经有账号？" },
     switchLabel: { login: "立即注册", register: "去登录" },
-    authFootnote: "所有内容由 AI 基于公开数据生成，仅供参考，不构成投资建议。",
+    authFootnote: "本页中的示例指标和用户规模属于营销占位数据，后续应替换为真实可验证数据。",
     languageLabel: "EN",
     illustrativeNote: "示例营销数据",
   },
 };
-
-/** 登录/注册页下方的旧营销区块（合作方、定价、营销占位数据）默认隐藏；公开介绍见首页 Landing。 */
-const SHOW_AUTH_MARKETING = false;
 
 function getStoredLanguage(): Language {
   if (typeof window === "undefined") return "zh";
@@ -367,10 +360,14 @@ export function AuthSplitLayout({
   return (
     <div className="min-h-screen bg-[#050507] text-white">
       <div className="relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.14),_rgba(255,255,255,0)_30%)]" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[44rem] bg-[linear-gradient(180deg,_rgba(255,255,255,0.06)_0%,_rgba(5,5,7,0)_65%)]" />
+        <div className="pointer-events-none absolute left-1/2 top-28 h-72 w-[34rem] -translate-x-1/2 rounded-full bg-white/4 blur-2xl" />
+
         <div className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <header className="sticky top-0 z-50 mx-auto flex w-full max-w-6xl items-center justify-between gap-4 border-b border-white/10 bg-[#050507]/90 px-4 py-3 backdrop-blur-md sm:px-6">
+          <header className="fixed inset-x-0 top-4 z-50 mx-auto flex w-[min(100%-1.5rem,72rem)] items-center justify-between gap-4 rounded-full border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03))] px-3 py-3 shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_16px_40px_rgba(0,0,0,0.36)] backdrop-blur-md supports-[backdrop-filter]:bg-black/24 sm:w-[min(100%-3rem,72rem)]">
             <div className="flex items-center gap-3 pl-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-md bg-white text-black">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-black">
                 <CandlestickChart className="h-4 w-4" />
               </span>
               <span className="text-sm font-medium text-white">{t.brand}</span>
@@ -388,7 +385,7 @@ export function AuthSplitLayout({
               <Button
                 type="button"
                 variant="ghost"
-                className="rounded-md px-3 text-white/75 hover:bg-white/8 hover:text-white"
+                className="rounded-full px-4 text-white/75 hover:bg-white/8 hover:text-white"
                 onClick={() => setLanguage((current) => (current === "zh" ? "en" : "zh"))}
               >
                 <Languages className="h-4 w-4" />
@@ -396,13 +393,13 @@ export function AuthSplitLayout({
               </Button>
               <Link
                 href={isLogin ? "/login" : "/login"}
-                className="hidden rounded-md px-3 py-2 text-sm text-white/75 transition hover:text-white md:inline-flex"
+                className="hidden rounded-full px-4 py-2 text-sm text-white/75 transition hover:text-white md:inline-flex"
               >
                 {t.loginLabel}
               </Link>
               <Link
                 href={isLogin ? "/register" : "/register"}
-                className="inline-flex rounded-md bg-white px-4 py-2 text-[13px] font-medium text-black transition hover:bg-white/90"
+                className="inline-flex rounded-full bg-white px-5 py-2.5 text-sm font-medium text-black transition hover:bg-white/90"
               >
                 {t.getStartedLabel}
               </Link>
@@ -411,9 +408,12 @@ export function AuthSplitLayout({
 
           <section className="grid gap-10 px-2 pb-18 pt-28 lg:grid-cols-[minmax(0,1fr)_26rem] lg:items-start lg:pt-36">
             <div className="pt-6 lg:pt-10">
-              <p className="text-[12px] font-medium tracking-wide text-white/45">{t.launchBadge}</p>
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/70">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,0.8)]" />
+                {t.launchBadge}
+              </div>
 
-              <h1 className="mt-6 text-[36px] font-semibold leading-[1.1] tracking-[-0.03em] text-white sm:text-[48px]">
+              <h1 className="mt-8 text-5xl font-semibold leading-none tracking-[-0.06em] text-white sm:text-6xl lg:text-[5.8rem]">
                 <span className="block">{t.heroTitleLine1}</span>
                 <span className="block text-white/45">{t.heroTitleLine2}</span>
               </h1>
@@ -425,19 +425,17 @@ export function AuthSplitLayout({
               <div className="mt-10 flex flex-wrap gap-4">
                 <Link
                   href={isLogin ? "/register" : "/register"}
-                  className="inline-flex items-center gap-2 rounded-md bg-white px-5 py-2.5 text-[13.5px] font-medium text-black transition hover:bg-white/92"
+                  className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-medium text-black transition hover:bg-white/92"
                 >
                   {t.heroPrimaryCta}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
-                <a
+                <Link
                   href="https://github.com/breeze-lyf/ai-stock-advisor"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-md border border-white/12 bg-transparent px-5 py-2.5 text-[13.5px] font-medium text-white/70 transition hover:border-white/20 hover:text-white"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.03] px-6 py-3.5 text-sm font-medium text-white/80 transition hover:bg-white/[0.06]"
                 >
                   {t.heroSecondaryCta}
-                </a>
+                </Link>
               </div>
 
               <div className="mt-12">
@@ -446,14 +444,16 @@ export function AuthSplitLayout({
             </div>
 
             <div className="lg:sticky lg:top-8">
-              <Card className="rounded-lg border border-white/10 bg-[#121214] py-0 text-white shadow-none">
+              <Card className="rounded-[2rem] border border-white/12 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.03))] py-0 text-white shadow-[0_20px_56px_rgba(0,0,0,0.38)] backdrop-blur-xl supports-[backdrop-filter]:bg-black/22">
                 <CardHeader className="border-b border-white/10 px-7 py-7">
-                  <p className="mb-3 text-[12px] text-white/45">{t.authEyebrow[mode]}</p>
+                  <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-emerald-200">
+                    {t.authEyebrow[mode]}
+                  </div>
 
-                  <div className="mb-5 grid grid-cols-2 gap-1 rounded-md border border-white/10 bg-white/[0.03] p-0.5">
+                  <div className="mb-5 grid grid-cols-2 gap-2 rounded-[20px] border border-white/8 bg-white/[0.04] p-1 backdrop-blur-sm">
                     <Link
                       href="/login"
-                      className={`rounded px-4 py-2.5 text-center text-[13px] font-medium transition ${
+                      className={`rounded-[16px] px-4 py-3 text-center text-sm font-medium transition ${
                         isLogin ? "bg-white text-black" : "text-white/55 hover:text-white"
                       }`}
                     >
@@ -461,7 +461,7 @@ export function AuthSplitLayout({
                     </Link>
                     <Link
                       href="/register"
-                      className={`rounded px-4 py-2.5 text-center text-[13px] font-medium transition ${
+                      className={`rounded-[16px] px-4 py-3 text-center text-sm font-medium transition ${
                         !isLogin ? "bg-white text-black" : "text-white/55 hover:text-white"
                       }`}
                     >
@@ -488,7 +488,7 @@ export function AuthSplitLayout({
                     {children(language, t.fieldLabels, t.fieldPlaceholders)}
 
                     <Button
-                      className="h-12 w-full rounded-md bg-white text-sm font-semibold text-black hover:bg-white/92"
+                      className="h-12 w-full rounded-full bg-white text-sm font-semibold text-black hover:bg-white/92"
                       type="submit"
                       disabled={loading}
                     >
@@ -504,25 +504,9 @@ export function AuthSplitLayout({
                         {t.switchLabel[mode]}
                       </Link>
                     </div>
-                    <p className="text-xs leading-5 text-white/35">{t.authFootnote}</p>
                   </CardFooter>
                 </form>
               </Card>
-            </div>
-          </section>
-
-          {SHOW_AUTH_MARKETING && (<>
-          <section className="border-t border-white/6 py-10" style={deferredSectionStyle}>
-            <div className="text-center text-xs font-medium uppercase tracking-[0.28em] text-white/30">
-              {t.trustedByTitle}
-            </div>
-            <div className="mt-8 grid grid-cols-2 gap-6 text-center text-white/38 sm:grid-cols-3 lg:grid-cols-5">
-              {t.trustedBy.map((item) => (
-                <div key={item} className="flex items-center justify-center gap-3 rounded-full border border-white/6 bg-white/[0.02] px-5 py-4">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/[0.05] text-xs">{item[0]}</span>
-                  <span className="text-sm">{item}</span>
-                </div>
-              ))}
             </div>
           </section>
 
@@ -585,7 +569,7 @@ export function AuthSplitLayout({
                     </div>
                     <h3 className="mt-5 text-2xl font-semibold">{item.title}</h3>
                     <p className="mt-2 text-sm leading-7 text-white/55">{item.description}</p>
-                    {item.accent ? <div className="mt-6 text-sm font-medium text-white/70">{item.accent}</div> : null}
+                    {item.accent ? <div className="mt-6 text-sm font-medium text-emerald-300">{item.accent}</div> : null}
                     {item.tags ? (
                       <div className="mt-6 flex flex-wrap gap-2">
                         {item.tags.map((tag) => (
@@ -601,65 +585,6 @@ export function AuthSplitLayout({
             </div>
           </section>
 
-          <section className="py-16" style={deferredSectionStyle}>
-            <div className="mx-auto max-w-3xl text-center">
-              <h2 className="text-4xl font-semibold tracking-[-0.05em] text-white sm:text-5xl">
-                {t.pricingHeading}
-              </h2>
-              <p className="mt-5 text-base leading-7 text-white/50">{t.pricingDescription}</p>
-              <div className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] p-1 text-sm text-white/70">
-                <span className="rounded-full bg-white/[0.07] px-4 py-2">{t.pricingToggle.monthly}</span>
-                <span className="px-3 py-2">{t.pricingToggle.yearly}</span>
-                <span className="rounded-full bg-emerald-400/15 px-3 py-2 text-white/70">{t.pricingToggle.badge}</span>
-              </div>
-            </div>
-
-            <div className="mt-14 grid items-stretch gap-5 lg:grid-cols-3 lg:[grid-auto-rows:1fr]">
-              {t.plans.map((plan) => (
-                <div
-                  key={plan.name}
-                  className={`relative flex h-full flex-col rounded-[2rem] border p-6 ${
-                    plan.highlight
-                      ? "border-white/16 bg-[linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03))] shadow-[0_24px_80px_rgba(255,255,255,0.06)]"
-                      : "border-white/10 bg-white/[0.03]"
-                  }`}
-                >
-                  {plan.badge ? (
-                    <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-black">
-                      {plan.badge}
-                    </div>
-                  ) : null}
-                  <h3 className="text-2xl font-semibold text-white">{plan.name}</h3>
-                  <p className="mt-2 text-sm text-white/45">{plan.description}</p>
-                  <div className="mt-6 flex items-end gap-1">
-                    <span className="text-5xl font-semibold tracking-[-0.05em] text-white">{plan.price}</span>
-                    <span className="pb-1 text-sm text-white/45">{plan.suffix}</span>
-                  </div>
-                  <div className="mt-8 space-y-3">
-                    {plan.features.map((feature) => (
-                      <div key={feature} className="flex items-center gap-3 text-sm text-white/70">
-                        <Check className="h-4 w-4 text-white/70" />
-                        {feature}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-auto pt-8">
-                    <button
-                      type="button"
-                      className={`inline-flex w-full items-center justify-center rounded-full px-4 py-3 text-sm font-medium transition ${
-                        plan.highlight
-                          ? "bg-white text-black hover:bg-white/92"
-                          : "border border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.07]"
-                      }`}
-                    >
-                      {plan.cta}
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
           <section className="py-24 text-center" style={deferredSectionStyle}>
             <h2 className="text-5xl font-semibold tracking-[-0.06em] text-white sm:text-6xl">
               {t.finalHeading}
@@ -670,34 +595,32 @@ export function AuthSplitLayout({
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
               <Link
                 href={isLogin ? "/register" : "/register"}
-                className="inline-flex items-center gap-2 rounded-md bg-white px-5 py-2.5 text-[13.5px] font-medium text-black transition hover:bg-white/92"
+                className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-medium text-black transition hover:bg-white/92"
               >
                 {t.finalPrimaryCta}
                 <ArrowRight className="h-4 w-4" />
               </Link>
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 rounded-md border border-white/12 bg-transparent px-5 py-2.5 text-[13.5px] font-medium text-white/70 transition hover:border-white/20 hover:text-white"
+              <Link
+                href="https://github.com/breeze-lyf/ai-stock-advisor"
+                className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.03] px-6 py-3.5 text-sm font-medium text-white/80 transition hover:bg-white/[0.06]"
               >
                 {t.finalSecondaryCta}
-              </button>
+              </Link>
             </div>
           </section>
-
-          </>)}
 
           <footer className="border-t border-white/8 py-10" style={deferredSectionStyle}>
             <div className="grid gap-10 lg:grid-cols-[1.2fr_repeat(4,1fr)]">
               <div>
                 <div className="flex items-center gap-3">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-md bg-white text-black">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-black">
                     <CandlestickChart className="h-4 w-4" />
                   </span>
                   <span className="font-medium text-white">{t.brand}</span>
                 </div>
                 <p className="mt-4 max-w-xs text-sm leading-7 text-white/45">{t.footerSummary}</p>
                 <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white/55">
-                  <span className="h-2 w-2 rounded-full bg-white/50" />
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
                   {t.footerTag}
                 </div>
               </div>

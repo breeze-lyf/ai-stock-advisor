@@ -11,7 +11,7 @@ export function AgentPageShell({ children }: { children: React.ReactNode }) {
   const { user } = useDashboardPortfolioData(isAuthenticated);
   const router = useRouter();
   return (
-    <div className="h-screen bg-canvas flex flex-col overflow-hidden">
+    <div className="h-screen bg-neutral-50 dark:bg-neutral-950 flex flex-col overflow-hidden">
       <DashboardHeader user={user} activeTab={"analysis"} setActiveTab={(tab: DashboardTab) => router.push(`/dashboard?tab=${tab}`)} />
       <main className="flex-1 min-h-0 overflow-y-auto">{children}</main>
     </div>
